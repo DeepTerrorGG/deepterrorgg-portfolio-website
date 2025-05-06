@@ -1,0 +1,127 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 0%; /* Black */
+    --foreground: 0 0% 100%; /* White */
+
+    --card: 0 0% 5%; /* Slightly off-black */
+    --card-foreground: 0 0% 100%; /* White */
+
+    --popover: 0 0% 5%; /* Slightly off-black */
+    --popover-foreground: 0 0% 100%; /* White */
+
+    --primary: 180 100% 25.1%; /* Teal #008080 */
+    --primary-foreground: 0 0% 100%; /* White */
+
+    --secondary: 0 0% 10%; /* Dark Grey */
+    --secondary-foreground: 0 0% 100%; /* White */
+
+    --muted: 0 0% 20%; /* Lighter Grey */
+    --muted-foreground: 0 0% 80%; /* Lighter than pure white for muted text */
+
+    --accent: 180 100% 25.1%; /* Teal #008080 */
+    --accent-foreground: 0 0% 100%; /* White */
+
+    --destructive: 0 84.2% 60.2%; /* Default Red */
+    --destructive-foreground: 0 0% 98%; /* Default White */
+
+    --border: 0 0% 33.3%; /* Grey #555555 */
+    --input: 0 0% 33.3%; /* Grey #555555 */
+    --ring: 180 100% 25.1%; /* Teal #008080 */
+
+    --radius: 0.5rem;
+
+    --chart-1: 180 100% 25.1%; /* Teal */
+    --chart-2: 180 80% 35%; 
+    --chart-3: 180 60% 45%;
+    --chart-4: 180 40% 55%;
+    --chart-5: 180 20% 65%;
+
+    /* Sidebar variables - kept for consistency but might not be heavily used */
+    --sidebar-background: 0 0% 2%; 
+    --sidebar-foreground: 0 0% 95%;
+    --sidebar-primary: 180 100% 25.1%; /* Teal */
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 0 0% 10%;
+    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-border: 0 0% 33.3%;
+    --sidebar-ring: 180 100% 25.1%;
+  }
+
+  .dark {
+    --background: 0 0% 0%; /* Black */
+    --foreground: 0 0% 100%; /* White */
+
+    --card: 0 0% 5%; /* Slightly off-black */
+    --card-foreground: 0 0% 100%; /* White */
+
+    --popover: 0 0% 5%; /* Slightly off-black */
+    --popover-foreground: 0 0% 100%; /* White */
+
+    --primary: 180 100% 25.1%; /* Teal #008080 */
+    --primary-foreground: 0 0% 100%; /* White */
+
+    --secondary: 0 0% 10%; /* Dark Grey */
+    --secondary-foreground: 0 0% 100%; /* White */
+
+    --muted: 0 0% 20%; /* Lighter Grey */
+    --muted-foreground: 0 0% 80%; /* Lighter than pure white for muted text */
+
+    --accent: 180 100% 25.1%; /* Teal #008080 */
+    --accent-foreground: 0 0% 100%; /* White */
+
+    --destructive: 0 62.8% 30.6%; /* Default Dark Red */
+    --destructive-foreground: 0 0% 98%; /* Default White */
+
+    --border: 0 0% 33.3%; /* Grey #555555 */
+    --input: 0 0% 33.3%; /* Grey #555555 */
+    --ring: 180 100% 25.1%; /* Teal #008080 */
+    
+    --chart-1: 180 100% 25.1%; /* Teal */
+    --chart-2: 180 80% 35%; 
+    --chart-3: 180 60% 45%;
+    --chart-4: 180 40% 55%;
+    --chart-5: 180 20% 65%;
+
+    /* Sidebar variables - kept for consistency but might not be heavily used */
+    --sidebar-background: 0 0% 2%; 
+    --sidebar-foreground: 0 0% 95%;
+    --sidebar-primary: 180 100% 25.1%; /* Teal */
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 0 0% 10%;
+    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-border: 0 0% 33.3%;
+    --sidebar-ring: 180 100% 25.1%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    /* Removed default font-family: Arial, Helvetica, sans-serif; as Geist font is applied in layout.tsx */
+  }
+}
+
+/* Subtle Animations */
+@layer utilities {
+  .animate-fade-in {
+    animation: fadeIn 0.8s ease-out forwards;
+  }
+  .animate-slide-up {
+    animation: slideUp 0.8s ease-out forwards;
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+}

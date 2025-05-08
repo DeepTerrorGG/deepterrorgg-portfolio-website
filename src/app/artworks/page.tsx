@@ -1,3 +1,4 @@
+// src/app/artworks/page.tsx
 'use client';
 
 import React, { useState } from 'react';
@@ -24,6 +25,7 @@ const artworks: Artwork[] = [
   { id: '3', title: 'Neon Metropolis', src: 'https://picsum.photos/seed/artwork3/800/600', alt: 'Futuristic sci-fi city', description: 'Towering skyscrapers illuminated by neon lights under a perpetual twilight.', hint: 'sci-fi landscape' },
   { id: '4', title: 'Dream Weaver', src: 'https://picsum.photos/seed/artwork4/800/600', alt: 'Surreal portrait of a dream weaver', description: 'A face dissolving into a tapestry of dreams and symbols.', hint: 'surreal portrait' },
   { id: '5', title: 'Digital Phoenix', src: 'https://picsum.photos/seed/artwork5/800/600', alt: 'Digital painting of a phoenix', description: 'A majestic phoenix rendered in vibrant digital strokes, rising from pixelated ashes.', hint: 'digital painting' },
+  { id: '6', title: 'Cybernetic Bloom', src: 'https://picsum.photos/seed/artwork6/800/600', alt: 'Cybernetic flower blooming', description: 'A mechanical flower with glowing circuits unfurling its metallic petals.', hint: 'cyberpunk nature' },
 ];
 
 export default function ArtworksPage() {
@@ -36,11 +38,10 @@ export default function ArtworksPage() {
       </PageTitle>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
-        {artworks.map((artwork, index) => (
-          <Card 
-            key={artwork.id} 
+        {artworks.map((artwork) => (
+          <Card
+            key={artwork.id}
             className="overflow-hidden bg-card border-border hover:shadow-xl hover:border-primary transition-all duration-300 ease-in-out group animate-slide-up"
-            style={{ animationDelay: `${index * 0.1}s` }}
             onClick={() => setSelectedArtwork(artwork)}
             role="button"
             tabIndex={0}
@@ -55,11 +56,13 @@ export default function ArtworksPage() {
                 className="aspect-[4/3] object-cover w-full h-full group-hover:scale-105 transition-transform duration-500 ease-in-out"
                 data-ai-hint={artwork.hint}
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-center p-4">
-                 <Button variant="secondary" size="sm" className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 delay-100 pointer-events-none">
-                    <Maximize className="mr-2 h-4 w-4" /> View
-                  </Button>
-              </div>
+              <Button
+                variant="secondary"
+                size="sm"
+                className="absolute bottom-4 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 delay-100 pointer-events-none"
+              >
+                <Maximize className="mr-2 h-4 w-4" /> View
+              </Button>
             </CardHeader>
             <CardContent className="p-4">
               <CardTitle className="text-xl font-semibold text-foreground mb-1">{artwork.title}</CardTitle>
@@ -72,16 +75,13 @@ export default function ArtworksPage() {
       {selectedArtwork && (
         <Dialog open={!!selectedArtwork} onOpenChange={() => setSelectedArtwork(null)}>
           <DialogContent className="sm:max-w-3xl md:max-w-4xl lg:max-w-5xl xl:max-w-6xl p-0 bg-card border-border shadow-2xl rounded-lg">
-            <DialogHeader className="p-4 pr-14">
+            <DialogHeader className="p-4 pr-14 relative"> {/* Ensure DialogHeader is relative for DialogClose positioning if needed */}
               <DialogTitle className="text-2xl text-foreground">{selectedArtwork.title}</DialogTitle>
-               <DialogClose className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground">
-                <X className="h-5 w-5" />
-                <span className="sr-only">Close</span>
-              </DialogClose>
+              {/* Radix Dialog.Content automatically provides a close button, ensure it's styled or positioned if custom one removed */}
             </DialogHeader>
-            <div className="p-1 md:p-2 bg-background">
+            <div className="p-1 md:p-2 bg-transparent">
               <Image
-                src={selectedArtwork.src.replace('/800/600', '/1200/900')} // Request larger image for modal
+                src={selectedArtwork.src.replace('/800/600', '/1200/900')}
                 alt={selectedArtwork.alt}
                 width={1200}
                 height={900}

@@ -85,8 +85,8 @@ export default {
   			}
   		},
   		animation: {
-  			'accordion-down': 'accordion-down 0.4s ease-out', // Updated duration
-  			'accordion-up': 'accordion-up 0.4s ease-out'    // Updated duration
+  			'accordion-down': 'accordion-down 0.5s ease-out', // Updated duration from 0.4s to 0.5s
+  			'accordion-up': 'accordion-up 0.5s ease-out'    // Updated duration from 0.4s to 0.5s
   		}
   	}
   },

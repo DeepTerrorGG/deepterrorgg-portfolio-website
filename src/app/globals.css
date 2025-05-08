@@ -111,10 +111,10 @@
 /* Subtle Animations */
 @layer utilities {
   .animate-fade-in {
-    animation: fadeIn 0.8s ease-out forwards;
+    animation: fadeIn 1s ease-out forwards; /* Increased duration from 0.8s to 1s */
   }
   .animate-slide-up {
-    animation: slideUp 0.8s ease-out forwards;
+    animation: slideUp 1s ease-out forwards; /* Increased duration from 0.8s to 1s */
   }
   @keyframes fadeIn {
     from { opacity: 0; }

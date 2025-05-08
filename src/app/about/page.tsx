@@ -12,13 +12,13 @@ export default function AboutPage() {
       </PageTitle>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-start">
-        <Card className="md:col-span-1 animate-slide-up bg-card border-border" style={{ animationDelay: '0.2s' }}>
+        <Card className="md:col-span-1 bg-card border-border">
           <CardHeader>
             <Image
-              src="https://picsum.photos/seed/aboutprofile/400/400"
+              src="https://imgur.com/wcHgOHv.png"
               alt="Profile picture"
-              width={400}
-              height={400}
+              width={600}
+              height={600}
               className="rounded-lg shadow-lg aspect-square object-cover w-full"
               data-ai-hint="artist profile"
             />
@@ -30,7 +30,7 @@ export default function AboutPage() {
         </Card>
 
         <div className="md:col-span-2 space-y-6">
-          <Card className="animate-slide-up bg-card border-border" style={{ animationDelay: '0.4s' }}>
+          <Card className="bg-card border-border">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-xl text-foreground">
                 <Brain className="text-primary h-6 w-6" />
@@ -50,7 +50,7 @@ export default function AboutPage() {
             </CardContent>
           </Card>
 
-          <Card className="animate-slide-up bg-card border-border" style={{ animationDelay: '0.6s' }}>
+          <Card className="bg-card border-border">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-xl text-foreground">
                 <Palette className="text-primary h-6 w-6" />
@@ -70,7 +70,7 @@ export default function AboutPage() {
               </p>
             </CardContent>
           </Card>
-           <Card className="animate-slide-up bg-card border-border" style={{ animationDelay: '0.8s' }}>
+           <Card className="bg-card border-border">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-xl text-foreground">
                 <Code className="text-primary h-6 w-6" />

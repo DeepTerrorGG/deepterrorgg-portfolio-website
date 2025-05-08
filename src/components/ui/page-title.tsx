@@ -14,7 +14,7 @@ export default function PageTitle({ children, className, subtitle }: PageTitlePr
         {children}
       </h1>
       {subtitle && (
-        <p className="mt-2 text-lg text-muted-foreground max-w-xl mx-auto animate-slide-up" style={{ animationDelay: '0.2s' }}>
+        <p className="mt-2 text-lg text-muted-foreground max-w-xl mx-auto animate-slide-up">
           {subtitle}
         </p>
       )}

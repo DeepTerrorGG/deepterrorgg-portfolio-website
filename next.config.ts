@@ -1,3 +1,4 @@
+
 import type {NextConfig} from 'next';
 
 const nextConfig: NextConfig = {
@@ -21,6 +22,18 @@ const nextConfig: NextConfig = {
         hostname: 'firestuff.storage.googleapis.com',
         port: '',
         pathname: '/user/studio_content/images/images/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'i.imgur.com',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'imgur.com', // Added imgur.com
+        port: '',
+        pathname: '/**',
       },
     ],
   },

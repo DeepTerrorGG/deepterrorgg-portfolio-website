@@ -103,18 +103,17 @@
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground;
-    /* Removed default font-family: Arial, Helvetica, sans-serif; as Geist font is applied in layout.tsx */
+    @apply bg-background text-foreground font-sans; /* Use font-sans from Tailwind config */
   }
 }
 
 /* Subtle Animations */
 @layer utilities {
   .animate-fade-in {
-    animation: fadeIn 1s ease-out forwards; /* Increased duration from 0.8s to 1s */
+    animation: fadeIn 1s ease-out forwards;
   }
   .animate-slide-up {
-    animation: slideUp 1s ease-out forwards; /* Increased duration from 0.8s to 1s */
+    animation: slideUp 1s ease-out forwards;
   }
   @keyframes fadeIn {
     from { opacity: 0; }

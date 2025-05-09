@@ -1,3 +1,4 @@
+
 import PageTitle from '@/components/ui/page-title';
 import SectionContainer from '@/components/ui/section-container';
 import Image from 'next/image';
@@ -17,8 +18,8 @@ export default function AboutPage() {
             <Image
               src="https://imgur.com/wcHgOHv.png"
               alt="Profile picture"
-              width={600}
-              height={600}
+              width={800}
+              height={800}
               className="rounded-lg shadow-lg aspect-square object-cover w-full"
               data-ai-hint="artist profile"
             />
@@ -39,13 +40,10 @@ export default function AboutPage() {
             </CardHeader>
             <CardContent className="text-muted-foreground space-y-3">
               <p>
-                Welcome to my digital canvas! I'm DeepTerrorGG, a passionate artist exploring the boundless realms of creativity. 
-                My journey into the art world began with a fascination for [mention early inspiration, e.g., surreal landscapes, character design, abstract forms]. 
-                This initial spark has grown into a dedicated pursuit of crafting unique visual experiences.
+                Welcome to my digital canvas! I&apos;m DeepTerrorGG a developer and digital artist exploring the creative space where code meets imagination. My journey into art started with a huge appreciation for cool visual styles, especially @hinxycrybaby&apos;s aesthetic. Her vibe was what got me hooked on creating art and inspired me to start building my own.
               </p>
               <p>
-                I believe art is a powerful medium for storytelling, evoking emotions, and challenging perceptions. 
-                Through my work, I aim to [mention artistic goals, e.g., transport viewers to other worlds, explore complex themes, celebrate beauty in the unconventional].
+                I believe art is a powerful medium for storytelling, evoking emotions, and challenging perceptions. Through my work, I aim to improve myself not just in skill, but in mindset and creativity constantly learning and growing with each piece I create.
               </p>
             </CardContent>
           </Card>
@@ -59,14 +57,15 @@ export default function AboutPage() {
             </CardHeader>
             <CardContent className="text-muted-foreground">
               <ul className="list-disc list-inside space-y-1">
-                <li>Digital Painting (e.g., Photoshop, Procreate)</li>
-                <li>Illustration & Character Design</li>
-                <li>Concept Art & World Building</li>
-                <li>[Add another skill, e.g., 3D Modeling, Graphic Design]</li>
-                <li>[Add another skill, e.g., Abstract Art, Photo Manipulation]</li>
+                <li>Digital Art &amp; Illustration</li>
+                <li>Web Development (HTML, CSS, JavaScript)</li>
+                <li>C# Programming</li>
+                <li>Basic Proficiency in Java, Python &amp; C++</li>
+                <li>Game Server Setup &amp; Management</li>
+                <li>Bot Development &amp; Automation</li>
               </ul>
                <p className="mt-3">
-                I'm constantly learning and experimenting with new tools and techniques to push the boundaries of my artistic expression.
+                I enjoy blending technical skill with creative vision, constantly learning new tools and experimenting with different approaches to expand my capabilities and bring fresh ideas to life.
               </p>
             </CardContent>
           </Card>
@@ -79,8 +78,7 @@ export default function AboutPage() {
             </CardHeader>
             <CardContent className="text-muted-foreground">
               <p>
-                While art is my primary focus, I also have a keen interest in [mention other interests, e.g., game development, storytelling, technology, music]. 
-                These diverse passions often find their way into my creative process, enriching my work and perspectives.
+                While development and art are my primary focus, I also have a strong interest in gaming in general and exploring cool, aesthetic-driven artworks. These passions fuel my inspiration and often shape the direction of my projects bringing a unique blend of style, playfulness, and atmosphere to everything I create.
               </p>
             </CardContent>
           </Card>
@@ -89,3 +87,4 @@ export default function AboutPage() {
     </SectionContainer>
   );
 }
+

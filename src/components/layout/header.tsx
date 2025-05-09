@@ -2,12 +2,12 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { FlameKindling } from 'lucide-react'; // Using an icon for logo
+import { FlameKindling, Menu } from 'lucide-react';
+import React from 'react';
+
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
-import { Menu } from 'lucide-react';
-import React from 'react';
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger, SheetClose } from '@/components/ui/sheet';
 
 const navLinks = [
   { href: '/', label: 'Home' },
@@ -61,8 +61,7 @@ export default function Header() {
               <SheetContent side="right" className="bg-background border-l border-border p-0 w-full max-w-xs sm:max-w-sm">
                 <SheetHeader className="p-6 border-b border-border">
                   <SheetTitle>
-                    {/* The title for accessibility is provided by the content of the Link below */}
-                    <Link href="/" className="flex items-center gap-2" onClick={() => setIsMobileMenuOpen(false)}>
+                     <Link href="/" className="flex items-center gap-2" onClick={() => setIsMobileMenuOpen(false)}>
                       <FlameKindling className="h-7 w-7 text-primary" />
                       <span className="text-lg font-bold text-foreground">
                         DeepTerrorGG Menu
@@ -73,19 +72,20 @@ export default function Header() {
                 <div className="flex flex-col h-full">
                   <nav className="flex-grow p-6 space-y-2">
                     {navLinks.map((link) => (
-                      <Link
-                        key={link.href}
-                        href={link.href}
-                        onClick={() => setIsMobileMenuOpen(false)}
-                        className={cn(
-                          'block px-3 py-3 rounded-md text-base font-medium transition-colors',
-                          pathname === link.href
-                            ? 'bg-primary text-primary-foreground'
-                            : 'text-foreground/80 hover:bg-accent hover:text-accent-foreground'
-                        )}
-                      >
-                        {link.label}
-                      </Link>
+                      <SheetClose asChild key={link.href}>
+                        <Link
+                          href={link.href}
+                          onClick={() => setIsMobileMenuOpen(false)}
+                          className={cn(
+                            'block px-3 py-3 rounded-md text-base font-medium transition-colors',
+                            pathname === link.href
+                              ? 'bg-primary text-primary-foreground'
+                              : 'text-foreground/80 hover:bg-accent hover:text-accent-foreground'
+                          )}
+                        >
+                          {link.label}
+                        </Link>
+                      </SheetClose>
                     ))}
                   </nav>
                 </div>

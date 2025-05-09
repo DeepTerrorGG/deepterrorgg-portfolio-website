@@ -25,13 +25,13 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: 'https',
-        hostname: 'i.imgur.com',
+        hostname: 'i.imgur.com', // Ensure this is present for direct image links
         port: '',
         pathname: '/**',
       },
       {
         protocol: 'https',
-        hostname: 'imgur.com', // Added imgur.com
+        hostname: 'imgur.com', // For gallery links, though direct links are preferred for next/image
         port: '',
         pathname: '/**',
       },

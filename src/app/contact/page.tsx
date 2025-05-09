@@ -5,8 +5,8 @@ import type { SubmitHandler } from 'react-hook-form';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import Link from 'next/link';
-import React from 'react'; // Removed useState and useEffect as they are no longer needed for verification
-import { Mail, Send, MessageSquare, Linkedin, Github, Twitter, Loader2 } from 'lucide-react';
+import React from 'react';
+import { Mail, Send, MessageSquare, Instagram, Users, Music2, Loader2 } from 'lucide-react'; // Updated icons
 
 import PageTitle from '@/components/ui/page-title';
 import SectionContainer from '@/components/ui/section-container';
@@ -21,9 +21,9 @@ import { DirectMessageSchema } from './schema';
 
 
 const socialLinks = [
-  { name: 'GitHub', icon: Github, href: 'https://github.com/DeepTerrorGG', user: 'DeepTerrorGG-GH' },
-  { name: 'LinkedIn', icon: Linkedin, href: 'https://linkedin.com/in/yourprofile', user: 'DeepTerrorGG-LI' }, // Placeholder
-  { name: 'Twitter / X', icon: Twitter, href: 'https://twitter.com/YourTwitterHandle', user: '@DeepTerrorGG_X' }, // Placeholder
+  { name: 'Instagram', icon: Instagram, href: 'https://www.instagram.com/deep_terror_gg/?next=%2F', user: '@deep_terror_gg' },
+  { name: 'Discord', icon: Users, href: 'https://discord.gg/MmDB9ERuC3', user: 'Join Server' },
+  { name: 'TikTok', icon: Music2, href: 'https://www.tiktok.com/@deep_terror_gg', user: '@deep_terror_gg' },
 ];
 
 
@@ -47,7 +47,7 @@ export default function ContactPage() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(data), // Send only email and message
+        body: JSON.stringify(data),
       });
 
       let result: DirectMessageFormState;
@@ -135,7 +135,7 @@ export default function ContactPage() {
       </PageTitle>
 
       <div className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
-        <Card className="bg-card border-border">
+        <Card className="bg-card border-border animate-fade-in" style={{ animationDelay: '0.2s' }}>
           <CardHeader>
             <CardTitle className="flex items-center text-2xl text-foreground">
               <Send className="mr-3 h-7 w-7 text-primary" />
@@ -196,7 +196,7 @@ export default function ContactPage() {
           </CardContent>
         </Card>
 
-        <Card className="bg-card border-border">
+        <Card className="bg-card border-border animate-fade-in" style={{ animationDelay: '0.4s' }}>
           <CardHeader>
             <CardTitle className="flex items-center text-2xl text-foreground">
               <MessageSquare className="mr-3 h-7 w-7 text-primary" />
@@ -227,3 +227,4 @@ export default function ContactPage() {
     </SectionContainer>
   );
 }
+

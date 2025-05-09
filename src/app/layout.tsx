@@ -3,15 +3,18 @@ import { Geist, Geist_Mono } from 'next/font/google';
 import './globals.css';
 import Header from '@/components/layout/header';
 import { Toaster } from "@/components/ui/toaster";
+import { cn } from '@/lib/utils';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
   subsets: ['latin'],
+  display: 'swap',
 });
 
 const geistMono = Geist_Mono({
   variable: '--font-geist-mono',
   subsets: ['latin'],
+  display: 'swap',
 });
 
 export const metadata: Metadata = {
@@ -25,10 +28,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark">
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased bg-background text-foreground`}>
+    <html lang="en" className={cn("dark", geistSans.variable, geistMono.variable)}>
+      <body 
+        className="antialiased bg-background text-foreground font-sans"
+        suppressHydrationWarning={true}
+      >
         <Header />
-        <main className="pt-20 md:pt-24 min-h-screen"> {/* Added padding-top to avoid content overlap with fixed header */}
+        <main className="pt-20 md:pt-24 min-h-screen">
           {children}
         </main>
         <Toaster />

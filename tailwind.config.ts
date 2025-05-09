@@ -1,4 +1,5 @@
 import type { Config } from "tailwindcss";
+import defaultTheme from 'tailwindcss/defaultTheme';
 
 export default {
     darkMode: ["class"],
@@ -9,6 +10,10 @@ export default {
   ],
   theme: {
   	extend: {
+      fontFamily: {
+        sans: ['var(--font-geist-sans)', ...defaultTheme.fontFamily.sans],
+        mono: ['var(--font-geist-mono)', ...defaultTheme.fontFamily.mono],
+      },
   		colors: {
   			background: 'hsl(var(--background))',
   			foreground: 'hsl(var(--foreground))',
@@ -85,8 +90,8 @@ export default {
   			}
   		},
   		animation: {
-  			'accordion-down': 'accordion-down 0.5s ease-out', // Updated duration from 0.4s to 0.5s
-  			'accordion-up': 'accordion-up 0.5s ease-out'    // Updated duration from 0.4s to 0.5s
+  			'accordion-down': 'accordion-down 1s ease-out',
+  			'accordion-up': 'accordion-up 1s ease-out'
   		}
   	}
   },

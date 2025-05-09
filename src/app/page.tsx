@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, Code2 } from 'lucide-react'; // Changed Brush to Code2
+import { ArrowRight, Code2 } from 'lucide-react';
 import Image from 'next/image';
 
 export default function HomePage() {
@@ -10,7 +10,7 @@ export default function HomePage() {
     <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-20 flex flex-col items-center text-center min-h-[calc(100vh-80px)] justify-center">
       <div className="relative mb-8 animate-fade-in">
         <Image
-          src="https://i.imgur.com/TsFpBse.png"
+          src="https://imgur.com/TsFpBse.png"
           alt="User avatar"
           width={160}
           height={160}
@@ -18,7 +18,7 @@ export default function HomePage() {
           data-ai-hint="avatar illustration"
           priority
         />
-        <Code2 className="absolute bottom-0 right-0 h-10 w-10 p-2 bg-primary text-primary-foreground rounded-full shadow-lg transform translate-x-1/4 translate-y-1/4 border-2 border-background" /> {/* Changed Brush to Code2 */}
+        <Code2 className="absolute bottom-0 right-0 h-10 w-10 p-2 bg-primary text-primary-foreground rounded-full shadow-lg transform translate-x-1/4 translate-y-1/4 border-2 border-background" />
       </div>
       
       <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-foreground mb-6 animate-slide-up">

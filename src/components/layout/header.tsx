@@ -1,3 +1,4 @@
+
 'use client';
 
 import Link from 'next/link';
@@ -12,6 +13,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger, SheetClose 
 const navLinks = [
   { href: '/', label: 'Home' },
   { href: '/artworks', label: 'Artworks' },
+  { href: '/projects', label: 'Projects' },
   { href: '/about', label: 'About Me' },
   { href: '/contact', label: 'Contact' },
 ];
@@ -25,7 +27,7 @@ export default function Header() {
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 md:h-20 items-center justify-between">
           <Link href="/" className="flex items-center gap-2 group transition-transform hover:scale-105">
-            <FlameKindling className="h-8 w-8 text-primary group-hover:animate-pulse" />
+            <FlameKindling aria-hidden="true" className="h-8 w-8 text-primary group-hover:animate-pulse" />
             <span className="text-xl md:text-2xl font-bold text-foreground group-hover:text-primary transition-colors">
               DeepTerrorGG
             </span>
@@ -62,7 +64,7 @@ export default function Header() {
                 <SheetHeader className="p-6 border-b border-border">
                   <SheetTitle>
                      <Link href="/" className="flex items-center gap-2" onClick={() => setIsMobileMenuOpen(false)}>
-                      <FlameKindling className="h-7 w-7 text-primary" />
+                      <FlameKindling aria-hidden="true" className="h-7 w-7 text-primary" />
                       <span className="text-lg font-bold text-foreground">
                         DeepTerrorGG Menu
                       </span>

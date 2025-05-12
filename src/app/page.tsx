@@ -1,5 +1,4 @@
 
-
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { ArrowRight, Code2 } from 'lucide-react';
@@ -10,15 +9,16 @@ export default function HomePage() {
     <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-20 flex flex-col items-center text-center min-h-[calc(100vh-80px)] justify-center">
       <div className="relative mb-8 animate-fade-in">
         <Image
-          src="https://imgur.com/TsFpBse.png"
+          src="https://i.imgur.com/TsFpBse.png"
           alt="User avatar"
           width={160}
           height={160}
           className="rounded-full border-4 border-primary shadow-xl object-cover"
           data-ai-hint="avatar illustration"
           priority
+          crossOrigin="anonymous"
         />
-        <Code2 className="absolute bottom-0 right-0 h-10 w-10 p-2 bg-primary text-primary-foreground rounded-full shadow-lg transform translate-x-1/4 translate-y-1/4 border-2 border-background" />
+        <Code2 aria-hidden="true" className="absolute bottom-0 right-0 h-10 w-10 p-2 bg-primary text-primary-foreground rounded-full shadow-lg transform translate-x-1/4 translate-y-1/4 border-2 border-background" />
       </div>
       
       <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-foreground mb-6 animate-slide-up">

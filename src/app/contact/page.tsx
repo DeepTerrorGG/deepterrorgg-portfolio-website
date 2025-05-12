@@ -135,10 +135,10 @@ export default function ContactPage() {
       </PageTitle>
 
       <div className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
-        <Card className="bg-card border-border animate-fade-in" style={{ animationDelay: '0.2s' }}>
+        <Card className="bg-card border-border">
           <CardHeader>
             <CardTitle className="flex items-center text-2xl text-foreground">
-              <Send className="mr-3 h-7 w-7 text-primary" />
+              <Send className="mr-3 h-7 w-7 text-primary" aria-hidden="true" />
               Direct Message
             </CardTitle>
           </CardHeader>
@@ -183,11 +183,11 @@ export default function ContactPage() {
                 <Button type="submit" className="w-full transition-transform hover:scale-105" disabled={form.formState.isSubmitting}>
                   {form.formState.isSubmitting ? (
                     <>
-                      <Loader2 className="mr-2 h-5 w-5 animate-spin" /> Sending...
+                      <Loader2 className="mr-2 h-5 w-5 animate-spin" aria-hidden="true" /> Sending...
                     </>
                   ) : (
                     <>
-                      <Mail className="mr-2 h-5 w-5" /> Send Message
+                      <Mail className="mr-2 h-5 w-5" aria-hidden="true" /> Send Message
                     </>
                   )}
                 </Button>
@@ -196,10 +196,10 @@ export default function ContactPage() {
           </CardContent>
         </Card>
 
-        <Card className="bg-card border-border animate-fade-in" style={{ animationDelay: '0.4s' }}>
+        <Card className="bg-card border-border">
           <CardHeader>
             <CardTitle className="flex items-center text-2xl text-foreground">
-              <MessageSquare className="mr-3 h-7 w-7 text-primary" />
+              <MessageSquare className="mr-3 h-7 w-7 text-primary" aria-hidden="true" />
               Connect Socially
             </CardTitle>
           </CardHeader>
@@ -211,7 +211,7 @@ export default function ContactPage() {
               {socialLinks.map((social) => (
                 <Button key={social.name} variant="outline" className="w-full justify-start group transition-all hover:border-primary hover:text-primary" asChild>
                   <Link href={social.href} target="_blank" rel="noopener noreferrer">
-                    <social.icon className="mr-3 h-5 w-5 text-primary group-hover:text-primary transition-colors" />
+                    <social.icon className="mr-3 h-5 w-5 text-primary group-hover:text-primary transition-colors" aria-hidden="true" />
                     <span className="flex-1">{social.name}</span>
                     <span className="text-xs text-muted-foreground group-hover:text-primary">{social.user}</span>
                   </Link>
@@ -227,4 +227,3 @@ export default function ContactPage() {
     </SectionContainer>
   );
 }
-

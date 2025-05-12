@@ -1,22 +1,26 @@
 // src/app/artworks/page.tsx
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
-import PageTitle from '@/components/ui/page-title';
+// PageTitle import removed as it's no longer used directly on this page
 import SectionContainer from '@/components/ui/section-container';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogClose } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Maximize, X } from 'lucide-react';
+import { Maximize, X as LucideX, ArrowLeft, ArrowRight, Laptop } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
+import Link from 'next/link';
 import {
   Carousel,
   CarouselContent,
   CarouselItem,
   CarouselNext,
   CarouselPrevious,
+  type CarouselApi,
 } from "@/components/ui/carousel";
+import Autoplay from "embla-carousel-autoplay";
+import Fade from 'embla-carousel-fade';
 
 interface Artwork {
   id: string;
@@ -33,62 +37,62 @@ const artworksData: Artwork[] = [
   {
     id: '1',
     title: 'SteamArtworkV1',
-    src: 'https://imgur.com/59eMcEy.png',
+    src: 'https://i.imgur.com/38CbL2H.png',
     alt: 'Steam Artwork V1',
     description: 'A digital artwork, version 1, showcasing dynamic compositions and vibrant colors.',
     hint: 'abstract gaming',
-    width: 504,
-    height: 944,
+    width: 600,
+    height: 950,
   },
   {
     id: '2',
     title: 'SteamArtworkV2',
-    src: 'https://picsum.photos/seed/steamartwork2/504/944',
+    src: 'https://i.imgur.com/EySXuly.png',
     alt: 'Steam Artwork V2',
     description: 'A digital artwork, version 2, exploring futuristic themes with intricate details.',
     hint: 'sci-fi digital',
-    width: 504,
-    height: 944,
+    width: 600,
+    height: 950,
   },
   {
     id: '3',
     title: 'SteamArtworkV3',
-    src: 'https://picsum.photos/seed/steamartwork3/504/944',
+    src: 'https://i.imgur.com/K6mwc3I.png',
     alt: 'Steam Artwork V3',
     description: 'A digital artwork, version 3, with a focus on atmospheric lighting and character design.',
     hint: 'fantasy character',
-    width: 504,
-    height: 944,
+    width: 600,
+    height: 950,
   },
   {
     id: '4',
     title: 'SteamArtworkV4',
-    src: 'https://picsum.photos/seed/steamartwork4/504/944',
+    src: 'https://i.imgur.com/oe0cJwJ.png',
     alt: 'Steam Artwork V4',
     description: 'A digital artwork, version 4, featuring bold abstract patterns and textures.',
     hint: 'abstract texture',
-    width: 504,
-    height: 944,
+    width: 600,
+    height: 950,
   },
   {
     id: '5',
     title: 'SteamArtworkV5',
-    src: 'https://picsum.photos/seed/steamartwork5/504/944',
+    src: 'https://i.imgur.com/NnzKUYF.png',
     alt: 'Steam Artwork V5',
     description: 'A digital artwork, version 5, blending surreal elements with a cyberpunk aesthetic.',
     hint: 'surreal cyberpunk',
-    width: 504,
-    height: 944,
+    width: 600,
+    height: 950,
   },
   {
     id: '6',
     title: 'SteamArtworkV6',
-    src: 'https://picsum.photos/seed/steamartwork6/504/944',
+    src: 'https://i.imgur.com/AMSByjs.png',
     alt: 'Steam Artwork V6',
     description: 'A digital artwork, version 6, capturing a serene landscape with a touch of mystery.',
     hint: 'landscape mystery',
-    width: 504,
-    height: 944,
+    width: 600,
+    height: 950,
   },
 ];
 
@@ -96,24 +100,67 @@ const artworksData: Artwork[] = [
 export default function ArtworksPage() {
   const [selectedArtwork, setSelectedArtwork] = useState<Artwork | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [apiMobile, setApiMobile] = useState<CarouselApi>();
+  const [apiDesktop, setApiDesktop] = useState<CarouselApi>();
+
+  const autoplayPluginMobile = useRef(
+    Autoplay({ delay: 3000, stopOnInteraction: true, stopOnMouseEnter: true })
+  );
+  const fadePluginMobile = useRef(Fade());
+
+  const autoplayPluginDesktop = useRef(
+    Autoplay({ delay: 4000, stopOnInteraction: true, stopOnMouseEnter: true })
+  );
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 500);
-    return () => clearTimeout(timer);
+    const imageLoadPromises = artworksData.map(artwork => {
+      return new Promise<void>((resolve) => {
+        if (typeof window !== 'undefined') {
+          const img = new window.Image();
+          img.src = artwork.src;
+          img.onload = () => resolve();
+          img.onerror = () => {
+            console.error(`Failed to load image: ${artwork.src}`);
+            resolve();
+          };
+        } else {
+          resolve();
+        }
+      });
+    });
+
+    Promise.all(imageLoadPromises).then(() => {
+      const timer = setTimeout(() => {
+        setIsLoading(false);
+      }, 300);
+      return () => clearTimeout(timer);
+    });
   }, []);
 
-  return (
-    <SectionContainer>
-      <PageTitle subtitle="A curated collection of my digital creations. Click on an artwork to view it in detail.">
-        My Artworks
-      </PageTitle>
+  const openModal = (artwork: Artwork) => {
+    setSelectedArtwork(artwork);
+    setIsModalOpen(true);
+    if (apiMobile && autoplayPluginMobile.current.stop) autoplayPluginMobile.current.stop();
+    if (apiDesktop && autoplayPluginDesktop.current.stop) autoplayPluginDesktop.current.stop();
+  };
 
+  const closeModal = () => {
+    setIsModalOpen(false);
+    if (apiMobile && autoplayPluginMobile.current.play) autoplayPluginMobile.current.play();
+    if (apiDesktop && autoplayPluginDesktop.current.play) autoplayPluginDesktop.current.play();
+    setTimeout(() => {
+      setSelectedArtwork(null);
+    }, 500);
+  };
+
+
+  return (
+    <SectionContainer className="py-8 md:py-16">
       {isLoading ? (
-        <div className="w-full max-w-md sm:max-w-lg md:max-w-xl lg:max-w-2xl mx-auto">
+        <div className="w-full max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg mx-auto">
           <Card className="overflow-hidden bg-card border-border">
-            <Skeleton className="w-full aspect-[9/16]" /> {/* Portrait skeleton */}
+            <Skeleton className="w-full aspect-[600/950] rounded-t-lg" />
             <CardContent className="p-4">
               <Skeleton className="h-6 w-3/4 mb-2 mx-auto" />
               <Skeleton className="h-4 w-full mb-1 mx-auto" />
@@ -122,91 +169,220 @@ export default function ArtworksPage() {
           </Card>
         </div>
       ) : (
-        <Carousel
-          opts={{
-            align: "start",
-            loop: true,
-          }}
-          className="w-full max-w-md sm:max-w-lg md:max-w-xl lg:max-w-2xl mx-auto"
-        >
-          <CarouselContent>
-            {artworksData.map((artwork) => (
-              <CarouselItem key={artwork.id} className="md:basis-1/1 lg:basis-1/1">
-                <div className="p-1">
-                  <Card
-                    className="overflow-hidden bg-card border-border hover:shadow-xl hover:border-primary transition-all duration-300 ease-in-out group cursor-pointer"
-                    onClick={() => setSelectedArtwork(artwork)}
-                    role="button"
-                    tabIndex={0}
-                    onKeyDown={(e) => e.key === 'Enter' && setSelectedArtwork(artwork)}
-                    aria-label={`View details for ${artwork.title}`}
-                  >
-                    <CardContent className="p-0 relative flex flex-col items-center justify-center">
-                      <div className="aspect-[9/16] w-full relative">
-                        <Image
-                          src={artwork.src}
-                          alt={artwork.alt}
-                          fill
-                          className="object-contain group-hover:scale-105 transition-transform duration-500 ease-in-out rounded-t-lg"
-                          data-ai-hint={artwork.hint}
-                          unoptimized={artwork.src.includes('imgur.com')}
-                          priority={['1', '2'].includes(artwork.id)} // Prioritize first few images
-                          onError={(e) => console.error(`Failed to load image: ${artwork.src}`, e)}
-                        />
-                         <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center p-4">
+        <>
+          {/* Mobile and Tablet View: Centered Single Item Carousel */}
+          <div className="lg:hidden">
+            <Carousel
+              setApi={setApiMobile}
+              opts={{
+                align: "center",
+                loop: true,
+              }}
+              plugins={[
+                autoplayPluginMobile.current,
+                fadePluginMobile.current
+              ]}
+              className="w-full group/carousel"
+            >
+              <div className="flex items-center justify-center py-6 gap-4 sm:gap-6 md:gap-8">
+                <CarouselPrevious
+                  className="!relative !static !translate-x-0 !translate-y-0 rounded-full border border-primary text-primary hover:bg-primary/10 disabled:opacity-30 h-10 w-10 sm:h-12 sm:w-12 p-0 flex items-center justify-center"
+                  aria-label="Previous artwork"
+                >
+                  <ArrowLeft className="h-5 w-5 sm:h-6 sm:w-6" />
+                </CarouselPrevious>
+
+                <Link href="/" className="flex items-center gap-2 group transition-transform hover:scale-105">
+                  <Laptop className="h-8 w-8 sm:h-10 sm:w-10 text-primary group-hover:animate-pulse" aria-hidden="true" />
+                  <span className="text-xl md:text-2xl font-bold text-foreground group-hover:text-primary transition-colors">
+                    DeepTerrorGG
+                  </span>
+                </Link>
+
+                <CarouselNext
+                  className="!relative !static !translate-x-0 !translate-y-0 rounded-full border border-primary text-primary hover:bg-primary/10 disabled:opacity-30 h-10 w-10 sm:h-12 sm:w-12 p-0 flex items-center justify-center"
+                  aria-label="Next artwork"
+                >
+                  <ArrowRight className="h-5 w-5 sm:h-6 sm:w-6" />
+                </CarouselNext>
+              </div>
+
+              <CarouselContent className="-ml-1 mt-4">
+                {artworksData.map((artwork) => (
+                  <CarouselItem key={artwork.id + '-mobile'} className="pl-1 basis-11/12 sm:basis-4/5 md:basis-3/4">
+                    <div className="p-1">
+                      <Card
+                        className="overflow-hidden bg-card border-border hover:shadow-primary/30 hover:border-primary transition-all duration-300 ease-in-out group cursor-pointer"
+                        onClick={() => openModal(artwork)}
+                        role="button"
+                        tabIndex={0}
+                        onKeyDown={(e) => e.key === 'Enter' && openModal(artwork)}
+                        aria-label={`View details for ${artwork.title}`}
+                      >
+                        <CardContent className="p-0 relative flex flex-col items-center justify-center aspect-[600/950] bg-black">
+                          <div className="relative w-full h-full">
+                            <Image
+                              src={artwork.src}
+                              alt={artwork.alt}
+                              fill
+                              sizes="(max-width: 639px) 90vw, (max-width: 767px) 80vw, (max-width: 1023px) 75vw, 320px"
+                              className="object-contain transition-transform duration-700 ease-in-out opacity-0 animate-image-fade-in"
+                              style={{ animationFillMode: 'forwards' }}
+                              data-ai-hint={artwork.hint}
+                              unoptimized={artwork.src.includes('imgur.com')}
+                              priority={['1', '2', '3'].includes(artwork.id)}
+                              onError={(e) => console.error(`Failed to load image: ${artwork.src}`, e)}
+                              crossOrigin="anonymous"
+                            />
+                          </div>
+                          <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-end justify-start p-4">
                             <Button
-                                variant="secondary"
-                                size="sm"
-                                className="pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300 delay-100 translate-y-2 group-hover:translate-y-0"
-                                aria-hidden="true"
+                              variant="secondary"
+                              size="sm"
+                              className="pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300 delay-100 translate-y-2 group-hover:translate-y-0"
+                              aria-hidden="true"
                             >
-                                <Maximize className="mr-2 h-4 w-4" /> View
+                              <Maximize className="mr-2 h-4 w-4" /> View
                             </Button>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </div>
+                  </CarouselItem>
+                ))}
+              </CarouselContent>
+            </Carousel>
+          </div>
+
+          {/* Desktop View: Horizontal Slideshow */}
+          <div className="hidden lg:block w-full bg-black py-8">
+            <SectionContainer className="!py-0 !max-w-none !px-0">
+              <div className="container mx-auto px-4 md:px-8">
+                <Carousel
+                  setApi={setApiDesktop}
+                  opts={{
+                    align: "start",
+                    loop: true,
+                  }}
+                  plugins={[autoplayPluginDesktop.current]}
+                  className="w-full group/desktop-carousel"
+                >
+                  <div className="flex justify-between items-center mb-6">
+                    <div className="flex gap-2"> {/* Placeholder for potential left-aligned content or to balance flexbox */} </div>
+                    <div className="flex gap-2">
+                      <CarouselPrevious className="!relative !static !translate-x-0 !translate-y-0 rounded-full border border-primary text-primary hover:bg-primary/10 disabled:opacity-30 h-10 w-10 p-0 flex items-center justify-center" aria-label="Previous artwork set" />
+                      <CarouselNext className="!relative !static !translate-x-0 !translate-y-0 rounded-full border border-primary text-primary hover:bg-primary/10 disabled:opacity-30 h-10 w-10 p-0 flex items-center justify-center" aria-label="Next artwork set"/>
+                    </div>
+                  </div>
+
+                  <CarouselContent className="-ml-4">
+                    {artworksData.map((artwork) => (
+                      <CarouselItem key={artwork.id + '-desktop'} className="pl-4 basis-full sm:basis-1/2 md:basis-1/3 lg:basis-1/4 xl:basis-1/5 2xl:basis-1/6">
+                        <div className="p-1">
+                          <Card
+                            className="overflow-hidden bg-card border-border hover:shadow-primary/30 hover:border-primary transition-all duration-300 ease-in-out group cursor-pointer aspect-square"
+                            onClick={() => openModal(artwork)}
+                            role="button"
+                            tabIndex={0}
+                            onKeyDown={(e) => e.key === 'Enter' && openModal(artwork)}
+                            aria-label={`View details for ${artwork.title}`}
+                          >
+                            <CardContent className="p-0 relative flex flex-col items-center justify-center h-full w-full bg-black">
+                              <div className="relative w-full h-full">
+                                <Image
+                                  src={artwork.src}
+                                  alt={artwork.alt}
+                                  fill
+                                  sizes="(min-width: 1536px) 16.6vw, (min-width: 1280px) 20vw, (min-width: 1024px) 25vw, 100vw"
+                                  className="object-cover transition-transform duration-700 ease-in-out opacity-0 animate-image-fade-in"
+                                  style={{ animationFillMode: 'forwards' }}
+                                  data-ai-hint={artwork.hint}
+                                  unoptimized={artwork.src.includes('imgur.com')}
+                                  priority={['1', '2', '3'].includes(artwork.id)}
+                                  onError={(e) => console.error(`Failed to load image: ${artwork.src}`, e)}
+                                  crossOrigin="anonymous"
+                                />
+                              </div>
+                              <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-end justify-start p-4">
+                                <Button
+                                  variant="secondary"
+                                  size="sm"
+                                  className="pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300 delay-100 translate-y-2 group-hover:translate-y-0"
+                                  aria-hidden="true"
+                                >
+                                  <Maximize className="mr-2 h-4 w-4" /> View
+                                </Button>
+                              </div>
+                            </CardContent>
+                          </Card>
                         </div>
-                      </div>
-                    </CardContent>
-                     <CardHeader className="p-4 w-full">
-                      <CardTitle className="text-xl font-semibold text-foreground text-center mb-1">{artwork.title}</CardTitle>
-                      <p className="text-sm text-muted-foreground line-clamp-2 text-center">{artwork.description}</p>
-                    </CardHeader>
-                  </Card>
-                </div>
-              </CarouselItem>
-            ))}
-          </CarouselContent>
-          <CarouselPrevious className="absolute left-[-50px] top-1/2 -translate-y-1/2 fill-primary hidden sm:flex" />
-          <CarouselNext className="absolute right-[-50px] top-1/2 -translate-y-1/2 fill-primary hidden sm:flex" />
-        </Carousel>
+                      </CarouselItem>
+                    ))}
+                  </CarouselContent>
+                </Carousel>
+              </div>
+            </SectionContainer>
+          </div>
+        </>
       )}
 
       {selectedArtwork && (
-        <Dialog open={!!selectedArtwork} onOpenChange={() => setSelectedArtwork(null)}>
-          <DialogContent className="sm:max-w-3xl md:max-w-4xl lg:max-w-5xl xl:max-w-6xl p-0 bg-card border-border shadow-2xl rounded-lg max-h-[90vh] flex flex-col">
-            <DialogHeader className="p-4 pr-14 relative border-b border-border">
-              <DialogTitle className="text-2xl text-foreground">{selectedArtwork.title}</DialogTitle>
+        <Dialog open={isModalOpen} onOpenChange={(isOpen) => !isOpen && closeModal()}>
+          <DialogContent
+            hideDefaultClose={true}
+            className="p-0 bg-card border-border shadow-2xl rounded-lg flex flex-col items-center justify-center w-auto max-w-[95vw] sm:max-w-lg md:max-w-xl lg:max-w-3xl xl:max-w-4xl h-auto max-h-[95vh] overflow-hidden data-[state=open]:animate-fade-in-slow data-[state=closed]:animate-fade-out-slow"
+          >
+            <DialogHeader className="p-4 border-b border-border w-full flex flex-row justify-center items-center relative">
+               <DialogTitle className="sr-only">{selectedArtwork.title}</DialogTitle>
                <DialogClose asChild>
-                <Button variant="ghost" size="icon" className="absolute right-4 top-1/2 -translate-y-1/2">
-                  <X className="h-5 w-5" />
+                <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground absolute right-1/2 top-1/2 -translate-y-1/2 translate-x-1/2" onClick={closeModal}>
+                  <LucideX className="h-6 w-6" />
                   <span className="sr-only">Close</span>
                 </Button>
               </DialogClose>
             </DialogHeader>
-            <div className="p-1 md:p-2 bg-background/50 flex-grow overflow-y-auto flex items-center justify-center">
+            <div className="p-2 md:p-4 flex-grow overflow-hidden flex items-center justify-center w-full h-full">
               <Image
                 src={selectedArtwork.src}
                 alt={selectedArtwork.alt}
-                width={selectedArtwork.width || 800} // Use a larger base for modal
-                height={selectedArtwork.height || 1200}
-                className="w-auto h-auto max-w-full max-h-[calc(90vh-150px)] object-contain rounded"
+                width={selectedArtwork.width || 600}
+                height={selectedArtwork.height || 950}
+                className="object-contain rounded w-auto h-auto max-w-full max-h-[calc(95vh-120px)]"
                 data-ai-hint={selectedArtwork.hint}
                 unoptimized={selectedArtwork.src.includes('imgur.com')}
                 onError={(e) => console.error(`Modal failed to load image: ${selectedArtwork.src}`, e)}
+                crossOrigin="anonymous"
               />
             </div>
-            <p className="p-4 text-sm text-muted-foreground border-t border-border">{selectedArtwork.description}</p>
           </DialogContent>
         </Dialog>
       )}
+       <style jsx global>{`
+        @keyframes image-fade-in {
+          from { opacity: 0; background-color: hsl(var(--card)); }
+          to { opacity: 1; background-color: transparent; }
+        }
+        .animate-image-fade-in {
+          animation-name: image-fade-in;
+          animation-duration: 1.2s;
+          animation-timing-function: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+          animation-fill-mode: forwards;
+        }
+        @keyframes fade-in-slow {
+          from { opacity: 0; transform: scale(0.95) translateY(10px); }
+          to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        .data-\\[state=open\\]_animate-fade-in-slow {
+          animation: fade-in-slow 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        @keyframes fade-out-slow {
+          from { opacity: 1; transform: scale(1) translateY(0); }
+          to { opacity: 0; transform: scale(0.95) translateY(10px); }
+        }
+        .data-\\[state=closed\\]_animate-fade-out-slow {
+          animation: fade-out-slow 0.8s cubic-bezier(0.7, 0, 0.84, 0) forwards;
+        }
+      `}</style>
     </SectionContainer>
   );
 }

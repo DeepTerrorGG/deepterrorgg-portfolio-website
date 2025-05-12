@@ -1,3 +1,4 @@
+
 import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
 import './globals.css';
@@ -20,6 +21,9 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: 'DeepTerrorGG Portfolio',
   description: "Portfolio of DeepTerrorGG's artworks and projects.",
+  keywords: "DeepTerrorGG, portfolio, digital art, web development, C#, game server, bot development",
+  authors: [{ name: "DeepTerrorGG" }],
+  robots: "index, follow", 
 };
 
 export default function RootLayout({
@@ -29,9 +33,14 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={cn("dark", geistSans.variable, geistMono.variable)}>
+      <head>
+        {/* Preconnect to i.imgur.com for faster image loading */}
+        <link rel="preconnect" href="https://i.imgur.com" crossOrigin="anonymous" />
+        {/* Removed preconnect for general imgur.com */}
+      </head>
       <body 
         className="antialiased bg-background text-foreground font-sans"
-        suppressHydrationWarning={true}
+        suppressHydrationWarning={true} 
       >
         <Header />
         <main className="pt-20 md:pt-24 min-h-screen">

@@ -16,12 +16,14 @@ export default function AboutPage() {
         <Card className="md:col-span-1 bg-card border-border">
           <CardHeader>
             <Image
-              src="https://imgur.com/wcHgOHv.png"
+              src="https://i.imgur.com/wcHgOHv.png"
               alt="Profile picture"
               width={800}
               height={800}
               className="rounded-lg shadow-lg aspect-square object-cover w-full"
               data-ai-hint="artist profile"
+              priority
+              crossOrigin="anonymous"
             />
           </CardHeader>
           <CardContent>
@@ -34,7 +36,7 @@ export default function AboutPage() {
           <Card className="bg-card border-border">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-xl text-foreground">
-                <Brain className="text-primary h-6 w-6" />
+                <Brain aria-hidden="true" className="text-primary h-6 w-6" />
                 My Story
               </CardTitle>
             </CardHeader>
@@ -51,7 +53,7 @@ export default function AboutPage() {
           <Card className="bg-card border-border">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-xl text-foreground">
-                <Palette className="text-primary h-6 w-6" />
+                <Palette aria-hidden="true" className="text-primary h-6 w-6" />
                 Skills &amp; Techniques
               </CardTitle>
             </CardHeader>
@@ -72,13 +74,13 @@ export default function AboutPage() {
            <Card className="bg-card border-border">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-xl text-foreground">
-                <Code className="text-primary h-6 w-6" />
+                <Code aria-hidden="true" className="text-primary h-6 w-6" />
                 Beyond the Canvas
               </CardTitle>
             </CardHeader>
             <CardContent className="text-muted-foreground">
               <p>
-                While development and art are my primary focus, I also have a strong interest in gaming in general and exploring cool, aesthetic-driven artworks. These passions fuel my inspiration and often shape the direction of my projects bringing a unique blend of style, playfulness, and atmosphere to everything I create.
+                While development and art are my primary focus, I also have a strong interest in gaming in general and exploring cool, aesthetic driven artworks. These passions fuel my inspiration and often shape the direction of my projects bringing a unique blend of style, playfulness, and atmosphere to everything I create.
               </p>
             </CardContent>
           </Card>
@@ -87,4 +89,3 @@ export default function AboutPage() {
     </SectionContainer>
   );
 }
-

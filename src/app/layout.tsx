@@ -20,10 +20,10 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: 'DeepTerrorGG Portfolio',
-  description: "Portfolio of DeepTerrorGG's artworks and projects.",
+  description: "I'm just a simple programmer who sometimes makes art, designs, or websites just following the path feels right to my heart.",
   keywords: "DeepTerrorGG, portfolio, digital art, web development, C#, game server, bot development",
   authors: [{ name: "DeepTerrorGG" }],
-  robots: "index, follow", 
+  robots: "index, follow",
 };
 
 export default function RootLayout({
@@ -34,13 +34,11 @@ export default function RootLayout({
   return (
     <html lang="en" className={cn("dark", geistSans.variable, geistMono.variable)}>
       <head>
-        {/* Preconnect to i.imgur.com for faster image loading */}
-        <link rel="preconnect" href="https://i.imgur.com" crossOrigin="anonymous" />
-        {/* Removed preconnect for general imgur.com */}
+        <link rel="icon" href="/favicon.ico" sizes="any" />
       </head>
-      <body 
+      <body
         className="antialiased bg-background text-foreground font-sans"
-        suppressHydrationWarning={true} 
+        suppressHydrationWarning={true}
       >
         <Header />
         <main className="pt-20 md:pt-24 min-h-screen">

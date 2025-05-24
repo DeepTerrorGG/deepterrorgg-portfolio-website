@@ -1,14 +1,14 @@
 // src/app/artworks/page.tsx
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import Image from 'next/image';
-// PageTitle import removed as it's no longer used directly on this page
+import PageTitle from '@/components/ui/page-title';
 import SectionContainer from '@/components/ui/section-container';
-import { Card, CardContent } from '@/components/ui/card';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogClose } from '@/components/ui/dialog';
+import { Card, CardContent } from '@/components/ui/card'; // Removed CardHeader, CardTitle
+import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog'; // Removed DialogHeader, DialogClose
 import { Button } from '@/components/ui/button';
-import { Maximize, X as LucideX, ArrowLeft, ArrowRight, Laptop } from 'lucide-react';
+import { Maximize, ArrowLeft, ArrowRight, Laptop, Dot } from 'lucide-react'; // Removed LucideX
 import { Skeleton } from '@/components/ui/skeleton';
 import Link from 'next/link';
 import {
@@ -21,6 +21,7 @@ import {
 } from "@/components/ui/carousel";
 import Autoplay from "embla-carousel-autoplay";
 import Fade from 'embla-carousel-fade';
+import { cn } from '@/lib/utils';
 
 interface Artwork {
   id: string;
@@ -103,15 +104,14 @@ export default function ArtworksPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [apiMobile, setApiMobile] = useState<CarouselApi>();
   const [apiDesktop, setApiDesktop] = useState<CarouselApi>();
+  const [activeIndexDesktop, setActiveIndexDesktop] = useState(0);
+  const [scrollSnapsDesktop, setScrollSnapsDesktop] = useState<number[]>([]);
+
 
   const autoplayPluginMobile = useRef(
     Autoplay({ delay: 3000, stopOnInteraction: true, stopOnMouseEnter: true })
   );
   const fadePluginMobile = useRef(Fade());
-
-  const autoplayPluginDesktop = useRef(
-    Autoplay({ delay: 4000, stopOnInteraction: true, stopOnMouseEnter: true })
-  );
 
   useEffect(() => {
     const imageLoadPromises = artworksData.map(artwork => {
@@ -138,17 +138,52 @@ export default function ArtworksPage() {
     });
   }, []);
 
+  useEffect(() => {
+    if (!apiDesktop) {
+      return;
+    }
+    setScrollSnapsDesktop(apiDesktop.scrollSnapList());
+    setActiveIndexDesktop(apiDesktop.selectedScrollSnap());
+
+    const onSelect = () => {
+      setActiveIndexDesktop(apiDesktop.selectedScrollSnap());
+    };
+    const onReInit = () => {
+        setScrollSnapsDesktop(apiDesktop.scrollSnapList());
+        setActiveIndexDesktop(apiDesktop.selectedScrollSnap());
+    }
+
+    apiDesktop.on('select', onSelect);
+    apiDesktop.on('reInit', onReInit);
+    return () => {
+      apiDesktop.off('select', onSelect);
+      apiDesktop.off('reInit', onReInit);
+    };
+  }, [apiDesktop]);
+
   const openModal = (artwork: Artwork) => {
     setSelectedArtwork(artwork);
     setIsModalOpen(true);
-    if (apiMobile && autoplayPluginMobile.current.stop) autoplayPluginMobile.current.stop();
-    if (apiDesktop && autoplayPluginDesktop.current.stop) autoplayPluginDesktop.current.stop();
+    if (apiMobile && autoplayPluginMobile.current && typeof autoplayPluginMobile.current.stop === 'function') {
+      try {
+        autoplayPluginMobile.current.stop();
+      } catch (error) {
+        console.error("Error stopping mobile autoplay:", error);
+      }
+    }
   };
 
   const closeModal = () => {
     setIsModalOpen(false);
-    if (apiMobile && autoplayPluginMobile.current.play) autoplayPluginMobile.current.play();
-    if (apiDesktop && autoplayPluginDesktop.current.play) autoplayPluginDesktop.current.play();
+
+    if (apiMobile && autoplayPluginMobile.current && typeof autoplayPluginMobile.current.play === 'function') {
+      try {
+        autoplayPluginMobile.current.play(true);
+      } catch (error) {
+        console.error("Error restarting mobile autoplay:", error);
+      }
+    }
+
     setTimeout(() => {
       setSelectedArtwork(null);
     }, 500);
@@ -157,6 +192,10 @@ export default function ArtworksPage() {
 
   return (
     <SectionContainer className="py-8 md:py-16">
+      <PageTitle subtitle="Most of these were made for fun, but the truth is she inspired a lot of them. Her presence gave me the push to create, even this whole site. It’s a small way of turning feelings into something visible.">
+        My Artworks
+      </PageTitle>
+
       {isLoading ? (
         <div className="w-full max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg mx-auto">
           <Card className="overflow-hidden bg-card border-border">
@@ -189,7 +228,7 @@ export default function ArtworksPage() {
                   className="!relative !static !translate-x-0 !translate-y-0 rounded-full border border-primary text-primary hover:bg-primary/10 disabled:opacity-30 h-10 w-10 sm:h-12 sm:w-12 p-0 flex items-center justify-center"
                   aria-label="Previous artwork"
                 >
-                  <ArrowLeft className="h-5 w-5 sm:h-6 sm:w-6" />
+                  <ArrowLeft className="h-5 w-5 sm:h-6 sm:w-6" aria-hidden="true" />
                 </CarouselPrevious>
 
                 <Link href="/" className="flex items-center gap-2 group transition-transform hover:scale-105">
@@ -203,7 +242,7 @@ export default function ArtworksPage() {
                   className="!relative !static !translate-x-0 !translate-y-0 rounded-full border border-primary text-primary hover:bg-primary/10 disabled:opacity-30 h-10 w-10 sm:h-12 sm:w-12 p-0 flex items-center justify-center"
                   aria-label="Next artwork"
                 >
-                  <ArrowRight className="h-5 w-5 sm:h-6 sm:w-6" />
+                  <ArrowRight className="h-5 w-5 sm:h-6 sm:w-6" aria-hidden="true" />
                 </CarouselNext>
               </div>
 
@@ -254,72 +293,96 @@ export default function ArtworksPage() {
             </Carousel>
           </div>
 
-          {/* Desktop View: Horizontal Slideshow */}
-          <div className="hidden lg:block w-full bg-black py-8">
+          {/* Desktop View: Main image with faded side previews */}
+          <div className="hidden lg:block w-full bg-black py-4">
             <SectionContainer className="!py-0 !max-w-none !px-0">
-              <div className="container mx-auto px-4 md:px-8">
+              <div className="container mx-auto px-4 md:px-8 relative">
                 <Carousel
                   setApi={setApiDesktop}
                   opts={{
-                    align: "start",
+                    align: 'center',
                     loop: true,
                   }}
-                  plugins={[autoplayPluginDesktop.current]}
-                  className="w-full group/desktop-carousel"
+                  className="w-full"
                 >
-                  <div className="flex justify-between items-center mb-6">
-                    <div className="flex gap-2"> {/* Placeholder for potential left-aligned content or to balance flexbox */} </div>
-                    <div className="flex gap-2">
-                      <CarouselPrevious className="!relative !static !translate-x-0 !translate-y-0 rounded-full border border-primary text-primary hover:bg-primary/10 disabled:opacity-30 h-10 w-10 p-0 flex items-center justify-center" aria-label="Previous artwork set" />
-                      <CarouselNext className="!relative !static !translate-x-0 !translate-y-0 rounded-full border border-primary text-primary hover:bg-primary/10 disabled:opacity-30 h-10 w-10 p-0 flex items-center justify-center" aria-label="Next artwork set"/>
-                    </div>
-                  </div>
+                  <CarouselContent className="-ml-4 flex items-center py-4">
+                    {artworksData.map((artwork, index) => {
+                      const isActive = index === activeIndexDesktop;
+                      const prevActualIndex = (activeIndexDesktop - 1 + artworksData.length) % artworksData.length;
+                      const nextActualIndex = (activeIndexDesktop + 1) % artworksData.length;
 
-                  <CarouselContent className="-ml-4">
-                    {artworksData.map((artwork) => (
-                      <CarouselItem key={artwork.id + '-desktop'} className="pl-4 basis-full sm:basis-1/2 md:basis-1/3 lg:basis-1/4 xl:basis-1/5 2xl:basis-1/6">
-                        <div className="p-1">
-                          <Card
-                            className="overflow-hidden bg-card border-border hover:shadow-primary/30 hover:border-primary transition-all duration-300 ease-in-out group cursor-pointer aspect-square"
-                            onClick={() => openModal(artwork)}
-                            role="button"
-                            tabIndex={0}
-                            onKeyDown={(e) => e.key === 'Enter' && openModal(artwork)}
-                            aria-label={`View details for ${artwork.title}`}
-                          >
-                            <CardContent className="p-0 relative flex flex-col items-center justify-center h-full w-full bg-black">
-                              <div className="relative w-full h-full">
-                                <Image
-                                  src={artwork.src}
-                                  alt={artwork.alt}
-                                  fill
-                                  sizes="(min-width: 1536px) 16.6vw, (min-width: 1280px) 20vw, (min-width: 1024px) 25vw, 100vw"
-                                  className="object-cover transition-transform duration-700 ease-in-out opacity-0 animate-image-fade-in"
-                                  style={{ animationFillMode: 'forwards' }}
-                                  data-ai-hint={artwork.hint}
-                                  unoptimized={artwork.src.includes('imgur.com')}
-                                  priority={['1', '2', '3'].includes(artwork.id)}
-                                  onError={(e) => console.error(`Failed to load image: ${artwork.src}`, e)}
-                                  crossOrigin="anonymous"
-                                />
-                              </div>
-                              <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-end justify-start p-4">
-                                <Button
-                                  variant="secondary"
-                                  size="sm"
-                                  className="pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300 delay-100 translate-y-2 group-hover:translate-y-0"
-                                  aria-hidden="true"
-                                >
-                                  <Maximize className="mr-2 h-4 w-4" /> View
-                                </Button>
-                              </div>
-                            </CardContent>
-                          </Card>
-                        </div>
-                      </CarouselItem>
-                    ))}
+                      let itemClasses = "transition-all duration-500 ease-out origin-center";
+                      if (isActive) {
+                        itemClasses += " opacity-100 scale-100 z-10";
+                      } else if (index === prevActualIndex || index === nextActualIndex) {
+                        itemClasses += " opacity-50 scale-75"; 
+                      } else {
+                        itemClasses += " opacity-25 scale-50"; 
+                      }
+                      
+                      return (
+                        <CarouselItem key={artwork.id + '-desktop'} className="pl-4 basis-full md:basis-1/2 lg:basis-1/3 xl:basis-1/4 2xl:basis-1/5">
+                          <div className={cn("p-1", itemClasses)}>
+                            <Card
+                              className="overflow-hidden bg-card border-border group cursor-pointer aspect-[600/950]"
+                              onClick={() => openModal(artwork)}
+                              role="button"
+                              tabIndex={isActive ? 0 : -1}
+                              onKeyDown={(e) => isActive && e.key === 'Enter' && openModal(artwork)}
+                              aria-label={`View details for ${artwork.title}`}
+                            >
+                              <CardContent className="p-0 relative flex flex-col items-center justify-center h-full w-full bg-black">
+                                <div className="relative w-full h-full">
+                                  <Image
+                                    src={artwork.src}
+                                    alt={artwork.alt}
+                                    fill
+                                    sizes="(min-width: 1536px) calc(20vw - 16px), (min-width: 1280px) calc(25vw - 16px), (min-width: 1024px) calc(33.33vw - 16px), 100vw"
+                                    className="object-contain transition-transform duration-700 ease-in-out opacity-0 animate-image-fade-in"
+                                    style={{ animationFillMode: 'forwards' }}
+                                    data-ai-hint={artwork.hint}
+                                    unoptimized={artwork.src.includes('imgur.com')}
+                                    priority={index <= 2} 
+                                    onError={(e) => console.error(`Failed to load image: ${artwork.src}`, e)}
+                                    crossOrigin="anonymous"
+                                  />
+                                </div>
+                                <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-end justify-start p-4">
+                                  <Button
+                                    variant="secondary"
+                                    size="sm"
+                                    className="pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300 delay-100 translate-y-2 group-hover:translate-y-0"
+                                    aria-hidden="true"
+                                  >
+                                    <Maximize className="mr-2 h-4 w-4" /> View
+                                  </Button>
+                                </div>
+                              </CardContent>
+                            </Card>
+                          </div>
+                        </CarouselItem>
+                      );
+                    })}
                   </CarouselContent>
+                  <CarouselPrevious className="absolute left-4 sm:left-8 md:left-12 top-1/2 -translate-y-1/2 z-20 h-10 w-10 sm:h-12 sm:w-12 rounded-full bg-background/50 hover:bg-background/80 text-foreground p-0" />
+                  <CarouselNext className="absolute right-4 sm:right-8 md:right-12 top-1/2 -translate-y-1/2 z-20 h-10 w-10 sm:h-12 sm:w-12 rounded-full bg-background/50 hover:bg-background/80 text-foreground p-0" />
                 </Carousel>
+                
+                <div className="flex justify-center gap-2 mt-4">
+                  {scrollSnapsDesktop.map((_, index) => (
+                    <Button
+                      key={index}
+                      variant="outline"
+                      size="icon"
+                      className={cn(
+                        "h-2 w-2 sm:h-2.5 sm:w-2.5 rounded-full p-0 transition-all duration-300",
+                        index === activeIndexDesktop ? "bg-primary scale-125" : "bg-muted hover:bg-muted/70"
+                      )}
+                      aria-label={`Go to slide ${index + 1}`}
+                      onClick={() => apiDesktop?.scrollTo(index)}
+                    />
+                  ))}
+                </div>
               </div>
             </SectionContainer>
           </div>
@@ -329,25 +392,18 @@ export default function ArtworksPage() {
       {selectedArtwork && (
         <Dialog open={isModalOpen} onOpenChange={(isOpen) => !isOpen && closeModal()}>
           <DialogContent
-            hideDefaultClose={true}
+            hideDefaultClose={true} // This will hide the default X
             className="p-0 bg-card border-border shadow-2xl rounded-lg flex flex-col items-center justify-center w-auto max-w-[95vw] sm:max-w-lg md:max-w-xl lg:max-w-3xl xl:max-w-4xl h-auto max-h-[95vh] overflow-hidden data-[state=open]:animate-fade-in-slow data-[state=closed]:animate-fade-out-slow"
           >
-            <DialogHeader className="p-4 border-b border-border w-full flex flex-row justify-center items-center relative">
-               <DialogTitle className="sr-only">{selectedArtwork.title}</DialogTitle>
-               <DialogClose asChild>
-                <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground absolute right-1/2 top-1/2 -translate-y-1/2 translate-x-1/2" onClick={closeModal}>
-                  <LucideX className="h-6 w-6" />
-                  <span className="sr-only">Close</span>
-                </Button>
-              </DialogClose>
-            </DialogHeader>
+             <DialogTitle className="sr-only">{selectedArtwork.title}</DialogTitle>
+            {/* Removed DialogHeader and custom close button */}
             <div className="p-2 md:p-4 flex-grow overflow-hidden flex items-center justify-center w-full h-full">
               <Image
                 src={selectedArtwork.src}
                 alt={selectedArtwork.alt}
                 width={selectedArtwork.width || 600}
                 height={selectedArtwork.height || 950}
-                className="object-contain rounded w-auto h-auto max-w-full max-h-[calc(95vh-120px)]"
+                className="object-contain rounded w-auto h-auto max-w-full max-h-[calc(95vh-120px)]" // Adjusted max-h for no header
                 data-ai-hint={selectedArtwork.hint}
                 unoptimized={selectedArtwork.src.includes('imgur.com')}
                 onError={(e) => console.error(`Modal failed to load image: ${selectedArtwork.src}`, e)}

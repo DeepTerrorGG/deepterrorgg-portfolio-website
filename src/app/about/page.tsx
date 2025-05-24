@@ -1,7 +1,7 @@
 
+import Image from 'next/image';
 import PageTitle from '@/components/ui/page-title';
 import SectionContainer from '@/components/ui/section-container';
-import Image from 'next/image';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Brain, Code, Palette } from 'lucide-react';
 
@@ -18,17 +18,17 @@ export default function AboutPage() {
             <Image
               src="https://i.imgur.com/wcHgOHv.png"
               alt="Profile picture"
-              width={800}
-              height={800}
+              width={800} 
+              height={800} 
               className="rounded-lg shadow-lg aspect-square object-cover w-full"
               data-ai-hint="artist profile"
               priority
-              crossOrigin="anonymous"
+              sizes="(max-width: 768px) 100vw, 33vw"
             />
           </CardHeader>
-          <CardContent>
+          <CardContent className="pt-4">
             <CardTitle className="text-2xl text-center text-primary">DeepTerrorGG</CardTitle>
-            <p className="text-muted-foreground text-center mt-1">Digital Artist &amp; Creative Mind</p>
+            <p className="text-muted-foreground text-center mt-1">Programer &amp; Digital Artist</p>
           </CardContent>
         </Card>
 
@@ -42,10 +42,10 @@ export default function AboutPage() {
             </CardHeader>
             <CardContent className="text-muted-foreground space-y-3">
               <p>
-                Welcome to my digital canvas! I&apos;m DeepTerrorGG a developer and digital artist exploring the creative space where code meets imagination. My journey into art started with a huge appreciation for cool visual styles, especially @hinxycrybaby&apos;s aesthetic. Her vibe was what got me hooked on creating art and inspired me to start building my own.
+                I’m DeepTerrorGG a developer and digital artist exploring where code, emotion, and imagination meet. My journey into art didn’t start with a plan; it started with a feeling. A lot of it was sparked by @hinxycrybaby her style, her energy, and the way her presence felt honest and real. That inspiration is what pushed me to start creating on my own.
               </p>
               <p>
-                I believe art is a powerful medium for storytelling, evoking emotions, and challenging perceptions. Through my work, I aim to improve myself not just in skill, but in mindset and creativity constantly learning and growing with each piece I create.
+                For me, art isn’t just about visuals it’s about expression. It’s how I work through thoughts, how I grow, and how I try to turn feelings into something you can see. Every project is a step toward becoming better not just technically, but as a person. I’m learning, reflecting, and creating from a place that feels honest.
               </p>
             </CardContent>
           </Card>
@@ -59,15 +59,15 @@ export default function AboutPage() {
             </CardHeader>
             <CardContent className="text-muted-foreground">
               <ul className="list-disc list-inside space-y-1">
-                <li>Digital Art &amp; Illustration</li>
+                <li>Digital Art & Illustration</li>
                 <li>Web Development (HTML, CSS, JavaScript)</li>
                 <li>C# Programming</li>
-                <li>Basic Proficiency in Java, Python &amp; C++</li>
-                <li>Game Server Setup &amp; Management</li>
-                <li>Bot Development &amp; Automation</li>
+                <li>Basic Proficiency in Java, Python & C++</li>
+                <li>Game Server Setup & Management</li>
+                <li>Bot Development & Automation</li>
               </ul>
                <p className="mt-3">
-                I enjoy blending technical skill with creative vision, constantly learning new tools and experimenting with different approaches to expand my capabilities and bring fresh ideas to life.
+                I like mixing technical skills with creative ideas always learning, trying new things, and finding better ways to bring what I imagine to life. It’s less about perfection and more about growing through the process.
               </p>
             </CardContent>
           </Card>
@@ -80,7 +80,7 @@ export default function AboutPage() {
             </CardHeader>
             <CardContent className="text-muted-foreground">
               <p>
-                While development and art are my primary focus, I also have a strong interest in gaming in general and exploring cool, aesthetic driven artworks. These passions fuel my inspiration and often shape the direction of my projects bringing a unique blend of style, playfulness, and atmosphere to everything I create.
+                Besides coding and design, I’m drawn to games and anything with a strong aesthetic vibe. Those things shape how I see the world and they help me add emotion, atmosphere, and personality to the things I build.
               </p>
             </CardContent>
           </Card>

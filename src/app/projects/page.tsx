@@ -75,11 +75,15 @@ const communityProject: Project = {
   id: 'silent-horizon',
   title: 'Silent Horizon Community Project',
   imageUrls: [
-    'https://picsum.photos/seed/sh1/1920/1080',
-    'https://picsum.photos/seed/sh2/1920/1080',
-    'https://picsum.photos/seed/sh3/1920/1080',
-    'https://picsum.photos/seed/sh4/1920/1080',
-    'https://picsum.photos/seed/sh5/1920/1080',
+    '/sh1.jpg',
+    '/sh2.jpg',
+    '/sh3.jpg',
+    '/sh4.jpg',
+    '/sh5.jpg',
+    '/sh6.jpg',
+    '/sh7.jpg',
+    '/sh8.jpg',
+    '/sh9.jpg',
   ],
   imageAlt: 'Silent Horizon Minecraft Server',
   imageHint: 'minecraft landscape castle',
@@ -190,18 +194,24 @@ export default function ProjectsPage() {
 
       <div className="mt-16 pt-10 border-t border-border/50">
         <Card className="bg-card border-border rounded-lg overflow-hidden shadow-lg hover:shadow-primary/40 transition-shadow duration-300 ease-in-out group flex flex-col md:flex-row">
-            <div className="md:w-1/2 lg:w-3/5 xl:w-2/3">
+            <div className="md:w-1/2 lg:w-3/5 xl:w-2/3 h-64 md:h-96 relative overflow-hidden rounded-t-lg md:rounded-l-lg md:rounded-t-none">
                 <Carousel
                     plugins={[Autoplay({ delay: 4000, stopOnInteraction: true })]}
-                    className="w-full h-full rounded-t-lg md:rounded-l-lg md:rounded-t-none overflow-hidden border-b md:border-b-0 md:border-r border-border"
+                    className="w-full h-full"
                     opts={{ loop: true }}
                 >
                     <CarouselContent className="h-full">
                         {communityProject.imageUrls.map((url, i) => (
-                        <CarouselItem key={i} className="h-full">
-                            <div className="block relative w-full overflow-hidden aspect-video md:aspect-auto md:h-full">
-                            <Image src={url} alt={`${communityProject.imageAlt} #${i + 1}`} fill sizes="(max-width: 768px) 100vw, 50vw" className="object-cover" data-ai-hint={communityProject.imageHint} />
-                            </div>
+                        <CarouselItem key={i} className="h-full relative">
+                            <Image 
+                                src={url} 
+                                alt={`${communityProject.imageAlt} #${i + 1}`} 
+                                width={1920}
+                                height={1080}
+                                className="w-full h-full object-cover"
+                                data-ai-hint={communityProject.imageHint}
+                                priority={i < 2}
+                            />
                         </CarouselItem>
                         ))}
                     </CarouselContent>
@@ -248,3 +258,7 @@ export default function ProjectsPage() {
       `}</style>
     </SectionContainer>
   );
+
+    
+
+

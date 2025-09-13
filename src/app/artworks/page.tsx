@@ -1,3 +1,4 @@
+
 // src/app/artworks/page.tsx
 'use client';
 
@@ -392,18 +393,17 @@ export default function ArtworksPage() {
       {selectedArtwork && (
         <Dialog open={isModalOpen} onOpenChange={(isOpen) => !isOpen && closeModal()}>
           <DialogContent
-            hideDefaultClose={true} // This will hide the default X
+            hideDefaultClose={true}
             className="p-0 bg-card border-border shadow-2xl rounded-lg flex flex-col items-center justify-center w-auto max-w-[95vw] sm:max-w-lg md:max-w-xl lg:max-w-3xl xl:max-w-4xl h-auto max-h-[95vh] overflow-hidden data-[state=open]:animate-fade-in-slow data-[state=closed]:animate-fade-out-slow"
           >
              <DialogTitle className="sr-only">{selectedArtwork.title}</DialogTitle>
-            {/* Removed DialogHeader and custom close button */}
             <div className="p-2 md:p-4 flex-grow overflow-hidden flex items-center justify-center w-full h-full">
               <Image
                 src={selectedArtwork.src}
                 alt={selectedArtwork.alt}
                 width={selectedArtwork.width || 600}
                 height={selectedArtwork.height || 950}
-                className="object-contain rounded w-auto h-auto max-w-full max-h-[calc(95vh-120px)]" // Adjusted max-h for no header
+                className="object-contain rounded w-auto h-auto max-w-full max-h-[calc(95vh-120px)]"
                 data-ai-hint={selectedArtwork.hint}
                 unoptimized={selectedArtwork.src.includes('imgur.com')}
                 onError={(e) => console.error(`Modal failed to load image: ${selectedArtwork.src}`, e)}

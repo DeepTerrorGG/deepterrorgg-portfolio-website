@@ -140,7 +140,7 @@ export default function ProjectsPage() {
               alt={project.imageAlt}
               fill
               sizes="(max-width: 1024px) 100vw, 33vw"
-              className="object-cover transition-transform duration-300 group-hover:scale-105"
+              className="object-cover transition-transform duration-300"
               data-ai-hint={project.imageHint}
               priority={project.id !== 'silent-horizon'}
             />
@@ -194,25 +194,26 @@ export default function ProjectsPage() {
 
       <div className="mt-16 pt-10 border-t border-border/50">
         <Card className="bg-card border-border rounded-lg overflow-hidden shadow-lg hover:shadow-primary/40 transition-shadow duration-300 ease-in-out group flex flex-col md:flex-row">
-            <div className="md:w-1/2 lg:w-3/5 xl:w-2/3 h-64 md:h-96 relative overflow-hidden rounded-t-lg md:rounded-l-lg md:rounded-t-none">
+            <div className="relative md:w-1/2 lg:w-3/5 xl:w-2/3 h-80 md:h-[30rem]">
                 <Carousel
                     plugins={[Autoplay({ delay: 4000, stopOnInteraction: true })]}
-                    className="w-full h-full"
                     opts={{ loop: true }}
+                    className="w-full h-full"
                 >
                     <CarouselContent className="h-full">
                         {communityProject.imageUrls.map((url, i) => (
-                        <CarouselItem key={i} className="h-full relative">
-                            <Image 
-                                src={url} 
-                                alt={`${communityProject.imageAlt} #${i + 1}`} 
-                                width={1920}
-                                height={1080}
-                                className="w-full h-full object-cover"
-                                data-ai-hint={communityProject.imageHint}
-                                priority={i < 2}
-                            />
-                        </CarouselItem>
+                            <CarouselItem key={i} className="h-full">
+                                <Image 
+                                    src={url} 
+                                    alt={`${communityProject.imageAlt} #${i + 1}`} 
+                                    width={1920}
+                                    height={1080}
+                                    className="object-cover w-full h-full"
+                                    data-ai-hint={communityProject.imageHint}
+                                    priority={i < 2}
+                                    sizes="(max-width: 767px) 100vw, (max-width: 1023px) 50vw, (max-width: 1279px) 60vw, 67vw"
+                                />
+                            </CarouselItem>
                         ))}
                     </CarouselContent>
                     <CarouselPrevious className="absolute left-3 top-1/2 -translate-y-1/2 z-10 h-8 w-8 bg-background/60 hover:bg-background/90 text-foreground" />
@@ -258,7 +259,4 @@ export default function ProjectsPage() {
       `}</style>
     </SectionContainer>
   );
-
-    
-
-
+}

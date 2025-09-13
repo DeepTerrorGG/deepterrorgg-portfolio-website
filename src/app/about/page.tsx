@@ -60,7 +60,7 @@ export default function AboutPage() {
             <CardContent className="text-muted-foreground">
               <ul className="list-disc list-inside space-y-1">
                 <li>Digital Art & Illustration</li>
-                <li>Web Development (HTML, CSS, JavaScript)</li>
+                <li>Web Development (Next.js, React, TypeScript, Tailwind, CSS)</li>
                 <li>C# Programming</li>
                 <li>Basic Proficiency in Java, Python & C++</li>
                 <li>Game Server Setup & Management</li>

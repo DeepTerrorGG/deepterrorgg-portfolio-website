@@ -194,31 +194,17 @@ export default function ProjectsPage() {
 
       <div className="mt-16 pt-10 border-t border-border/50">
         <Card className="bg-card border-border rounded-lg overflow-hidden shadow-lg hover:shadow-primary/40 transition-shadow duration-300 ease-in-out group flex flex-col md:flex-row">
-            <div className="relative md:w-1/2 lg:w-3/5 xl:w-2/3 h-80 md:h-[30rem]">
-                <Carousel
-                    plugins={[Autoplay({ delay: 4000, stopOnInteraction: true })]}
-                    opts={{ loop: true }}
-                    className="w-full h-full"
-                >
-                    <CarouselContent className="h-full">
-                        {communityProject.imageUrls.map((url, i) => (
-                            <CarouselItem key={i} className="h-full">
-                                <Image 
-                                    src={url} 
-                                    alt={`${communityProject.imageAlt} #${i + 1}`} 
-                                    width={1920}
-                                    height={1080}
-                                    className="object-cover w-full h-full"
-                                    data-ai-hint={communityProject.imageHint}
-                                    priority={i < 2}
-                                    sizes="(max-width: 767px) 100vw, (max-width: 1023px) 50vw, (max-width: 1279px) 60vw, 67vw"
-                                />
-                            </CarouselItem>
-                        ))}
-                    </CarouselContent>
-                    <CarouselPrevious className="absolute left-3 top-1/2 -translate-y-1/2 z-10 h-8 w-8 bg-background/60 hover:bg-background/90 text-foreground" />
-                    <CarouselNext className="absolute right-3 top-1/2 -translate-y-1/2 z-10 h-8 w-8 bg-background/60 hover:bg-background/90 text-foreground" />
-                </Carousel>
+            <div className="relative md:w-1/2 lg:w-3/5 xl:w-2/3 h-64 md:h-auto">
+                 <Image 
+                    src={communityProject.imageUrls[0]} 
+                    alt={communityProject.imageAlt} 
+                    width={1920}
+                    height={1080}
+                    className="object-cover w-full h-full"
+                    data-ai-hint={communityProject.imageHint}
+                    priority
+                    sizes="(max-width: 767px) 100vw, (max-width: 1023px) 50vw, (max-width: 1279px) 60vw, 67vw"
+                />
             </div>
           
             <div className="p-6 flex flex-col flex-grow md:w-1/2 lg:w-2/5 xl:w-1/3">
@@ -260,3 +246,4 @@ export default function ProjectsPage() {
     </SectionContainer>
   );
 }
+

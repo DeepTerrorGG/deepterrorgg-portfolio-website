@@ -1,6 +1,9 @@
 
+// src/components/ui/tech-stack.tsx
+
 import * as React from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import {
   Tooltip,
@@ -8,11 +11,17 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
-import { Plus } from 'lucide-react';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover"
+import { Plus, ArrowUpRight } from 'lucide-react';
 
 interface Technology {
   name: string;
   iconSrc: string;
+  href?: string;
 }
 
 interface TechStackProps {
@@ -21,59 +30,117 @@ interface TechStackProps {
   className?: string;
 }
 
+const TechBadge = ({ tech }: { tech: Technology }) => {
+  const content = (
+    <>
+      <Image
+        src={tech.iconSrc}
+        alt={`${tech.name} logo`}
+        width={16}
+        height={16}
+        className="h-4 w-4"
+        unoptimized
+      />
+      <span className="text-xs font-medium text-muted-foreground group-hover:text-primary transition-colors">{tech.name}</span>
+    </>
+  );
+
+  const badgeClasses = "flex items-center gap-2 rounded-md border border-border bg-card px-2 py-1 transition-colors group";
+
+  if (tech.href) {
+    return (
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Link href={tech.href} target="_blank" rel="noopener noreferrer" className={cn(badgeClasses, "cursor-pointer hover:border-primary/50 hover:bg-muted/50")}>
+            {content}
+          </Link>
+        </TooltipTrigger>
+        <TooltipContent>
+          <p>Visit {tech.name}</p>
+        </TooltipContent>
+      </Tooltip>
+    );
+  }
+
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <div className={cn(badgeClasses, "cursor-default")}>
+          {content}
+        </div>
+      </TooltipTrigger>
+      <TooltipContent>
+        <p>{tech.name}</p>
+      </TooltipContent>
+    </Tooltip>
+  );
+};
+
+
 export function TechStack({ technologies, maxVisible = 3, className }: TechStackProps) {
   const visibleTech = technologies.slice(0, maxVisible);
   const hiddenTech = technologies.slice(maxVisible);
+
+  const PopoverListItem = ({ tech }: { tech: Technology }) => {
+    const itemContent = (
+      <>
+        <Image
+          src={tech.iconSrc}
+          alt={`${tech.name} logo`}
+          width={14}
+          height={14}
+          className="h-3.5 w-3.5"
+          unoptimized
+        />
+        <span className="text-xs">{tech.name}</span>
+        {tech.href && <ArrowUpRight className="h-3 w-3 text-muted-foreground group-hover:text-primary" />}
+      </>
+    );
+
+    if (tech.href) {
+      return (
+        <li className="p-0 m-0">
+          <Link
+            href={tech.href}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-2 rounded-md p-1.5 -mx-1.5 hover:bg-muted group"
+          >
+            {itemContent}
+          </Link>
+        </li>
+      );
+    }
+
+    return (
+      <li className="flex items-center gap-2 p-1.5 -mx-1.5">
+        {itemContent}
+      </li>
+    );
+  };
 
   return (
     <TooltipProvider>
       <div className={cn("flex flex-wrap items-center gap-2", className)}>
         {visibleTech.map((tech) => (
-            <Tooltip key={tech.name}>
-                <TooltipTrigger asChild>
-                    <div className="flex items-center gap-2 rounded-md border border-border bg-card px-2 py-1 cursor-pointer hover:bg-muted/50 transition-colors">
-                        <Image
-                        src={tech.iconSrc}
-                        alt={`${tech.name} logo`}
-                        width={16}
-                        height={16}
-                        className="h-4 w-4"
-                        unoptimized
-                        />
-                        <span className="text-xs font-medium text-muted-foreground">{tech.name}</span>
-                    </div>
-                </TooltipTrigger>
-                 <TooltipContent>
-                    <p>{tech.name}</p>
-                </TooltipContent>
-            </Tooltip>
+          <TechBadge key={tech.name} tech={tech} />
         ))}
         {hiddenTech.length > 0 && (
-          <Tooltip>
-            <TooltipTrigger asChild>
-                <div className="flex items-center justify-center gap-1 rounded-md border border-dashed border-border bg-card px-2 py-1 cursor-pointer h-[26px] w-[34px] hover:bg-muted/50 hover:border-solid transition-all">
+          <Popover>
+            <PopoverTrigger asChild>
+                <button className="flex items-center justify-center gap-1 rounded-md border border-dashed border-border bg-card px-2 py-1 cursor-pointer h-[26px] w-[34px] hover:bg-muted/50 hover:border-solid transition-all">
                     <Plus className="h-3 w-3 text-muted-foreground"/>
                     <span className="text-xs font-bold text-muted-foreground">{hiddenTech.length}</span>
-                </div>
-            </TooltipTrigger>
-            <TooltipContent>
+                </button>
+            </PopoverTrigger>
+            <PopoverContent className="p-2 w-auto">
               <ul className="list-none p-0 m-0 space-y-1">
                 {hiddenTech.map((tech) => (
-                  <li key={tech.name} className="flex items-center gap-2">
-                     <Image
-                        src={tech.iconSrc}
-                        alt={`${tech.name} logo`}
-                        width={14}
-                        height={14}
-                        className="h-3.5 w-3.5"
-                        unoptimized
-                        />
-                    <span className="text-xs">{tech.name}</span>
-                  </li>
+                  <PopoverListItem key={tech.name} tech={tech} />
                 ))}
               </ul>
-            </TooltipContent>
-          </Tooltip>
+            </PopoverContent>
+          </Popover>
         )}
       </div>
     </TooltipProvider>

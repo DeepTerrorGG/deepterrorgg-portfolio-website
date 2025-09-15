@@ -7,19 +7,19 @@ import Link from 'next/link';
 import PageTitle from '@/components/ui/page-title';
 import SectionContainer from '@/components/ui/section-container';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
-import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle as ModalTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import FractalRenderer from '@/components/projects/fractal-renderer';
 import Calculator3D from '@/components/projects/calculator-3d';
 import SimpleTextAnimator from '@/components/projects/simple-text-animator';
 import { TechStack } from '@/components/ui/tech-stack';
-import { Maximize, ExternalLink, X } from 'lucide-react';
+import { ExternalLink } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface Technology {
   name: string;
   iconSrc: string;
+  href?: string;
 }
 
 interface Project {
@@ -50,9 +50,9 @@ const projectsData: Project[] = [
     difficulty: 'Easy',
     component: <Calculator3D />,
     technologies: [
-      { name: 'React', iconSrc: '/icons/react.svg' },
-      { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },
-      { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss.svg' },
+      { name: 'React', iconSrc: '/icons/react.svg', href: 'https://react.dev/' },
+      { name: 'TypeScript', iconSrc: '/icons/typescript.svg', href: 'https://www.typescriptlang.org/' },
+      { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss.svg', href: 'https://tailwindcss.com/' },
     ],
   },
   {
@@ -67,9 +67,9 @@ const projectsData: Project[] = [
     difficulty: 'Medium',
     component: <SimpleTextAnimator />,
     technologies: [
-      { name: 'React', iconSrc: '/icons/react.svg' },
-      { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },
-      { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss.svg' },
+      { name: 'React', iconSrc: '/icons/react.svg', href: 'https://react.dev/' },
+      { name: 'TypeScript', iconSrc: '/icons/typescript.svg', href: 'https://www.typescriptlang.org/' },
+      { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss.svg', href: 'https://tailwindcss.com/' },
     ],
   },
   {
@@ -84,9 +84,9 @@ const projectsData: Project[] = [
     difficulty: 'Hard',
     component: <FractalRenderer />,
     technologies: [
-      { name: 'React', iconSrc: '/icons/react.svg' },
-      { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },
-      { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss.svg' },
+      { name: 'React', iconSrc: '/icons/react.svg', href: 'https://react.dev/' },
+      { name: 'TypeScript', iconSrc: '/icons/typescript.svg', href: 'https://www.typescriptlang.org/' },
+      { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss.svg', href: 'https://tailwindcss.com/' },
     ],
   },
 ];
@@ -112,32 +112,21 @@ const communityProject: Project = {
   externalLink: 'https://silent-horizon.com/',
   personalNote: "Honestly, this project isn't my favorite, as it was mostly done for friends. While it's a cool project that has a lot to offer, it can also be incredibly draining. Managing a team of 10 staff members, keeping the community engaged, and rolling out regular events and updates is a huge undertaking. It was a massive learning experience in community management, but it's not where my personal passion lies.",
   technologies: [
-      { name: 'Java', iconSrc: '/icons/java.svg' },
-      { name: 'Pterodactyl', iconSrc: '/icons/pterodactyl.svg' },
-      { name: 'MySQL', iconSrc: '/icons/mysql.svg' },
-      { name: 'Docker', iconSrc: '/icons/docker.svg' },
+      { name: 'Java', iconSrc: '/icons/java.svg', href: 'https://www.java.com/' },
+      { name: 'Pterodactyl', iconSrc: '/icons/pterodactyl.svg', href: 'https://pterodactyl.io/' },
+      { name: 'MySQL', iconSrc: '/icons/mysql.svg', href: 'https://www.mysql.com/' },
+      { name: 'Docker', iconSrc: '/icons/docker.svg', href: 'https://www.docker.com/' },
+      { name: 'Firebase', iconSrc: '/icons/firebase.svg', href: 'https://firebase.google.com/' },
+      { name: 'Firebase Auth', iconSrc: '/icons/firebase-auth.svg', href: 'https://firebase.google.com/docs/auth' },
+      { name: 'Firebase Database', iconSrc: '/icons/firebase-database.svg', href: 'https://firebase.google.com/docs/database' },
+      { name: 'React', iconSrc: '/icons/react.svg', href: 'https://react.dev/' },
+      { name: 'Next.js', iconSrc: '/icons/nextjs.svg', href: 'https://nextjs.org/' },
+      { name: 'TypeScript', iconSrc: '/icons/typescript.svg', href: 'https://www.typescriptlang.org/' },
+      { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss.svg', href: 'https://tailwindcss.com/' },
   ]
 };
 
 export default function ProjectsPage() {
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
-
-  const openModal = (project: Project) => {
-    if (project.externalLink) {
-        window.open(project.externalLink, '_blank', 'noopener,noreferrer');
-        return;
-    }
-    setSelectedProject(project);
-    setIsModalOpen(true);
-  };
-
-  const closeModal = () => {
-    setIsModalOpen(false);
-    setTimeout(() => {
-      setSelectedProject(null);
-    }, 300);
-  };
 
   const getDifficultyBadgeVariant = (difficulty: Project['difficulty']) => {
     switch (difficulty) {
@@ -149,65 +138,49 @@ export default function ProjectsPage() {
     }
   };
 
-  const ProjectCard = ({ project }: { project: Project }) => (
-    <Dialog open={selectedProject?.id === project.id && isModalOpen} onOpenChange={(open) => !open && closeModal()}>
-      <DialogTrigger asChild>
-        <Card
-          className="bg-card border-border rounded-lg overflow-hidden shadow-lg hover:shadow-primary/40 transition-all duration-300 ease-in-out cursor-pointer group flex flex-col h-full"
-          onClick={() => openModal(project)}
-          role="button"
-          tabIndex={0}
-          onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && openModal(project)}
-          aria-label={`Explore project: ${project.title}`}
-        >
-          <div className="relative w-full overflow-hidden rounded-t-lg aspect-video">
-            <Image
-              src={project.imageUrls[0]}
-              alt={project.imageAlt}
-              fill
-              sizes="(max-width: 1024px) 100vw, 33vw"
-              className="object-cover transition-transform duration-300"
-              data-ai-hint={project.imageHint}
-              priority={project.id !== 'silent-horizon'}
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/20" />
-            <div className="absolute bottom-4 left-4">
-              <Button variant="secondary" size="sm" className="pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300 delay-100 translate-y-2 group-hover:translate-y-0">
-                {project.externalLink ? <ExternalLink className="mr-2 h-4 w-4" /> : <Maximize className="mr-2 h-4 w-4" />}
-                {project.externalLink ? 'Visit Site' : 'Explore'}
-              </Button>
-            </div>
-          </div>
-          <CardContent className="p-4 flex flex-col flex-grow">
-            <div className="flex justify-between items-start mb-2">
-              <CardTitle className="text-lg font-semibold text-foreground">{project.title}</CardTitle>
-              <Badge variant={getDifficultyBadgeVariant(project.difficulty)} className="ml-2 shrink-0">
-                {project.difficulty}
-              </Badge>
-            </div>
-            <CardDescription className="text-muted-foreground text-sm line-clamp-3 mb-3">{project.description}</CardDescription>
-            <p className="text-sm text-muted-foreground font-semibold border-l-4 border-border pl-4">{project.personalNote}</p>
-          </CardContent>
-          <CardFooter className="p-4 pt-0 mt-auto">
-             <TechStack technologies={project.technologies} />
-          </CardFooter>
-        </Card>
-      </DialogTrigger>
-
-      {selectedProject?.id === project.id && !project.externalLink && (
-        <DialogContent className="p-0 bg-background border-border shadow-2xl rounded-lg flex flex-col items-center justify-center w-[95vw] max-w-4xl h-[90vh] overflow-hidden data-[state=open]:animate-fade-in-slow data-[state=closed]:animate-fade-out-slow">
-          <DialogHeader className="p-4 border-b border-border w-full flex flex-row justify-between items-center shrink-0">
-            <ModalTitle>{selectedProject.title}</ModalTitle>
-          </DialogHeader>
-          <div className="w-full h-full overflow-y-auto">
-            <div className="w-full flex items-center justify-center p-2 sm:p-4 bg-muted/20 h-full">
-              {selectedProject.component}
-            </div>
-          </div>
-        </DialogContent>
-      )}
-    </Dialog>
+  const ProjectCardContent = ({ project }: { project: Project }) => (
+    <Card
+      className="bg-card border-border rounded-lg overflow-hidden shadow-lg flex flex-col h-full"
+    >
+      <div className="relative w-full overflow-hidden rounded-t-lg aspect-video">
+        <Image
+          src={project.imageUrls[0]}
+          alt={project.imageAlt}
+          fill
+          sizes="(max-width: 1024px) 100vw, 33vw"
+          className="object-cover"
+          data-ai-hint={project.imageHint}
+          priority={project.id !== 'silent-horizon'}
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/20" />
+      </div>
+      <CardContent className="p-4 flex flex-col flex-grow">
+        <div className="flex justify-between items-start mb-2">
+          <CardTitle className="text-lg font-semibold text-foreground">{project.title}</CardTitle>
+          <Badge variant={getDifficultyBadgeVariant(project.difficulty)} className="ml-2 shrink-0">
+            {project.difficulty}
+          </Badge>
+        </div>
+        <CardDescription className="text-muted-foreground text-sm line-clamp-3 mb-3">{project.description}</CardDescription>
+        <p className="text-sm text-muted-foreground font-semibold border-l-4 border-border pl-4">{project.personalNote}</p>
+      </CardContent>
+      <CardFooter className="p-4 pt-0 mt-auto">
+          <TechStack technologies={project.technologies} />
+      </CardFooter>
+    </Card>
   );
+
+  const ProjectCard = ({ project }: { project: Project }) => {
+    if (project.externalLink) {
+      return (
+        <Link href={project.externalLink} target="_blank" rel="noopener noreferrer" className="contents">
+          <ProjectCardContent project={project} />
+        </Link>
+      );
+    }
+
+    return <ProjectCardContent project={project} />;
+  };
 
   return (
     <SectionContainer>
@@ -222,7 +195,7 @@ export default function ProjectsPage() {
       </div>
 
       <div className="mt-16 pt-10 border-t border-border/50">
-        <Card className="bg-card border-border rounded-lg overflow-hidden shadow-lg hover:shadow-primary/40 transition-shadow duration-300 ease-in-out group flex flex-col md:flex-row">
+        <Card className="bg-card border-border rounded-lg overflow-hidden shadow-lg flex flex-col md:flex-row">
             <div className="relative md:w-1/2 lg:w-3/5 xl:w-2/3 h-64 md:h-auto">
                  <Image 
                     src={communityProject.imageUrls[0]} 
@@ -247,7 +220,7 @@ export default function ProjectsPage() {
                 <p className="text-sm text-muted-foreground font-semibold mb-6 border-l-4 border-border pl-4">{communityProject.personalNote}</p>
                 <CardFooter className="p-0 mt-auto flex-col items-start gap-4">
                      <TechStack technologies={communityProject.technologies} />
-                    <Button asChild variant="outline" className="w-full" onClick={() => openModal(communityProject)}>
+                    <Button asChild variant="outline" className="w-full" >
                         <Link href={communityProject.externalLink || '#'}>
                             <ExternalLink className="mr-2 h-4 w-4" /> Visit Site
                         </Link>
@@ -256,23 +229,6 @@ export default function ProjectsPage() {
             </div>
         </Card>
       </div>
-
-       <style jsx global>{`
-        @keyframes fade-in-slow {
-          from { opacity: 0; transform: scale(0.95) translateY(10px); }
-          to { opacity: 1; transform: scale(1) translateY(0); }
-        }
-        .data-\\[state=open\\]_animate-fade-in-slow {
-          animation: fade-in-slow 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-        }
-        @keyframes fade-out-slow {
-          from { opacity: 1; transform: scale(1) translateY(0); }
-          to { opacity: 0; transform: scale(0.95) translateY(10px); }
-        }
-        .data-\\[state=closed\\]_animate-fade-out-slow {
-          animation: fade-out-slow 0.5s cubic-bezier(0.7, 0, 0.84, 0) forwards;
-        }
-      `}</style>
     </SectionContainer>
   );
 }

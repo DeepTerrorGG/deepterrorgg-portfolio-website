@@ -117,7 +117,7 @@ export default function AboutPage() {
       
       <div className="mt-16">
         <h2 className="text-3xl font-bold text-center text-foreground mb-12">
-          Technologies I Use
+          My Technology Stack
         </h2>
 
         <div className="space-y-10">

@@ -1,4 +1,4 @@
-
+// src/app/projects/page.tsx
 'use client';
 
 import React, { useState } from 'react';
@@ -13,10 +13,14 @@ import { Badge } from '@/components/ui/badge';
 import FractalRenderer from '@/components/projects/fractal-renderer';
 import Calculator3D from '@/components/projects/calculator-3d';
 import SimpleTextAnimator from '@/components/projects/simple-text-animator';
+import { TechStack } from '@/components/ui/tech-stack';
 import { Maximize, ExternalLink, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
-import Autoplay from "embla-carousel-autoplay";
+
+interface Technology {
+  name: string;
+  iconSrc: string;
+}
 
 interface Project {
   id: string;
@@ -28,6 +32,7 @@ interface Project {
   longDescription?: string;
   personalNote: string;
   difficulty: 'Easy' | 'Medium' | 'Hard' | 'Community';
+  technologies: Technology[];
   component?: React.ReactNode;
   externalLink?: string;
 }
@@ -44,6 +49,11 @@ const projectsData: Project[] = [
     personalNote: "This was the lightest project I’ve done—just a basic calculator I built mostly for practice. It gave me a chance to play around with UI design and keep intrigued. Sometimes it’s nice to take a break from the deep stuff and just create something simple and clean.",
     difficulty: 'Easy',
     component: <Calculator3D />,
+    technologies: [
+      { name: 'React', iconSrc: '/icons/react.svg' },
+      { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },
+      { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss.svg' },
+    ],
   },
   {
     id: 'text-animator',
@@ -56,6 +66,11 @@ const projectsData: Project[] = [
     personalNote: "This project is a bit more complex than the calculator, and honestly, it sounded cooler in my head when I started. It was fun to build and felt a little more purposeful, but it still ended up feeling a bit too simple for my taste. Still, it was a cool learning experience.",
     difficulty: 'Medium',
     component: <SimpleTextAnimator />,
+    technologies: [
+      { name: 'React', iconSrc: '/icons/react.svg' },
+      { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },
+      { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss.svg' },
+    ],
   },
   {
     id: 'fractal-explorer',
@@ -68,6 +83,11 @@ const projectsData: Project[] = [
     personalNote: 'This one’s my favorite by far. It hits that level of complexity and uniqueness that I really enjoy. There’s something about the way fractals build beauty out of patterns and depth that just feels meaningful to me. It’s definitely not perfect, but that makes me like it even more.',
     difficulty: 'Hard',
     component: <FractalRenderer />,
+    technologies: [
+      { name: 'React', iconSrc: '/icons/react.svg' },
+      { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },
+      { name: 'Canvas API', iconSrc: '/icons/canvas.svg' },
+    ],
   },
 ];
 
@@ -91,6 +111,12 @@ const communityProject: Project = {
   difficulty: 'Community',
   externalLink: 'https://silent-horizon.com/',
   personalNote: "Honestly, this project isn't my favorite, as it was mostly done for friends. While it's a cool project that has a lot to offer, it can also be incredibly draining. Managing a team of 10 staff members, keeping the community engaged, and rolling out regular events and updates is a huge undertaking. It was a massive learning experience in community management, but it's not where my personal passion lies.",
+  technologies: [
+      { name: 'Java', iconSrc: '/icons/java.svg' },
+      { name: 'Pterodactyl', iconSrc: '/icons/pterodactyl.svg' },
+      { name: 'MySQL', iconSrc: '/icons/mysql.svg' },
+      { name: 'Docker', iconSrc: '/icons/docker.svg' },
+  ]
 };
 
 export default function ProjectsPage() {
@@ -160,8 +186,11 @@ export default function ProjectsPage() {
               </Badge>
             </div>
             <CardDescription className="text-muted-foreground text-sm line-clamp-3 mb-3">{project.description}</CardDescription>
-            <p className="text-sm text-muted-foreground font-semibold mt-auto border-l-4 border-border pl-4">{project.personalNote}</p>
+            <p className="text-sm text-muted-foreground font-semibold border-l-4 border-border pl-4">{project.personalNote}</p>
           </CardContent>
+          <CardFooter className="p-4 pt-0 mt-auto">
+             <TechStack technologies={project.technologies} />
+          </CardFooter>
         </Card>
       </DialogTrigger>
 
@@ -216,7 +245,8 @@ export default function ProjectsPage() {
                 </div>
                 <CardDescription className="text-muted-foreground text-sm mb-4">{communityProject.description}</CardDescription>
                 <p className="text-sm text-muted-foreground font-semibold mb-6 border-l-4 border-border pl-4">{communityProject.personalNote}</p>
-                <CardFooter className="p-0 mt-auto">
+                <CardFooter className="p-0 mt-auto flex-col items-start gap-4">
+                     <TechStack technologies={communityProject.technologies} />
                     <Button asChild variant="outline" className="w-full" onClick={() => openModal(communityProject)}>
                         <Link href={communityProject.externalLink || '#'}>
                             <ExternalLink className="mr-2 h-4 w-4" /> Visit Site
@@ -246,4 +276,3 @@ export default function ProjectsPage() {
     </SectionContainer>
   );
 }
-

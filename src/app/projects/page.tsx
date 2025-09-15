@@ -86,7 +86,7 @@ const projectsData: Project[] = [
     technologies: [
       { name: 'React', iconSrc: '/icons/react.svg' },
       { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },
-      { name: 'Canvas API', iconSrc: '/icons/canvas.svg' },
+      { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss.svg' },
     ],
   },
 ];

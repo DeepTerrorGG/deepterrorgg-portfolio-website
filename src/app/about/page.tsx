@@ -76,7 +76,7 @@ export default function AboutPage() {
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         <div className="md:col-span-1">
-          <Card className="bg-card border-border h-full flex flex-col">
+          <Card className="bg-card border-border h-full">
             <CardHeader className="p-0">
               <Image
                 src="https://i.imgur.com/wcHgOHv.png"

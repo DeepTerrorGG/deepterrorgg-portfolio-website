@@ -96,6 +96,36 @@ const artworksData: Artwork[] = [
     width: 600,
     height: 950,
   },
+  {
+    id: '7',
+    title: 'SteamArtworkV7',
+    src: 'https://i.imgur.com/8i9b6vX.png',
+    alt: 'Steam Artwork V7',
+    description: 'A digital artwork, version 7, exploring dark themes with a mysterious figure.',
+    hint: 'dark mystery',
+    width: 600,
+    height: 950,
+  },
+  {
+    id: '8',
+    title: 'SteamArtworkV8',
+    src: 'https://i.imgur.com/0uA4RzV.png',
+    alt: 'Steam Artwork V8',
+    description: 'A digital artwork, version 8, with a dramatic, high-contrast composition.',
+    hint: 'contrast dramatic',
+    width: 600,
+    height: 950,
+  },
+  {
+    id: '9',
+    title: 'SteamArtworkV9',
+    src: 'https://i.imgur.com/8t3h6D9.png',
+    alt: 'Steam Artwork V9',
+    description: 'A digital artwork, version 9, featuring a stylized character with glowing elements.',
+    hint: 'glowing character',
+    width: 600,
+    height: 950,
+  },
 ];
 
 

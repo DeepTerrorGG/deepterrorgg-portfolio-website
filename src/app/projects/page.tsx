@@ -116,7 +116,7 @@ const communityProject: Project = {
   description: 'A Balkan Minecraft server community project with Survival, Skyblock, and Prison modes. Open for everyone to join and play.',
   difficulty: 'Community',
   externalLink: 'https://silent-horizon.com/',
-  personalNote: "Honestly, this project isn't my favorite, as it was mostly done for friends. While it's a cool project that has a lot to offer, it can also be incredibly draining. Managing a team of 10 staff members, keeping the community engaged, and rolling out regular events and updates is a huge undertaking. It was a massive learning experience in community management, but it's not where my personal passion lies.",
+  personalNote: "This project challenged me in ways I didn’t expect, as it was mostly done for friends. While it's a cool project that has a lot to offer, it can also be incredibly draining. Managing a team of 10 staff members, keeping the community engaged, and rolling out regular events and updates is a huge undertaking. It was a massive learning experience in community management, but it's not where my personal passion lies.",
   technologies: [
       { name: 'Java', iconSrc: '/icons/java.svg', href: 'https://www.java.com/' },
       { name: 'Pterodactyl', iconSrc: '/icons/pterodactyl.svg', href: 'https://pterodactyl.io/' },

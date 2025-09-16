@@ -5,6 +5,7 @@ import './globals.css';
 import Header from '@/components/layout/header';
 import { Toaster } from "@/components/ui/toaster";
 import { cn } from '@/lib/utils';
+import Background from '@/components/layout/background';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -40,8 +41,9 @@ export default function RootLayout({
         className="antialiased bg-background text-foreground font-sans flex flex-col min-h-screen"
         suppressHydrationWarning={true}
       >
+        <Background />
         <Header />
-        <main className="pt-20 md:pt-24 flex-grow">
+        <main className="pt-20 md:pt-24 flex-grow z-10">
           {children}
         </main>
         <Toaster />

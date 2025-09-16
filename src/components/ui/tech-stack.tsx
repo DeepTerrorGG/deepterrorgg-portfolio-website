@@ -45,13 +45,17 @@ const TechBadge = ({ tech }: { tech: Technology }) => {
     </>
   );
 
-  const badgeClasses = "flex items-center gap-2 rounded-md border border-border bg-card px-2 py-1 transition-colors group";
+  const badgeClasses = "flex items-center gap-2 rounded-md border border-border bg-card px-2 py-1 transition-all duration-300 group";
+
+  const handleClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+  };
 
   if (tech.href) {
     return (
       <Tooltip>
         <TooltipTrigger asChild>
-          <Link href={tech.href} target="_blank" rel="noopener noreferrer" className={cn(badgeClasses, "cursor-pointer hover:border-primary/50 hover:bg-muted/50")}>
+          <Link href={tech.href} target="_blank" rel="noopener noreferrer" className={cn(badgeClasses, "cursor-pointer hover:border-primary/50 hover:shadow-md hover:-translate-y-0.5")} onClick={handleClick}>
             {content}
           </Link>
         </TooltipTrigger>
@@ -97,6 +101,11 @@ export function TechStack({ technologies, maxVisible = 3, className }: TechStack
       </>
     );
 
+    const handleClick = (e: React.MouseEvent) => {
+      e.stopPropagation();
+    };
+
+
     if (tech.href) {
       return (
         <li className="p-0 m-0">
@@ -105,6 +114,7 @@ export function TechStack({ technologies, maxVisible = 3, className }: TechStack
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center gap-2 rounded-md p-1.5 -mx-1.5 hover:bg-muted group"
+            onClick={handleClick}
           >
             {itemContent}
           </Link>
@@ -128,12 +138,15 @@ export function TechStack({ technologies, maxVisible = 3, className }: TechStack
         {hiddenTech.length > 0 && (
           <Popover>
             <PopoverTrigger asChild>
-                <button className="flex items-center justify-center gap-1 rounded-md border border-dashed border-border bg-card px-2 py-1 cursor-pointer h-[26px] w-[34px] hover:bg-muted/50 hover:border-solid transition-all">
+                <button 
+                  onClick={(e) => e.stopPropagation()} 
+                  className="flex items-center justify-center gap-1 rounded-md border border-dashed border-border bg-card px-2 py-1 cursor-pointer h-[26px] w-[34px] hover:bg-muted/50 hover:border-solid transition-all"
+                >
                     <Plus className="h-3 w-3 text-muted-foreground"/>
                     <span className="text-xs font-bold text-muted-foreground">{hiddenTech.length}</span>
                 </button>
             </PopoverTrigger>
-            <PopoverContent className="p-2 w-auto">
+            <PopoverContent className="p-2 w-auto" onClick={(e) => e.stopPropagation()}>
               <ul className="list-none p-0 m-0 space-y-1">
                 {hiddenTech.map((tech) => (
                   <PopoverListItem key={tech.name} tech={tech} />

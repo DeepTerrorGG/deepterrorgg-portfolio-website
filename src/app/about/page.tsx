@@ -74,28 +74,28 @@ export default function AboutPage() {
         About Me
       </PageTitle>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-        <div className="md:col-span-1">
-          <Card className="bg-card border-border h-full">
-            <CardHeader className="p-0">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="lg:col-span-1">
+          <Card className="bg-card border-border h-full flex flex-col">
+            <CardHeader className="p-0 relative aspect-[540/960] w-full">
               <Image
                 src="https://i.imgur.com/wcHgOHv.png"
                 alt="Profile picture"
-                width={600}
-                height={600}
-                className="rounded-t-lg w-full h-auto"
+                fill
+                sizes="(max-width: 1023px) 100vw, 33vw"
+                className="rounded-t-lg object-cover"
                 data-ai-hint="artist profile"
                 priority
               />
             </CardHeader>
-            <CardContent className="pt-4 text-center">
+            <CardContent className="pt-4 text-center flex-grow flex flex-col justify-center">
               <CardTitle className="text-2xl text-primary">DeepTerrorGG</CardTitle>
               <p className="text-muted-foreground mt-1">Programer &amp; Digital Artist</p>
             </CardContent>
           </Card>
         </div>
 
-        <div className="md:col-span-2">
+        <div className="lg:col-span-2">
           <Card className="bg-card border-border h-full flex flex-col">
             <CardHeader className="flex items-center justify-center">
               <CardTitle className="flex items-center justify-center gap-2 text-xl text-foreground">
@@ -103,7 +103,7 @@ export default function AboutPage() {
                 My Story &amp; Beyond
               </CardTitle>
             </CardHeader>
-            <CardContent className="text-muted-foreground space-y-6 text-base md:text-lg lg:text-xl leading-relaxed flex-grow">
+            <CardContent className="text-muted-foreground space-y-4 md:space-y-6 text-base md:text-lg lg:text-xl leading-relaxed flex-grow">
               <p>
                 I’m DeepTerrorGG, a developer and digital artist exploring where code, emotion, and imagination meet. My journey into art didn’t start with a plan; it started with a feeling, sparked by the style and honest energy of artist <Link href="https://www.tiktok.com/@hinxycrybaby" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">@hinxycrybaby</Link>. That inspiration is what pushed me to start creating on my own.
               </p>

@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -103,7 +104,9 @@
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground font-sans; /* Use font-sans from Tailwind config */
+    @apply text-foreground font-sans;
+    /* The background is now handled by the Background component */
+    background-color: hsl(var(--background)); 
   }
 }
 

@@ -13,8 +13,14 @@ import FractalRenderer from '@/components/projects/fractal-renderer';
 import Calculator3D from '@/components/projects/calculator-3d';
 import SimpleTextAnimator from '@/components/projects/simple-text-animator';
 import { TechStack } from '@/components/ui/tech-stack';
-import { ExternalLink } from 'lucide-react';
+import { ExternalLink, Maximize } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 
 interface Technology {
   name: string;
@@ -127,6 +133,7 @@ const communityProject: Project = {
 };
 
 export default function ProjectsPage() {
+  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
 
   const getDifficultyBadgeVariant = (difficulty: Project['difficulty']) => {
     switch (difficulty) {
@@ -138,9 +145,17 @@ export default function ProjectsPage() {
     }
   };
 
-  const ProjectCardContent = ({ project }: { project: Project }) => (
+  const ProjectCardContent = ({ project, onClick }: { project: Project, onClick?: () => void }) => (
     <Card
-      className="bg-card border-border rounded-lg overflow-hidden shadow-lg flex flex-col h-full"
+      onClick={onClick}
+      className={cn(
+        "bg-card border-border rounded-lg overflow-hidden shadow-lg flex flex-col h-full group",
+        onClick && "cursor-pointer transition-all duration-300 hover:shadow-primary/30 hover:border-primary/80"
+      )}
+      role={onClick ? 'button' : 'article'}
+      tabIndex={onClick ? 0 : -1}
+      onKeyDown={onClick ? (e) => e.key === 'Enter' && onClick() : undefined}
+      aria-label={onClick ? `Open project: ${project.title}`: project.title}
     >
       <div className="relative w-full overflow-hidden rounded-t-lg aspect-video">
         <Image
@@ -148,15 +163,22 @@ export default function ProjectsPage() {
           alt={project.imageAlt}
           fill
           sizes="(max-width: 1024px) 100vw, 33vw"
-          className="object-cover"
+          className="object-cover transition-transform duration-300"
           data-ai-hint={project.imageHint}
           priority={project.id !== 'silent-horizon'}
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/20" />
+        {onClick && (
+            <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                <div className="p-2 bg-background/70 rounded-full">
+                    <Maximize className="h-4 w-4 text-foreground" />
+                </div>
+            </div>
+        )}
       </div>
       <CardContent className="p-4 flex flex-col flex-grow">
         <div className="flex justify-between items-start mb-2">
-          <CardTitle className="text-lg font-semibold text-foreground">{project.title}</CardTitle>
+          <CardTitle className="text-lg font-semibold text-foreground group-hover:text-primary transition-colors">{project.title}</CardTitle>
           <Badge variant={getDifficultyBadgeVariant(project.difficulty)} className="ml-2 shrink-0">
             {project.difficulty}
           </Badge>
@@ -178,57 +200,75 @@ export default function ProjectsPage() {
         </Link>
       );
     }
+    
+    if (project.component) {
+        return <ProjectCardContent project={project} onClick={() => setSelectedProject(project)} />;
+    }
 
     return <ProjectCardContent project={project} />;
   };
 
   return (
-    <SectionContainer>
-      <PageTitle subtitle="Explore a selection of my creative and technical projects. Click a project to learn more or visit the site.">
-        My Projects
-      </PageTitle>
+    <>
+      <SectionContainer>
+        <PageTitle subtitle="Explore a selection of my creative and technical projects. Click a project to learn more or visit the site.">
+          My Projects
+        </PageTitle>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {projectsData.map((project) => (
-          <ProjectCard key={project.id} project={project} />
-        ))}
-      </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {projectsData.map((project) => (
+            <ProjectCard key={project.id} project={project} />
+          ))}
+        </div>
 
-      <div className="mt-16 pt-10 border-t border-border/50">
-        <Card className="bg-card border-border rounded-lg overflow-hidden shadow-lg flex flex-col md:flex-row">
-            <div className="relative md:w-1/2 lg:w-3/5 xl:w-2/3 h-64 md:h-auto">
-                 <Image 
-                    src={communityProject.imageUrls[0]} 
-                    alt={communityProject.imageAlt} 
-                    width={1920}
-                    height={1080}
-                    className="object-cover w-full h-full"
-                    data-ai-hint={communityProject.imageHint}
-                    priority
-                    sizes="(max-width: 767px) 100vw, (max-width: 1023px) 50vw, (max-width: 1279px) 60vw, 67vw"
-                />
+        <div className="mt-16 pt-10 border-t border-border/50">
+          <Card className="bg-card border-border rounded-lg overflow-hidden shadow-lg flex flex-col md:flex-row">
+              <div className="relative md:w-1/2 lg:w-3/5 xl:w-2/3 h-64 md:h-auto">
+                  <Image 
+                      src={communityProject.imageUrls[0]} 
+                      alt={communityProject.imageAlt} 
+                      width={1920}
+                      height={1080}
+                      className="object-cover w-full h-full"
+                      data-ai-hint={communityProject.imageHint}
+                      priority
+                      sizes="(max-width: 767px) 100vw, (max-width: 1023px) 50vw, (max-width: 1279px) 60vw, 67vw"
+                  />
+              </div>
+            
+              <div className="p-6 flex flex-col flex-grow md:w-1/2 lg:w-2/5 xl:w-1/3">
+                  <div className="flex justify-between items-start mb-3">
+                      <CardTitle className="text-xl md:text-2xl font-semibold text-foreground">{communityProject.title}</CardTitle>
+                      <Badge variant={getDifficultyBadgeVariant(communityProject.difficulty)} className="ml-3 shrink-0">
+                      {communityProject.difficulty}
+                      </Badge>
+                  </div>
+                  <CardDescription className="text-muted-foreground text-sm md:text-base mb-4">{communityProject.description}</CardDescription>
+                  <p className="text-sm md:text-base text-muted-foreground font-semibold mb-6 border-l-4 border-border pl-4">{communityProject.personalNote}</p>
+                  <CardFooter className="p-0 mt-auto flex-col items-start gap-4">
+                      <TechStack technologies={communityProject.technologies} />
+                      <Button asChild variant="outline" className="w-full" >
+                          <Link href={communityProject.externalLink || '#'}>
+                              <ExternalLink className="mr-2 h-4 w-4" /> Visit Site
+                          </Link>
+                      </Button>
+                  </CardFooter>
+              </div>
+          </Card>
+        </div>
+      </SectionContainer>
+       {selectedProject && (
+        <Dialog open={!!selectedProject} onOpenChange={(isOpen) => !isOpen && setSelectedProject(null)}>
+          <DialogContent className="max-w-4xl h-[80vh] flex flex-col p-0">
+            <DialogHeader className="p-4 border-b">
+              <DialogTitle>{selectedProject.title}</DialogTitle>
+            </DialogHeader>
+            <div className="flex-grow overflow-auto">
+              {selectedProject.component}
             </div>
-          
-            <div className="p-6 flex flex-col flex-grow md:w-1/2 lg:w-2/5 xl:w-1/3">
-                <div className="flex justify-between items-start mb-3">
-                    <CardTitle className="text-xl font-semibold text-foreground">{communityProject.title}</CardTitle>
-                    <Badge variant={getDifficultyBadgeVariant(communityProject.difficulty)} className="ml-3 shrink-0">
-                    {communityProject.difficulty}
-                    </Badge>
-                </div>
-                <CardDescription className="text-muted-foreground text-sm mb-4">{communityProject.description}</CardDescription>
-                <p className="text-sm text-muted-foreground font-semibold mb-6 border-l-4 border-border pl-4">{communityProject.personalNote}</p>
-                <CardFooter className="p-0 mt-auto flex-col items-start gap-4">
-                     <TechStack technologies={communityProject.technologies} />
-                    <Button asChild variant="outline" className="w-full" >
-                        <Link href={communityProject.externalLink || '#'}>
-                            <ExternalLink className="mr-2 h-4 w-4" /> Visit Site
-                        </Link>
-                    </Button>
-                </CardFooter>
-            </div>
-        </Card>
-      </div>
-    </SectionContainer>
+          </DialogContent>
+        </Dialog>
+      )}
+    </>
   );
 }

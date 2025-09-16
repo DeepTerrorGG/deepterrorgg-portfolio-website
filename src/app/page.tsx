@@ -6,7 +6,7 @@ import Image from 'next/image';
 
 export default function HomePage() {
   return (
-    <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-20 flex flex-col items-center text-center min-h-[calc(100vh-80px)] justify-center">
+    <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-20 flex flex-col items-center text-center min-h-[calc(100vh-80px)] justify-center relative z-10">
       <div className="relative mb-8 animate-fade-in">
         <Image
           src="https://i.imgur.com/TsFpBse.png"

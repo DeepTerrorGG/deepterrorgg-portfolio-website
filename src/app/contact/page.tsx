@@ -6,7 +6,8 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import Link from 'next/link';
 import React from 'react';
-import { Mail, Send, MessageSquare, Instagram, Users, Music2, Loader2 } from 'lucide-react'; // Updated icons
+import { Mail, Send, MessageSquare, Loader2 } from 'lucide-react'; // Updated icons
+import Image from 'next/image';
 
 import PageTitle from '@/components/ui/page-title';
 import SectionContainer from '@/components/ui/section-container';
@@ -21,9 +22,9 @@ import { DirectMessageSchema } from './schema';
 
 
 const socialLinks = [
-  { name: 'Instagram', icon: Instagram, href: 'https://www.instagram.com/deep_terror_gg/?next=%2F', user: '@deep_terror_gg' },
-  { name: 'Discord', icon: Users, href: 'https://discord.gg/MmDB9ERuC3', user: 'Join Server' },
-  { name: 'TikTok', icon: Music2, href: 'https://www.tiktok.com/@deep_terror_gg', user: '@deep_terror_gg' },
+  { name: 'Instagram', iconSrc: '/icons/instagram.svg', href: 'https://www.instagram.com/deep_terror_gg/?next=%2F', user: '@deep_terror_gg' },
+  { name: 'Steam', iconSrc: '/icons/steam.svg', href: 'https://steamcommunity.com/id/DeepTerrorGG/', user: '@DeepTerrorGG' },
+  { name: 'TikTok', iconSrc: '/icons/tiktok.svg', href: 'https://www.tiktok.com/@deep_terror_gg', user: '@deep_terror_gg' },
 ];
 
 
@@ -211,7 +212,14 @@ export default function ContactPage() {
               {socialLinks.map((social) => (
                 <Button key={social.name} variant="outline" className="w-full justify-start group transition-all hover:border-primary hover:text-primary" asChild>
                   <Link href={social.href} target="_blank" rel="noopener noreferrer">
-                    <social.icon className="mr-3 h-5 w-5 text-primary group-hover:text-primary transition-colors" aria-hidden="true" />
+                    <Image 
+                      src={social.iconSrc}
+                      alt={`${social.name} icon`}
+                      width={20}
+                      height={20}
+                      className="mr-3 h-5 w-5 text-primary group-hover:text-primary transition-colors"
+                      unoptimized
+                    />
                     <span className="flex-1">{social.name}</span>
                     <span className="text-xs text-muted-foreground group-hover:text-primary">{social.user}</span>
                   </Link>

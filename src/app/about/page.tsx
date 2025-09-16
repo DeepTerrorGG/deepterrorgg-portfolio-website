@@ -103,7 +103,7 @@ export default function AboutPage() {
             </CardHeader>
             <CardContent className="text-muted-foreground space-y-6 text-base leading-relaxed">
               <p>
-                I’m DeepTerrorGG, a developer and digital artist exploring where code, emotion, and imagination meet. My journey into art didn’t start with a plan; it started with a feeling, sparked by the style and honest energy of artist <Link href="https://www.instagram.com/hinxycrybaby/" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">@hinxycrybaby</Link>. That inspiration is what pushed me to start creating on my own.
+                I’m DeepTerrorGG, a developer and digital artist exploring where code, emotion, and imagination meet. My journey into art didn’t start with a plan; it started with a feeling, sparked by the style and honest energy of artist <Link href="https://www.tiktok.com/@hinxycrybaby" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">@hinxycrybaby</Link>. That inspiration is what pushed me to start creating on my own.
               </p>
               <p>
                 For me, art isn’t just about visuals—it’s about expression. It’s how I work through thoughts, how I grow, and how I turn feelings into something you can see. Every project is a step toward becoming better, not just technically, but as a person. I’m learning, reflecting, and creating from a place that feels honest.

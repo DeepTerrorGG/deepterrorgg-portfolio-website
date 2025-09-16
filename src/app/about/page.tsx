@@ -34,7 +34,7 @@ const technologyCategories: TechCategory[] = [
   },
   {
     name: 'Backend & Languages',
-    icon: <Code className="mr-3 h-6 w-6 text-primary" />,
+    icon: <Code className="mr_3 h-6 w-6 text-primary" />,
     technologies: [
       { name: 'Node.js', href: 'https://nodejs.org/', iconSrc: '/icons/nodejs.svg' },
       { name: 'JavaScript', href: 'https://developer.mozilla.org/en-US/docs/Web/JavaScript', iconSrc: '/icons/javascript.svg' },
@@ -74,34 +74,36 @@ export default function AboutPage() {
         About Me
       </PageTitle>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-start">
-        <Card className="md:col-span-1 bg-card border-border">
-          <CardHeader className="p-0">
-            <Image
-              src="https://i.imgur.com/wcHgOHv.png"
-              alt="Profile picture"
-              width={600}
-              height={600}
-              className="rounded-t-lg w-full h-auto"
-              data-ai-hint="artist profile"
-              priority
-            />
-          </CardHeader>
-          <CardContent className="pt-4 flex-shrink-0">
-            <CardTitle className="text-2xl text-center text-primary">DeepTerrorGG</CardTitle>
-            <p className="text-muted-foreground text-center mt-1">Programer &amp; Digital Artist</p>
-          </CardContent>
-        </Card>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className="md:col-span-1">
+          <Card className="bg-card border-border h-full flex flex-col">
+            <CardHeader className="p-0">
+              <Image
+                src="https://i.imgur.com/wcHgOHv.png"
+                alt="Profile picture"
+                width={600}
+                height={600}
+                className="rounded-t-lg w-full h-auto"
+                data-ai-hint="artist profile"
+                priority
+              />
+            </CardHeader>
+            <CardContent className="pt-4 text-center">
+              <CardTitle className="text-2xl text-primary">DeepTerrorGG</CardTitle>
+              <p className="text-muted-foreground mt-1">Programer &amp; Digital Artist</p>
+            </CardContent>
+          </Card>
+        </div>
 
-        <div className="md:col-span-2 space-y-6">
-          <Card className="bg-card border-border">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-xl text-foreground">
+        <div className="md:col-span-2">
+          <Card className="bg-card border-border h-full flex flex-col">
+            <CardHeader className="flex items-center justify-center">
+              <CardTitle className="flex items-center justify-center gap-2 text-xl text-foreground">
                 <Brain aria-hidden="true" className="text-primary h-6 w-6" />
                 My Story &amp; Beyond
               </CardTitle>
             </CardHeader>
-            <CardContent className="text-muted-foreground space-y-6 text-base leading-relaxed">
+            <CardContent className="text-muted-foreground space-y-6 text-base md:text-lg lg:text-xl leading-relaxed flex-grow">
               <p>
                 I’m DeepTerrorGG, a developer and digital artist exploring where code, emotion, and imagination meet. My journey into art didn’t start with a plan; it started with a feeling, sparked by the style and honest energy of artist <Link href="https://www.tiktok.com/@hinxycrybaby" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">@hinxycrybaby</Link>. That inspiration is what pushed me to start creating on my own.
               </p>

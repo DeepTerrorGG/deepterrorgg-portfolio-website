@@ -34,7 +34,7 @@ const technologyCategories: TechCategory[] = [
   },
   {
     name: 'Backend & Languages',
-    icon: <Code className="mr_3 h-6 w-6 text-primary" />,
+    icon: <Code className="mr-3 h-6 w-6 text-primary" />,
     technologies: [
       { name: 'Node.js', href: 'https://nodejs.org/', iconSrc: '/icons/nodejs.svg' },
       { name: 'JavaScript', href: 'https://developer.mozilla.org/en-US/docs/Web/JavaScript', iconSrc: '/icons/javascript.svg' },
@@ -77,7 +77,7 @@ export default function AboutPage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-1">
           <Card className="bg-card border-border h-full flex flex-col">
-            <CardHeader className="p-0 relative aspect-[540/960] w-full">
+            <CardHeader className="p-0 relative aspect-square w-full">
               <Image
                 src="https://i.imgur.com/wcHgOHv.png"
                 alt="Profile picture"

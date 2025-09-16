@@ -18,17 +18,14 @@ const PlexusBackground: React.FC = () => {
     let particles: Particle[] = [];
 
     const options = {
-      particleColor: "rgba(255, 255, 255, 0.7)",
-      lineColor: "rgba(0, 128, 128, 0.3)", // Teal, semi-transparent
-      particleAmount: 50,
-      defaultRadius: 2,
+      particleColor: "rgba(255, 255, 255, 0.8)",
+      particleAmount: 100, // Increased for a denser starfield
+      defaultRadius: 1.5,
       variantRadius: 1,
-      defaultSpeed: 0.3,
-      variantSpeed: 0.5,
-      linkRadius: 200,
+      defaultSpeed: 0.05, // Slower for a calmer effect
+      variantSpeed: 0.1,
     };
     
-    // Set initial canvas size
     const resizeCanvas = () => {
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
@@ -41,6 +38,8 @@ const PlexusBackground: React.FC = () => {
       radius: number;
       vx: number;
       vy: number;
+      opacity: number;
+      opacitySpeed: number;
 
       constructor() {
         this.x = Math.random() * canvas.width;
@@ -48,21 +47,32 @@ const PlexusBackground: React.FC = () => {
         this.radius = options.defaultRadius + Math.random() * options.variantRadius;
         this.vx = (Math.random() - 0.5) * options.defaultSpeed;
         this.vy = (Math.random() - 0.5) * options.defaultSpeed;
+        this.opacity = Math.random() * 0.5 + 0.2; // Start with random opacity
+        this.opacitySpeed = (Math.random() - 0.5) * 0.01; // How fast it twinkles
       }
 
       update() {
         this.x += this.vx;
         this.y += this.vy;
 
-        if (this.x < 0 || this.x > canvas.width) this.vx *= -1;
-        if (this.y < 0 || this.y > canvas.height) this.vy *= -1;
+        // Wrap around edges
+        if (this.x < 0) this.x = canvas.width;
+        if (this.x > canvas.width) this.x = 0;
+        if (this.y < 0) this.y = canvas.height;
+        if (this.y > canvas.height) this.y = 0;
+
+        // Twinkle effect
+        this.opacity += this.opacitySpeed;
+        if (this.opacity <= 0.1 || this.opacity >= 0.8) {
+            this.opacitySpeed *= -1;
+        }
       }
 
       draw() {
         if(ctx){
             ctx.beginPath();
             ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-            ctx.fillStyle = options.particleColor;
+            ctx.fillStyle = `rgba(255, 255, 255, ${this.opacity})`;
             ctx.fill();
         }
       }
@@ -75,28 +85,6 @@ const PlexusBackground: React.FC = () => {
         }
     }
 
-    const linkParticles = () => {
-        for (let i = 0; i < particles.length; i++) {
-            for (let j = i + 1; j < particles.length; j++) {
-                const dx = particles[i].x - particles[j].x;
-                const dy = particles[i].y - particles[j].y;
-                const distance = Math.sqrt(dx * dx + dy * dy);
-
-                if (distance < options.linkRadius) {
-                    if(ctx){
-                        const opacity = 1 - (distance / options.linkRadius);
-                        ctx.beginPath();
-                        ctx.moveTo(particles[i].x, particles[i].y);
-                        ctx.lineTo(particles[j].x, particles[j].y);
-                        ctx.strokeStyle = `rgba(0, 128, 128, ${opacity * 0.5})`; // Dynamically adjust opacity
-                        ctx.lineWidth = 0.5;
-                        ctx.stroke();
-                    }
-                }
-            }
-        }
-    }
-    
     const animate = () => {
         if(ctx){
             ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -104,13 +92,12 @@ const PlexusBackground: React.FC = () => {
                 p.update();
                 p.draw();
             });
-            linkParticles();
         }
         animationFrameId = requestAnimationFrame(animate);
     };
 
     window.addEventListener('resize', resizeCanvas);
-    resizeCanvas(); // Initial setup
+    resizeCanvas();
     animate();
 
     return () => {

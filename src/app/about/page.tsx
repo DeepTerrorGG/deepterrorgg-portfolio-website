@@ -3,10 +3,11 @@ import Image from 'next/image';
 import PageTitle from '@/components/ui/page-title';
 import SectionContainer from '@/components/ui/section-container';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Brain, Code, Database, Layers, Component as TechComponent } from 'lucide-react';
+import { Brain, Code, Database, Layers, Component as TechComponent, Gamepad2 } from 'lucide-react';
 import type { ReactElement } from 'react';
 import { TechBadge } from '@/components/ui/tech-badge';
 import Link from 'next/link';
+import GameStack from '@/components/about/game-stack';
 
 interface Technology {
   name: string;
@@ -143,7 +144,19 @@ export default function AboutPage() {
             </div>
           ))}
         </div>
-        
+      </div>
+
+      <div className="mt-16">
+        <h2 className="flex items-center justify-center text-3xl font-bold text-center text-foreground mb-6">
+            <Gamepad2 className="mr-3 h-8 w-8 text-primary" />
+            My Favorite Games
+        </h2>
+        <p className="text-center text-muted-foreground mb-12 max-w-2xl mx-auto">
+            Here are some of the games that have inspired me and that I enjoy playing in my free time. You can interact with the models below!
+        </p>
+        <div className="relative w-full h-[500px] md:h-[600px] lg:h-[700px] rounded-lg overflow-hidden border border-border bg-card">
+            <GameStack />
+        </div>
       </div>
 
     </SectionContainer>

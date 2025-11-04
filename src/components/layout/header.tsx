@@ -25,26 +25,18 @@ export default function Header() {
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md shadow-md">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex h-16 md:h-20 items-center justify-between">
-          <Link href="/" className="flex items-center gap-2 group transition-transform hover:scale-105">
-            <FlameKindling aria-hidden="true" className="h-8 w-8 text-primary group-hover:animate-pulse" />
-            <span className="text-xl md:text-2xl font-bold text-foreground group-hover:text-primary transition-colors">
-              DeepTerrorGG
-            </span>
-          </Link>
-
-          {/* Desktop Navigation */}
+        <div className="flex h-16 md:h-20 items-center justify-center md:justify-center relative">
+          
+          {/* Desktop Navigation - Centered */}
           <nav className="hidden md:flex space-x-2 lg:space-x-4">
             {navLinks.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
                 className={cn(
-                  'px-3 py-2 rounded-md text-sm font-medium transition-all duration-300 ease-in-out',
-                  'hover:bg-accent hover:text-accent-foreground hover:shadow-lg',
-                  pathname === link.href
-                    ? 'bg-primary text-primary-foreground shadow-md scale-105'
-                    : 'text-foreground/80 hover:text-foreground'
+                  'relative px-3 py-2 text-sm font-medium text-foreground/80 transition-colors duration-300 hover:text-foreground',
+                  'after:absolute after:bottom-0 after:left-1/2 after:h-0.5 after:w-0 after:bg-primary after:transition-all after:duration-300 after:ease-out-cubic hover:after:w-full hover:after:left-0',
+                  pathname === link.href && 'text-foreground after:w-full after:left-0'
                 )}
               >
                 {link.label}
@@ -52,8 +44,8 @@ export default function Header() {
             ))}
           </nav>
 
-          {/* Mobile Navigation */}
-          <div className="md:hidden">
+          {/* Mobile Navigation - Burger menu remains on the right */}
+          <div className="md:hidden flex-1 flex justify-end">
             <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
               <SheetTrigger asChild>
                 <Button variant="ghost" size="icon" aria-label="Open menu">
@@ -66,7 +58,7 @@ export default function Header() {
                      <Link href="/" className="flex items-center gap-2" onClick={() => setIsMobileMenuOpen(false)}>
                       <FlameKindling aria-hidden="true" className="h-7 w-7 text-primary" />
                       <span className="text-lg font-bold text-foreground">
-                        DeepTerrorGG Menu
+                        Navigation
                       </span>
                     </Link>
                   </SheetTitle>

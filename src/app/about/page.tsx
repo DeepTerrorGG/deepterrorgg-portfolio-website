@@ -13,7 +13,6 @@ import { Skeleton } from '@/components/ui/skeleton';
 
 const GameStack = dynamic(() => import('@/components/about/game-stack'), {
   ssr: false,
-  loading: () => <Skeleton className="absolute inset-0 w-full h-full" />,
 });
 
 interface Technology {

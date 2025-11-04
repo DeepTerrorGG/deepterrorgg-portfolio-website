@@ -6,13 +6,16 @@ service cloud.firestore {
       allow read, write: if request.auth.uid == playerId;
     }
     
-    // Game documents can be read by anyone, but only modified by the players
-    // involved in that game.
+    // Allow any authenticated user to list the games collection to find waiting games.
+    match /games {
+      allow list: if request.auth != null;
+    }
+
+    // Game documents can be read by anyone, but only created by authenticated users
+    // and modified by the players involved in that game.
     match /games/{gameId} {
-      allow read: if true; // Allows games to be found and joined
-      allow create: if request.auth != null; // Any authenticated user can create
-      
-      // Only players in the game can update or delete it
+      allow get: if true;
+      allow create: if request.auth != null;
       allow update, delete: if request.auth != null && (request.auth.uid == resource.data.player1Id || request.auth.uid == resource.data.player2Id);
     }
   }

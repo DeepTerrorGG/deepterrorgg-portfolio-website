@@ -1,32 +1,45 @@
 
 'use client';
 
-import Spline from '@splinetool/react-spline';
-import { Application } from '@splinetool/runtime';
-import { useRef } from 'react';
+import type { Application } from '@splinetool/runtime';
+import { useRef, useState, useEffect } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
 
 export default function GameStack() {
-    const spline = useRef<Application>();
+  const [Spline, setSpline] = useState<React.ComponentType<any> | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const spline = useRef<Application>();
 
-    function onLoad(splineApp: Application) {
-      spline.current = splineApp;
-    }
+  useEffect(() => {
+    import('@splinetool/react-spline').then((module) => {
+      setSpline(() => module.default);
+    });
+  }, []);
+
+  function onLoad(splineApp: Application) {
+    spline.current = splineApp;
+    setIsLoading(false);
+  }
 
   return (
     <>
-    <Skeleton className="absolute inset-0 w-full h-full" />
-    <Spline
-        style={{
+      {(isLoading || !Spline) && <Skeleton className="absolute inset-0 w-full h-full" />}
+      {Spline && (
+        <div style={{
             position: 'absolute',
             top: 0,
             left: 0,
             width: '100%',
             height: '100%',
-        }}
-        scene="https://prod.spline.design/wl4X9XbiCMDi6bUv/scene.splinecode"
-        onLoad={onLoad}
-    />
+            opacity: isLoading ? 0 : 1, // Fade in
+            transition: 'opacity 500ms ease-in-out',
+          }}>
+          <Spline
+            scene="https://prod.spline.design/wl4X9XbiCMDi6bUv/scene.splinecode"
+            onLoad={onLoad}
+          />
+        </div>
+      )}
     </>
   );
 }

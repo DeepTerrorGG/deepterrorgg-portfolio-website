@@ -1,4 +1,5 @@
 
+'use client';
 import Image from 'next/image';
 import PageTitle from '@/components/ui/page-title';
 import SectionContainer from '@/components/ui/section-container';
@@ -7,7 +8,13 @@ import { Brain, Code, Database, Layers, Component as TechComponent, Gamepad2 } f
 import type { ReactElement } from 'react';
 import { TechBadge } from '@/components/ui/tech-badge';
 import Link from 'next/link';
-import GameStack from '@/components/about/game-stack';
+import dynamic from 'next/dynamic';
+import { Skeleton } from '@/components/ui/skeleton';
+
+const GameStack = dynamic(() => import('@/components/about/game-stack'), {
+  ssr: false,
+  loading: () => <Skeleton className="absolute inset-0 w-full h-full" />,
+});
 
 interface Technology {
   name: string;

@@ -1,0 +1,19 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Players can only manage their own profile.
+    match /players/{playerId} {
+      allow read, write: if request.auth.uid == playerId;
+    }
+    
+    // Game documents can be read by anyone, but only modified by the players
+    // involved in that game.
+    match /games/{gameId} {
+      allow read: if true; // Allows games to be found and joined
+      allow create: if request.auth != null; // Any authenticated user can create
+      
+      // Only players in the game can update or delete it
+      allow update, delete: if request.auth != null && (request.auth.uid == resource.data.player1Id || request.auth.uid == resource.data.player2Id);
+    }
+  }
+}

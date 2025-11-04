@@ -6,6 +6,7 @@ import Header from '@/components/layout/header';
 import { Toaster } from "@/components/ui/toaster";
 import { cn } from '@/lib/utils';
 import PlexusBackground from '@/components/layout/plexus-background';
+import { FirebaseClientProvider } from '@/firebase';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -41,12 +42,14 @@ export default function RootLayout({
         className="antialiased bg-background text-foreground font-sans flex flex-col min-h-screen"
         suppressHydrationWarning={true}
       >
-        <PlexusBackground />
-        <Header />
-        <main className="pt-20 md:pt-24 flex-grow z-10">
-          {children}
-        </main>
-        <Toaster />
+        <FirebaseClientProvider>
+          <PlexusBackground />
+          <Header />
+          <main className="pt-20 md:pt-24 flex-grow z-10">
+            {children}
+          </main>
+          <Toaster />
+        </FirebaseClientProvider>
       </body>
     </html>
   );

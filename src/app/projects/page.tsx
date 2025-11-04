@@ -13,7 +13,7 @@ import FractalRenderer from '@/components/projects/fractal-renderer';
 import Calculator3D from '@/components/projects/calculator-3d';
 import SimpleTextAnimator from '@/components/projects/simple-text-animator';
 import { TechStack } from '@/components/ui/tech-stack';
-import { ExternalLink, Maximize } from 'lucide-react';
+import { ExternalLink, Maximize, Rocket } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import {
   Dialog,
@@ -21,6 +21,9 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import TodoList from '@/components/projects/todo-list';
+import UnitConverter from '@/components/projects/unit-converter';
+import TicTacToe from '@/components/projects/tic-tac-toe';
 
 interface Technology {
   name: string;
@@ -37,13 +40,45 @@ interface Project {
   description: string;
   longDescription?: string;
   personalNote: string;
-  difficulty: 'Easy' | 'Medium' | 'Hard' | 'Community';
+  difficulty: 'Easy' | 'Medium' | 'Hard' | 'Community' | 'Advanced';
   technologies: Technology[];
   component?: React.ReactNode;
   externalLink?: string;
 }
 
 const projectsData: Project[] = [
+    {
+    id: 'todo-list',
+    title: 'To-Do List App',
+    imageUrls: ['https://placehold.co/600x400/000000/808080/png?text=To-Do+List'],
+    imageAlt: 'To-Do List App interface',
+    imageHint: 'todo list interface',
+    description: 'Simple CRUD app where users can add, edit, and delete tasks. Data is saved to local storage.',
+    personalNote: "A classic project to practice state management and browser storage. It's a great way to understand the fundamentals of data persistence on the client-side.",
+    difficulty: 'Easy',
+    component: <TodoList />,
+    technologies: [
+      { name: 'React', iconSrc: '/icons/react.svg', href: 'https://react.dev/' },
+      { name: 'TypeScript', iconSrc: '/icons/typescript.svg', href: 'https://www.typescriptlang.org/' },
+      { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss.svg', href: 'https://tailwindcss.com/' },
+    ],
+  },
+  {
+    id: 'unit-converter',
+    title: 'Universal Converter',
+    imageUrls: ['https://placehold.co/600x400/000000/808080/png?text=Unit+Converter'],
+    imageAlt: 'Unit Converter interface for various measurements',
+    imageHint: 'converter app interface',
+    description: 'A versatile tool to convert between various units like Temperature, Length, and Weight.',
+    personalNote: 'A straightforward app that is excellent for understanding controlled components, state synchronization, and handling different calculation logic in a clean way.',
+    difficulty: 'Easy',
+    component: <UnitConverter />,
+    technologies: [
+      { name: 'React', iconSrc: '/icons/react.svg', href: 'https://react.dev/' },
+      { name: 'TypeScript', iconSrc: '/icons/typescript.svg', href: 'https://www.typescriptlang.org/' },
+      { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss.svg', href: 'https://tailwindcss.com/' },
+    ],
+  },
   {
     id: 'calculator',
     title: 'Interactive Calculator',
@@ -59,6 +94,24 @@ const projectsData: Project[] = [
       { name: 'React', iconSrc: '/icons/react.svg', href: 'https://react.dev/' },
       { name: 'TypeScript', iconSrc: '/icons/typescript.svg', href: 'https://www.typescriptlang.org/' },
       { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss.svg', href: 'https://tailwindcss.com/' },
+    ],
+  },
+    {
+    id: 'tic-tac-toe',
+    title: 'Real-Time Multiplayer Game',
+    imageUrls: ['https://placehold.co/600x400/000000/808080/png?text=Tic-Tac-Toe'],
+    imageAlt: 'Tic-Tac-Toe multiplayer game',
+    imageHint: 'tic tac toe game',
+    description: 'A classic Tic-Tac-Toe game with real-time multiplayer support using Firebase.',
+    personalNote: "This project was a great introduction to real-time databases and handling concurrent user interactions. It's a simple concept but has a surprising amount of depth when you factor in the networking.",
+    difficulty: 'Advanced',
+    component: <TicTacToe />,
+    technologies: [
+      { name: 'React', iconSrc: '/icons/react.svg', href: 'https://react.dev/' },
+      { name: 'TypeScript', iconSrc: '/icons/typescript.svg', href: 'https://www.typescriptlang.org/' },
+      { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss.svg', href: 'https://tailwindcss.com/' },
+      { name: 'Firebase', iconSrc: '/icons/firebase.svg', href: 'https://firebase.google.com/' },
+      { name: 'Firebase Auth', iconSrc: '/icons/firebase-auth.svg', href: 'https://firebase.google.com/docs/auth' },
     ],
   },
   {
@@ -140,6 +193,7 @@ export default function ProjectsPage() {
       case 'Easy': return 'default';
       case 'Medium': return 'secondary';
       case 'Hard': return 'destructive';
+      case 'Advanced': return 'destructive';
       case 'Community': return 'outline';
       default: return 'outline';
     }
@@ -222,6 +276,14 @@ export default function ProjectsPage() {
         </div>
 
         <div className="mt-16 pt-10 border-t border-border/50">
+          <h2 className="text-3xl font-bold text-center text-foreground mb-4 flex items-center justify-center gap-3">
+            <Rocket className="w-8 h-8 text-primary" />
+            Community Startups
+          </h2>
+          <p className="mt-2 text-lg text-muted-foreground max-w-2xl mx-auto text-center mb-12">
+            Beyond personal projects, I've also managed larger, community-driven ventures. Here's a look at one of them.
+          </p>
+
           <Card className="bg-card border-border rounded-lg overflow-hidden shadow-lg flex flex-col md:flex-row">
               <div className="relative md:w-1/2 lg:w-3/5 xl:w-2/3 h-64 md:h-auto">
                   <Image 

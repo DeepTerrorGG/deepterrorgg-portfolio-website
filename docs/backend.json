@@ -1,0 +1,91 @@
+{
+  "entities": {
+    "Game": {
+      "title": "Game",
+      "type": "object",
+      "description": "Represents a Tic-Tac-Toe game session.",
+      "properties": {
+        "board": {
+          "type": "array",
+          "description": "An array of 9 elements representing the game board.",
+          "items": {
+            "type": ["string", "null"],
+            "enum": ["X", "O", null]
+          }
+        },
+        "player1Id": {
+          "type": "string",
+          "description": "The UID of player 1 (X)."
+        },
+        "player2Id": {
+          "type": "string",
+          "description": "The UID of player 2 (O)."
+        },
+        "currentPlayer": {
+          "type": "string",
+          "enum": ["X", "O"],
+          "description": "The symbol of the player whose turn it is."
+        },
+        "status": {
+          "type": "string",
+          "enum": ["waiting", "in-progress", "finished"],
+          "description": "The current status of the game."
+        },
+        "winner": {
+          "type": ["string", "null"],
+          "enum": ["X", "O", "draw", null],
+          "description": "The winner of the game, or 'draw'."
+        },
+        "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Timestamp when the game was created."
+        }
+      },
+      "required": ["board", "player1Id", "currentPlayer", "status", "createdAt"]
+    },
+    "Player": {
+      "title": "Player",
+      "type": "object",
+      "description": "Represents a player in the system.",
+      "properties": {
+        "uid": {
+          "type": "string",
+          "description": "The unique identifier for the player (from Firebase Auth)."
+        },
+        "displayName": {
+            "type": "string",
+            "description": "The player's display name."
+        }
+      },
+      "required": ["uid"]
+    }
+  },
+  "auth": {
+    "providers": ["anonymous"]
+  },
+  "firestore": {
+      "structure": [
+          {
+              "path": "/players/{playerId}",
+              "definition": {
+                  "entityName": "Player",
+                  "schema": {
+                      "$ref": "#/backend/entities/Player"
+                  },
+                  "description": "Stores player profiles."
+              }
+          },
+          {
+              "path": "/games/{gameId}",
+              "definition": {
+                  "entityName": "Game",
+                  "schema": {
+                      "$ref": "#/backend/entities/Game"
+                  },
+                  "description": "Stores all Tic-Tac-Toe game sessions."
+              }
+          }
+      ]
+  }
+}

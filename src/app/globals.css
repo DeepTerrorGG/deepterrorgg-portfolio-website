@@ -105,8 +105,12 @@
   }
   body {
     @apply text-foreground font-sans;
-    /* The background is now handled by the Background component */
     background-color: hsl(var(--background)); 
+    background-image: 
+      radial-gradient(hsl(var(--foreground) / 0.1) 1px, transparent 1px),
+      radial-gradient(hsl(var(--foreground) / 0.1) 1px, transparent 1px);
+    background-size: 40px 40px, 40px 40px;
+    background-position: 0 0, 20px 20px;
   }
 }
 

@@ -38,13 +38,10 @@ export default function RootLayout({
         <link rel="icon" href="/favicon.ico" sizes="any" />
       </head>
       <body
-        className="antialiased bg-background text-foreground font-sans flex flex-col min-h-screen"
+        className="antialiased text-foreground font-sans flex flex-col min-h-screen"
         suppressHydrationWarning={true}
       >
         <FirebaseClientProvider>
-          <div className="fixed inset-0 z-0 bg-background">
-            <div className="absolute inset-0 bg-gradient-to-t from-background via-background/50 to-transparent"></div>
-          </div>
           <Header />
           <main className="pt-20 md:pt-24 flex-grow z-10">
             {children}

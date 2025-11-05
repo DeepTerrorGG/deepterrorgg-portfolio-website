@@ -6,7 +6,6 @@ import Header from '@/components/layout/header';
 import { Toaster } from "@/components/ui/toaster";
 import { cn } from '@/lib/utils';
 import { FirebaseClientProvider } from '@/firebase';
-import SplineBackground from '@/components/layout/spline-background';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -43,7 +42,6 @@ export default function RootLayout({
         suppressHydrationWarning={true}
       >
         <FirebaseClientProvider>
-          <SplineBackground />
           <Header />
           <main className="pt-20 md:pt-24 flex-grow z-10">
             {children}

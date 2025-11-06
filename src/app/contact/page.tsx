@@ -1,4 +1,3 @@
-
 // Ensure this component is a client component
 'use client';
 
@@ -213,14 +212,9 @@ export default function ContactPage() {
               {socialLinks.map((social) => (
                 <Button key={social.name} variant="outline" className="w-full justify-start group transition-all hover:border-primary hover:text-primary" asChild>
                   <Link href={social.href} target="_blank" rel="noopener noreferrer">
-                    <Image 
-                      src={social.iconSrc}
-                      alt={`${social.name} icon`}
-                      width={20}
-                      height={20}
-                      className="mr-3 h-5 w-5 text-primary group-hover:text-primary transition-colors filter-to-primary"
-                      unoptimized
-                    />
+                    <div className="mr-3 h-5 w-5 relative">
+                        <Image src={social.iconSrc} alt={`${social.name} icon`} fill className="filter-primary group-hover:filter-primary transition-colors" />
+                    </div>
                     <span className="flex-1">{social.name}</span>
                     <span className="text-xs text-muted-foreground group-hover:text-primary">{social.user}</span>
                   </Link>

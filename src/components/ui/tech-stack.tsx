@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { cn } from '@/lib/utils';
 import {
   Tooltip,
@@ -18,7 +19,7 @@ import { Plus, ArrowUpRight } from 'lucide-react';
 
 interface Technology {
   name: string;
-  icon: React.ReactNode;
+  iconSrc: string;
   href?: string;
 }
 
@@ -31,7 +32,9 @@ interface TechStackProps {
 const TechBadge = ({ tech }: { tech: Technology }) => {
   const content = (
     <>
-      <div className="h-4 w-4 text-gray-300 group-hover:text-primary transition-colors">{tech.icon}</div>
+      <div className="h-4 w-4 relative flex items-center justify-center">
+          <Image src={tech.iconSrc} alt={tech.name} fill className="object-contain" />
+      </div>
       <span className="text-xs font-medium text-gray-300 group-hover:text-primary transition-colors">{tech.name}</span>
     </>
   );
@@ -72,14 +75,16 @@ const TechBadge = ({ tech }: { tech: Technology }) => {
 };
 
 
-export function TechStack({ technologies, maxVisible = 3, className }: TechStackProps) {
+export function TechStack({ technologies, maxVisible = 10, className }: TechStackProps) {
   const visibleTech = technologies.slice(0, maxVisible);
   const hiddenTech = technologies.slice(maxVisible);
 
   const PopoverListItem = ({ tech }: { tech: Technology }) => {
     const itemContent = (
       <>
-        <div className="h-3.5 w-3.5">{tech.icon}</div>
+        <div className="h-3.5 w-3.5 relative flex items-center justify-center">
+            <Image src={tech.iconSrc} alt={tech.name} fill className="object-contain" />
+        </div>
         <span className="text-xs">{tech.name}</span>
         {tech.href && <ArrowUpRight className="h-3 w-3 text-muted-foreground group-hover:text-primary" />}
       </>

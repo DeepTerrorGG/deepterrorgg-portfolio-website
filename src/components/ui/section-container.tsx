@@ -9,7 +9,7 @@ interface SectionContainerProps {
 
 export default function SectionContainer({ children, className, id }: SectionContainerProps) {
   return (
-    <section id={id} className={cn('container mx-auto px-4 sm:px-6 lg:px-8 py-10 md:py-16', className)}>
+    <section id={id} className={cn('container mx-auto px-4 sm:px-6 lg:px-8 py-10 md:py-16 animate-on-scroll', className)}>
       {children}
     </section>
   );

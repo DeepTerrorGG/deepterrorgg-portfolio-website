@@ -24,20 +24,9 @@ import SimpleTextAnimator from '@/components/projects/simple-text-animator';
 import FractalRenderer from '@/components/projects/fractal-renderer';
 import { ScrollArea } from '@/components/ui/scroll-area';
 
-import { ReactIcon } from '@/components/icons/react';
-import { TypeScriptIcon } from '@/components/icons/typescript';
-import { TailwindCssIcon } from '@/components/icons/tailwind-css';
-import { FirebaseIcon } from '@/components/icons/firebase';
-import { JavaIcon } from '@/components/icons/java';
-import { MySqlIcon } from '@/components/icons/mysql';
-import { DockerIcon } from '@/components/icons/docker';
-import { NextjsIcon } from '@/components/icons/nextjs';
-import { PterodactylIcon } from '@/components/icons/pterodactyl';
-
-
 interface Technology {
   name: string;
-  icon: React.ReactNode;
+  iconSrc: string;
   href?: string;
 }
 
@@ -50,7 +39,7 @@ interface Project {
   description: string;
   longDescription?: string;
   personalNote: string;
-  difficulty: 'Easy' | 'Medium' | 'Hard' | 'Community' | 'Advanced';
+  difficulty: 'Easy' | 'Medium' | 'Hard' | 'Advanced' | 'Community';
   technologies: Technology[];
   component?: React.ReactNode;
   externalLink?: string;
@@ -61,7 +50,7 @@ const projectsData: Project[] = [
     {
     id: 'todo-list',
     title: 'To-Do List App',
-    imageUrls: ['data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAaQAAADwAQMAAACcalEhAAAABlBMVEUAAAAAAAClZ7nPAAAAAXRSTlMAQObYZgAAAFRJREFUeJztwQENAAAAwqD3T20PBxQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADgqgHYsAAB/pS3PgAAAABJRU5ErkJggg=='],
+    imageUrls: ['https://i.imgur.com/k4DRQvj.png'],
     imageAlt: 'To-Do List App interface',
     imageHint: 'todo list interface',
     description: 'Simple CRUD app where users can add, edit, and delete tasks. Data is saved to local storage.',
@@ -69,16 +58,16 @@ const projectsData: Project[] = [
     difficulty: 'Easy',
     component: <TodoList />,
     technologies: [
-      { name: 'React', icon: <ReactIcon /> },
-      { name: 'TypeScript', icon: <TypeScriptIcon /> },
-      { name: 'Tailwind CSS', icon: <TailwindCssIcon /> },
+      { name: 'React', iconSrc: '/icons/react.svg' },
+      { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },
+      { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss.svg' },
     ],
     renderImage: true,
   },
   {
     id: 'unit-converter',
     title: 'Universal Converter',
-    imageUrls: ['data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAaQAAADwAQMAAACcalEhAAAABlBMVEUAAAAAAAClZ7nPAAAAAXRSTlMAQObYZgAAAFNJREFUeJztwQENAAAAwqD3T20PBxQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD4ay1eAAE2iBknAAAAAElFTkSuQmCC'],
+    imageUrls: ['https://i.imgur.com/4tNf4f0.png'],
     imageAlt: 'Unit Converter interface for various measurements',
     imageHint: 'converter app interface',
     description: 'A versatile tool to convert between various units like Temperature, Length, and Weight.',
@@ -86,9 +75,9 @@ const projectsData: Project[] = [
     difficulty: 'Easy',
     component: <UnitConverter />,
     technologies: [
-        { name: 'React', icon: <ReactIcon /> },
-        { name: 'TypeScript', icon: <TypeScriptIcon /> },
-        { name: 'Tailwind CSS', icon: <TailwindCssIcon /> },
+      { name: 'React', iconSrc: '/icons/react.svg' },
+      { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },
+      { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss.svg' },
     ],
     renderImage: true,
   },
@@ -104,16 +93,16 @@ const projectsData: Project[] = [
     difficulty: 'Easy',
     component: <Calculator3D />,
     technologies: [
-        { name: 'React', icon: <ReactIcon /> },
-        { name: 'TypeScript', icon: <TypeScriptIcon /> },
-        { name: 'Tailwind CSS', icon: <TailwindCssIcon /> },
+      { name: 'React', iconSrc: '/icons/react.svg' },
+      { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },
+      { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss.svg' },
     ],
     renderImage: true,
   },
     {
     id: 'tic-tac-toe',
     title: 'Real-Time Multiplayer Game',
-    imageUrls: ['data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAaQAAADwAQMAAACcalEhAAAABlBMVEUAAAAAAAClZ7nPAAAAAXRSTlMAQObYZgAAAFRJREFUeJztwQENAAAAwqD3T20PBxQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADgqgHYsAAB/pS3PgAAAABJRU5ErkJggg=='],
+    imageUrls: ['https://i.imgur.com/3V3bO8H.png'],
     imageAlt: 'Tic-Tac-Toe multiplayer game',
     imageHint: 'tic tac toe game',
     description: 'A classic Tic-Tac-Toe game with real-time multiplayer support using Firebase.',
@@ -121,10 +110,10 @@ const projectsData: Project[] = [
     difficulty: 'Advanced',
     component: <TicTacToe />,
     technologies: [
-      { name: 'React', icon: <ReactIcon /> },
-      { name: 'TypeScript', icon: <TypeScriptIcon /> },
-      { name: 'Tailwind CSS', icon: <TailwindCssIcon /> },
-      { name: 'Firebase', icon: <FirebaseIcon /> },
+      { name: 'React', iconSrc: '/icons/react.svg' },
+      { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },
+      { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss.svg' },
+      { name: 'Firebase', iconSrc: '/icons/firebase.svg' },
     ],
     renderImage: true,
   },
@@ -140,9 +129,9 @@ const projectsData: Project[] = [
     difficulty: 'Medium',
     component: <SimpleTextAnimator />,
     technologies: [
-        { name: 'React', icon: <ReactIcon /> },
-        { name: 'TypeScript', icon: <TypeScriptIcon /> },
-        { name: 'Tailwind CSS', icon: <TailwindCssIcon /> },
+        { name: 'React', iconSrc: '/icons/react.svg' },
+        { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },
+        { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss.svg' },
     ],
     renderImage: true,
   },
@@ -158,9 +147,9 @@ const projectsData: Project[] = [
     difficulty: 'Hard',
     component: <FractalRenderer />,
     technologies: [
-        { name: 'React', icon: <ReactIcon /> },
-        { name: 'TypeScript', icon: <TypeScriptIcon /> },
-        { name: 'Tailwind CSS', icon: <TailwindCssIcon /> },
+        { name: 'React', iconSrc: '/icons/react.svg' },
+        { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },
+        { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss.svg' },
     ],
     renderImage: true,
   },
@@ -187,15 +176,15 @@ const communityProject: Project = {
   externalLink: 'https://silent-horizon.com/',
   personalNote: "This project challenged me in ways I didn’t expect, as it was mostly done for friends. While it's a cool project that has a lot to offer, it can also be incredibly draining. Managing a team of 10 staff members, keeping the community engaged, and rolling out regular events and updates is a huge undertaking. It was a massive learning experience in community management, but it's not where my personal passion lies.",
   technologies: [
-      { name: 'Java', icon: <JavaIcon /> },
-      { name: 'Pterodactyl', icon: <PterodactylIcon /> },
-      { name: 'MySQL', icon: <MySqlIcon /> },
-      { name: 'Docker', icon: <DockerIcon /> },
-      { name: 'Firebase', icon: <FirebaseIcon /> },
-      { name: 'React', icon: <ReactIcon /> },
-      { name: 'Next.js', icon: <NextjsIcon /> },
-      { name: 'TypeScript', icon: <TypeScriptIcon /> },
-      { name: 'Tailwind CSS', icon: <TailwindCssIcon /> },
+      { name: 'Java', iconSrc: '/icons/java.svg' },
+      { name: 'Pterodactyl', iconSrc: '/icons/pterodactyl.svg' },
+      { name: 'MySQL', iconSrc: '/icons/mysql.svg' },
+      { name: 'Docker', iconSrc: '/icons/docker.svg' },
+      { name: 'Firebase', iconSrc: '/icons/firebase.svg' },
+      { name: 'React', iconSrc: '/icons/react.svg' },
+      { name: 'Next.js', iconSrc: '/icons/nextjs.svg' },
+      { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },
+      { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss.svg' },
   ],
   renderImage: true,
 };
@@ -291,7 +280,7 @@ export default function ProjectsPage() {
 
                   <div className="mb-8">
                     <h4 className="font-semibold text-foreground mb-3">Technologies Used</h4>
-                    <TechStack technologies={selectedProject.technologies} maxVisible={10}/>
+                    <TechStack technologies={selectedProject.technologies} />
                   </div>
                   
                   <Button

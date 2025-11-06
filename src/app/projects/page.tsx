@@ -22,6 +22,7 @@ import TicTacToe from '@/components/projects/tic-tac-toe';
 import Calculator3D from '@/components/projects/calculator-3d';
 import SimpleTextAnimator from '@/components/projects/simple-text-animator';
 import FractalRenderer from '@/components/projects/fractal-renderer';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 import { ReactIcon } from '@/components/icons/react';
 import { TypeScriptIcon } from '@/components/icons/typescript';
@@ -60,7 +61,7 @@ const projectsData: Project[] = [
     {
     id: 'todo-list',
     title: 'To-Do List App',
-    imageUrls: ['https://placehold.co/600x400/000000/808080/png?text=To-Do+List'],
+    imageUrls: ['data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAaQAAADwAQMAAACcalEhAAAABlBMVEUAAAAAAAClZ7nPAAAAAXRSTlMAQObYZgAAAFRJREFUeJztwQENAAAAwqD3T20PBxQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADgqgHYsAAB/pS3PgAAAABJRU5ErkJggg=='],
     imageAlt: 'To-Do List App interface',
     imageHint: 'todo list interface',
     description: 'Simple CRUD app where users can add, edit, and delete tasks. Data is saved to local storage.',
@@ -72,12 +73,12 @@ const projectsData: Project[] = [
       { name: 'TypeScript', icon: <TypeScriptIcon /> },
       { name: 'Tailwind CSS', icon: <TailwindCssIcon /> },
     ],
-    renderImage: false,
+    renderImage: true,
   },
   {
     id: 'unit-converter',
     title: 'Universal Converter',
-    imageUrls: ['https://placehold.co/600x400/000000/808080/png?text=Unit+Converter'],
+    imageUrls: ['data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAaQAAADwAQMAAACcalEhAAAABlBMVEUAAAAAAAClZ7nPAAAAAXRSTlMAQObYZgAAAFNJREFUeJztwQENAAAAwqD3T20PBxQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD4ay1eAAE2iBknAAAAAElFTkSuQmCC'],
     imageAlt: 'Unit Converter interface for various measurements',
     imageHint: 'converter app interface',
     description: 'A versatile tool to convert between various units like Temperature, Length, and Weight.',
@@ -89,7 +90,7 @@ const projectsData: Project[] = [
         { name: 'TypeScript', icon: <TypeScriptIcon /> },
         { name: 'Tailwind CSS', icon: <TailwindCssIcon /> },
     ],
-    renderImage: false,
+    renderImage: true,
   },
   {
     id: 'calculator',
@@ -112,7 +113,7 @@ const projectsData: Project[] = [
     {
     id: 'tic-tac-toe',
     title: 'Real-Time Multiplayer Game',
-    imageUrls: ['https://placehold.co/600x400/000000/808080/png?text=Tic-Tac-Toe'],
+    imageUrls: ['data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAaQAAADwAQMAAACcalEhAAAABlBMVEUAAAAAAAClZ7nPAAAAAXRSTlMAQObYZgAAAFRJREFUeJztwQENAAAAwqD3T20PBxQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADgqgHYsAAB/pS3PgAAAABJRU5ErkJggg=='],
     imageAlt: 'Tic-Tac-Toe multiplayer game',
     imageHint: 'tic tac toe game',
     description: 'A classic Tic-Tac-Toe game with real-time multiplayer support using Firebase.',
@@ -125,7 +126,7 @@ const projectsData: Project[] = [
       { name: 'Tailwind CSS', icon: <TailwindCssIcon /> },
       { name: 'Firebase', icon: <FirebaseIcon /> },
     ],
-    renderImage: false,
+    renderImage: true,
   },
   {
     id: 'text-animator',
@@ -230,75 +231,79 @@ export default function ProjectsPage() {
       <SectionContainer className="!py-0 md:!py-0">
         <div className="grid grid-cols-1 md:grid-cols-12 md:h-[calc(100vh-80px)]">
           {/* Left Column: Project List */}
-          <div className="md:col-span-4 lg:col-span-3 border-r border-border overflow-y-auto">
-            <div className="p-6">
-              <PageTitle subtitle="A selection of my creative and technical endeavors." className="text-left !mb-6">
-                My Projects
-              </PageTitle>
-              <ul className="space-y-1">
-                {allProjects.map((project) => (
-                  <li key={project.id}>
-                    <button
-                      onClick={() => setSelectedProjectId(project.id)}
-                      className={cn(
-                        "w-full text-left p-3 rounded-md transition-colors duration-200",
-                        selectedProjectId === project.id
-                          ? 'bg-primary/10 text-primary'
-                          : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground'
-                      )}
-                    >
-                      <h3 className="font-semibold">{project.title}</h3>
-                      <p className={cn("text-xs", difficultyColors[project.difficulty])}>{project.difficulty}</p>
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            </div>
+          <div className="md:col-span-4 lg:col-span-3 border-r border-border h-full relative">
+            <ScrollArea className="h-full">
+              <div className="p-6">
+                <PageTitle subtitle="A selection of my creative and technical endeavors." className="text-left !mb-6">
+                  My Projects
+                </PageTitle>
+                <ul className="space-y-1">
+                  {allProjects.map((project) => (
+                    <li key={project.id}>
+                      <button
+                        onClick={() => setSelectedProjectId(project.id)}
+                        className={cn(
+                          "w-full text-left p-3 rounded-md transition-colors duration-200",
+                          selectedProjectId === project.id
+                            ? 'bg-primary/10 text-primary'
+                            : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground'
+                        )}
+                      >
+                        <h3 className="font-semibold">{project.title}</h3>
+                        <p className={cn("text-xs", difficultyColors[project.difficulty])}>{project.difficulty}</p>
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </ScrollArea>
           </div>
 
           {/* Right Column: Project Details */}
-          <div className="md:col-span-8 lg:col-span-9 overflow-y-auto">
-            <div className="p-4 sm:p-8 md:p-12 animate-fade-in" key={selectedProject.id}>
-              <div className="relative w-full aspect-video rounded-lg overflow-hidden mb-8 bg-card">
-                 {selectedProject.renderImage ? (
-                    <Image
-                      src={selectedProject.imageUrls[0]}
-                      alt={selectedProject.imageAlt}
-                      fill
-                      sizes="(max-width: 767px) 100vw, 60vw"
-                      className="object-cover"
-                      data-ai-hint={selectedProject.imageHint}
-                      priority
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center bg-muted/30">
-                        <h3 className="text-3xl font-bold text-muted-foreground">{selectedProject.title.replace(' App', '')}</h3>
-                    </div>
-                  )}
-              </div>
-
-              <div className="max-w-3xl mx-auto">
-                <h2 className="text-3xl font-bold text-foreground mb-4">{selectedProject.title}</h2>
-                <p className="text-muted-foreground text-lg mb-6">{selectedProject.description}</p>
-                
-                <blockquote className="border-l-4 border-primary pl-4 py-2 my-6">
-                  <p className="text-muted-foreground italic">{selectedProject.personalNote}</p>
-                </blockquote>
-
-                <div className="mb-8">
-                  <h4 className="font-semibold text-foreground mb-3">Technologies Used</h4>
-                  <TechStack technologies={selectedProject.technologies} maxVisible={10}/>
+          <div className="md:col-span-8 lg:col-span-9 h-full">
+            <ScrollArea className="h-full">
+              <div className="p-4 sm:p-8 md:p-12 animate-fade-in" key={selectedProject.id}>
+                <div className="relative w-full aspect-video rounded-lg overflow-hidden mb-8 bg-card">
+                  {selectedProject.renderImage ? (
+                      <Image
+                        src={selectedProject.imageUrls[0]}
+                        alt={selectedProject.imageAlt}
+                        fill
+                        sizes="(max-width: 767px) 100vw, 60vw"
+                        className="object-cover"
+                        data-ai-hint={selectedProject.imageHint}
+                        priority
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center bg-muted/30">
+                          <h3 className="text-3xl font-bold text-muted-foreground">{selectedProject.title.replace(' App', '')}</h3>
+                      </div>
+                    )}
                 </div>
-                
-                <Button
-                  onClick={() => handleOpenModal(selectedProject)}
-                  className="w-full sm:w-auto"
-                >
-                  {selectedProject.component ? <Rocket className="mr-2 h-4 w-4" /> : <ExternalLink className="mr-2 h-4 w-4" />}
-                  {selected-Project.component ? 'Launch Project' : 'Visit Site'}
-                </Button>
+
+                <div className="max-w-3xl mx-auto">
+                  <h2 className="text-3xl font-bold text-foreground mb-4">{selectedProject.title}</h2>
+                  <p className="text-muted-foreground text-lg mb-6">{selectedProject.description}</p>
+                  
+                  <blockquote className="border-l-4 border-primary pl-4 py-2 my-6">
+                    <p className="text-muted-foreground italic">{selectedProject.personalNote}</p>
+                  </blockquote>
+
+                  <div className="mb-8">
+                    <h4 className="font-semibold text-foreground mb-3">Technologies Used</h4>
+                    <TechStack technologies={selectedProject.technologies} maxVisible={10}/>
+                  </div>
+                  
+                  <Button
+                    onClick={() => handleOpenModal(selectedProject)}
+                    className="w-full sm:w-auto"
+                  >
+                    {selectedProject.component ? <Rocket className="mr-2 h-4 w-4" /> : <ExternalLink className="mr-2 h-4 w-4" />}
+                    {selectedProject.component ? 'Launch Project' : 'Visit Site'}
+                  </Button>
+                </div>
               </div>
-            </div>
+            </ScrollArea>
           </div>
         </div>
       </SectionContainer>

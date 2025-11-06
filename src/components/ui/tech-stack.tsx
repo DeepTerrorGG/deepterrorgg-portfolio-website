@@ -1,4 +1,3 @@
-
 // src/components/ui/tech-stack.tsx
 
 import * as React from 'react';
@@ -41,11 +40,11 @@ const TechBadge = ({ tech }: { tech: Technology }) => {
         className="h-4 w-4"
         unoptimized
       />
-      <span className="text-xs font-medium text-muted-foreground group-hover:text-primary transition-colors">{tech.name}</span>
+      <span className="text-xs font-medium text-gray-300 group-hover:text-primary transition-colors">{tech.name}</span>
     </>
   );
 
-  const badgeClasses = "flex items-center gap-2 rounded-md border border-border bg-card px-2 py-1 transition-all duration-300 group";
+  const badgeClasses = "flex items-center gap-2 rounded-md border border-[#333] bg-[#222] px-2 py-1 transition-all duration-300 group";
 
   const handleClick = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -55,7 +54,7 @@ const TechBadge = ({ tech }: { tech: Technology }) => {
     return (
       <Tooltip>
         <TooltipTrigger asChild>
-          <Link href={tech.href} target="_blank" rel="noopener noreferrer" className={cn(badgeClasses, "cursor-pointer hover:border-primary/50 hover:shadow-md hover:-translate-y-0.5")} onClick={handleClick}>
+          <Link href={tech.href} target="_blank" rel="noopener noreferrer" className={cn(badgeClasses, "cursor-pointer hover:border-primary/50")} onClick={handleClick}>
             {content}
           </Link>
         </TooltipTrigger>

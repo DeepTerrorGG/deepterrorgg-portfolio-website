@@ -1,3 +1,4 @@
+
 // Ensure this component is a client component
 'use client';
 
@@ -6,7 +7,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import Link from 'next/link';
 import React from 'react';
-import { Mail, Send, MessageSquare, Loader2 } from 'lucide-react'; // Updated icons
+import { Mail, Send, MessageSquare, Loader2 } from 'lucide-react'; 
 import Image from 'next/image';
 
 import PageTitle from '@/components/ui/page-title';
@@ -217,7 +218,7 @@ export default function ContactPage() {
                       alt={`${social.name} icon`}
                       width={20}
                       height={20}
-                      className="mr-3 h-5 w-5 text-primary group-hover:text-primary transition-colors"
+                      className="mr-3 h-5 w-5 text-primary group-hover:text-primary transition-colors filter-to-primary"
                       unoptimized
                     />
                     <span className="flex-1">{social.name}</span>

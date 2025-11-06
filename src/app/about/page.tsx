@@ -1,17 +1,40 @@
+// src/app/about/page.tsx
 'use client';
 import Image from 'next/image';
 import PageTitle from '@/components/ui/page-title';
 import SectionContainer from '@/components/ui/section-container';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Brain, Code, Database, Layers, Component as TechComponent } from 'lucide-react';
+import { Brain, Code, Database, Layers, Component as TechComponentIcon } from 'lucide-react';
 import type { ReactElement } from 'react';
 import { TechBadge } from '@/components/ui/tech-badge';
 import Link from 'next/link';
 
+import { ReactIcon } from '@/components/icons/react';
+import { NextjsIcon } from '@/components/icons/nextjs';
+import { TailwindCssIcon } from '@/components/icons/tailwind-css';
+import { WebflowIcon } from '@/components/icons/webflow';
+import { FramerIcon } from '@/components/icons/framer';
+import { NodeJsIcon } from '@/components/icons/node-js';
+import { JavaScriptIcon } from '@/components/icons/javascript';
+import { TypeScriptIcon } from '@/components/icons/typescript';
+import { CSharpIcon } from '@/components/icons/c-sharp';
+import { CPlusPlusIcon } from '@/components/icons/c-plus-plus';
+import { PythonIcon } from '@/components/icons/python';
+import { JavaIcon } from '@/components/icons/java';
+import { MySqlIcon } from '@/components/icons/mysql';
+import { DockerIcon } from '@/components/icons/docker';
+import { VercelIcon } from '@/components/icons/vercel';
+import { PterodactylIcon } from '@/components/icons/pterodactyl';
+import { FirebaseIcon } from '@/components/icons/firebase';
+import { FirebaseAuthIcon } from '@/components/icons/firebase-auth';
+import { FirebaseDatabaseIcon } from '@/components/icons/firebase-database';
+import { DiscordIcon } from '@/components/icons/discord';
+
+
 interface Technology {
   name: string;
   href: string;
-  iconSrc: string;
+  icon: React.ReactNode;
 }
 
 interface TechCategory {
@@ -25,44 +48,44 @@ const technologyCategories: TechCategory[] = [
     name: 'Frontend',
     icon: <Layers className="mr-3 h-6 w-6 text-primary" />,
     technologies: [
-      { name: 'React', href: 'https://react.dev/', iconSrc: '/icons/react.svg' },
-      { name: 'Next.js', href: 'https://nextjs.org/', iconSrc: '/icons/nextjs.svg' },
-      { name: 'Tailwind CSS', href: 'https://tailwindcss.com/', iconSrc: '/icons/tailwindcss.svg' },
-      { name: 'Webflow', href: 'https://webflow.com/', iconSrc: '/icons/webflow.svg'},
-      { name: 'Framer', href: 'https://www.framer.com/', iconSrc: '/icons/framer.svg' },
+      { name: 'React', href: 'https://react.dev/', icon: <ReactIcon className="h-full w-full" /> },
+      { name: 'Next.js', href: 'https://nextjs.org/', icon: <NextjsIcon className="h-full w-full" /> },
+      { name: 'Tailwind CSS', href: 'https://tailwindcss.com/', icon: <TailwindCssIcon className="h-full w-full" /> },
+      { name: 'Webflow', href: 'https://webflow.com/', icon: <WebflowIcon className="h-full w-full" />},
+      { name: 'Framer', href: 'https://www.framer.com/', icon: <FramerIcon className="h-full w-full" /> },
     ],
   },
   {
     name: 'Backend & Languages',
     icon: <Code className="mr-3 h-6 w-6 text-primary" />,
     technologies: [
-      { name: 'Node.js', href: 'https://nodejs.org/', iconSrc: '/icons/nodejs.svg' },
-      { name: 'JavaScript', href: 'https://developer.mozilla.org/en-US/docs/Web/JavaScript', iconSrc: '/icons/javascript.svg' },
-      { name: 'TypeScript', href: 'https://www.typescriptlang.org/', iconSrc: '/icons/typescript.svg' },
-      { name: 'C#', href: 'https://docs.microsoft.com/en-us/dotnet/csharp/', iconSrc: '/icons/csharp.svg' },
-      { name: 'C++', href: 'https://isocpp.org/', iconSrc: '/icons/cplusplus.svg' },
-      { name: 'Python', href: 'https://www.python.org/', iconSrc: '/icons/python.svg' },
-      { name: 'Java', href: 'https://www.java.com/', iconSrc: '/icons/java.svg' },
+      { name: 'Node.js', href: 'https://nodejs.org/', icon: <NodeJsIcon className="h-full w-full" /> },
+      { name: 'JavaScript', href: 'https://developer.mozilla.org/en-US/docs/Web/JavaScript', icon: <JavaScriptIcon className="h-full w-full" /> },
+      { name: 'TypeScript', href: 'https://www.typescriptlang.org/', icon: <TypeScriptIcon className="h-full w-full" /> },
+      { name: 'C#', href: 'https://docs.microsoft.com/en-us/dotnet/csharp/', icon: <CSharpIcon className="h-full w-full" /> },
+      { name: 'C++', href: 'https://isocpp.org/', icon: <CPlusPlusIcon className="h-full w-full" /> },
+      { name: 'Python', href: 'https://www.python.org/', icon: <PythonIcon className="h-full w-full" /> },
+      { name: 'Java', href: 'https://www.java.com/', icon: <JavaIcon className="h-full w-full" /> },
     ],
   },
   {
     name: 'Databases & DevOps',
     icon: <Database className="mr-3 h-6 w-6 text-primary" />,
     technologies: [
-      { name: 'MySQL', href: 'https://www.mysql.com/', iconSrc: '/icons/mysql.svg' },
-      { name: 'Docker', href: 'https://www.docker.com/', iconSrc: '/icons/docker.svg' },
-      { name: 'Vercel', href: 'https://vercel.com/', iconSrc: '/icons/vercel.svg' },
-      { name: 'Pterodactyl', href: 'https://pterodactyl.io/', iconSrc: '/icons/pterodactyl.svg' },
+      { name: 'MySQL', href: 'https://www.mysql.com/', icon: <MySqlIcon className="h-full w-full" /> },
+      { name: 'Docker', href: 'https://www.docker.com/', icon: <DockerIcon className="h-full w-full" /> },
+      { name: 'Vercel', href: 'https://vercel.com/', icon: <VercelIcon className="h-full w-full" /> },
+      { name: 'Pterodactyl', href: 'https://pterodactyl.io/', icon: <PterodactylIcon className="h-full w-full" /> },
     ],
   },
   {
     name: 'Libraries & Services',
-    icon: <TechComponent className="mr-3 h-6 w-6 text-primary" />,
+    icon: <TechComponentIcon className="mr-3 h-6 w-6 text-primary" />,
     technologies: [
-      { name: 'Firebase', href: 'https://firebase.google.com/', iconSrc: '/icons/firebase.svg' },
-      { name: 'Firebase Auth', href: 'https://firebase.google.com/docs/auth', iconSrc: '/icons/firebase-auth.svg' },
-      { name: 'Firebase Database', href: 'https://firebase.google.com/docs/database', iconSrc: '/icons/firebase-database.svg' },
-      { name: 'Discord.js', href: 'https://discord.js.org/', iconSrc: '/icons/discordjs.svg' },
+      { name: 'Firebase', href: 'https://firebase.google.com/', icon: <FirebaseIcon className="h-full w-full" /> },
+      { name: 'Firebase Auth', href: 'https://firebase.google.com/docs/auth', icon: <FirebaseAuthIcon className="h-full w-full" /> },
+      { name: 'Firebase Database', href: 'https://firebase.google.com/docs/database', icon: <FirebaseDatabaseIcon className="h-full w-full" /> },
+      { name: 'Discord.js', href: 'https://discord.js.org/', icon: <DiscordIcon className="h-full w-full" /> },
     ],
   },
 ];
@@ -136,7 +159,7 @@ export default function AboutPage() {
                     key={tech.name} 
                     name={tech.name} 
                     href={tech.href} 
-                    iconSrc={tech.iconSrc} 
+                    icon={tech.icon} 
                   />
                 ))}
               </div>

@@ -1,17 +1,12 @@
 // src/app/projects/page.tsx
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import PageTitle from '@/components/ui/page-title';
 import SectionContainer from '@/components/ui/section-container';
-import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import FractalRenderer from '@/components/projects/fractal-renderer';
-import Calculator3D from '@/components/projects/calculator-3d';
-import SimpleTextAnimator from '@/components/projects/simple-text-animator';
 import { TechStack } from '@/components/ui/tech-stack';
 import { ExternalLink, Rocket } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -24,10 +19,24 @@ import {
 import TodoList from '@/components/projects/todo-list';
 import UnitConverter from '@/components/projects/unit-converter';
 import TicTacToe from '@/components/projects/tic-tac-toe';
+import Calculator3D from '@/components/projects/calculator-3d';
+import SimpleTextAnimator from '@/components/projects/simple-text-animator';
+import FractalRenderer from '@/components/projects/fractal-renderer';
+
+import { ReactIcon } from '@/components/icons/react';
+import { TypeScriptIcon } from '@/components/icons/typescript';
+import { TailwindCssIcon } from '@/components/icons/tailwind-css';
+import { FirebaseIcon } from '@/components/icons/firebase';
+import { JavaIcon } from '@/components/icons/java';
+import { MySqlIcon } from '@/components/icons/mysql';
+import { DockerIcon } from '@/components/icons/docker';
+import { NextjsIcon } from '@/components/icons/nextjs';
+import { PterodactylIcon } from '@/components/icons/pterodactyl';
+
 
 interface Technology {
   name: string;
-  iconSrc: string;
+  icon: React.ReactNode;
   href?: string;
 }
 
@@ -59,9 +68,9 @@ const projectsData: Project[] = [
     difficulty: 'Easy',
     component: <TodoList />,
     technologies: [
-      { name: 'React', iconSrc: '/icons/react-color.svg' },
-      { name: 'TypeScript', iconSrc: '/icons/typescript-color.svg' },
-      { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss-color.svg' },
+      { name: 'React', icon: <ReactIcon /> },
+      { name: 'TypeScript', icon: <TypeScriptIcon /> },
+      { name: 'Tailwind CSS', icon: <TailwindCssIcon /> },
     ],
     renderImage: false,
   },
@@ -76,9 +85,9 @@ const projectsData: Project[] = [
     difficulty: 'Easy',
     component: <UnitConverter />,
     technologies: [
-      { name: 'React', iconSrc: '/icons/react-color.svg' },
-      { name: 'TypeScript', iconSrc: '/icons/typescript-color.svg' },
-      { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss-color.svg' },
+        { name: 'React', icon: <ReactIcon /> },
+        { name: 'TypeScript', icon: <TypeScriptIcon /> },
+        { name: 'Tailwind CSS', icon: <TailwindCssIcon /> },
     ],
     renderImage: false,
   },
@@ -94,9 +103,9 @@ const projectsData: Project[] = [
     difficulty: 'Easy',
     component: <Calculator3D />,
     technologies: [
-      { name: 'React', iconSrc: '/icons/react-color.svg' },
-      { name: 'TypeScript', iconSrc: '/icons/typescript-color.svg' },
-      { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss-color.svg' },
+        { name: 'React', icon: <ReactIcon /> },
+        { name: 'TypeScript', icon: <TypeScriptIcon /> },
+        { name: 'Tailwind CSS', icon: <TailwindCssIcon /> },
     ],
     renderImage: true,
   },
@@ -111,10 +120,10 @@ const projectsData: Project[] = [
     difficulty: 'Advanced',
     component: <TicTacToe />,
     technologies: [
-      { name: 'React', iconSrc: '/icons/react-color.svg' },
-      { name: 'TypeScript', iconSrc: '/icons/typescript-color.svg' },
-      { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss-color.svg' },
-      { name: 'Firebase', iconSrc: '/icons/firebase-color.svg' },
+      { name: 'React', icon: <ReactIcon /> },
+      { name: 'TypeScript', icon: <TypeScriptIcon /> },
+      { name: 'Tailwind CSS', icon: <TailwindCssIcon /> },
+      { name: 'Firebase', icon: <FirebaseIcon /> },
     ],
     renderImage: false,
   },
@@ -130,9 +139,9 @@ const projectsData: Project[] = [
     difficulty: 'Medium',
     component: <SimpleTextAnimator />,
     technologies: [
-      { name: 'React', iconSrc: '/icons/react-color.svg' },
-      { name: 'TypeScript', iconSrc: '/icons/typescript-color.svg' },
-      { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss-color.svg' },
+        { name: 'React', icon: <ReactIcon /> },
+        { name: 'TypeScript', icon: <TypeScriptIcon /> },
+        { name: 'Tailwind CSS', icon: <TailwindCssIcon /> },
     ],
     renderImage: true,
   },
@@ -148,9 +157,9 @@ const projectsData: Project[] = [
     difficulty: 'Hard',
     component: <FractalRenderer />,
     technologies: [
-      { name: 'React', iconSrc: '/icons/react-color.svg' },
-      { name: 'TypeScript', iconSrc: '/icons/typescript-color.svg' },
-      { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss-color.svg' },
+        { name: 'React', icon: <ReactIcon /> },
+        { name: 'TypeScript', icon: <TypeScriptIcon /> },
+        { name: 'Tailwind CSS', icon: <TailwindCssIcon /> },
     ],
     renderImage: true,
   },
@@ -177,161 +186,131 @@ const communityProject: Project = {
   externalLink: 'https://silent-horizon.com/',
   personalNote: "This project challenged me in ways I didn’t expect, as it was mostly done for friends. While it's a cool project that has a lot to offer, it can also be incredibly draining. Managing a team of 10 staff members, keeping the community engaged, and rolling out regular events and updates is a huge undertaking. It was a massive learning experience in community management, but it's not where my personal passion lies.",
   technologies: [
-      { name: 'Java', iconSrc: '/icons/java-color.svg' },
-      { name: 'Pterodactyl', iconSrc: '/icons/pterodactyl.svg' },
-      { name: 'MySQL', iconSrc: '/icons/mysql-color.svg' },
-      { name: 'Docker', iconSrc: '/icons/docker-color.svg' },
-      { name: 'Firebase', iconSrc: '/icons/firebase-color.svg' },
-      { name: 'React', iconSrc: '/icons/react-color.svg' },
-      { name: 'Next.js', iconSrc: '/icons/nextjs.svg' },
-      { name: 'TypeScript', iconSrc: '/icons/typescript-color.svg' },
-      { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss-color.svg' },
+      { name: 'Java', icon: <JavaIcon /> },
+      { name: 'Pterodactyl', icon: <PterodactylIcon /> },
+      { name: 'MySQL', icon: <MySqlIcon /> },
+      { name: 'Docker', icon: <DockerIcon /> },
+      { name: 'Firebase', icon: <FirebaseIcon /> },
+      { name: 'React', icon: <ReactIcon /> },
+      { name: 'Next.js', icon: <NextjsIcon /> },
+      { name: 'TypeScript', icon: <TypeScriptIcon /> },
+      { name: 'Tailwind CSS', icon: <TailwindCssIcon /> },
   ],
   renderImage: true,
 };
 
-export default function ProjectsPage() {
-  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
+const allProjects = [...projectsData, communityProject];
 
-  const getDifficultyBadgeVariant = (difficulty: Project['difficulty']) => {
-    switch (difficulty) {
-      case 'Easy': return 'default';
-      case 'Medium': return 'secondary';
-      case 'Hard': return 'destructive';
-      case 'Advanced': return 'destructive';
-      case 'Community': return 'outline';
-      default: return 'outline';
+export default function ProjectsPage() {
+  const [selectedProjectId, setSelectedProjectId] = useState<string>(allProjects[0].id);
+  const [modalProject, setModalProject] = useState<Project | null>(null);
+
+  const selectedProject = useMemo(() => {
+    return allProjects.find(p => p.id === selectedProjectId) || allProjects[0];
+  }, [selectedProjectId]);
+
+  const handleOpenModal = (project: Project) => {
+    if (project.component) {
+      setModalProject(project);
+    } else if (project.externalLink) {
+      window.open(project.externalLink, '_blank', 'noopener,noreferrer');
     }
   };
 
-  const ProjectCardContent = ({ project, onClick }: { project: Project, onClick?: () => void }) => (
-    <Card
-      onClick={onClick}
-      className={cn(
-        "bg-[#111] border-[#333] rounded-lg overflow-hidden flex flex-col h-full group",
-        onClick && "cursor-pointer transition-all duration-300 hover:border-primary"
-      )}
-      role={onClick ? 'button' : 'article'}
-      tabIndex={onClick ? 0 : -1}
-      onKeyDown={onClick ? (e) => e.key === 'Enter' && onClick() : undefined}
-      aria-label={onClick ? `Open project: ${project.title}` : project.title}
-    >
-      <CardHeader className="p-0">
-        <div className="relative w-full h-48 bg-black flex items-center justify-center overflow-hidden">
-          {project.renderImage ? (
-            <Image
-              src={project.imageUrls[0]}
-              alt={project.imageAlt}
-              fill
-              sizes="(max-width: 1024px) 100vw, 33vw"
-              className="object-cover"
-              data-ai-hint={project.imageHint}
-              priority={project.id !== 'silent-horizon'}
-            />
-          ) : (
-            <h3 className="text-3xl font-bold text-gray-400">{project.title.replace(' App', '')}</h3>
-          )}
-        </div>
-      </CardHeader>
-      <div className="border-t border-[#333] p-4 flex flex-col flex-grow">
-        <div className="flex justify-between items-start mb-2">
-          <h4 className="text-lg font-bold text-white group-hover:text-primary transition-colors">{project.title}</h4>
-          <Badge variant={getDifficultyBadgeVariant(project.difficulty)} className="ml-2 shrink-0 !text-white" style={{backgroundColor: '#008080'}}>
-            {project.difficulty}
-          </Badge>
-        </div>
-        <p className="text-sm text-gray-400 flex-grow">{project.description}</p>
-        <blockquote className="mt-4 border-l-2 border-gray-500 pl-3">
-          <p className="text-sm text-gray-400 italic">{project.personalNote}</p>
-        </blockquote>
-      </div>
-      <CardFooter className="p-4 pt-4 border-t border-[#333]">
-        <TechStack technologies={project.technologies} />
-      </CardFooter>
-    </Card>
-  );
-
-  const ProjectCard = ({ project }: { project: Project }) => {
-    if (project.externalLink) {
-      return (
-        <Link href={project.externalLink} target="_blank" rel="noopener noreferrer" className="contents">
-          <ProjectCardContent project={project} />
-        </Link>
-      );
-    }
-    
-    if (project.component) {
-      return <ProjectCardContent project={project} onClick={() => setSelectedProject(project)} />;
-    }
-
-    return <ProjectCardContent project={project} />;
+  const difficultyColors = {
+    'Easy': 'text-green-400',
+    'Medium': 'text-yellow-400',
+    'Hard': 'text-orange-400',
+    'Advanced': 'text-red-400',
+    'Community': 'text-blue-400',
   };
 
   return (
     <>
-      <SectionContainer>
-        <PageTitle subtitle="Explore a selection of my creative and technical projects. Click a project to learn more or visit the site.">
-          My Projects
-        </PageTitle>
+      <SectionContainer className="!py-0 md:!py-0">
+        <div className="grid grid-cols-1 md:grid-cols-12 md:h-[calc(100vh-80px)]">
+          {/* Left Column: Project List */}
+          <div className="md:col-span-4 lg:col-span-3 border-r border-border overflow-y-auto">
+            <div className="p-6">
+              <PageTitle subtitle="A selection of my creative and technical endeavors." className="text-left !mb-6">
+                My Projects
+              </PageTitle>
+              <ul className="space-y-1">
+                {allProjects.map((project) => (
+                  <li key={project.id}>
+                    <button
+                      onClick={() => setSelectedProjectId(project.id)}
+                      className={cn(
+                        "w-full text-left p-3 rounded-md transition-colors duration-200",
+                        selectedProjectId === project.id
+                          ? 'bg-primary/10 text-primary'
+                          : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground'
+                      )}
+                    >
+                      <h3 className="font-semibold">{project.title}</h3>
+                      <p className={cn("text-xs", difficultyColors[project.difficulty])}>{project.difficulty}</p>
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {projectsData.map((project) => (
-            <ProjectCard key={project.id} project={project} />
-          ))}
-        </div>
-
-        <div className="mt-16 pt-10 border-t border-border/50">
-          <h2 className="text-3xl font-bold text-center text-foreground mb-4 flex items-center justify-center gap-3">
-            <Rocket className="w-8 h-8 text-primary" />
-            Community Startups
-          </h2>
-          <p className="mt-2 text-lg text-muted-foreground max-w-2xl mx-auto text-center mb-12">
-            Beyond personal projects, I've also managed larger, community-driven ventures. Here's a look at one of them.
-          </p>
-
-          <Card className="bg-[#111] border-[#333] rounded-lg overflow-hidden flex flex-col md:flex-row">
-              <div className="relative md:w-1/2 lg:w-3/5 xl:w-2/3 h-64 md:h-auto">
-                  <Image 
-                      src={communityProject.imageUrls[0]} 
-                      alt={communityProject.imageAlt} 
-                      width={1920}
-                      height={1080}
-                      className="object-cover w-full h-full"
-                      data-ai-hint={communityProject.imageHint}
+          {/* Right Column: Project Details */}
+          <div className="md:col-span-8 lg:col-span-9 overflow-y-auto">
+            <div className="p-4 sm:p-8 md:p-12 animate-fade-in" key={selectedProject.id}>
+              <div className="relative w-full aspect-video rounded-lg overflow-hidden mb-8 bg-card">
+                 {selectedProject.renderImage ? (
+                    <Image
+                      src={selectedProject.imageUrls[0]}
+                      alt={selectedProject.imageAlt}
+                      fill
+                      sizes="(max-width: 767px) 100vw, 60vw"
+                      className="object-cover"
+                      data-ai-hint={selectedProject.imageHint}
                       priority
-                      sizes="(max-width: 767px) 100vw, (max-width: 1023px) 50vw, (max-width: 1279px) 60vw, 67vw"
-                  />
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center bg-muted/30">
+                        <h3 className="text-3xl font-bold text-muted-foreground">{selectedProject.title.replace(' App', '')}</h3>
+                    </div>
+                  )}
               </div>
-            
-              <div className="p-6 flex flex-col flex-grow md:w-1/2 lg:w-2/5 xl:w-1/3">
-                  <div className="flex justify-between items-start mb-3">
-                      <h4 className="text-xl md:text-2xl font-semibold text-white">{communityProject.title}</h4>
-                      <Badge variant={getDifficultyBadgeVariant(communityProject.difficulty)} className="ml-3 shrink-0 !text-white" style={{backgroundColor: '#008080'}}>
-                      {communityProject.difficulty}
-                      </Badge>
-                  </div>
-                  <p className="text-sm md:text-base text-gray-400 mb-4">{communityProject.description}</p>
-                  <blockquote className="text-sm md:text-base text-gray-400 font-normal mb-6 border-l-2 border-gray-500 pl-4 italic">{communityProject.personalNote}</blockquote>
-                  <CardFooter className="p-0 mt-auto flex-col items-start gap-4">
-                      <TechStack technologies={communityProject.technologies} />
-                      <Button asChild variant="outline" className="w-full" >
-                          <Link href={communityProject.externalLink || '#'}>
-                              <ExternalLink className="mr-2 h-4 w-4" /> Visit Site
-                          </Link>
-                      </Button>
-                  </CardFooter>
+
+              <div className="max-w-3xl mx-auto">
+                <h2 className="text-3xl font-bold text-foreground mb-4">{selectedProject.title}</h2>
+                <p className="text-muted-foreground text-lg mb-6">{selectedProject.description}</p>
+                
+                <blockquote className="border-l-4 border-primary pl-4 py-2 my-6">
+                  <p className="text-muted-foreground italic">{selectedProject.personalNote}</p>
+                </blockquote>
+
+                <div className="mb-8">
+                  <h4 className="font-semibold text-foreground mb-3">Technologies Used</h4>
+                  <TechStack technologies={selectedProject.technologies} maxVisible={10}/>
+                </div>
+                
+                <Button
+                  onClick={() => handleOpenModal(selectedProject)}
+                  className="w-full sm:w-auto"
+                >
+                  {selectedProject.component ? <Rocket className="mr-2 h-4 w-4" /> : <ExternalLink className="mr-2 h-4 w-4" />}
+                  {selected-Project.component ? 'Launch Project' : 'Visit Site'}
+                </Button>
               </div>
-          </Card>
+            </div>
+          </div>
         </div>
       </SectionContainer>
-       {selectedProject && (
-        <Dialog open={!!selectedProject} onOpenChange={(isOpen) => !isOpen && setSelectedProject(null)}>
+      
+      {modalProject && (
+        <Dialog open={!!modalProject} onOpenChange={(isOpen) => !isOpen && setModalProject(null)}>
           <DialogContent className="max-w-4xl h-[80vh] flex flex-col p-0">
             <DialogHeader className="p-4 border-b">
-              <DialogTitle>{selectedProject.title}</DialogTitle>
+              <DialogTitle>{modalProject.title}</DialogTitle>
             </DialogHeader>
-            <div className="flex-grow overflow-auto">
-              {selectedProject.component}
+            <div className="flex-grow overflow-auto bg-card">
+              {modalProject.component}
             </div>
           </DialogContent>
         </Dialog>

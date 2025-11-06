@@ -1,7 +1,6 @@
 // src/components/ui/tech-stack.tsx
 
 import * as React from 'react';
-import Image from 'next/image';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import {
@@ -19,7 +18,7 @@ import { Plus, ArrowUpRight } from 'lucide-react';
 
 interface Technology {
   name: string;
-  iconSrc: string;
+  icon: React.ReactNode;
   href?: string;
 }
 
@@ -32,14 +31,7 @@ interface TechStackProps {
 const TechBadge = ({ tech }: { tech: Technology }) => {
   const content = (
     <>
-      <Image
-        src={tech.iconSrc}
-        alt={`${tech.name} logo`}
-        width={16}
-        height={16}
-        className="h-4 w-4"
-        unoptimized
-      />
+      <div className="h-4 w-4 text-gray-300 group-hover:text-primary transition-colors">{tech.icon}</div>
       <span className="text-xs font-medium text-gray-300 group-hover:text-primary transition-colors">{tech.name}</span>
     </>
   );
@@ -87,14 +79,7 @@ export function TechStack({ technologies, maxVisible = 3, className }: TechStack
   const PopoverListItem = ({ tech }: { tech: Technology }) => {
     const itemContent = (
       <>
-        <Image
-          src={tech.iconSrc}
-          alt={`${tech.name} logo`}
-          width={14}
-          height={14}
-          className="h-3.5 w-3.5"
-          unoptimized
-        />
+        <div className="h-3.5 w-3.5">{tech.icon}</div>
         <span className="text-xs">{tech.name}</span>
         {tech.href && <ArrowUpRight className="h-3 w-3 text-muted-foreground group-hover:text-primary" />}
       </>

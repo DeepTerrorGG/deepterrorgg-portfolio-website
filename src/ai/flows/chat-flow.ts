@@ -41,15 +41,10 @@ const chatFlow = ai.defineFlow(
   async (input) => {
     const { history, message } = input;
 
-    // Correctly combine the history with the new user message.
-    const fullHistory = [
-      ...history,
-      { role: 'user' as const, content: message },
-    ];
-
+    // Use the user's new message as the prompt and provide the past conversation as history.
     const { output } = await ai.generate({
-      // The entire conversation goes into the history parameter.
-      history: fullHistory,
+      prompt: message,
+      history: history,
       config: {
         // Lower temperature for more predictable, less "creative" responses
         temperature: 0.5,

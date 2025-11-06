@@ -22,6 +22,7 @@ import TicTacToe from '@/components/projects/tic-tac-toe';
 import Calculator3D from '@/components/projects/calculator-3d';
 import SimpleTextAnimator from '@/components/projects/simple-text-animator';
 import FractalRenderer from '@/components/projects/fractal-renderer';
+import Chatbot from '@/components/projects/chatbot';
 import { ScrollArea } from '@/components/ui/scroll-area';
 
 interface Technology {
@@ -47,6 +48,25 @@ interface Project {
 }
 
 const projectsData: Project[] = [
+    {
+    id: 'ai-chatbot',
+    title: 'AI Chatbot',
+    imageUrls: ['https://i.imgur.com/sdJjVAd.png'],
+    imageAlt: 'AI Chatbot interface',
+    imageHint: 'ai chatbot interface',
+    description: 'A conversational AI chatbot powered by Google\'s Gemini model through Genkit.',
+    personalNote: "This was a fun project to explore the capabilities of large language models. It's built with Genkit, which makes it easy to create and manage AI flows.",
+    difficulty: 'Medium',
+    component: <Chatbot />,
+    technologies: [
+      { name: 'React', iconSrc: '/icons/react.svg' },
+      { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },
+      { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss.svg' },
+      { name: 'Genkit', iconSrc: '/icons/genkit.svg' },
+      { name: 'Gemini', iconSrc: '/icons/gemini.svg' },
+    ],
+    renderImage: true,
+  },
     {
     id: 'todo-list',
     title: 'To-Do List App',

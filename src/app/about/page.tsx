@@ -8,7 +8,13 @@ import { Brain, Code, Database, Layers, Component as TechComponentIcon, Gamepad2
 import type { ReactElement } from 'react';
 import { TechBadge } from '@/components/ui/tech-badge';
 import Link from 'next/link';
-import SplineViewer from '@/components/ui/spline-viewer';
+import dynamic from 'next/dynamic';
+import { Skeleton } from '@/components/ui/skeleton';
+
+const SplineViewer = dynamic(() => import('@/components/ui/spline-viewer'), {
+  ssr: false,
+  loading: () => <Skeleton className="w-full h-[450px] md:h-full rounded-lg" />,
+});
 
 interface Technology {
   name: string;
@@ -128,7 +134,7 @@ export default function AboutPage() {
         <p className="text-lg text-muted-foreground text-center max-w-2xl mx-auto mb-12">
           Gaming is more than just a hobby for me; it's a source of inspiration and a world of endless creativity. This interactive 3D model represents my passion for the aesthetics and design that make games so immersive.
         </p>
-        <Card className="bg-card border-border overflow-hidden">
+        <Card className="bg-card border-border overflow-hidden aspect-video">
           <SplineViewer sceneUrl="https://prod.spline.design/wl4X9XbiCMDi6bUv/scene.splinecode" />
         </Card>
       </div>

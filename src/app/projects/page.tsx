@@ -319,11 +319,11 @@ export default function ProjectsPage() {
       
       {modalProject && (
         <Dialog open={!!modalProject} onOpenChange={(isOpen) => !isOpen && setModalProject(null)}>
-          <DialogContent className="max-w-4xl h-[80vh] flex flex-col p-0">
+          <DialogContent className="max-w-4xl w-[90vw] h-[80vh] flex flex-col p-0">
             <DialogHeader className="p-4 border-b">
               <DialogTitle>{modalProject.title}</DialogTitle>
             </DialogHeader>
-            <div className="flex-grow overflow-auto bg-card">
+            <div className="flex-grow overflow-auto bg-background">
               {modalProject.component}
             </div>
           </DialogContent>

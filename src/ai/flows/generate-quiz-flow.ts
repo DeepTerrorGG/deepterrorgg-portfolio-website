@@ -3,7 +3,7 @@
 
 import { ai } from '@/ai/genkit';
 import { z } from 'zod';
-import { QuizOptions, Quiz, QuizSchema } from './generate-quiz-flow-types';
+import { type QuizOptions, type Quiz, QuizSchema } from './generate-quiz-flow-types';
 
 /**
  * Generates a quiz based on the provided options.
@@ -28,7 +28,7 @@ Return the quiz as a valid JSON array of objects. Each object must have three pr
 
   const { output } = await ai.generate({
     prompt,
-    model: 'googleai/gemini-1.5-flash-latest',
+    model: 'googleai/gemini-1.5-flash',
     output: {
       format: 'json',
       schema: QuizSchema,

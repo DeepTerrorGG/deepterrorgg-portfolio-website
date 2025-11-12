@@ -3,7 +3,7 @@
 
 import { ai } from '@/ai/genkit';
 import { 
-    CraftItemInput,
+    type CraftItemInput,
     CraftItemOutputSchema 
 } from './craft-item-flow-types';
 
@@ -27,7 +27,7 @@ The result should be a simple JSON object with a single key "result".
 `;
 
   const { output } = await ai.generate({
-    model: 'googleai/gemini-1.5-flash-latest',
+    model: 'googleai/gemini-1.5-flash',
     prompt: prompt,
     output: {
         format: 'json',

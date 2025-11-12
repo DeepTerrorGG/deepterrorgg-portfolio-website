@@ -7,6 +7,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Plus, Wand2, Loader2, ArrowRight, RefreshCw, X } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { craftItem } from '@/ai/flows/craft-item-flow';
+import type { CraftItemInput } from '@/ai/flows/craft-item-flow-types';
 import { cn } from '@/lib/utils';
 
 const initialElements = ['Water', 'Fire', 'Wind', 'Earth'];

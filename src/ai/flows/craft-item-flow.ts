@@ -1,17 +1,11 @@
 'use server';
 
 import { ai } from '@/ai/genkit';
-import { z } from 'zod';
-
-export const CraftItemInputSchema = z.object({
-  item1: z.string().describe('The first item to combine.'),
-  item2: z.string().describe('The second item to combine.'),
-});
-export type CraftItemInput = z.infer<typeof CraftItemInputSchema>;
-
-export const CraftItemOutputSchema = z.object({
-  result: z.string().describe('The single, resulting item from the combination. Should be a noun, like "Steam", "Mud", or "Life".'),
-});
+import { 
+    CraftItemInput,
+    CraftItemInputSchema,
+    CraftItemOutputSchema 
+} from './craft-item-flow-types';
 
 export async function craftItem(input: CraftItemInput): Promise<string | null> {
 

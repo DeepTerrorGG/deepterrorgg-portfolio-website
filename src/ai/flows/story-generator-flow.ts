@@ -12,7 +12,7 @@
  */
 
 import { ai } from '@/ai/genkit';
-import { type StoryPrompt, StoryPromptSchema, Story } from './story-generator-flow-types';
+import { type StoryPrompt, type Story } from './story-generator-flow-types';
 
 /**
  * The main function that handles the story generation.
@@ -20,27 +20,47 @@ import { type StoryPrompt, StoryPromptSchema, Story } from './story-generator-fl
  * @param prompt The prompt for the story.
  * @returns The generated story.
  */
-export async function generateStory(prompt: StoryPrompt) {
-  const storyPrompt = ai.definePrompt(
-    {
-      name: 'storyPrompt',
-      input: { schema: StoryPromptSchema },
-      output: { schema: Story },
-      prompt: `
-        Write a creative and engaging story based on the following details.
-        
-        Character: {{{character}}}
-        Setting: {{{setting}}}
-        {{#if (ne genre "Any")}}Genre: {{{genre}}}{{/if}}
-        {{#if (ne style "Default")}}Literary Style: {{{style}}}{{/if}}
-        {{#if (ne twist "None")}}Incorporate the following plot twist: {{{twist}}}{{/if}}
+export async function generateStory(prompt: StoryPrompt): Promise<Story | null> {
+  
+  let constructedPrompt = `Write a creative and engaging story based on the following details.
 
-        The story must have a clear beginning, middle, and end. It should be well-structured with a compelling title.
-        Ensure the tone of the story matches the specified genre and style.
-      `,
-    },
-  );
+Character: ${prompt.character}
+Setting: ${prompt.setting}
+`;
 
-  const { output } = await storyPrompt(prompt);
-  return output;
+  if (prompt.genre && prompt.genre !== 'Any') {
+    constructedPrompt += `Genre: ${prompt.genre}\n`;
+  }
+  if (prompt.style && prompt.style !== 'Default') {
+    constructedPrompt += `Literary Style: ${prompt.style}\n`;
+  }
+  if (prompt.twist && prompt.twist !== 'None') {
+    constructedPrompt += `Incorporate the following plot twist: ${prompt.twist}\n`;
+  }
+
+  constructedPrompt += `
+The story must have a clear beginning, middle, and end. It should be well-structured with a compelling title.
+Ensure the tone of the story matches the specified genre and style.
+The output must be a JSON object with two fields: "title" (a string) and "story" (a string).
+`;
+
+  const { output } = await ai.generate({
+      prompt: constructedPrompt,
+      model: 'googleai/gemini-pro',
+      output: {
+          format: 'json'
+      }
+  });
+
+  const responseText = output?.text;
+  if (!responseText) {
+    return null;
+  }
+
+  try {
+    return JSON.parse(responseText) as Story;
+  } catch (e) {
+    console.error("Failed to parse story JSON:", e);
+    return null;
+  }
 }

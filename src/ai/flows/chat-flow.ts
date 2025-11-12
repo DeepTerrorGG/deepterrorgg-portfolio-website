@@ -38,12 +38,14 @@ export async function chat(history: ChatHistory, message: string, personality: C
   // Add a new message to the history.
   history.push({ role: 'user', parts: [{ text: message }] });
 
+  const systemPrompt = personalityPrompts[personality] || '';
+
   // Use the user's new message as the prompt and provide the past conversation as history.
   const { output } = await ai.generate({
     prompt: message,
     history: history,
     model: 'googleai/gemini-pro',
-    system: personalityPrompts[personality],
+    system: systemPrompt,
   });
 
   const response = output?.text;

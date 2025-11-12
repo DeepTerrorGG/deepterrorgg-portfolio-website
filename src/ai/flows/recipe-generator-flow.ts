@@ -15,8 +15,7 @@
 import { ai } from '@/ai/genkit';
 import {
   type Ingredients,
-  IngredientsSchema,
-  Recipe,
+  type Recipe,
 } from './recipe-generator-flow-types';
 
 /**
@@ -25,23 +24,40 @@ import {
  * @param ingredients The list of ingredients and other options.
  * @returns The generated recipe.
  */
-export async function generateRecipe(ingredients: Ingredients) {
-  const prompt = ai.definePrompt({
-    name: 'recipePrompt',
-    input: { schema: IngredientsSchema },
-    output: { schema: Recipe },
-    prompt: `
-      You are an expert chef. Generate a creative and delicious recipe using the following ingredients: {{{ingredients}}}.
-      
-      {{#if (ne diet "None")}}The recipe must adhere to a {{{diet}}} diet.{{/if}}
-      {{#if (ne cuisine "Any")}}The recipe should be in a {{{cuisine}}} cuisine style.{{/if}}
+export async function generateRecipe(ingredients: Ingredients): Promise<Recipe | null> {
+  
+  let prompt = `You are an expert chef. Generate a creative and delicious recipe using the following ingredients: ${ingredients.ingredients.join(', ')}.`;
 
-      The output should be a JSON object with the fields "name", "description", "ingredients", and "instructions".
-      The "ingredients" field should be an array of strings, including quantities.
-      The "instructions" field should be an array of strings, with each string being a step in the recipe.
-    `,
+  if (ingredients.diet && ingredients.diet !== 'None') {
+    prompt += `\nThe recipe must adhere to a ${ingredients.diet} diet.`;
+  }
+  if (ingredients.cuisine && ingredients.cuisine !== 'Any') {
+    prompt += `\nThe recipe should be in a ${ingredients.cuisine} cuisine style.`;
+  }
+
+  prompt += `
+The output should be a JSON object with the fields "name", "description", "ingredients", and "instructions".
+The "ingredients" field should be an array of strings, including quantities.
+The "instructions" field should be an array of strings, with each string being a step in the recipe.
+`;
+
+  const { output } = await ai.generate({
+      prompt,
+      model: 'googleai/gemini-pro',
+      output: {
+        format: 'json'
+      }
   });
 
-  const { output } = await prompt(ingredients);
-  return output;
+  const responseText = output?.text;
+  if (!responseText) {
+    return null;
+  }
+
+  try {
+    return JSON.parse(responseText) as Recipe;
+  } catch (e) {
+    console.error("Failed to parse recipe JSON:", e);
+    return null;
+  }
 }

@@ -13,29 +13,9 @@
 
 import { ai } from '@/ai/genkit';
 import { 
-  type CodeAnalysisInput, 
-  CodeAnalysisInputSchema 
+  type CodeAnalysisInput,
 } from './code-analyzer-flow-types';
 
-
-// Define the prompt for the AI model.
-const codeAnalysisPrompt = ai.definePrompt({
-  name: 'codeAnalysisPrompt',
-  input: { schema: CodeAnalysisInputSchema },
-  prompt: `
-    You are an expert software engineer.
-    Perform the following task on the given code: {{{task}}}.
-    {{#if (ne language "Auto-detect")}}The code is written in {{{language}}}.{{/if}}
-    
-    When refactoring or commenting, return only the raw code block. Do not add any explanations or markdown formatting.
-    When explaining, format your response using Markdown.
-    
-    Code:
-    \`\`\`
-    {{{code}}}
-    \`\`\`
-  `,
-});
 
 /**
  * The main function that handles the code analysis logic.
@@ -44,6 +24,30 @@ const codeAnalysisPrompt = ai.definePrompt({
  * @returns The AI's response as a string.
  */
 export async function analyzeCode(input: CodeAnalysisInput) {
-  const { output } = await codeAnalysisPrompt(input);
+    const { task, code, language } = input;
+
+    let prompt = `You are an expert software engineer.
+Perform the following task on the given code: ${task}.
+`;
+
+    if (language && language !== 'Auto-detect') {
+        prompt += `The code is written in ${language}.\n`;
+    }
+
+    prompt += `
+When refactoring or commenting, return only the raw code block. Do not add any explanations or markdown formatting.
+When explaining, format your response using Markdown.
+
+Code:
+\`\`\`
+${code}
+\`\`\`
+`;
+
+  const { output } = await ai.generate({
+      prompt: prompt,
+      model: 'googleai/gemini-pro',
+  });
+
   return output?.text;
 }

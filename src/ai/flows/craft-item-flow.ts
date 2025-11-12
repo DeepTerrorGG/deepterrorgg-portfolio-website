@@ -1,9 +1,9 @@
+
 'use server';
 
 import { ai } from '@/ai/genkit';
 import { 
     CraftItemInput,
-    CraftItemInputSchema,
     CraftItemOutputSchema 
 } from './craft-item-flow-types';
 
@@ -27,7 +27,7 @@ The result should be a simple JSON object with a single key "result".
 `;
 
   const { output } = await ai.generate({
-    model: 'googleai/gemini-2.0-flash',
+    model: 'googleai/gemini-1.5-flash-latest',
     prompt: prompt,
     output: {
         format: 'json',

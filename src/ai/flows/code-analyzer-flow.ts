@@ -39,14 +39,14 @@ When refactoring or commenting, return only the raw code block. Do not add any e
 When explaining, format your response using Markdown.
 
 Code:
-\`\`\`
+\'\'\'
 ${code}
-\`\`\`
+\'\'\'
 `;
 
   const { output } = await ai.generate({
       prompt: prompt,
-      model: 'googleai/gemini-2.0-flash',
+      model: 'googleai/gemini-1.5-flash-latest',
   });
 
   return output?.text;

@@ -24,8 +24,6 @@ import Chatbot from '@/components/projects/chatbot';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import PomodoroTimer from '@/components/projects/pomodoro-timer';
 import PasswordGenerator from '@/components/projects/password-generator';
-import AccordionDemo from '@/components/projects/accordion-demo';
-import CharacterCounter from '@/components/projects/character-counter';
 import BmiCalculator from '@/components/projects/bmi-calculator';
 import AiRecipeGenerator from '@/components/projects/ai-recipe-generator';
 import BudgetPlanner from '@/components/projects/budget-planner';
@@ -38,6 +36,8 @@ import CodeEditor from '@/components/projects/code-editor';
 import WeatherApp from '@/components/projects/weather-app';
 import QuizApp from '@/components/projects/quiz-app';
 import StockTracker from '@/components/projects/stock-tracker';
+import AIImageGenerator from '@/components/projects/ai-image-generator';
+import Spreadsheet from '@/components/projects/spreadsheet';
 
 
 interface Technology {
@@ -64,6 +64,42 @@ interface Project {
 
 const projectsData: Project[] = [
     {
+    id: 'ai-image-generator',
+    title: 'AI Image Generator',
+    imageUrls: ['https://i.imgur.com/3Z3gAmC.png'],
+    imageAlt: 'AI image generator interface',
+    imageHint: 'ai image generator app',
+    description: 'An AI-powered image generator that creates unique images from a text prompt.',
+    personalNote: 'This project utilizes Genkit to connect to Google\'s Imagen model. It was a great challenge to create an interface that allows users to generate images and see the results in real-time.',
+    difficulty: 'Advanced',
+    component: <AIImageGenerator />,
+    technologies: [
+      { name: 'React', iconSrc: '/icons/react.svg' },
+      { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },
+      { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss.svg' },
+      { name: 'Genkit', iconSrc: '/icons/genkit.svg' },
+      { name: 'Imagen', iconSrc: '/icons/gemini.svg' },
+    ],
+    renderImage: true,
+  },
+  {
+    id: 'spreadsheet',
+    title: 'Web-Based Spreadsheet',
+    imageUrls: ['https://i.imgur.com/A6yNZaL.png'],
+    imageAlt: 'A web-based spreadsheet application',
+    imageHint: 'spreadsheet application interface',
+    description: 'A simplified, in-browser spreadsheet application that supports basic formulas.',
+    personalNote: 'Building this project was a deep dive into complex state management and performance optimization in React. Implementing the formula parsing and cell dependency graph was a particularly rewarding challenge.',
+    difficulty: 'Advanced',
+    component: <Spreadsheet />,
+    technologies: [
+      { name: 'React', iconSrc: '/icons/react.svg' },
+      { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },
+      { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss.svg' },
+    ],
+    renderImage: true,
+  },
+  {
     id: 'ai-chatbot',
     title: 'AI Chatbot',
     imageUrls: ['https://i.imgur.com/sdJjVAd.png'],
@@ -239,40 +275,6 @@ const projectsData: Project[] = [
     ],
     renderImage: true,
   },
-   {
-    id: 'accordion-demo',
-    title: 'Accordion UI',
-    imageUrls: ['https://i.imgur.com/9C3rC2c.png'],
-    imageAlt: 'Accordion component demo',
-    imageHint: 'accordion ui component',
-    description: 'A demonstration of a common UI pattern for displaying collapsible content sections.',
-    personalNote: 'This was a good exercise in component composition and using a pre-built UI library like ShadCN. It shows how to create interactive and space-efficient layouts.',
-    difficulty: 'Easy',
-    component: <AccordionDemo />,
-    technologies: [
-      { name: 'React', iconSrc: '/icons/react.svg' },
-      { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },
-      { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss.svg' },
-    ],
-    renderImage: true,
-  },
-  {
-    id: 'character-counter',
-    title: 'Character Counter',
-    imageUrls: ['https://i.imgur.com/g8e1y5M.png'],
-    imageAlt: 'Character and word counter tool',
-    imageHint: 'text utility app',
-    description: 'A simple tool to count characters and words in a piece of text as you type.',
-    personalNote: 'A very simple project focused on handling user input in real-time and performing basic calculations. It highlights the simplicity and power of controlled components in React.',
-    difficulty: 'Easy',
-    component: <CharacterCounter />,
-    technologies: [
-      { name: 'React', iconSrc: '/icons/react.svg' },
-      { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },
-      { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss.svg' },
-    ],
-    renderImage: true,
-  },
   {
     id: 'bmi-calculator',
     title: 'BMI Calculator',
@@ -293,7 +295,7 @@ const projectsData: Project[] = [
   {
     id: 'music-visualizer',
     title: 'Audio Visualizer',
-    imageUrls: ['https://i.imgur.com/9C3rC2c.png'],
+    imageUrls: ['https://i.imgur.com/5J3c4qP.png'],
     imageAlt: 'An audio visualizer with frequency bars',
     imageHint: 'audio equalizer music',
     description: 'Upload an audio file and see it visualized in real-time on an HTML canvas.',
@@ -496,7 +498,7 @@ const difficultyOrder = {
 const allProjects = [...projectsData, communityProject].sort((a, b) => {
   const diff = difficultyOrder[a.difficulty] - difficultyOrder[b.difficulty];
   if (diff !== 0) return diff;
-  return a.title.localeCompare(b.title); // Secondary sort by title
+  return a.title.localeCompare(b.title);
 });
 
 export default function ProjectsPage() {

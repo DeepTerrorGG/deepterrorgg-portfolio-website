@@ -28,7 +28,7 @@ Return the quiz as a valid JSON array of objects. Each object must have three pr
 
   const { output } = await ai.generate({
     prompt,
-    model: 'googleai/gemini-pro',
+    model: 'googleai/gemini-2.0-flash',
     output: {
       format: 'json',
       schema: QuizSchema,

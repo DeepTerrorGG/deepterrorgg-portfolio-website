@@ -46,7 +46,7 @@ The output must be a JSON object with two fields: "title" (a string) and "story"
 
   const { output } = await ai.generate({
       prompt: constructedPrompt,
-      model: 'googleai/gemini-pro',
+      model: 'googleai/gemini-2.0-flash',
       output: {
           format: 'json'
       }

@@ -46,7 +46,7 @@ ${code}
 
   const { output } = await ai.generate({
       prompt: prompt,
-      model: 'googleai/gemini-pro',
+      model: 'googleai/gemini-2.0-flash',
   });
 
   return output?.text;

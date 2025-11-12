@@ -27,7 +27,7 @@ The result should be a simple JSON object with a single key "result".
 `;
 
   const { output } = await ai.generate({
-    model: 'googleai/gemini-pro',
+    model: 'googleai/gemini-2.0-flash',
     prompt: prompt,
     output: {
         format: 'json',

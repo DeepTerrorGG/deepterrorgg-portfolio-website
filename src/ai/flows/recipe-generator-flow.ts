@@ -43,7 +43,7 @@ The "instructions" field should be an array of strings, with each string being a
 
   const { output } = await ai.generate({
       prompt,
-      model: 'googleai/gemini-pro',
+      model: 'googleai/gemini-2.0-flash',
       output: {
         format: 'json'
       }

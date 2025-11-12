@@ -12,7 +12,7 @@ export type PasswordRuleOutput = z.infer<typeof PasswordRuleOutputSchema>;
 
 export async function generatePasswordRule(existingRules: string[]): Promise<PasswordRuleOutput> {
   const { output } = await ai.generate({
-    model: 'googleai/gemini-pro',
+    model: 'googleai/gemini-2.0-flash',
     output: {
         schema: PasswordRuleOutputSchema,
         format: 'json',

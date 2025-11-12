@@ -1,13 +1,16 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { RefreshCw, User, Bot, X, Circle } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { Label } from '../ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 
 type Player = 'X' | 'O';
 type Board = (Player | null)[];
+type Difficulty = 'Easy' | 'Medium' | 'Hard';
 
 const winningCombos = [
   [0, 1, 2], [3, 4, 5], [6, 7, 8], // Rows
@@ -19,6 +22,7 @@ const TicTacToe: React.FC = () => {
   const [board, setBoard] = useState<Board>(Array(9).fill(null));
   const [isPlayerTurn, setIsPlayerTurn] = useState(true);
   const [winner, setWinner] = useState<Player | 'draw' | null>(null);
+  const [difficulty, setDifficulty] = useState<Difficulty>('Medium');
 
   const checkWinner = (currentBoard: Board): Player | 'draw' | null => {
     for (const combo of winningCombos) {
@@ -48,43 +52,54 @@ const TicTacToe: React.FC = () => {
     }
   };
 
-  const findBestMove = (currentBoard: Board): number => {
+  const findBestMove = (currentBoard: Board, level: Difficulty): number => {
+    const availableMoves = currentBoard.map((cell, index) => cell === null ? index : null).filter(val => val !== null) as number[];
+
+    // --- Easy: Random move ---
+    if (level === 'Easy') {
+      return availableMoves[Math.floor(Math.random() * availableMoves.length)];
+    }
+
+    // --- Shared Logic for Medium and Hard ---
     // 1. Check if AI can win
-    for (let i = 0; i < 9; i++) {
-      if (!currentBoard[i]) {
+    for (const move of availableMoves) {
         const nextBoard = [...currentBoard];
-        nextBoard[i] = 'O';
-        if (checkWinner(nextBoard) === 'O') return i;
-      }
+        nextBoard[move] = 'O';
+        if (checkWinner(nextBoard) === 'O') return move;
     }
     // 2. Check if Player can win and block
-    for (let i = 0; i < 9; i++) {
-      if (!currentBoard[i]) {
+    for (const move of availableMoves) {
         const nextBoard = [...currentBoard];
-        nextBoard[i] = 'X';
-        if (checkWinner(nextBoard) === 'X') return i;
-      }
+        nextBoard[move] = 'X';
+        if (checkWinner(nextBoard) === 'X') return move;
     }
+
+    // --- Medium: Win/Block, then random ---
+    if (level === 'Medium') {
+        return availableMoves[Math.floor(Math.random() * availableMoves.length)];
+    }
+
+    // --- Hard: Strategic move ---
     // 3. Take center if available
-    if (!currentBoard[4]) return 4;
-    // 4. Take a random corner
-    const corners = [0, 2, 6, 8].filter(i => !currentBoard[i]);
+    if (availableMoves.includes(4)) return 4;
+    // 4. Take a corner
+    const corners = [0, 2, 6, 8].filter(i => availableMoves.includes(i));
     if (corners.length > 0) return corners[Math.floor(Math.random() * corners.length)];
-    // 5. Take a random side
-    const sides = [1, 3, 5, 7].filter(i => !currentBoard[i]);
+    // 5. Take a side
+    const sides = [1, 3, 5, 7].filter(i => availableMoves.includes(i));
     if (sides.length > 0) return sides[Math.floor(Math.random() * sides.length)];
-    
-    return currentBoard.findIndex(cell => cell === null); // Should not be reached in a normal game
-  }
+
+    return availableMoves[0]; // Fallback
+  };
 
 
   useEffect(() => {
     if (!isPlayerTurn && !winner) {
       const timeoutId = setTimeout(() => {
-        const bestMove = findBestMove(board);
-        if (bestMove !== -1) {
+        const move = findBestMove(board, difficulty);
+        if (move !== -1) {
             const newBoard = [...board];
-            newBoard[bestMove] = 'O';
+            newBoard[move] = 'O';
             setBoard(newBoard);
             const gameWinner = checkWinner(newBoard);
             if (gameWinner) {
@@ -96,7 +111,7 @@ const TicTacToe: React.FC = () => {
       }, 500);
       return () => clearTimeout(timeoutId);
     }
-  }, [isPlayerTurn, board, winner]);
+  }, [isPlayerTurn, board, winner, difficulty]);
 
   const restartGame = () => {
     setBoard(Array(9).fill(null));
@@ -140,16 +155,28 @@ const TicTacToe: React.FC = () => {
               </button>
             ))}
           </div>
-          <div className="mt-4 flex items-center justify-between w-full">
-            <div className={cn("flex items-center gap-2 text-lg font-semibold", status.color)}>
-              {status.icon}
-              <p>{status.text}</p>
-            </div>
-            <Button onClick={restartGame} variant="outline" size="icon">
-              <RefreshCw className="h-4 w-4" />
-            </Button>
+          <div className={cn("flex items-center gap-2 text-lg font-semibold h-8", status.color)}>
+            {status.icon}
+            <p>{status.text}</p>
           </div>
         </CardContent>
+        <CardFooter className="flex flex-col gap-4">
+            <div className="w-full">
+                <Label htmlFor="difficulty-select">AI Difficulty</Label>
+                <Select value={difficulty} onValueChange={(v) => { setDifficulty(v as Difficulty); restartGame(); }}>
+                    <SelectTrigger id="difficulty-select"><SelectValue/></SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="Easy">Easy</SelectItem>
+                        <SelectItem value="Medium">Medium</SelectItem>
+                        <SelectItem value="Hard">Hard</SelectItem>
+                    </SelectContent>
+                </Select>
+            </div>
+            <Button onClick={restartGame} variant="outline" className="w-full">
+              <RefreshCw className="mr-2 h-4 w-4" />
+              New Game
+            </Button>
+        </CardFooter>
       </Card>
     </div>
   );

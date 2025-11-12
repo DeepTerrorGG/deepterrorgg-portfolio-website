@@ -20,7 +20,7 @@ import PasswordGenerator from '@/components/projects/password-generator';
 import BmiCalculator from '@/components/projects/bmi-calculator';
 import BudgetPlanner from '@/components/projects/budget-planner';
 import GithubProfileFinder from '@/components/projects/github-profile-finder';
-import MusicVisualizer from '@/components/projects/music-visualizer';
+import BeatMaker from '@/components/projects/beat-maker';
 import MarkdownEditor from '@/components/projects/markdown-editor';
 import WeatherApp from '@/components/projects/weather-app';
 import QuizApp from '@/components/projects/quiz-app';
@@ -34,6 +34,9 @@ import CodeEditor from '@/components/projects/code-editor';
 import TicTacToe from '@/components/projects/tic-tac-toe';
 import RockPaperScissors from '@/components/projects/rock-paper-scissors';
 import ThePasswordGame from '@/components/projects/the-password-game';
+import AIInfinityCraft from '@/components/projects/ai-infinity-craft';
+import AudioVisualizer from '@/components/projects/audio-visualizer';
+import CharacterCounter from '@/components/projects/character-counter';
 
 interface Technology {
   name: string;
@@ -58,6 +61,25 @@ interface Project {
 }
 
 const projectsData: Project[] = [
+  {
+    id: 'ai-infinity-craft',
+    title: 'AI Infinity Craft',
+    imageUrls: ['/placeholder.png'],
+    imageAlt: 'AI Infinity Craft game interface',
+    imageHint: 'crafting game alchemy',
+    description: 'A creative crafting game where you combine elements to discover new ones, powered by AI.',
+    personalNote: 'This project was a fascinating exploration into using AI for emergent gameplay. The AI acts as the "game engine" for discovery, leading to surprising and creative combinations. It shows how generative AI can create truly dynamic and unpredictable experiences.',
+    difficulty: 'AI',
+    component: <AIInfinityCraft />,
+    technologies: [
+      { name: 'React', iconSrc: '/icons/react.svg' },
+      { name: 'Next.js', iconSrc: '/icons/nextjs.svg' },
+      { name: 'Genkit', iconSrc: '/icons/genkit.svg' },
+      { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },
+      { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss.svg' },
+    ],
+    renderImage: true,
+  },
   {
     id: 'ai-password-game',
     title: 'The AI Password Game',
@@ -373,15 +395,49 @@ const projectsData: Project[] = [
     renderImage: true,
   },
   {
-    id: 'music-visualizer',
-    title: 'Audio Visualizer',
-    imageUrls: ['https://i.imgur.com/5J3c4qP.png'],
-    imageAlt: 'An audio visualizer with frequency bars',
-    imageHint: 'audio equalizer music',
-    description: 'Upload an audio file and see it visualized in real-time on an HTML canvas.',
-    personalNote: 'This project was a fantastic exploration of the Web Audio API. Getting the audio processing and canvas rendering to work in sync was a fun challenge. It combines my love for music and creative coding.',
+    id: 'character-counter',
+    title: 'Character Counter',
+    imageUrls: ['/placeholder.png'],
+    imageAlt: 'A character and word counter tool',
+    imageHint: 'text utility counter',
+    description: 'A simple utility to count characters, words, and lines in a piece of text.',
+    personalNote: 'This is a fundamental tool for any writer or developer. It was a good exercise in handling text input and using the `useMemo` hook to efficiently calculate statistics as the user types.',
+    difficulty: 'Easy',
+    component: <CharacterCounter />,
+    technologies: [
+      { name: 'React', iconSrc: '/icons/react.svg' },
+      { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },
+      { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss.svg' },
+    ],
+    renderImage: true,
+  },
+  {
+    id: 'beat-maker',
+    title: 'Interactive Beat Maker',
+    imageUrls: ['/placeholder.png'],
+    imageAlt: 'An interactive beat maker with a step sequencer',
+    imageHint: 'beat maker music sequencer',
+    description: 'Create your own drum patterns with a 16-step sequencer and synthesized sounds.',
+    personalNote: 'This was a deep dive into the Web Audio API. Generating sounds from scratch and syncing them perfectly in a scheduler taught me a ton about browser-based timing and audio synthesis. It\'s a fun blend of creativity and technical logic.',
     difficulty: 'Hard',
-    component: <MusicVisualizer />,
+    component: <BeatMaker />,
+    technologies: [
+      { name: 'React', iconSrc: '/icons/react.svg' },
+      { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },
+      { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss.svg' },
+    ],
+    renderImage: true,
+  },
+  {
+    id: 'audio-visualizer',
+    title: 'Audio Visualizer',
+    imageUrls: ['/placeholder.png'],
+    imageAlt: 'A real-time audio visualizer',
+    imageHint: 'audio spectrum waveform',
+    description: 'Visualizes an audio file in real-time using a canvas element.',
+    personalNote: 'This project was a great introduction to the Web Audio API. It taught me how to analyze audio frequency data from a file and render it dynamically on a canvas. A fun way to "see" sound.',
+    difficulty: 'Hard',
+    component: <AudioVisualizer />,
     technologies: [
       { name: 'React', iconSrc: '/icons/react.svg' },
       { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },

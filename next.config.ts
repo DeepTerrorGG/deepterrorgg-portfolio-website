@@ -42,6 +42,9 @@ const nextConfig: NextConfig = {
       bodySizeLimit: '4.5mb',
     },
   },
+  env: {
+    NEXT_PUBLIC_OPENWEATHERMAP_API_KEY: process.env.NEXT_PUBLIC_OPENWEATHERMAP_API_KEY,
+  }
 };
 
 export default nextConfig;

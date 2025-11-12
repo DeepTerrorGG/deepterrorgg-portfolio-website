@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState } from 'react';
@@ -10,7 +11,8 @@ import { useToast } from '@/hooks/use-toast';
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
-import { generateQuiz, type QuizQuestion, type QuizOptions, QuizDifficulty, QuizType } from '@/ai/flows/generate-quiz-flow';
+import { generateQuiz } from '@/ai/flows/generate-quiz-flow';
+import { type QuizQuestion, type QuizOptions, type QuizDifficulty, type QuizType } from '@/ai/flows/generate-quiz-flow-types';
 
 const difficultyLevels: QuizDifficulty[] = ["Easy", "Medium", "Hard"];
 const questionTypes: QuizType[] = ["Multiple Choice", "True/False", "Fun Facts"];

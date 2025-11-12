@@ -1,42 +1,48 @@
 'use client';
 
-import React, { useState } from 'react';
-import { Textarea } from '@/components/ui/textarea';
+import React, { useState, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
+import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 
 const CharacterCounter: React.FC = () => {
   const [text, setText] = useState('');
 
-  const charCount = text.length;
-  const wordCount = text.trim() === '' ? 0 : text.trim().split(/\s+/).length;
+  const stats = useMemo(() => {
+    const characters = text.length;
+    const words = text.trim() === '' ? 0 : text.trim().split(/\s+/).length;
+    const lines = text.split('\n').length;
+    return { characters, words, lines };
+  }, [text]);
 
   return (
     <div className="flex flex-col items-center justify-center w-full h-full bg-card p-4 sm:p-6 lg:p-8">
-      <Card className="w-full max-w-lg mx-auto shadow-2xl">
+      <Card className="w-full max-w-xl mx-auto shadow-2xl">
         <CardHeader>
-          <CardTitle className="text-2xl text-center font-bold text-primary">Character & Word Counter</CardTitle>
+          <CardTitle className="text-2xl text-center font-bold text-primary">Character Counter</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid w-full gap-1.5">
-            <Label htmlFor="message">Your Text</Label>
-            <Textarea
-              placeholder="Type your text here..."
-              id="message"
-              value={text}
-              onChange={(e) => setText(e.target.value)}
-              className="min-h-[200px] text-base"
-            />
-          </div>
+          <Label htmlFor="text-input" className="sr-only">Text Input</Label>
+          <Textarea
+            id="text-input"
+            value={text}
+            onChange={(e) => setText(e.target.value)}
+            placeholder="Type or paste your text here..."
+            className="min-h-[250px] text-base"
+          />
         </CardContent>
-        <CardFooter className="flex justify-around">
-          <div className="text-center">
-            <p className="text-2xl font-bold">{charCount}</p>
+        <CardFooter className="grid grid-cols-3 gap-4 text-center">
+          <div>
+            <p className="text-2xl font-bold">{stats.characters}</p>
             <p className="text-sm text-muted-foreground">Characters</p>
           </div>
-          <div className="text-center">
-            <p className="text-2xl font-bold">{wordCount}</p>
+          <div>
+            <p className="text-2xl font-bold">{stats.words}</p>
             <p className="text-sm text-muted-foreground">Words</p>
+          </div>
+          <div>
+            <p className="text-2xl font-bold">{stats.lines}</p>
+            <p className="text-sm text-muted-foreground">Lines</p>
           </div>
         </CardFooter>
       </Card>

@@ -23,7 +23,7 @@ interface WeatherData {
   name: string;
 }
 
-const API_KEY = '9e901ac4bf2c4b57433294c1a329c379'; // A sample key, recommend using env vars
+const API_KEY = process.env.NEXT_PUBLIC_OPENWEATHERMAP_API_KEY;
 
 const WeatherApp: React.FC = () => {
   const { toast } = useToast();
@@ -43,10 +43,21 @@ const WeatherApp: React.FC = () => {
     const fetchWeatherData = (lat: number, lon: number) => {
       setIsLoading(true);
       setError(null);
+      
+      if (!API_KEY) {
+        setError('OpenWeatherMap API key is missing. Please add it to your environment variables.');
+        toast({ title: "Configuration Error", description: 'API key is missing.', variant: "destructive" });
+        setIsLoading(false);
+        return;
+      }
+
       fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${API_KEY}&units=metric`)
         .then(response => {
           if (!response.ok) {
-            throw new Error('Failed to fetch weather data. The API key might be invalid or expired.');
+            if (response.status === 401) {
+              throw new Error('Invalid API key. Please check your OpenWeatherMap API key.');
+            }
+            throw new Error('Failed to fetch weather data. Please try again later.');
           }
           return response.json();
         })
@@ -68,7 +79,7 @@ const WeatherApp: React.FC = () => {
             fetchWeatherData(position.coords.latitude, position.coords.longitude);
           },
           (err) => {
-            setError("Geolocation permission denied. Please enable location services.");
+            setError("Geolocation permission denied. Please enable location services to use this app.");
             toast({ title: "Location Error", description: "Geolocation permission denied.", variant: "destructive" });
             setIsLoading(false);
           }
@@ -90,10 +101,22 @@ const WeatherApp: React.FC = () => {
     if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
           (position) => {
+            if (!API_KEY) {
+              setError('OpenWeatherMap API key is missing.');
+              setIsLoading(false);
+              return;
+            }
             fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${position.coords.latitude}&lon=${position.coords.longitude}&appid=${API_KEY}&units=metric`)
-              .then(res => res.json())
+              .then(res => {
+                  if (!res.ok) throw new Error('Failed to fetch on retry.');
+                  return res.json();
+              })
               .then(data => {
                   setWeatherData(data);
+                  setIsLoading(false);
+              })
+              .catch(() => {
+                  setError("Failed to fetch weather data on retry.");
                   setIsLoading(false);
               });
           },

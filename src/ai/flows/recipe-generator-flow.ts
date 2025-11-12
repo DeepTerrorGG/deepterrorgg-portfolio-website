@@ -49,7 +49,7 @@ The "instructions" field should be an array of strings, with each string being a
       }
   });
 
-  const responseText = output?.text;
+  const responseText = output?.message?.content[0]?.text;
   if (!responseText) {
     return null;
   }

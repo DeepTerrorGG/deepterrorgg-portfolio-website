@@ -47,7 +47,7 @@ export async function chat(history: ChatHistory, message: string, personality: C
     system: systemPrompt,
   });
 
-  const response = output?.text;
+  const response = output?.message?.content[0]?.text;
 
   // Add the AI's response to the history.
   if (response) {

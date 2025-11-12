@@ -52,7 +52,7 @@ The output must be a JSON object with two fields: "title" (a string) and "story"
       }
   });
 
-  const responseText = output?.text;
+  const responseText = output?.message?.content[0]?.text;
   if (!responseText) {
     return null;
   }

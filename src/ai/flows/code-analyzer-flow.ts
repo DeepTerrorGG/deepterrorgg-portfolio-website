@@ -49,5 +49,5 @@ ${code}
       model: 'googleai/gemini-2.0-flash',
   });
 
-  return output?.text;
+  return output?.message?.content[0]?.text;
 }

@@ -13,7 +13,11 @@
  */
 
 import { ai } from '@/ai/genkit';
-import { type Ingredients, Recipe } from './recipe-generator-flow-types';
+import {
+  type Ingredients,
+  IngredientsSchema,
+  Recipe,
+} from './recipe-generator-flow-types';
 
 /**
  * The main function that handles the recipe generation.
@@ -22,14 +26,12 @@ import { type Ingredients, Recipe } from './recipe-generator-flow-types';
  * @returns The generated recipe.
  */
 export async function generateRecipe(ingredients: Ingredients) {
-  const prompt = ai.definePrompt(
-    {
-      name: 'recipePrompt',
-      input: { schema: Ingredients },
-      output: { schema: Recipe },
-      prompt: `Generate a recipe using the following ingredients: {{{ingredients}}}.`,
-    },
-  );
+  const prompt = ai.definePrompt({
+    name: 'recipePrompt',
+    input: { schema: IngredientsSchema },
+    output: { schema: Recipe },
+    prompt: `Generate a recipe using the following ingredients: {{{ingredients}}}.`,
+  });
 
   const { output } = await prompt(ingredients);
   return output;

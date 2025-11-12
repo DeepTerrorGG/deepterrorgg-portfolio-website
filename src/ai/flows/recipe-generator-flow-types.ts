@@ -10,16 +10,16 @@
  * server-side code.
  *
  * It exports the following:
- * - Recipe, Ingredients: The type definitions for the recipe and ingredients.
+ * - Recipe, Ingredients, IngredientsSchema: The type definitions and schemas for the recipe and ingredients.
  */
 
 import { z } from 'zod';
 
 /** The type definition for the ingredients. */
-export const Ingredients = z.object({
+export const IngredientsSchema = z.object({
   ingredients: z.array(z.string()),
 });
-export type Ingredients = z.infer<typeof Ingredients>;
+export type Ingredients = z.infer<typeof IngredientsSchema>;
 
 /** The type definition for the recipe. */
 export const Recipe = z.object({

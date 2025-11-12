@@ -534,7 +534,9 @@ const difficultyOrder = {
 };
 
 const allProjects = [...projectsData, communityProject].sort((a, b) => {
-  return difficultyOrder[a.difficulty] - difficultyOrder[b.difficulty];
+  const diff = difficultyOrder[a.difficulty] - difficultyOrder[b.difficulty];
+  if (diff !== 0) return diff;
+  return a.title.localeCompare(b.title); // Secondary sort by title
 });
 
 export default function ProjectsPage() {
@@ -656,5 +658,3 @@ export default function ProjectsPage() {
     </>
   );
 }
-
-    

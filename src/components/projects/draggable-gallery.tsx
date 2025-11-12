@@ -5,7 +5,7 @@ import Image from 'next/image';
 import { Card, CardContent } from '@/components/ui/card';
 import { GripVertical, Maximize } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { Dialog, DialogContent } from '../ui/dialog';
+import { Dialog, DialogContent, DialogTitle } from '../ui/dialog';
 
 interface GalleryItem {
   id: string;
@@ -92,6 +92,8 @@ const DraggableGallery: React.FC = () => {
       <Dialog open={!!selectedImage} onOpenChange={(isOpen) => !isOpen && setSelectedImage(null)}>
         <DialogContent className="max-w-3xl w-auto h-auto p-2">
             {selectedImage && (
+              <>
+                <DialogTitle className="sr-only">{selectedImage.alt}</DialogTitle>
                 <Image
                     src={selectedImage.src}
                     alt={selectedImage.alt}
@@ -99,6 +101,7 @@ const DraggableGallery: React.FC = () => {
                     height={800}
                     className="object-contain rounded-md"
                 />
+              </>
             )}
         </DialogContent>
       </Dialog>

@@ -13,13 +13,9 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Loader2 } from 'lucide-react';
-import { ai } from '@/ai/genkit';
-import { z } from 'zod';
+import { analyzeCode, CodeTask } from '@/ai/flows/code-analyzer-flow';
 import ReactMarkdown from 'react-markdown';
 import { ScrollArea } from '../ui/scroll-area';
-
-const CodeTask = z.enum(['explain', 'refactor', 'comment']);
-type CodeTask = z.infer<typeof CodeTask>;
 
 export default function CodeEditor() {
   const [code, setCode] = useState<string>('function fibonacci(n) {\n  if (n <= 1) return n;\n  return fibonacci(n - 1) + fibonacci(n - 2);\n}');
@@ -31,16 +27,10 @@ export default function CodeEditor() {
     setLoading(true);
     setOutput('');
 
-    const codeAnalysisPrompt = ai.definePrompt({
-        name: 'codeAnalysisPrompt',
-        input: { schema: z.object({ task: CodeTask, code: z.string() }) },
-        prompt: `You are an expert software engineer. Perform the following task on the given code: {{{task}}}.\n\nCode:\n\`\`\`\n{{{code}}}\n\`\`\``,
-    });
-    
     try {
-      const { output: result } = await codeAnalysisPrompt({ task, code });
+      const result = await analyzeCode({ task, code });
       if (result) {
-        setOutput(result.text!);
+        setOutput(result);
       }
     } catch (error) {
       console.error(error);

@@ -10,12 +10,6 @@ import { Button } from '@/components/ui/button';
 import { TechStack } from '@/components/ui/tech-stack';
 import { ExternalLink, Rocket } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
 import TodoList from '@/components/projects/todo-list';
 import UnitConverter from '@/components/projects/unit-converter';
 import Calculator3D from '@/components/projects/calculator-3d';
@@ -500,20 +494,17 @@ const allProjects = [...projectsData, communityProject].sort((a, b) => {
 
 export default function ProjectsPage() {
   const [selectedProjectId, setSelectedProjectId] = useState<string>(allProjects[0].id);
-  const [modalProject, setModalProject] = useState<Project | null>(null);
 
   const selectedProject = useMemo(() => {
     return allProjects.find(p => p.id === selectedProjectId) || allProjects[0];
   }, [selectedProjectId]);
 
-  const handleOpenModal = (project: Project) => {
-    if (project.component) {
-      setModalProject(project);
-    } else if (project.externalLink) {
+  const handleLaunchProject = (project: Project) => {
+    if (project.externalLink) {
       window.open(project.externalLink, '_blank', 'noopener,noreferrer');
     }
   };
-
+  
   const difficultyColors = {
     'Easy': 'text-green-400',
     'Medium': 'text-yellow-400',
@@ -524,91 +515,86 @@ export default function ProjectsPage() {
   };
 
   return (
-    <>
-      <div className="grid grid-cols-1 md:grid-cols-12 md:h-[calc(100vh-80px)]">
-        {/* Left Column: Project List */}
-        <div className="md:col-span-4 lg:col-span-3 border-r border-border h-full relative">
-          <ScrollArea className="h-full">
-            <div className="p-6">
-              <PageTitle subtitle="A selection of my creative and technical endeavors." className="text-left !mb-6 !pt-0">
-                My Projects
-              </PageTitle>
-              <ul className="space-y-1">
-                {allProjects.map((project) => (
-                  <li key={project.id}>
-                    <button
-                      onClick={() => setSelectedProjectId(project.id)}
-                      className={cn(
-                        "w-full text-left p-3 rounded-md transition-colors duration-200",
-                        selectedProjectId === project.id
-                          ? 'bg-primary/10 text-primary'
-                          : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground'
-                      )}
-                    >
-                      <h3 className="font-semibold">{project.title}</h3>
-                      <p className={cn("text-xs", difficultyColors[project.difficulty])}>{project.difficulty}</p>
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </ScrollArea>
-        </div>
-
-        {/* Right Column: Project Details */}
-        <div className="md:col-span-8 lg:col-span-9 h-full">
-          <ScrollArea className="h-full">
-            <div className="p-4 sm:p-8 md:p-12 animate-fade-in" key={selectedProject.id}>
-              <div className="relative w-full aspect-video rounded-lg overflow-hidden mb-8 bg-card">
-                <Image
-                  src={selectedProject.imageUrls[0]}
-                  alt={selectedProject.imageAlt}
-                  fill
-                  sizes="(max-width: 767px) 100vw, 60vw"
-                  className="object-cover"
-                  data-ai-hint={selectedProject.imageHint}
-                  priority
-                />
-              </div>
-
-              <div className="max-w-3xl mx-auto">
-                <h2 className="text-3xl font-bold text-foreground mb-4">{selectedProject.title}</h2>
-                <p className="text-muted-foreground text-lg mb-6">{selectedProject.description}</p>
-                
-                <blockquote className="border-l-4 border-primary pl-4 py-2 my-6">
-                  <p className="text-muted-foreground italic">{selectedProject.personalNote}</p>
-                </blockquote>
-
-                <div className="mb-8">
-                  <h4 className="font-semibold text-foreground mb-3">Technologies Used</h4>
-                  <TechStack technologies={selectedProject.technologies} />
-                </div>
-                
-                <Button
-                  onClick={() => handleOpenModal(selectedProject)}
-                  className="w-full sm:w-auto"
-                >
-                  {selectedProject.component ? <Rocket className="mr-2 h-4 w-4" /> : <ExternalLink className="mr-2 h-4 w-4" />}
-                  {selectedProject.component ? 'Launch Project' : 'Visit Site'}
-                </Button>
-              </div>
-            </div>
-          </ScrollArea>
-        </div>
+    <div className="grid grid-cols-1 md:grid-cols-12 md:h-[calc(100vh-80px)]">
+      {/* Left Column: Project List */}
+      <div className="md:col-span-4 lg:col-span-3 border-r border-border h-full relative">
+        <ScrollArea className="h-full">
+          <div className="p-6">
+            <PageTitle subtitle="A selection of my creative and technical endeavors." className="text-left !mb-6 !pt-0">
+              My Projects
+            </PageTitle>
+            <ul className="space-y-1">
+              {allProjects.map((project) => (
+                <li key={project.id}>
+                  <button
+                    onClick={() => setSelectedProjectId(project.id)}
+                    className={cn(
+                      "w-full text-left p-3 rounded-md transition-colors duration-200",
+                      selectedProjectId === project.id
+                        ? 'bg-primary/10 text-primary'
+                        : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground'
+                    )}
+                  >
+                    <h3 className="font-semibold">{project.title}</h3>
+                    <p className={cn("text-xs", difficultyColors[project.difficulty])}>{project.difficulty}</p>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </ScrollArea>
       </div>
-      
-      {modalProject && (
-        <Dialog open={!!modalProject} onOpenChange={(isOpen) => !isOpen && setModalProject(null)}>
-          <DialogContent className="max-w-7xl w-[90vw] h-[90vh] flex flex-col p-0">
-            <DialogHeader className="p-4 border-b">
-              <DialogTitle>{modalProject.title}</DialogTitle>
-            </DialogHeader>
-            <div className="flex-grow overflow-auto bg-background">
-              {modalProject.component}
-            </div>
-          </DialogContent>
-        </Dialog>
-      )}
-    </>
+
+      {/* Right Column: Project Details */}
+      <div className="md:col-span-8 lg:col-span-9 h-full relative">
+        <ScrollArea className="h-full">
+          <div className="flex flex-col h-full">
+            {selectedProject.component && !selectedProject.externalLink ? (
+              <div className="flex-grow flex flex-col">
+                {selectedProject.component}
+              </div>
+            ) : (
+              <div className="p-4 sm:p-8 md:p-12 animate-fade-in" key={selectedProject.id}>
+                <div className="relative w-full aspect-video rounded-lg overflow-hidden mb-8 bg-card">
+                  <Image
+                    src={selectedProject.imageUrls[0]}
+                    alt={selectedProject.imageAlt}
+                    fill
+                    sizes="(max-width: 767px) 100vw, 60vw"
+                    className="object-cover"
+                    data-ai-hint={selectedProject.imageHint}
+                    priority
+                  />
+                </div>
+
+                <div className="max-w-3xl mx-auto">
+                  <h2 className="text-3xl font-bold text-foreground mb-4">{selectedProject.title}</h2>
+                  <p className="text-muted-foreground text-lg mb-6">{selectedProject.description}</p>
+                  
+                  <blockquote className="border-l-4 border-primary pl-4 py-2 my-6">
+                    <p className="text-muted-foreground italic">{selectedProject.personalNote}</p>
+                  </blockquote>
+
+                  <div className="mb-8">
+                    <h4 className="font-semibold text-foreground mb-3">Technologies Used</h4>
+                    <TechStack technologies={selectedProject.technologies} />
+                  </div>
+                  
+                  <Button
+                    onClick={() => handleLaunchProject(selectedProject)}
+                    className="w-full sm:w-auto"
+                  >
+                    <ExternalLink className="mr-2 h-4 w-4" />
+                    Visit Site
+                  </Button>
+                </div>
+              </div>
+            )}
+          </div>
+        </ScrollArea>
+      </div>
+    </div>
   );
 }
+
+    

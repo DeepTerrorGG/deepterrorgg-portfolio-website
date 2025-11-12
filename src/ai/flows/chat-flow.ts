@@ -29,7 +29,7 @@ export async function chat(history: ChatHistory, message: string) {
   const { output } = await ai.generate({
     prompt: message,
     history: history,
-    model: 'googleai/gemini-1.5-pro-preview-0514'
+    model: 'googleai/gemini-pro'
   });
 
   const response = output?.text;

@@ -2,19 +2,10 @@
 'use client';
 import Image from 'next/image';
 import PageTitle from '@/components/ui/page-title';
-import SectionContainer from '@/components/ui/section-container';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Brain, Code, Database, Layers, Component as TechComponentIcon, Gamepad2 } from 'lucide-react';
-import type { ReactElement } from 'react';
+import { Brain } from 'lucide-react';
 import { TechBadge } from '@/components/ui/tech-badge';
 import Link from 'next/link';
-import dynamic from 'next/dynamic';
-import { Skeleton } from '@/components/ui/skeleton';
-
-const SplineViewer = dynamic(() => import('@/components/ui/spline-viewer'), {
-  ssr: false,
-  loading: () => <Skeleton className="w-full h-[450px] md:h-full rounded-lg" />,
-});
 
 interface Technology {
   name: string;
@@ -24,14 +15,12 @@ interface Technology {
 
 interface TechCategory {
   name: string;
-  icon: React.ReactNode;
   technologies: Technology[];
 }
 
 const technologyCategories: TechCategory[] = [
   {
     name: 'Frontend',
-    icon: <Layers className="mr-3 h-6 w-6 text-primary" />,
     technologies: [
       { name: 'React', href: 'https://react.dev/', iconSrc: '/icons/react.svg' },
       { name: 'Next.js', href: 'https://nextjs.org/', iconSrc: '/icons/nextjs.svg' },
@@ -42,7 +31,6 @@ const technologyCategories: TechCategory[] = [
   },
   {
     name: 'Backend & Languages',
-    icon: <Code className="mr-3 h-6 w-6 text-primary" />,
     technologies: [
       { name: 'Node.js', href: 'https://nodejs.org/', iconSrc: '/icons/nodejs.svg' },
       { name: 'JavaScript', href: 'https://developer.mozilla.org/en-US/docs/Web/JavaScript', iconSrc: '/icons/javascript.svg' },
@@ -55,7 +43,6 @@ const technologyCategories: TechCategory[] = [
   },
   {
     name: 'Databases & DevOps',
-    icon: <Database className="mr-3 h-6 w-6 text-primary" />,
     technologies: [
       { name: 'MySQL', href: 'https://www.mysql.com/', iconSrc: '/icons/mysql.svg' },
       { name: 'Docker', href: 'https://www.docker.com/', iconSrc: '/icons/docker.svg' },
@@ -65,7 +52,6 @@ const technologyCategories: TechCategory[] = [
   },
   {
     name: 'Libraries & Services',
-    icon: <TechComponentIcon className="mr-3 h-6 w-6 text-primary" />,
     technologies: [
       { name: 'Firebase', href: 'https://firebase.google.com/', iconSrc: '/icons/firebase.svg' },
       { name: 'Firebase Auth', href: 'https://firebase.google.com/docs/auth', iconSrc: '/icons/firebase-auth.svg' },
@@ -77,7 +63,7 @@ const technologyCategories: TechCategory[] = [
 
 export default function AboutPage() {
   return (
-    <SectionContainer>
+    <div className="container mx-auto px-4 sm:px-6 lg:px-8 flex-grow flex flex-col justify-center">
       <PageTitle subtitle="A glimpse into my creative journey, skills, and passions.">
         About Me
       </PageTitle>
@@ -126,19 +112,6 @@ export default function AboutPage() {
         </div>
       </div>
       
-       <div className="mt-16">
-        <h2 className="text-3xl font-bold text-center text-foreground mb-6 flex items-center justify-center gap-3">
-          <Gamepad2 className="h-8 w-8 text-primary" />
-          My Gaming World
-        </h2>
-        <p className="text-lg text-muted-foreground text-center max-w-2xl mx-auto mb-12">
-          Gaming is more than just a hobby for me; it's a source of inspiration and a world of endless creativity. This interactive 3D model represents my passion for the aesthetics and design that make games so immersive.
-        </p>
-        <Card className="bg-card border-border overflow-hidden aspect-video">
-          <SplineViewer sceneUrl="https://prod.spline.design/wl4X9XbiCMDi6bUv/scene.splinecode" />
-        </Card>
-      </div>
-
       <div className="mt-16">
         <h2 className="text-3xl font-bold text-center text-foreground mb-12">
           My Technology Stack
@@ -148,7 +121,6 @@ export default function AboutPage() {
           {technologyCategories.map((category) => (
             <div key={category.name}>
               <h3 className="flex items-center text-2xl font-semibold text-foreground mb-6">
-                {category.icon}
                 {category.name}
               </h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -165,6 +137,6 @@ export default function AboutPage() {
           ))}
         </div>
       </div>
-    </SectionContainer>
+    </div>
   );
 }

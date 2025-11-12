@@ -1,3 +1,4 @@
+
 // src/app/projects/page.tsx
 'use client';
 
@@ -5,7 +6,6 @@ import React, { useState, useMemo } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import PageTitle from '@/components/ui/page-title';
-import SectionContainer from '@/components/ui/section-container';
 import { Button } from '@/components/ui/button';
 import { TechStack } from '@/components/ui/tech-stack';
 import { ExternalLink, Rocket } from 'lucide-react';
@@ -24,6 +24,24 @@ import SimpleTextAnimator from '@/components/projects/simple-text-animator';
 import FractalRenderer from '@/components/projects/fractal-renderer';
 import Chatbot from '@/components/projects/chatbot';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import PomodoroTimer from '@/components/projects/pomodoro-timer';
+import PasswordGenerator from '@/components/projects/password-generator';
+import AccordionDemo from '@/components/projects/accordion-demo';
+import CharacterCounter from '@/components/projects/character-counter';
+import BmiCalculator from '@/components/projects/bmi-calculator';
+import AiRecipeGenerator from '@/components/projects/ai-recipe-generator';
+import BudgetPlanner from '@/components/projects/budget-planner';
+import DraggableGallery from '@/components/projects/draggable-gallery';
+import GithubProfileFinder from '@/components/projects/github-profile-finder';
+import CollaborativeWhiteboard from '@/components/projects/collaborative-whiteboard';
+import MusicVisualizer from '@/components/projects/music-visualizer';
+import MarkdownEditor from '@/components/projects/markdown-editor';
+import AiStoryGenerator from '@/components/projects/ai-story-generator';
+import CodeEditor from '@/components/projects/code-editor';
+import WeatherApp from '@/components/projects/weather-app';
+import QuizApp from '@/components/projects/quiz-app';
+import StockTracker from '@/components/projects/stock-tracker';
+
 
 interface Technology {
   name: string;
@@ -64,6 +82,77 @@ const projectsData: Project[] = [
       { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss.svg' },
       { name: 'Genkit', iconSrc: '/icons/genkit.svg' },
       { name: 'Gemini', iconSrc: '/icons/gemini.svg' },
+    ],
+    renderImage: true,
+  },
+  {
+    id: 'ai-recipe-generator',
+    title: 'AI Recipe Generator',
+    imageUrls: ['https://i.imgur.com/gKZT5rS.png'],
+    imageAlt: 'AI recipe generator interface',
+    imageHint: 'recipe generator app',
+    description: 'An AI-powered recipe generator that creates unique recipes from a list of ingredients.',
+    personalNote: 'This project combines the power of generative AI with a practical application. It was a great challenge to structure the AI prompts to get creative, useful, and consistently formatted recipes.',
+    difficulty: 'Medium',
+    component: <AiRecipeGenerator />,
+    technologies: [
+      { name: 'React', iconSrc: '/icons/react.svg' },
+      { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },
+      { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss.svg' },
+      { name: 'Genkit', iconSrc: '/icons/genkit.svg' },
+      { name: 'Gemini', iconSrc: '/icons/gemini.svg' },
+    ],
+    renderImage: true,
+  },
+   {
+    id: 'budget-planner',
+    title: 'Interactive Budget Planner',
+    imageUrls: ['https://i.imgur.com/KxJk9oU.png'],
+    imageAlt: 'Interactive budget planner with charts',
+    imageHint: 'budget planner dashboard',
+    description: 'A dynamic budget planner with interactive charts to visualize expenses.',
+    personalNote: 'Building this taught me a lot about data visualization in React. Using charts to provide instant feedback on your budget makes financial tracking much more intuitive.',
+    difficulty: 'Medium',
+    component: <BudgetPlanner />,
+    technologies: [
+      { name: 'React', iconSrc: '/icons/react.svg' },
+      { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },
+      { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss.svg' },
+      { name: 'Recharts', iconSrc: '/icons/recharts.svg' },
+    ],
+    renderImage: true,
+  },
+   {
+    id: 'github-profile-finder',
+    title: 'GitHub Profile Finder',
+    imageUrls: ['https://i.imgur.com/Y4EEw5S.png'],
+    imageAlt: 'GitHub profile finder interface',
+    imageHint: 'github profile search',
+    description: 'A tool to search for GitHub users and display their profile data and repository stats.',
+    personalNote: 'This was a great project for learning how to work with external APIs. It demonstrates fetching data, handling loading and error states, and displaying the results in a clean user interface.',
+    difficulty: 'Medium',
+    component: <GithubProfileFinder />,
+    technologies: [
+      { name: 'React', iconSrc: '/icons/react.svg' },
+      { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },
+      { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss.svg' },
+    ],
+    renderImage: true,
+  },
+  {
+    id: 'draggable-gallery',
+    title: 'Draggable Image Gallery',
+    imageUrls: ['https://i.imgur.com/1bA0A0m.png'],
+    imageAlt: 'Image gallery with drag and drop functionality',
+    imageHint: 'photo gallery organizer',
+    description: 'A sortable image gallery where you can reorder images using drag-and-drop.',
+    personalNote: 'Implementing drag-and-drop was a fun challenge. This project taught me about handling user interactions, managing lists with complex state, and creating a more interactive user experience.',
+    difficulty: 'Medium',
+    component: <DraggableGallery />,
+    technologies: [
+      { name: 'React', iconSrc: '/icons/react.svg' },
+      { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },
+      { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss.svg' },
     ],
     renderImage: true,
   },
@@ -119,7 +208,146 @@ const projectsData: Project[] = [
     ],
     renderImage: true,
   },
-    {
+  {
+    id: 'pomodoro-timer',
+    title: 'Pomodoro Timer',
+    imageUrls: ['https://i.imgur.com/gO1o4W0.png'],
+    imageAlt: 'Pomodoro Timer interface',
+    imageHint: 'pomodoro timer app',
+    description: 'A classic productivity timer to manage work and break sessions using the Pomodoro Technique.',
+    personalNote: 'Building this timer was a great exercise in using React hooks like useEffect and useState to manage time-based state and intervals. A simple but very practical app.',
+    difficulty: 'Easy',
+    component: <PomodoroTimer />,
+    technologies: [
+      { name: 'React', iconSrc: '/icons/react.svg' },
+      { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },
+      { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss.svg' },
+    ],
+    renderImage: true,
+  },
+  {
+    id: 'password-generator',
+    title: 'Password Generator',
+    imageUrls: ['https://i.imgur.com/2s3j4b1.png'],
+    imageAlt: 'Password Generator interface',
+    imageHint: 'password generator tool',
+    description: 'A utility to generate strong, random passwords with customizable length and character types.',
+    personalNote: 'This project was fun for working with form inputs and string manipulation. It is a small but useful tool that demonstrates handling user options to generate a specific output.',
+    difficulty: 'Easy',
+    component: <PasswordGenerator />,
+    technologies: [
+      { name: 'React', iconSrc: '/icons/react.svg' },
+      { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },
+      { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss.svg' },
+    ],
+    renderImage: true,
+  },
+   {
+    id: 'accordion-demo',
+    title: 'Accordion UI',
+    imageUrls: ['https://i.imgur.com/9C3rC2c.png'],
+    imageAlt: 'Accordion component demo',
+    imageHint: 'accordion ui component',
+    description: 'A demonstration of a common UI pattern for displaying collapsible content sections.',
+    personalNote: 'This was a good exercise in component composition and using a pre-built UI library like ShadCN. It shows how to create interactive and space-efficient layouts.',
+    difficulty: 'Easy',
+    component: <AccordionDemo />,
+    technologies: [
+      { name: 'React', iconSrc: '/icons/react.svg' },
+      { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },
+      { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss.svg' },
+    ],
+    renderImage: true,
+  },
+  {
+    id: 'character-counter',
+    title: 'Character Counter',
+    imageUrls: ['https://i.imgur.com/g8e1y5M.png'],
+    imageAlt: 'Character and word counter tool',
+    imageHint: 'text utility app',
+    description: 'A simple tool to count characters and words in a piece of text as you type.',
+    personalNote: 'A very simple project focused on handling user input in real-time and performing basic calculations. It highlights the simplicity and power of controlled components in React.',
+    difficulty: 'Easy',
+    component: <CharacterCounter />,
+    technologies: [
+      { name: 'React', iconSrc: '/icons/react.svg' },
+      { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },
+      { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss.svg' },
+    ],
+    renderImage: true,
+  },
+  {
+    id: 'bmi-calculator',
+    title: 'BMI Calculator',
+    imageUrls: ['https://i.imgur.com/eE1j9uM.png'],
+    imageAlt: 'BMI Calculator interface',
+    imageHint: 'health calculator app',
+    description: 'A simple health tool to calculate Body Mass Index (BMI) based on height and weight.',
+    personalNote: 'This project involved creating a form and performing a calculation based on user input. It was a good way to practice form handling and displaying conditional results.',
+    difficulty: 'Easy',
+    component: <BmiCalculator />,
+    technologies: [
+      { name: 'React', iconSrc: '/icons/react.svg' },
+      { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },
+      { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss.svg' },
+    ],
+    renderImage: true,
+  },
+  {
+    id: 'collaborative-whiteboard',
+    title: 'Collaborative Whiteboard',
+    imageUrls: ['https://i.imgur.com/y8Q3C0d.png'],
+    imageAlt: 'A real-time collaborative whiteboard',
+    imageHint: 'whiteboard collaboration tool',
+    description: 'A real-time whiteboard where multiple users can draw together. Powered by Firebase.',
+    personalNote: 'This was a serious challenge. Syncing drawing paths in real-time across different clients while maintaining performance required a deep dive into Firestore data structures and SVG rendering. It was incredibly rewarding to see it work.',
+    difficulty: 'Advanced',
+    component: <CollaborativeWhiteboard />,
+    technologies: [
+      { name: 'React', iconSrc: '/icons/react.svg' },
+      { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },
+      { name: 'Firebase', iconSrc: '/icons/firebase.svg' },
+      { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss.svg' },
+      { name: 'D3.js', iconSrc: '/icons/d3.svg' },
+    ],
+    renderImage: true,
+  },
+  {
+    id: 'music-visualizer',
+    title: 'Audio Visualizer',
+    imageUrls: ['https://i.imgur.com/9C3rC2c.png'],
+    imageAlt: 'An audio visualizer with frequency bars',
+    imageHint: 'audio equalizer music',
+    description: 'Upload an audio file and see it visualized in real-time on an HTML canvas.',
+    personalNote: 'This project was a fantastic exploration of the Web Audio API. Getting the audio processing and canvas rendering to work in sync was a fun challenge. It combines my love for music and creative coding.',
+    difficulty: 'Hard',
+    component: <MusicVisualizer />,
+    technologies: [
+      { name: 'React', iconSrc: '/icons/react.svg' },
+      { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },
+      { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss.svg' },
+    ],
+    renderImage: true,
+  },
+  {
+    id: 'markdown-editor',
+    title: 'Live Markdown Editor',
+    imageUrls: ['https://i.imgur.com/y4l5A7b.png'],
+    imageAlt: 'A split-screen live markdown editor',
+    imageHint: 'markdown editor live preview',
+    description: 'A split-screen editor to write Markdown and see the live preview instantly.',
+    personalNote: 'This was a great project for learning about text processing and state management in React. It was satisfying to build a tool that I would personally use for writing documentation.',
+    difficulty: 'Hard',
+    component: <MarkdownEditor />,
+    technologies: [
+      { name: 'React', iconSrc: '/icons/react.svg' },
+      { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },
+      { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss.svg' },
+      { name: 'React Markdown', iconSrc: '/icons/react-markdown.svg' },
+    ],
+    renderImage: true,
+  },
+  {
     id: 'tic-tac-toe',
     title: 'Real-Time Multiplayer Game',
     imageUrls: ['https://i.imgur.com/3V3bO8H.png'],
@@ -170,6 +398,94 @@ const projectsData: Project[] = [
         { name: 'React', iconSrc: '/icons/react.svg' },
         { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },
         { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss.svg' },
+    ],
+    renderImage: true,
+  },
+  {
+    id: 'ai-story-generator',
+    title: 'AI Story Generator',
+    imageUrls: ['https://i.imgur.com/6XQ3A3o.png'],
+    imageAlt: 'AI story generator interface',
+    imageHint: 'writing assistant application',
+    description: 'A creative tool that uses generative AI to write a short story from a user-provided prompt.',
+    personalNote: 'This project was a fascinating dive into creative AI. I set up a Genkit flow that takes a simple prompt and generates a complete narrative. It was a great challenge to guide the AI to produce coherent and imaginative stories consistently.',
+    difficulty: 'Advanced',
+    component: <AiStoryGenerator />,
+    technologies: [
+      { name: 'React', iconSrc: '/icons/react.svg' },
+      { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },
+      { name: 'Genkit', iconSrc: '/icons/genkit.svg' },
+      { name: 'Gemini', iconSrc: '/icons/gemini.svg' },
+      { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss.svg' },
+    ],
+    renderImage: true,
+  },
+  {
+    id: 'code-editor',
+    title: 'In-Browser Code Editor',
+    imageUrls: ['https://i.imgur.com/h9H3A3b.png'],
+    imageAlt: 'In-browser code editor for HTML, CSS, and JS',
+    imageHint: 'code editor interface',
+    description: 'A mini front-end playground to write HTML, CSS, and JavaScript and see a live preview.',
+    personalNote: 'This was one of the most challenging projects. It required deep knowledge of React hooks for state management, using iframes securely, and debouncing user input for performance. It’s a powerful demonstration of building a complex, interactive application.',
+    difficulty: 'Advanced',
+    component: <CodeEditor />,
+    technologies: [
+      { name: 'React', iconSrc: '/icons/react.svg' },
+      { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },
+      { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss.svg' },
+    ],
+    renderImage: true,
+  },
+  {
+    id: 'weather-app',
+    title: 'Weather App',
+    imageUrls: ['https://i.imgur.com/J3C1g9g.png'],
+    imageAlt: 'Weather app showing current conditions',
+    imageHint: 'weather forecast application',
+    description: 'A weather app that uses geolocation to fetch and display current local weather data.',
+    personalNote: 'This project was a great exercise in working with third-party APIs and handling asynchronous data. I also learned how to use the browser\'s Geolocation API to create a more personalized user experience. It\'s a classic for a reason!',
+    difficulty: 'Hard',
+    component: <WeatherApp />,
+    technologies: [
+      { name: 'React', iconSrc: '/icons/react.svg' },
+      { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },
+      { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss.svg' },
+    ],
+    renderImage: true,
+  },
+  {
+    id: 'quiz-app',
+    title: 'Interactive Quiz App',
+    imageUrls: ['https://i.imgur.com/M6L1kQc.png'],
+    imageAlt: 'Interactive quiz application interface',
+    imageHint: 'quiz game multiple choice',
+    description: 'A fun, dynamic quiz app where users can test their knowledge on a variety of topics.',
+    personalNote: 'Building this quiz app taught me a lot about managing application state and user flow. It was a fun challenge to handle scoring, question progression, and showing the final results in a clean and interactive way.',
+    difficulty: 'Hard',
+    component: <QuizApp />,
+    technologies: [
+      { name: 'React', iconSrc: '/icons/react.svg' },
+      { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },
+      { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss.svg' },
+    ],
+    renderImage: true,
+  },
+  {
+    id: 'stock-tracker',
+    title: 'Real-Time Stock Tracker',
+    imageUrls: ['https://i.imgur.com/W2dK7Fk.png'],
+    imageAlt: 'Stock tracker dashboard with charts',
+    imageHint: 'stock market dashboard',
+    description: 'A dashboard that simulates tracking stock prices with real-time data updates and charts.',
+    personalNote: 'This project was an excellent way to practice handling real-time data streams and data visualization. I used a mock data feed to simulate live stock updates and displayed the information using Recharts to create an interactive dashboard.',
+    difficulty: 'Hard',
+    component: <StockTracker />,
+    technologies: [
+      { name: 'React', iconSrc: '/icons/react.svg' },
+      { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },
+      { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss.svg' },
+      { name: 'Recharts', iconSrc: '/icons/recharts.svg' },
     ],
     renderImage: true,
   },
@@ -237,85 +553,83 @@ export default function ProjectsPage() {
 
   return (
     <>
-      <SectionContainer className="!py-0 md:!py-0">
-        <div className="grid grid-cols-1 md:grid-cols-12 md:h-[calc(100vh-80px)]">
-          {/* Left Column: Project List */}
-          <div className="md:col-span-4 lg:col-span-3 border-r border-border h-full relative">
-            <ScrollArea className="h-full">
-              <div className="p-6">
-                <PageTitle subtitle="A selection of my creative and technical endeavors." className="text-left !mb-6">
-                  My Projects
-                </PageTitle>
-                <ul className="space-y-1">
-                  {allProjects.map((project) => (
-                    <li key={project.id}>
-                      <button
-                        onClick={() => setSelectedProjectId(project.id)}
-                        className={cn(
-                          "w-full text-left p-3 rounded-md transition-colors duration-200",
-                          selectedProjectId === project.id
-                            ? 'bg-primary/10 text-primary'
-                            : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground'
-                        )}
-                      >
-                        <h3 className="font-semibold">{project.title}</h3>
-                        <p className={cn("text-xs", difficultyColors[project.difficulty])}>{project.difficulty}</p>
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </ScrollArea>
-          </div>
-
-          {/* Right Column: Project Details */}
-          <div className="md:col-span-8 lg:col-span-9 h-full">
-            <ScrollArea className="h-full">
-              <div className="p-4 sm:p-8 md:p-12 animate-fade-in" key={selectedProject.id}>
-                <div className="relative w-full aspect-video rounded-lg overflow-hidden mb-8 bg-card">
-                  {selectedProject.renderImage ? (
-                      <Image
-                        src={selectedProject.imageUrls[0]}
-                        alt={selectedProject.imageAlt}
-                        fill
-                        sizes="(max-width: 767px) 100vw, 60vw"
-                        className="object-cover"
-                        data-ai-hint={selectedProject.imageHint}
-                        priority
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center bg-muted/30">
-                          <h3 className="text-3xl font-bold text-muted-foreground">{selectedProject.title.replace(' App', '')}</h3>
-                      </div>
-                    )}
-                </div>
-
-                <div className="max-w-3xl mx-auto">
-                  <h2 className="text-3xl font-bold text-foreground mb-4">{selectedProject.title}</h2>
-                  <p className="text-muted-foreground text-lg mb-6">{selectedProject.description}</p>
-                  
-                  <blockquote className="border-l-4 border-primary pl-4 py-2 my-6">
-                    <p className="text-muted-foreground italic">{selectedProject.personalNote}</p>
-                  </blockquote>
-
-                  <div className="mb-8">
-                    <h4 className="font-semibold text-foreground mb-3">Technologies Used</h4>
-                    <TechStack technologies={selectedProject.technologies} />
-                  </div>
-                  
-                  <Button
-                    onClick={() => handleOpenModal(selectedProject)}
-                    className="w-full sm:w-auto"
-                  >
-                    {selectedProject.component ? <Rocket className="mr-2 h-4 w-4" /> : <ExternalLink className="mr-2 h-4 w-4" />}
-                    {selectedProject.component ? 'Launch Project' : 'Visit Site'}
-                  </Button>
-                </div>
-              </div>
-            </ScrollArea>
-          </div>
+      <div className="grid grid-cols-1 md:grid-cols-12 md:h-[calc(100vh-80px)]">
+        {/* Left Column: Project List */}
+        <div className="md:col-span-4 lg:col-span-3 border-r border-border h-full relative">
+          <ScrollArea className="h-full">
+            <div className="p-6">
+              <PageTitle subtitle="A selection of my creative and technical endeavors." className="text-left !mb-6 !pt-0">
+                My Projects
+              </PageTitle>
+              <ul className="space-y-1">
+                {allProjects.map((project) => (
+                  <li key={project.id}>
+                    <button
+                      onClick={() => setSelectedProjectId(project.id)}
+                      className={cn(
+                        "w-full text-left p-3 rounded-md transition-colors duration-200",
+                        selectedProjectId === project.id
+                          ? 'bg-primary/10 text-primary'
+                          : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground'
+                      )}
+                    >
+                      <h3 className="font-semibold">{project.title}</h3>
+                      <p className={cn("text-xs", difficultyColors[project.difficulty])}>{project.difficulty}</p>
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </ScrollArea>
         </div>
-      </SectionContainer>
+
+        {/* Right Column: Project Details */}
+        <div className="md:col-span-8 lg:col-span-9 h-full">
+          <ScrollArea className="h-full">
+            <div className="p-4 sm:p-8 md:p-12 animate-fade-in" key={selectedProject.id}>
+              <div className="relative w-full aspect-video rounded-lg overflow-hidden mb-8 bg-card">
+                {selectedProject.renderImage ? (
+                    <Image
+                      src={selectedProject.imageUrls[0]}
+                      alt={selectedProject.imageAlt}
+                      fill
+                      sizes="(max-width: 767px) 100vw, 60vw"
+                      className="object-cover"
+                      data-ai-hint={selectedProject.imageHint}
+                      priority
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center bg-muted/30">
+                        <h3 className="text-3xl font-bold text-muted-foreground">{selectedProject.title.replace(' App', '')}</h3>
+                    </div>
+                  )}
+              </div>
+
+              <div className="max-w-3xl mx-auto">
+                <h2 className="text-3xl font-bold text-foreground mb-4">{selectedProject.title}</h2>
+                <p className="text-muted-foreground text-lg mb-6">{selectedProject.description}</p>
+                
+                <blockquote className="border-l-4 border-primary pl-4 py-2 my-6">
+                  <p className="text-muted-foreground italic">{selectedProject.personalNote}</p>
+                </blockquote>
+
+                <div className="mb-8">
+                  <h4 className="font-semibold text-foreground mb-3">Technologies Used</h4>
+                  <TechStack technologies={selectedProject.technologies} />
+                </div>
+                
+                <Button
+                  onClick={() => handleOpenModal(selectedProject)}
+                  className="w-full sm:w-auto"
+                >
+                  {selectedProject.component ? <Rocket className="mr-2 h-4 w-4" /> : <ExternalLink className="mr-2 h-4 w-4" />}
+                  {selectedProject.component ? 'Launch Project' : 'Visit Site'}
+                </Button>
+              </div>
+            </div>
+          </ScrollArea>
+        </div>
+      </div>
       
       {modalProject && (
         <Dialog open={!!modalProject} onOpenChange={(isOpen) => !isOpen && setModalProject(null)}>

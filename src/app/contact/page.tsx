@@ -10,7 +10,6 @@ import { Mail, Send, MessageSquare, Loader2 } from 'lucide-react';
 import Image from 'next/image';
 
 import PageTitle from '@/components/ui/page-title';
-import SectionContainer from '@/components/ui/section-container';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -130,7 +129,7 @@ export default function ContactPage() {
   };
 
   return (
-    <SectionContainer>
+    <div className="container mx-auto px-4 sm:px-6 lg:px-8 flex-grow flex flex-col justify-center">
       <PageTitle subtitle="Have a project in mind, a question, or just want to say hello? I'd love to hear from you.">
         Get In Touch
       </PageTitle>
@@ -227,6 +226,6 @@ export default function ContactPage() {
           </CardContent>
         </Card>
       </div>
-    </SectionContainer>
+    </div>
   );
 }

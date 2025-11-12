@@ -43,7 +43,7 @@ export default function RootLayout({
       >
         <FirebaseClientProvider>
           <Header />
-          <main className="pt-20 md:pt-24 flex-grow z-10">
+          <main className="flex-grow flex flex-col z-10 pt-16 md:pt-20">
             {children}
           </main>
           <Toaster />

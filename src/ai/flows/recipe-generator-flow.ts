@@ -22,7 +22,7 @@ import {
 /**
  * The main function that handles the recipe generation.
  *
- * @param ingredients The list of ingredients.
+ * @param ingredients The list of ingredients and other options.
  * @returns The generated recipe.
  */
 export async function generateRecipe(ingredients: Ingredients) {
@@ -30,7 +30,16 @@ export async function generateRecipe(ingredients: Ingredients) {
     name: 'recipePrompt',
     input: { schema: IngredientsSchema },
     output: { schema: Recipe },
-    prompt: `Generate a recipe using the following ingredients: {{{ingredients}}}.`,
+    prompt: `
+      You are an expert chef. Generate a creative and delicious recipe using the following ingredients: {{{ingredients}}}.
+      
+      {{#if (ne diet "None")}}The recipe must adhere to a {{{diet}}} diet.{{/if}}
+      {{#if (ne cuisine "Any")}}The recipe should be in a {{{cuisine}}} cuisine style.{{/if}}
+
+      The output should be a JSON object with the fields "name", "description", "ingredients", and "instructions".
+      The "ingredients" field should be an array of strings, including quantities.
+      The "instructions" field should be an array of strings, with each string being a step in the recipe.
+    `,
   });
 
   const { output } = await prompt(ingredients);

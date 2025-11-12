@@ -18,9 +18,13 @@ import { z } from 'zod';
 export const CodeTask = z.enum(['explain', 'refactor', 'comment']);
 export type CodeTask = z.infer<typeof CodeTask>;
 
+export const CodeLanguageSchema = z.enum(['Auto-detect', 'JavaScript', 'Python', 'TypeScript', 'Java', 'C++', 'HTML', 'CSS']);
+export type CodeLanguage = z.infer<typeof CodeLanguageSchema>;
+
 // Define the input schema for the flow.
 export const CodeAnalysisInputSchema = z.object({
   task: CodeTask,
   code: z.string(),
+  language: CodeLanguageSchema,
 });
 export type CodeAnalysisInput = z.infer<typeof CodeAnalysisInputSchema>;

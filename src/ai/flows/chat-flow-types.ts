@@ -11,6 +11,7 @@
  *
  * It exports the following:
  * - ChatHistory: The type definition for the conversation history.
+ * - ChatPersonality: The type for the supported AI personalities.
  */
 
 import { z } from 'zod';
@@ -28,3 +29,8 @@ export const ChatHistory = z.array(
   })
 );
 export type ChatHistory = z.infer<typeof ChatHistory>;
+
+export const ChatPersonalitySchema = z.enum([
+    'Default', 'Helpful Assistant', 'Snarky', 'Pirate', 'Poet', 'Shakespearean', 'Tech Bro', 'Philosopher', 'Flirty'
+]);
+export type ChatPersonality = z.infer<typeof ChatPersonalitySchema>;

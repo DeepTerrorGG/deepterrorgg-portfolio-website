@@ -12,16 +12,29 @@
  */
 
 import { ai } from '@/ai/genkit';
-import { type ChatHistory } from './chat-flow-types';
+import { type ChatHistory, type ChatPersonality } from './chat-flow-types';
+
+const personalityPrompts = {
+    'Default': '',
+    'Helpful Assistant': 'You are a friendly and helpful assistant.',
+    'Snarky': 'You are a snarky and sarcastic assistant. You answer questions correctly, but with a witty, cynical edge.',
+    'Pirate': 'You are a pirate. Respond to all prompts in the voice of a swashbuckling pirate.',
+    'Poet': 'You are a poet. Respond to all prompts with a beautiful, thoughtful poem.',
+    'Shakespearean': 'You are a Shakespearean actor. Respond to all prompts in the style of William Shakespeare.',
+    'Tech Bro': 'You are a tech bro from Silicon Valley. Use a lot of buzzwords and talk about disrupting industries.',
+    'Philosopher': 'You are a famous philosopher. Respond to prompts with deep, existential questions and ponderous thoughts.',
+    'Flirty': 'You are a charming and flirty assistant. Your responses should be playful and witty.',
+};
 
 /**
  * The main function that handles the chatbot logic.
  *
  * @param history The history of the conversation.
  * @param message The user's new message.
+ * @param personality The personality the AI should adopt.
  * @returns The AI's response.
  */
-export async function chat(history: ChatHistory, message: string) {
+export async function chat(history: ChatHistory, message: string, personality: ChatPersonality) {
   // Add a new message to the history.
   history.push({ role: 'user', parts: [{ text: message }] });
 
@@ -29,7 +42,8 @@ export async function chat(history: ChatHistory, message: string) {
   const { output } = await ai.generate({
     prompt: message,
     history: history,
-    model: 'googleai/gemini-pro'
+    model: 'googleai/gemini-pro',
+    system: personalityPrompts[personality],
   });
 
   const response = output?.text;

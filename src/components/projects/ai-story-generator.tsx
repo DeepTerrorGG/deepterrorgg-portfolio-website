@@ -4,7 +4,10 @@
 import { generateStory } from '@/ai/flows/story-generator-flow';
 import { 
   type Story, 
-  type StoryPrompt 
+  type StoryPrompt,
+  type StoryGenre,
+  type StoryStyle,
+  type StoryPlotTwist
 } from '@/ai/flows/story-generator-flow-types';
 import { FormEvent, useState } from 'react';
 import { Button } from '@/components/ui/button';
@@ -12,12 +15,22 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Loader2 } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
+import { Label } from '../ui/label';
+
+const genres: StoryGenre[] = ['Any', 'Fantasy', 'Science Fiction', 'Mystery', 'Horror', 'Romance', 'Comedy'];
+const styles: StoryStyle[] = ['Default', 'Poetic', 'Gritty', 'Humorous', 'Epistolary (told through letters)'];
+const twists: StoryPlotTwist[] = ['None', 'Betrayal', 'Amnesia', 'It was all a dream', 'The hero is the villain', 'An unexpected inheritance'];
 
 export default function AIStoryGenerator() {
-  const [character, setCharacter] = useState<string>('');
-  const [setting, setSetting] = useState<string>('');
+  const [character, setCharacter] = useState<string>('A brave knight');
+  const [setting, setSetting] = useState<string>('A dark forest');
   const [story, setStory] = useState<Story | null>(null);
   const [loading, setLoading] = useState(false);
+
+  const [genre, setGenre] = useState<StoryGenre>('Any');
+  const [style, setStyle] = useState<StoryStyle>('Default');
+  const [twist, setTwist] = useState<StoryPlotTwist>('None');
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -27,6 +40,9 @@ export default function AIStoryGenerator() {
     const prompt: StoryPrompt = {
       character,
       setting,
+      genre,
+      style,
+      twist
     };
 
     try {
@@ -53,20 +69,57 @@ export default function AIStoryGenerator() {
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
-            <Input
-              type="text"
-              value={character}
-              onChange={(e) => setCharacter(e.target.value)}
-              placeholder="Enter a character..."
-              disabled={loading}
-            />
-            <Input
-              type="text"
-              value={setting}
-              onChange={(e) => setSetting(e.target.value)}
-              placeholder="Enter a setting..."
-              disabled={loading}
-            />
+            <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+                <div>
+                    <Label htmlFor='character-input'>Character</Label>
+                    <Input
+                        id='character-input'
+                        type="text"
+                        value={character}
+                        onChange={(e) => setCharacter(e.target.value)}
+                        placeholder="Enter a character..."
+                        disabled={loading}
+                        className='mt-1'
+                    />
+                </div>
+                <div>
+                    <Label htmlFor='setting-input'>Setting</Label>
+                    <Input
+                        id='setting-input'
+                        type="text"
+                        value={setting}
+                        onChange={(e) => setSetting(e.target.value)}
+                        placeholder="Enter a setting..."
+                        disabled={loading}
+                        className='mt-1'
+                    />
+                </div>
+            </div>
+            <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
+                <div>
+                    <Label>Genre</Label>
+                    <Select value={genre} onValueChange={v => setGenre(v as StoryGenre)}>
+                        <SelectTrigger className='mt-1'><SelectValue /></SelectTrigger>
+                        <SelectContent>{genres.map(g => <SelectItem key={g} value={g}>{g}</SelectItem>)}</SelectContent>
+                    </Select>
+                </div>
+                <div>
+                    <Label>Literary Style</Label>
+                    <Select value={style} onValueChange={v => setStyle(v as StoryStyle)}>
+                        <SelectTrigger className='mt-1'><SelectValue /></SelectTrigger>
+                        <SelectContent>{styles.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent>
+                    </Select>
+                </div>
+                <div>
+                    <Label>Plot Twist</Label>
+                    <Select value={twist} onValueChange={v => setTwist(v as StoryPlotTwist)}>
+                        <SelectTrigger className='mt-1'><SelectValue /></SelectTrigger>
+                        <SelectContent>{twists.map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}</SelectContent>
+                    </Select>
+                </div>
+            </div>
+
+
             <Button type="submit" className="w-full" disabled={loading}>
               {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               Generate Story

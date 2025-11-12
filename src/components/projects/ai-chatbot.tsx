@@ -2,7 +2,7 @@
 'use client';
 
 import { chat } from '@/ai/flows/chat-flow';
-import { type ChatHistory } from '@/ai/flows/chat-flow-types';
+import { type ChatHistory, type ChatPersonality } from '@/ai/flows/chat-flow-types';
 import { FormEvent, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { Button } from '@/components/ui/button';
@@ -10,18 +10,25 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Bot, User, Loader2 } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
+import { Label } from '../ui/label';
+
+const personalities: ChatPersonality[] = [
+    'Default', 'Helpful Assistant', 'Snarky', 'Pirate', 'Poet', 'Shakespearean', 'Tech Bro', 'Philosopher', 'Flirty'
+];
 
 export default function AIChatbot() {
   const [history, setHistory] = useState<ChatHistory>([]);
   const [message, setMessage] = useState<string>('');
   const [loading, setLoading] = useState(false);
+  const [personality, setPersonality] = useState<ChatPersonality>('Default');
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
     try {
-      await chat(history, message);
+      await chat(history, message, personality);
     } catch (e: any) {
       console.error(e);
       history.push({
@@ -37,8 +44,18 @@ export default function AIChatbot() {
 
   return (
     <div className="flex flex-col h-full bg-card">
-      <div className="p-4 border-b">
+      <div className="p-4 border-b flex justify-between items-center">
         <CardTitle className="text-xl">AI Chatbot</CardTitle>
+        <div className='w-48'>
+            <Select value={personality} onValueChange={(v) => setPersonality(v as ChatPersonality)}>
+                <SelectTrigger>
+                    <SelectValue placeholder="Select a personality" />
+                </SelectTrigger>
+                <SelectContent>
+                    {personalities.map(p => <SelectItem key={p} value={p}>{p}</SelectItem>)}
+                </SelectContent>
+            </Select>
+        </div>
       </div>
       <ScrollArea className="flex-grow p-4">
         <div className="space-y-4">

@@ -22,7 +22,19 @@ import {
 const codeAnalysisPrompt = ai.definePrompt({
   name: 'codeAnalysisPrompt',
   input: { schema: CodeAnalysisInputSchema },
-  prompt: `You are an expert software engineer. Perform the following task on the given code: {{{task}}}.\n\nCode:\n\`\`\`\n{{{code}}}\n\`\`\``,
+  prompt: `
+    You are an expert software engineer.
+    Perform the following task on the given code: {{{task}}}.
+    {{#if (ne language "Auto-detect")}}The code is written in {{{language}}}.{{/if}}
+    
+    When refactoring or commenting, return only the raw code block. Do not add any explanations or markdown formatting.
+    When explaining, format your response using Markdown.
+    
+    Code:
+    \`\`\`
+    {{{code}}}
+    \`\`\`
+  `,
 });
 
 /**

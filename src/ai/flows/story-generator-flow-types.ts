@@ -15,12 +15,24 @@
 
 import { z } from 'zod';
 
+export const StoryGenreSchema = z.enum(['Any', 'Fantasy', 'Science Fiction', 'Mystery', 'Horror', 'Romance', 'Comedy']);
+export type StoryGenre = z.infer<typeof StoryGenreSchema>;
+
+export const StoryStyleSchema = z.enum(['Default', 'Poetic', 'Gritty', 'Humorous', 'Epistolary (told through letters)']);
+export type StoryStyle = z.infer<typeof StoryStyleSchema>;
+
+export const StoryPlotTwistSchema = z.enum(['None', 'Betrayal', 'Amnesia', 'It was all a dream', 'The hero is the villain', 'An unexpected inheritance']);
+export type StoryPlotTwist = z.infer<typeof StoryPlotTwistSchema>;
+
 /** The type definition for the story prompt. */
-export const StoryPrompt = z.object({
+export const StoryPromptSchema = z.object({
   character: z.string(),
   setting: z.string(),
+  genre: StoryGenreSchema,
+  style: StoryStyleSchema,
+  twist: StoryPlotTwistSchema,
 });
-export type StoryPrompt = z.infer<typeof StoryPrompt>;
+export type StoryPrompt = z.infer<typeof StoryPromptSchema>;
 
 /** The type definition for the story. */
 export const Story = z.object({

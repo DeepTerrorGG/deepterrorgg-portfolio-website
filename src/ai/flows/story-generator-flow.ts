@@ -12,7 +12,7 @@
  */
 
 import { ai } from '@/ai/genkit';
-import { type StoryPrompt, Story } from './story-generator-flow-types';
+import { type StoryPrompt, StoryPromptSchema, Story } from './story-generator-flow-types';
 
 /**
  * The main function that handles the story generation.
@@ -24,9 +24,20 @@ export async function generateStory(prompt: StoryPrompt) {
   const storyPrompt = ai.definePrompt(
     {
       name: 'storyPrompt',
-      input: { schema: Story }, // The prompt object contains StoryPrompt fields
+      input: { schema: StoryPromptSchema },
       output: { schema: Story },
-      prompt: `Write a story about {{{character}}} in {{{setting}}}.`,
+      prompt: `
+        Write a creative and engaging story based on the following details.
+        
+        Character: {{{character}}}
+        Setting: {{{setting}}}
+        {{#if (ne genre "Any")}}Genre: {{{genre}}}{{/if}}
+        {{#if (ne style "Default")}}Literary Style: {{{style}}}{{/if}}
+        {{#if (ne twist "None")}}Incorporate the following plot twist: {{{twist}}}{{/if}}
+
+        The story must have a clear beginning, middle, and end. It should be well-structured with a compelling title.
+        Ensure the tone of the story matches the specified genre and style.
+      `,
     },
   );
 

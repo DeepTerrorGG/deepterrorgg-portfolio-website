@@ -25,7 +25,7 @@ export async function generateProjectImage(input: ImageGenerationInput) {
     const stylePrompt = style === 'Default' ? '' : `in a ${style.toLowerCase()} style, `;
 
     const { media } = await ai.generate({
-        model: 'googleai/imagen-4.0-fast-generate',
+        model: 'googleai/imagen-4.0-fast-generate-001',
         prompt: `A high-quality, creative image representing a software project. The image should be visually interesting and capture the essence of the following description: "${description}". The image should be ${stylePrompt}professional and polished.`,
     });
     return media.url;

@@ -1,4 +1,3 @@
-
 // src/app/projects/page.tsx
 'use client';
 
@@ -20,7 +19,6 @@ import PomodoroTimer from '@/components/projects/pomodoro-timer';
 import PasswordGenerator from '@/components/projects/password-generator';
 import BmiCalculator from '@/components/projects/bmi-calculator';
 import BudgetPlanner from '@/components/projects/budget-planner';
-import DraggableGallery from '@/components/projects/draggable-gallery';
 import GithubProfileFinder from '@/components/projects/github-profile-finder';
 import MusicVisualizer from '@/components/projects/music-visualizer';
 import MarkdownEditor from '@/components/projects/markdown-editor';
@@ -33,6 +31,7 @@ import AIStoryGenerator from '@/components/projects/ai-story-generator';
 import AIRecipeGenerator from '@/components/projects/ai-recipe-generator';
 import AIImageGenerator from '@/components/projects/ai-image-generator';
 import CodeEditor from '@/components/projects/code-editor';
+import TicTacToe from '@/components/projects/tic-tac-toe';
 
 interface Technology {
   name: string;
@@ -130,6 +129,23 @@ const projectsData: Project[] = [
     renderImage: true,
   },
   {
+    id: 'quiz-app',
+    title: 'AI-Powered Quiz App',
+    imageUrls: ['https://i.imgur.com/M6L1kQc.png'],
+    imageAlt: 'Interactive quiz application interface',
+    imageHint: 'quiz game multiple choice',
+    description: 'Generate a dynamic quiz on any topic using AI, with selectable difficulty and question types.',
+    personalNote: 'This was a fun evolution of a standard quiz app. Instead of hard-coding questions, I used AI to generate them on the fly. It taught me how to structure prompts to get reliable, formatted data back from an LLM.',
+    difficulty: 'AI',
+    component: <QuizApp />,
+    technologies: [
+        { name: 'React', iconSrc: '/icons/react.svg' },
+        { name: 'Next.js', iconSrc: '/icons/nextjs.svg' },
+        { name: 'Genkit', iconSrc: '/icons/genkit.svg' },
+    ],
+    renderImage: true,
+  },
+  {
     id: 'code-editor',
     title: 'AI Coding Assistant',
     imageUrls: ['https://i.imgur.com/y8V3eGo.png'],
@@ -199,15 +215,15 @@ const projectsData: Project[] = [
     renderImage: true,
   },
   {
-    id: 'draggable-gallery',
-    title: 'Draggable Image Gallery',
-    imageUrls: ['https://i.imgur.com/1bA0A0m.png'],
-    imageAlt: 'Image gallery with drag and drop functionality',
-    imageHint: 'photo gallery organizer',
-    description: 'A sortable image gallery where you can reorder images using drag-and-drop.',
-    personalNote: 'Implementing drag-and-drop was a fun challenge. This project taught me about handling user interactions, managing lists with complex state, and creating a more interactive user experience.',
+    id: 'tic-tac-toe',
+    title: 'Tic-Tac-Toe vs. AI',
+    imageUrls: ['/placeholder.png'],
+    imageAlt: 'Tic-Tac-Toe game against an AI',
+    imageHint: 'tic tac toe game',
+    description: 'A classic game of Tic-Tac-Toe where you can test your skills against a computer opponent.',
+    personalNote: 'Implementing the game logic and the AI opponent was a fun challenge. The AI isn\'t unbeatable, but it makes you think! This project was a great exercise in state management and simple algorithm design.',
     difficulty: 'Medium',
-    component: <DraggableGallery />,
+    component: <TicTacToe />,
     technologies: [
       { name: 'React', iconSrc: '/icons/react.svg' },
       { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },
@@ -407,23 +423,6 @@ const projectsData: Project[] = [
     renderImage: true,
   },
   {
-    id: 'quiz-app',
-    title: 'Interactive Quiz App',
-    imageUrls: ['https://i.imgur.com/M6L1kQc.png'],
-    imageAlt: 'Interactive quiz application interface',
-    imageHint: 'quiz game multiple choice',
-    description: 'A fun, dynamic quiz app where users can test their knowledge on a variety of topics.',
-    personalNote: 'Building this quiz app taught me a lot about managing application state and user flow. It was a fun challenge to handle scoring, question progression, and showing the final results in a clean and interactive way.',
-    difficulty: 'Hard',
-    component: <QuizApp />,
-    technologies: [
-      { name: 'React', iconSrc: '/icons/react.svg' },
-      { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },
-      { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss.svg' },
-    ],
-    renderImage: true,
-  },
-  {
     id: 'stock-tracker',
     title: 'Real-Time Stock Tracker',
     imageUrls: ['https://i.imgur.com/W2dK7Fk.png'],
@@ -492,18 +491,47 @@ const allProjects = [...projectsData, communityProject].sort((a, b) => {
   return a.title.localeCompare(b.title);
 });
 
+const ProjectDetailContent = ({ project }: { project: Project }) => {
+    const handleLaunchProject = (proj: Project) => {
+        if (proj.externalLink) {
+            window.open(proj.externalLink, '_blank', 'noopener,noreferrer');
+        }
+    };
+
+    return (
+        <div className="max-w-4xl mx-auto py-8">
+            <h2 className="text-3xl font-bold text-foreground mb-2">{project.title}</h2>
+            <p className="text-muted-foreground text-lg mb-6">{project.description}</p>
+            
+            <blockquote className="border-l-4 border-primary pl-4 py-2 my-6">
+                <p className="text-muted-foreground italic">{project.personalNote}</p>
+            </blockquote>
+
+            <div className="mb-8">
+                <h4 className="font-semibold text-foreground mb-3">Technologies Used</h4>
+                <TechStack technologies={project.technologies} />
+            </div>
+
+            {project.externalLink && (
+                 <Button
+                    onClick={() => handleLaunchProject(project)}
+                    className="w-full sm:w-auto"
+                  >
+                    <ExternalLink className="mr-2 h-4 w-4" />
+                    Visit Site
+                  </Button>
+            )}
+        </div>
+    )
+};
+
+
 export default function ProjectsPage() {
   const [selectedProjectId, setSelectedProjectId] = useState<string>(allProjects[0].id);
 
   const selectedProject = useMemo(() => {
     return allProjects.find(p => p.id === selectedProjectId) || allProjects[0];
   }, [selectedProjectId]);
-
-  const handleLaunchProject = (project: Project) => {
-    if (project.externalLink) {
-      window.open(project.externalLink, '_blank', 'noopener,noreferrer');
-    }
-  };
   
   const difficultyColors = {
     'Easy': 'text-green-400',
@@ -517,78 +545,60 @@ export default function ProjectsPage() {
   return (
     <div className="grid grid-cols-1 md:grid-cols-12 md:h-[calc(100vh-80px)]">
       {/* Left Column: Project List */}
-      <div className="md:col-span-4 lg:col-span-3 border-r border-border h-full relative">
-        <ScrollArea className="h-full">
-          <div className="p-6">
-            <PageTitle subtitle="A selection of my creative and technical endeavors." className="text-left !mb-6 !pt-0">
-              My Projects
-            </PageTitle>
-            <ul className="space-y-1">
-              {allProjects.map((project) => (
-                <li key={project.id}>
-                  <button
-                    onClick={() => setSelectedProjectId(project.id)}
-                    className={cn(
-                      "w-full text-left p-3 rounded-md transition-colors duration-200",
-                      selectedProjectId === project.id
-                        ? 'bg-primary/10 text-primary'
-                        : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground'
-                    )}
-                  >
-                    <h3 className="font-semibold">{project.title}</h3>
-                    <p className={cn("text-xs", difficultyColors[project.difficulty])}>{project.difficulty}</p>
-                  </button>
-                </li>
-              ))}
-            </ul>
-          </div>
+      <div className="md:col-span-4 lg:col-span-3 border-r border-border flex flex-col h-full overflow-hidden">
+        <div className="p-6 border-b">
+          <PageTitle subtitle="A selection of my creative and technical endeavors." className="text-left !mb-0 !pt-0">
+            My Projects
+          </PageTitle>
+        </div>
+        <ScrollArea className="flex-grow">
+          <ul className="space-y-1 p-4">
+            {allProjects.map((project) => (
+              <li key={project.id}>
+                <button
+                  onClick={() => setSelectedProjectId(project.id)}
+                  className={cn(
+                    "w-full text-left p-3 rounded-md transition-colors duration-200",
+                    selectedProjectId === project.id
+                      ? 'bg-primary/10 text-primary'
+                      : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground'
+                  )}
+                >
+                  <h3 className="font-semibold">{project.title}</h3>
+                  <p className={cn("text-xs", difficultyColors[project.difficulty])}>{project.difficulty}</p>
+                </button>
+              </li>
+            ))}
+          </ul>
         </ScrollArea>
       </div>
 
       {/* Right Column: Project Details */}
-      <div className="md:col-span-8 lg:col-span-9 h-full relative">
-        <ScrollArea className="h-full">
-          <div className="flex flex-col h-full">
-            {selectedProject.component && !selectedProject.externalLink ? (
-              <div className="flex-grow flex flex-col">
-                {selectedProject.component}
-              </div>
+      <div className="md:col-span-8 lg:col-span-9 h-full overflow-hidden flex flex-col" key={selectedProject.id}>
+        <ScrollArea className="flex-grow">
+          <div className="flex flex-col h-full animate-fade-in">
+            {selectedProject.component ? (
+                <div className="flex-grow flex flex-col">
+                    <div className="flex-grow">{selectedProject.component}</div>
+                    <div className="p-4 sm:p-8 md:p-12 border-t bg-background">
+                       <ProjectDetailContent project={selectedProject} />
+                    </div>
+                </div>
             ) : (
-              <div className="p-4 sm:p-8 md:p-12 animate-fade-in" key={selectedProject.id}>
-                <div className="relative w-full aspect-video rounded-lg overflow-hidden mb-8 bg-card">
-                  <Image
-                    src={selectedProject.imageUrls[0]}
-                    alt={selectedProject.imageAlt}
-                    fill
-                    sizes="(max-width: 767px) 100vw, 60vw"
-                    className="object-cover"
-                    data-ai-hint={selectedProject.imageHint}
-                    priority
-                  />
+                <div className="p-4 sm:p-8 md:p-12">
+                    <div className="relative w-full aspect-video rounded-lg overflow-hidden mb-8 bg-card">
+                    <Image
+                        src={selectedProject.imageUrls[0]}
+                        alt={selectedProject.imageAlt}
+                        fill
+                        sizes="(max-width: 767px) 100vw, 60vw"
+                        className="object-cover"
+                        data-ai-hint={selectedProject.imageHint}
+                        priority
+                    />
+                    </div>
+                    <ProjectDetailContent project={selectedProject} />
                 </div>
-
-                <div className="max-w-3xl mx-auto">
-                  <h2 className="text-3xl font-bold text-foreground mb-4">{selectedProject.title}</h2>
-                  <p className="text-muted-foreground text-lg mb-6">{selectedProject.description}</p>
-                  
-                  <blockquote className="border-l-4 border-primary pl-4 py-2 my-6">
-                    <p className="text-muted-foreground italic">{selectedProject.personalNote}</p>
-                  </blockquote>
-
-                  <div className="mb-8">
-                    <h4 className="font-semibold text-foreground mb-3">Technologies Used</h4>
-                    <TechStack technologies={selectedProject.technologies} />
-                  </div>
-                  
-                  <Button
-                    onClick={() => handleLaunchProject(selectedProject)}
-                    className="w-full sm:w-auto"
-                  >
-                    <ExternalLink className="mr-2 h-4 w-4" />
-                    Visit Site
-                  </Button>
-                </div>
-              </div>
             )}
           </div>
         </ScrollArea>
@@ -596,5 +606,3 @@ export default function ProjectsPage() {
     </div>
   );
 }
-
-    

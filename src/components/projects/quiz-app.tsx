@@ -5,49 +5,56 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { cn } from '@/lib/utils';
-import { RefreshCw } from 'lucide-react';
+import { RefreshCw, Loader2, Wand2 } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
+import { Input } from '../ui/input';
+import { Label } from '../ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
+import { generateQuiz, type QuizQuestion, type QuizOptions, QuizDifficulty, QuizType } from '@/ai/flows/generate-quiz-flow';
 
-const quizQuestions = [
-  {
-    question: "What is the capital of France?",
-    options: ["Berlin", "Madrid", "Paris", "Rome"],
-    answer: "Paris",
-  },
-  {
-    question: "Which of these is a JavaScript framework?",
-    options: ["Django", "Laravel", "React", "Spring"],
-    answer: "React",
-  },
-  {
-    question: "What does CSS stand for?",
-    options: ["Cascading Style Sheets", "Creative Style Sheets", "Computer Style Sheets", "Colorful Style Sheets"],
-    answer: "Cascading Style Sheets",
-  },
-    {
-    question: "What is the result of `2 + 2 * 2`?",
-    options: ["8", "6", "4", "2"],
-    answer: "6",
-  },
-  {
-    question: "Which HTML tag is used to define an unordered list?",
-    options: ["<ol>", "<li>", "<list>", "<ul>"],
-    answer: "<ul>",
-  },
-];
+const difficultyLevels: QuizDifficulty[] = ["Easy", "Medium", "Hard"];
+const questionTypes: QuizType[] = ["Multiple Choice", "True/False", "Fun Facts"];
 
 const QuizApp: React.FC = () => {
+  const { toast } = useToast();
+  
+  // Game State
+  const [quizQuestions, setQuizQuestions] = useState<QuizQuestion[]>([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [score, setScore] = useState(0);
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
   const [isAnswered, setIsAnswered] = useState(false);
   const [showResults, setShowResults] = useState(false);
+  
+  // Setup State
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [topic, setTopic] = useState('World Capitals');
+  const [numQuestions, setNumQuestions] = useState(5);
+  const [difficulty, setDifficulty] = useState<QuizDifficulty>("Medium");
+  const [quizType, setQuizType] = useState<QuizType>("Multiple Choice");
+
+  const handleGenerateQuiz = async () => {
+    setIsGenerating(true);
+    handleRestartQuiz();
+    try {
+      const options: QuizOptions = { topic, numQuestions, difficulty, type: quizType };
+      const questions = await generateQuiz(options);
+      if (questions && questions.length > 0) {
+        setQuizQuestions(questions);
+      } else {
+        toast({ title: "Failed to generate quiz", description: "The AI couldn't create questions for that topic. Please try another one.", variant: 'destructive' });
+      }
+    } catch (error) {
+      console.error(error);
+      toast({ title: "Error", description: "An unexpected error occurred while generating the quiz.", variant: 'destructive' });
+    }
+    setIsGenerating(false);
+  };
 
   const handleAnswerOptionClick = (option: string) => {
     if (isAnswered) return;
-
     setSelectedOption(option);
     setIsAnswered(true);
-
     if (option === quizQuestions[currentQuestionIndex].answer) {
       setScore(score + 1);
     }
@@ -65,6 +72,7 @@ const QuizApp: React.FC = () => {
   }
   
   const handleRestartQuiz = () => {
+      setQuizQuestions([]);
       setCurrentQuestionIndex(0);
       setScore(0);
       setSelectedOption(null);
@@ -72,14 +80,60 @@ const QuizApp: React.FC = () => {
       setShowResults(false);
   }
 
-  const progress = ((currentQuestionIndex + (isAnswered ? 1 : 0)) / quizQuestions.length) * 100;
+  const progress = quizQuestions.length > 0 ? ((currentQuestionIndex + (isAnswered ? 1 : 0)) / quizQuestions.length) * 100 : 0;
+  
+  // Setup View
+  if (quizQuestions.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center w-full h-full bg-card p-4 sm:p-6 lg:p-8">
+        <Card className="w-full max-w-md mx-auto shadow-2xl">
+          <CardHeader>
+            <CardTitle className="text-2xl text-center font-bold text-primary">Generate a Quiz</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div>
+              <Label htmlFor="topic">Topic</Label>
+              <Input id="topic" value={topic} onChange={(e) => setTopic(e.target.value)} placeholder="e.g., Roman History" />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+                <div>
+                    <Label htmlFor="num-questions">Questions</Label>
+                    <Input id="num-questions" type="number" min="3" max="10" value={numQuestions} onChange={(e) => setNumQuestions(Math.min(10, Math.max(3, parseInt(e.target.value) || 3)))} />
+                </div>
+                <div>
+                    <Label htmlFor="difficulty">Difficulty</Label>
+                    <Select value={difficulty} onValueChange={(v) => setDifficulty(v as QuizDifficulty)}>
+                        <SelectTrigger id="difficulty"><SelectValue /></SelectTrigger>
+                        <SelectContent>{difficultyLevels.map(d => <SelectItem key={d} value={d}>{d}</SelectItem>)}</SelectContent>
+                    </Select>
+                </div>
+            </div>
+             <div>
+                <Label htmlFor="quiz-type">Question Type</Label>
+                <Select value={quizType} onValueChange={(v) => setQuizType(v as QuizType)}>
+                    <SelectTrigger id="quiz-type"><SelectValue /></SelectTrigger>
+                    <SelectContent>{questionTypes.map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}</SelectContent>
+                </Select>
+            </div>
+          </CardContent>
+          <CardFooter>
+            <Button onClick={handleGenerateQuiz} className="w-full" disabled={isGenerating}>
+              {isGenerating ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Wand2 className="mr-2 h-4 w-4" />}
+              Generate Quiz
+            </Button>
+          </CardFooter>
+        </Card>
+      </div>
+    );
+  }
 
+  // Results View
   if (showResults) {
       return (
          <div className="flex flex-col items-center justify-center w-full h-full bg-card p-4 sm:p-6 lg:p-8">
              <Card className="w-full max-w-md mx-auto shadow-2xl text-center">
                  <CardHeader>
-                     <CardTitle className="text-2xl text-center font-bold text-primary">Quiz Results</CardTitle>
+                     <CardTitle className="text-2xl text-center font-bold text-primary">Quiz Results for {topic}</CardTitle>
                  </CardHeader>
                  <CardContent className="space-y-4">
                      <p className="text-4xl font-bold">
@@ -90,7 +144,7 @@ const QuizApp: React.FC = () => {
                  <CardFooter>
                      <Button onClick={handleRestartQuiz} className="w-full">
                          <RefreshCw className="mr-2 h-4 w-4" />
-                         Restart Quiz
+                         Create New Quiz
                      </Button>
                  </CardFooter>
              </Card>
@@ -98,6 +152,7 @@ const QuizApp: React.FC = () => {
       );
   }
 
+  // Quiz View
   return (
     <div className="flex flex-col items-center justify-center w-full h-full bg-card p-4 sm:p-6 lg:p-8">
       <Card className="w-full max-w-xl mx-auto shadow-2xl">
@@ -112,7 +167,6 @@ const QuizApp: React.FC = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {quizQuestions[currentQuestionIndex].options.map((option) => {
               const isCorrect = option === quizQuestions[currentQuestionIndex].answer;
-              
               return (
                 <Button
                   key={option}
@@ -131,7 +185,10 @@ const QuizApp: React.FC = () => {
           </div>
         </CardContent>
          {isAnswered && (
-            <CardFooter>
+            <CardFooter className="flex flex-col gap-4">
+                {selectedOption !== quizQuestions[currentQuestionIndex].answer && (
+                    <p className="text-sm text-center text-destructive">Correct Answer: {quizQuestions[currentQuestionIndex].answer}</p>
+                )}
                 <Button onClick={handleNextClick} className="w-full">
                     {currentQuestionIndex < quizQuestions.length - 1 ? 'Next Question' : 'Show Results'}
                 </Button>

@@ -10,12 +10,12 @@
 import { ai } from '@/ai/genkit';
 import { z } from 'genkit';
 
-export const GenerateStoryInputSchema = z.object({
+const GenerateStoryInputSchema = z.object({
   prompt: z.string().describe('A short prompt or starting sentence for the story.'),
 });
 export type GenerateStoryInput = z.infer<typeof GenerateStoryInputSchema>;
 
-export const GenerateStoryOutputSchema = z.object({
+const GenerateStoryOutputSchema = z.object({
   story: z.string().describe('The generated story, which should be at least three paragraphs long.'),
 });
 export type GenerateStoryOutput = z.infer<typeof GenerateStoryOutputSchema>;

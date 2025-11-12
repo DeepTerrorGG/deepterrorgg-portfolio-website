@@ -525,7 +525,17 @@ const communityProject: Project = {
   renderImage: true,
 };
 
-const allProjects = [...projectsData, communityProject];
+const difficultyOrder = {
+  'Easy': 1,
+  'Medium': 2,
+  'Hard': 3,
+  'Advanced': 4,
+  'Community': 5,
+};
+
+const allProjects = [...projectsData, communityProject].sort((a, b) => {
+  return difficultyOrder[a.difficulty] - difficultyOrder[b.difficulty];
+});
 
 export default function ProjectsPage() {
   const [selectedProjectId, setSelectedProjectId] = useState<string>(allProjects[0].id);
@@ -646,3 +656,5 @@ export default function ProjectsPage() {
     </>
   );
 }
+
+    

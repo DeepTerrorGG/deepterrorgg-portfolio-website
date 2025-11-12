@@ -10,7 +10,8 @@
  * server-side code.
  *
  * It exports the following:
- * - Recipe, Ingredients, IngredientsSchema: The type definitions and schemas for the recipe and ingredients.
+ * - RecipeSchema, IngredientsSchema: The schemas for the recipe and ingredients.
+ * - Recipe, Ingredients: The TypeScript types for the recipe and ingredients.
  */
 
 import { z } from 'zod';
@@ -21,7 +22,7 @@ export type RecipeDiet = z.infer<typeof RecipeDietSchema>;
 export const RecipeCuisineSchema = z.enum(['Any', 'Italian', 'Mexican', 'Indian', 'Chinese', 'Japanese', 'French', 'American']);
 export type RecipeCuisine = z.infer<typeof RecipeCuisineSchema>;
 
-/** The type definition for the ingredients. */
+/** The schema for the ingredients. */
 export const IngredientsSchema = z.object({
   ingredients: z.array(z.string()),
   diet: RecipeDietSchema,
@@ -29,11 +30,11 @@ export const IngredientsSchema = z.object({
 });
 export type Ingredients = z.infer<typeof IngredientsSchema>;
 
-/** The type definition for the recipe. */
-export const Recipe = z.object({
+/** The schema for the recipe. */
+export const RecipeSchema = z.object({
   name: z.string(),
   description: z.string(),
   ingredients: z.array(z.string()),
   instructions: z.array(z.string()),
 });
-export type Recipe = z.infer<typeof Recipe>;
+export type Recipe = z.infer<typeof RecipeSchema>;

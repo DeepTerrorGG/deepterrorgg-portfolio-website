@@ -10,6 +10,33 @@ const PasswordRuleOutputSchema = z.object({
 });
 export type PasswordRuleOutput = z.infer<typeof PasswordRuleOutputSchema>;
 
+const SYSTEM_PROMPT = `
+You are a creative game designer for "The Password Game". Your task is to generate a new, single, fun, and quirky password rule.
+You MUST also provide the JavaScript logic to validate the rule.
+
+### Your Response Format
+Your response MUST be a raw JSON object that conforms to the following schema, and nothing else. Do not wrap it in markdown or add any explanatory text.
+
+### Schema
+{
+  "rule": "<The password rule text>",
+  "validationLogic": "<The JavaScript validation logic as a string>"
+}
+
+### Example 1
+{
+  "rule": "Your password must include a day of the week.",
+  "validationLogic": "/(monday|tuesday|wednesday|thursday|friday|saturday|sunday)/i.test(password)"
+}
+
+### Example 2
+{
+  "rule": "Your password must include a Roman numeral.",
+  "validationLogic": "/\\b(I|V|X|L|C|D|M)+\\b/i.test(password)"
+}
+`;
+
+
 export async function generatePasswordRule(existingRules: string[]): Promise<PasswordRuleOutput> {
   const { output } = await ai.generate({
     model: 'googleai/gemini-2.0-flash',
@@ -17,23 +44,10 @@ export async function generatePasswordRule(existingRules: string[]): Promise<Pas
         schema: PasswordRuleOutputSchema,
         format: 'json',
     },
-    prompt: `You are a creative game designer creating rules for "The Password Game".
-    Generate a new, single rule for a user's password.
-    The rule should be fun, quirky, or slightly challenging, but not impossible.
-    You must also provide the JavaScript logic to validate the rule.
-    
-    Here are the rules that already exist, so don't generate a duplicate:
+    system: SYSTEM_PROMPT,
+    prompt: `
+    Generate a new rule. Do not generate a duplicate of any of the following existing rules:
     - ${existingRules.join('\n- ')}
-    
-    Examples of good rules:
-    - Rule: "Your password must include a day of the week."
-      Validation: "/(monday|tuesday|wednesday|thursday|friday|saturday|sunday)/i.test(password)"
-    - Rule: "Your password must include a Roman numeral."
-      Validation: "/\\b(I|V|X|L|C|D|M)+\\b/i.test(password)"
-    - Rule: "Your password must include the name of a planet."
-      Validation: "/(Mercury|Venus|Earth|Mars|Jupiter|Saturn|Uranus|Neptune)/i.test(password)"
-    
-    Now, generate a new one.
     `,
   });
 

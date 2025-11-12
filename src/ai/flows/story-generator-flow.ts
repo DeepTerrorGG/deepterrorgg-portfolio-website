@@ -12,7 +12,7 @@
  */
 
 import { ai } from '@/ai/genkit';
-import { type StoryPrompt, type Story } from './story-generator-flow-types';
+import { type StoryPrompt, type Story, StorySchema } from './story-generator-flow-types';
 
 /**
  * The main function that handles the story generation.
@@ -48,19 +48,15 @@ The output must be a JSON object with two fields: "title" (a string) and "story"
       prompt: constructedPrompt,
       model: 'googleai/gemini-2.0-flash',
       output: {
-          format: 'json'
+          format: 'json',
+          schema: StorySchema,
       }
   });
 
-  const responseText = output?.message?.content[0]?.text;
-  if (!responseText) {
+  const structuredResponse = output?.structured;
+  if (!structuredResponse) {
     return null;
   }
 
-  try {
-    return JSON.parse(responseText) as Story;
-  } catch (e) {
-    console.error("Failed to parse story JSON:", e);
-    return null;
-  }
+  return structuredResponse as Story;
 }

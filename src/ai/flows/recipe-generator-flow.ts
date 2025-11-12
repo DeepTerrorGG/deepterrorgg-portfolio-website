@@ -16,6 +16,7 @@ import { ai } from '@/ai/genkit';
 import {
   type Ingredients,
   type Recipe,
+  RecipeSchema,
 } from './recipe-generator-flow-types';
 
 /**
@@ -45,19 +46,17 @@ The "instructions" field should be an array of strings, with each string being a
       prompt,
       model: 'googleai/gemini-2.0-flash',
       output: {
-        format: 'json'
+        format: 'json',
+        schema: RecipeSchema,
       }
   });
 
-  const responseText = output?.message?.content[0]?.text;
-  if (!responseText) {
+  const structuredResponse = output?.structured;
+  
+  if (!structuredResponse) {
     return null;
   }
-
-  try {
-    return JSON.parse(responseText) as Recipe;
-  } catch (e) {
-    console.error("Failed to parse recipe JSON:", e);
-    return null;
-  }
+  
+  // The response is already a parsed object that should match the 'Recipe' schema.
+  return structuredResponse as Recipe;
 }

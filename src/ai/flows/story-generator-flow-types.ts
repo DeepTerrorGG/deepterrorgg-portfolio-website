@@ -10,7 +10,8 @@
  * server-side code.
  *
  * It exports the following:
- * - Story, StoryPrompt: The type definitions for the story and story prompt.
+ * - StorySchema, StoryPromptSchema: The schemas for the story and story prompt.
+ * - Story, StoryPrompt: The TypeScript types for the story and story prompt.
  */
 
 import { z } from 'zod';
@@ -24,7 +25,7 @@ export type StoryStyle = z.infer<typeof StoryStyleSchema>;
 export const StoryPlotTwistSchema = z.enum(['None', 'Betrayal', 'Amnesia', 'It was all a dream', 'The hero is the villain', 'An unexpected inheritance']);
 export type StoryPlotTwist = z.infer<typeof StoryPlotTwistSchema>;
 
-/** The type definition for the story prompt. */
+/** The schema for the story prompt. */
 export const StoryPromptSchema = z.object({
   character: z.string(),
   setting: z.string(),
@@ -34,9 +35,9 @@ export const StoryPromptSchema = z.object({
 });
 export type StoryPrompt = z.infer<typeof StoryPromptSchema>;
 
-/** The type definition for the story. */
-export const Story = z.object({
+/** The schema for the story. */
+export const StorySchema = z.object({
   title: z.string(),
   story: z.string(),
 });
-export type Story = z.infer<typeof Story>;
+export type Story = z.infer<typeof StorySchema>;

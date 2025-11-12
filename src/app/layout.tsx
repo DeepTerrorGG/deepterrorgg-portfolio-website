@@ -3,9 +3,9 @@ import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
 import './globals.css';
 import Header from '@/components/layout/header';
-import { Toaster } from "@/components/ui/toaster";
 import { cn } from '@/lib/utils';
 import { FirebaseClientProvider } from '@/firebase';
+import { AppProviders } from './app-providers';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -42,11 +42,12 @@ export default function RootLayout({
         suppressHydrationWarning={true}
       >
         <FirebaseClientProvider>
-          <Header />
-          <main className="flex-grow flex flex-col z-10 pt-16 md:pt-20">
-            {children}
-          </main>
-          <Toaster />
+            <AppProviders>
+              <Header />
+              <main className="flex-grow flex flex-col z-10 pt-16 md:pt-20">
+                {children}
+              </main>
+            </AppProviders>
         </FirebaseClientProvider>
       </body>
     </html>

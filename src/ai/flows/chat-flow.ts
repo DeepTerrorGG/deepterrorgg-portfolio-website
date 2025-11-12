@@ -22,40 +22,85 @@ const personalityPrompts = {
     'Poet': 'You are a poet. Respond to all prompts with a beautiful, thoughtful poem.',
     'Shakespearean': 'You are a Shakespearean actor. Respond to all prompts in the style of William Shakespeare.',
     'Tech Bro': 'You are a tech bro from Silicon Valley. Use a lot of buzzwords and talk about disrupting industries.',
-    'Philosopher': 'You are a famous philosopher. Respond to prompts with deep, existential questions and ponderous thoughts.',
+    'Philosopher': 'You are a famous philosopher. Respond to all prompts with deep, existential questions and ponderous thoughts.',
     'Flirty': 'You are a charming and flirty assistant. Your responses should be playful and witty.',
 };
 
 /**
  * The main function that handles the chatbot logic.
  *
- * @param history The history of the conversation.
- * @param message The user's new message.
+ * @param history The full conversation history.
  * @param personality The personality the AI should adopt.
- * @returns The updated conversation history.
+ * @returns The AI's response as a string.
  */
-export async function chat(history: ChatHistory, message: string, personality: ChatPersonality): Promise<ChatHistory> {
-  const newHistory: ChatHistory = [...history, { role: 'user', parts: [{ text: message }] }];
-
+export async function chat(history: ChatHistory, personality: ChatPersonality): Promise<string> {
   const systemPrompt = personalityPrompts[personality] || '';
 
-  // Use the user's new message as the prompt and provide the past conversation as history.
-  const { output } = await ai.generate({
-    prompt: message,
-    history: newHistory,
-    model: 'googleai/gemini-2.0-flash',
-    system: systemPrompt,
-  });
+  if (!history || history.length === 0) {
+    return "Sorry, I didn't receive a message.";
+  }
+  
+  const latestMessage = history[history.length - 1];
+  const precedingHistory = history.slice(0, -1);
 
-  const response = output?.message?.content[0]?.text;
-
-  // Add the AI's response to the history.
-  if (response) {
-    newHistory.push({ role: 'model', parts: [{ text: response }] });
-  } else {
-    newHistory.push({ role: 'model', parts: [{text: "Sorry, I couldn't generate a response."}]})
+  if (!latestMessage) {
+    return "Sorry, I couldn't process your message.";
   }
 
-  // Return the full, updated history
-  return newHistory;
+  try {
+    const { output } = await ai.generate({
+      prompt: latestMessage.parts[0].text,
+      history: precedingHistory.length > 0 ? precedingHistory : undefined,
+      model: 'googleai/gemini-2.0-flash',
+      system: systemPrompt,
+      config: {
+        safetySettings: [
+            {
+                category: 'HARM_CATEGORY_DANGEROUS_CONTENT',
+                threshold: 'BLOCK_NONE',
+            },
+            {
+                category: 'HARM_CATEGORY_HARASSMENT',
+                threshold: 'BLOCK_NONE',
+            },
+            {
+                category: 'HARM_CATEGORY_HATE_SPEECH',
+                threshold: 'BLOCK_NONE',
+            },
+            {
+                category: 'HARM_CATEGORY_SEXUALLY_EXPLICIT',
+                threshold: 'BLOCK_NONE',
+            },
+        ]
+      }
+    });
+
+    const response = output?.text;
+    
+    if (response) {
+      return response;
+    }
+
+    // Handle cases where the response is empty (e.g., safety-blocked)
+    return "I'm sorry, I couldn't formulate a response for that. Please try a different topic.";
+
+  } catch (error: any) {
+    console.error("Error generating AI response:", error);
+    
+    // Provide more specific error feedback
+    let errorMessage = "Sorry, an unexpected error occurred while generating a response.";
+    if (error.message) {
+        if (error.message.includes('API key not valid')) {
+            errorMessage = "AI configuration error: The API key is not valid. Please check your environment variables.";
+        } else if (error.message.includes('429')) {
+            errorMessage = "AI Service Overloaded: The service is currently experiencing high traffic. Please try again in a moment.";
+        } else if (error.message.includes('Not Found')) {
+            errorMessage = `AI Model Not Found: The model 'googleai/gemini-2.0-flash' is not available.`;
+        }
+        else {
+            errorMessage = `An error occurred: ${error.message}`;
+        }
+    }
+    return errorMessage;
+  }
 }

@@ -1,6 +1,19 @@
+/**
+ * @fileoverview Firestore Security Rules for DeepTerrorGG portfolio website.
+ *
+ * Core Philosophy:
+ * This ruleset enforces a public-access model. All data is readable and
+ * writable by anyone to simplify the portfolio showcase.
+ */
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     
+    // Allow public read and write access to all documents.
+    // This is suitable for a public portfolio where content is not user-specific
+    // and there is no sensitive data.
+    match /{document=**} {
+      allow read, write: if true;
+    }
   }
 }

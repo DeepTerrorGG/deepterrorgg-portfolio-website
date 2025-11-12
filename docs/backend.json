@@ -1,1 +1,216 @@
-{}
+{
+  "entities": {
+    "UserProfile": {
+      "title": "User Profile",
+      "description": "Represents a user's profile information.",
+      "type": "object",
+      "properties": {
+        "uid": {
+          "type": "string",
+          "description": "The user's unique ID."
+        },
+        "email": {
+          "type": "string",
+          "format": "email",
+          "description": "The user's email address."
+        },
+        "displayName": {
+          "type": "string",
+          "description": "The user's display name."
+        }
+      },
+      "required": [
+        "uid"
+      ]
+    },
+    "ChatSession": {
+      "title": "Chat Session",
+      "description": "Represents a single chat conversation.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "personality": {
+          "type": "string",
+          "enum": [
+            "Default",
+            "Helpful Assistant",
+            "Snarky",
+            "Pirate",
+            "Poet",
+            "Shakespearean",
+            "Tech Bro",
+            "Philosopher",
+            "Flirty"
+          ]
+        },
+        "messages": {
+          "type": "array",
+          "items": {
+            "$ref": "#/entities/ChatMessage"
+          }
+        }
+      },
+      "required": [
+        "id",
+        "title",
+        "createdAt",
+        "messages",
+        "personality"
+      ]
+    },
+    "ChatMessage": {
+      "title": "Chat Message",
+      "description": "Represents a single message within a chat session.",
+      "type": "object",
+      "properties": {
+        "role": {
+          "type": "string",
+          "enum": [
+            "user",
+            "model"
+          ]
+        },
+        "content": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "role",
+        "content"
+      ]
+    },
+    "Artwork": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Artwork",
+      "type": "object",
+      "description": "Represents an artwork displayed on the portfolio.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Artwork entity."
+        },
+        "title": {
+          "type": "string",
+          "description": "Title of the artwork."
+        },
+        "imageUrl": {
+          "type": "string",
+          "description": "URL of the artwork image.",
+          "format": "uri"
+        },
+        "description": {
+          "type": "string",
+          "description": "Description of the artwork."
+        },
+        "displayOrder": {
+          "type": "number",
+          "description": "The order in which the artwork is displayed."
+        }
+      },
+      "required": [
+        "id",
+        "title",
+        "imageUrl",
+        "description",
+        "displayOrder"
+      ]
+    },
+    "AboutMe": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "AboutMe",
+      "type": "object",
+      "description": "Stores information for the 'About Me' section of the portfolio.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the AboutMe entity."
+        },
+        "content": {
+          "type": "string",
+          "description": "The main text content for the 'About Me' section. HTML or plain text."
+        }
+      },
+      "required": [
+        "id",
+        "content"
+      ]
+    },
+    "ContactInfo": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "ContactInfo",
+      "type": "object",
+      "description": "Stores contact information displayed on the 'Contact' section.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the ContactInfo entity."
+        },
+        "email": {
+          "type": "string",
+          "description": "Email address for contact.",
+          "format": "email"
+        },
+        "linkedInUrl": {
+          "type": "string",
+          "description": "URL of the LinkedIn profile.",
+          "format": "uri"
+        },
+        "githubUrl": {
+          "type": "string",
+          "description": "URL of the Github profile.",
+          "format": "uri"
+        }
+      },
+      "required": [
+        "id",
+        "email",
+        "linkedInUrl",
+        "githubUrl"
+      ]
+    }
+  },
+  "auth": {
+    "providers": []
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": {
+        "$ref": "#/entities/UserProfile"
+      },
+      "description": "Stores user profile information."
+    },
+    "/users/{userId}/chats/{chatId}": {
+      "schema": {
+        "$ref": "#/entities/ChatSession"
+      },
+      "description": "Stores individual chat sessions for each user."
+    },
+    "/artworks/{artworkId}": {
+      "schema": {
+        "$ref": "#/entities/Artwork"
+      },
+      "description": "Stores artwork information. Only accessible to authenticated users."
+    },
+    "/about_me/{aboutMeId}": {
+      "schema": {
+        "$ref": "#/entities/AboutMe"
+      },
+      "description": "Stores 'About Me' information. Only accessible to authenticated users."
+    },
+    "/contact_info/{contactInfoId}": {
+      "schema": {
+        "$ref": "#/entities/ContactInfo"
+      },
+      "description": "Stores contact information. Only accessible to authenticated users."
+    }
+  }
+}

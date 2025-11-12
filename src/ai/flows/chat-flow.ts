@@ -44,7 +44,7 @@ export async function chat(history: ChatHistory, message: string, personality: C
   const { output } = await ai.generate({
     prompt: message,
     history: history,
-    model: 'googleai/gemini-pro',
+    model: 'googleai/gemini-1.5-flash-latest',
     system: systemPrompt,
   });
 

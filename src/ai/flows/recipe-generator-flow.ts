@@ -10,25 +10,10 @@
  *
  * It exports the following functions:
  * - generateRecipe: The main function that handles the recipe generation.
- * - Recipe, Ingredients: The type definitions for the recipe and ingredients.
  */
 
 import { ai } from '@/ai/genkit';
-import { z } from 'genkit';
-
-/** The type definition for the ingredients. */
-export const Ingredients = z.object({
-  ingredients: z.array(z.string()),
-});
-export type Ingredients = z.infer<typeof Ingredients>;
-
-/** The type definition for the recipe. */
-export const Recipe = z.object({
-  name: z.string(),
-  description: z.string(),
-  instructions: z.array(z.string()),
-});
-export type Recipe = z.infer<typeof Recipe>;
+import { type Ingredients, Recipe } from './recipe-generator-flow-types';
 
 /**
  * The main function that handles the recipe generation.

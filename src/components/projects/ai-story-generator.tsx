@@ -1,11 +1,11 @@
 
 'use client';
 
-import {
-  generateStory,
-  Story,
-  StoryPrompt,
-} from '@/ai/flows/story-generator-flow';
+import { generateStory } from '@/ai/flows/story-generator-flow';
+import { 
+  type Story, 
+  type StoryPrompt 
+} from '@/ai/flows/story-generator-flow-types';
 import { FormEvent, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';

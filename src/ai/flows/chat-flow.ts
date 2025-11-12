@@ -9,25 +9,10 @@
  *
  * It exports the following functions:
  * - chat: The main function that handles the chatbot logic.
- * - ChatHistory: The type definition for the conversation history.
  */
 
 import { ai } from '@/ai/genkit';
-import { z } from 'genkit';
-
-/**
- * The type definition for the conversation history.
- *
- * The history is an array of messages, where each message has a role (user or
- * model) and an array of parts (the content of the message).
- */
-export const ChatHistory = z.array(
-  z.object({
-    role: z.enum(['user', 'model']),
-    parts: z.array(z.object({ text: z.string() })),
-  })
-);
-export type ChatHistory = z.infer<typeof ChatHistory>;
+import { type ChatHistory } from './chat-flow-types';
 
 /**
  * The main function that handles the chatbot logic.

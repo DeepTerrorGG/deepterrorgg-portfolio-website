@@ -1,11 +1,11 @@
 
 'use client';
 
-import {
-  generateRecipe,
-  Ingredients,
-  Recipe,
-} from '@/ai/flows/recipe-generator-flow';
+import { generateRecipe } from '@/ai/flows/recipe-generator-flow';
+import { 
+  type Ingredients, 
+  type Recipe 
+} from '@/ai/flows/recipe-generator-flow-types';
 import { FormEvent, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';

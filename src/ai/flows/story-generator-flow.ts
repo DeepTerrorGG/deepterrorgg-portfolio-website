@@ -9,25 +9,10 @@
  *
  * It exports the following functions:
  * - generateStory: The main function that handles the story generation.
- * - Story, StoryPrompt: The type definitions for the story and story prompt.
  */
 
 import { ai } from '@/ai/genkit';
-import { z } from 'genkit';
-
-/** The type definition for the story prompt. */
-export const StoryPrompt = z.object({
-  character: z.string(),
-  setting: z.string(),
-});
-export type StoryPrompt = z.infer<typeof StoryPrompt>;
-
-/** The type definition for the story. */
-export const Story = z.object({
-  title: z.string(),
-  story: z.string(),
-});
-export type Story = z.infer<typeof Story>;
+import { type StoryPrompt, Story } from './story-generator-flow-types';
 
 /**
  * The main function that handles the story generation.
@@ -39,7 +24,7 @@ export async function generateStory(prompt: StoryPrompt) {
   const storyPrompt = ai.definePrompt(
     {
       name: 'storyPrompt',
-      input: { schema: StoryPrompt },
+      input: { schema: Story }, // The prompt object contains StoryPrompt fields
       output: { schema: Story },
       prompt: `Write a story about {{{character}}} in {{{setting}}}.`,
     },

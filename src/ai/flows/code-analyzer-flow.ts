@@ -9,22 +9,14 @@
  *
  * It exports the following:
  * - analyzeCode: The main function that handles the code analysis.
- * - CodeTask: The type for the supported analysis tasks.
  */
 
 import { ai } from '@/ai/genkit';
-import { z } from 'genkit';
+import { 
+  type CodeAnalysisInput, 
+  CodeAnalysisInputSchema 
+} from './code-analyzer-flow-types';
 
-// Define the valid tasks the AI can perform.
-export const CodeTask = z.enum(['explain', 'refactor', 'comment']);
-export type CodeTask = z.infer<typeof CodeTask>;
-
-// Define the input schema for the flow.
-const CodeAnalysisInputSchema = z.object({
-  task: CodeTask,
-  code: z.string(),
-});
-export type CodeAnalysisInput = z.infer<typeof CodeAnalysisInputSchema>;
 
 // Define the prompt for the AI model.
 const codeAnalysisPrompt = ai.definePrompt({

@@ -1,7 +1,8 @@
 
 'use client';
 
-import { chat, ChatHistory } from '@/ai/flows/chat-flow';
+import { chat } from '@/ai/flows/chat-flow';
+import { type ChatHistory } from '@/ai/flows/chat-flow-types';
 import { FormEvent, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { Button } from '@/components/ui/button';

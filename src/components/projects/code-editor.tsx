@@ -13,7 +13,8 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Loader2 } from 'lucide-react';
-import { analyzeCode, CodeTask } from '@/ai/flows/code-analyzer-flow';
+import { analyzeCode } from '@/ai/flows/code-analyzer-flow';
+import { type CodeTask } from '@/ai/flows/code-analyzer-flow-types';
 import ReactMarkdown from 'react-markdown';
 import { ScrollArea } from '../ui/scroll-area';
 

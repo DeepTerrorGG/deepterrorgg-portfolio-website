@@ -6,16 +6,30 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Plus, Trash2, Edit, Save } from 'lucide-react';
+import { Plus, Trash2, Edit, Save, Calendar as CalendarIcon, GripVertical, Clock } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
+import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
+import { Calendar } from '../ui/calendar';
+import { format } from 'date-fns';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
+
+type Priority = 'low' | 'medium' | 'high';
 
 interface Task {
   id: number;
   text: string;
   completed: boolean;
+  dueDate?: Date;
+  priority: Priority;
 }
+
+const priorityConfig = {
+  high: { label: 'High', color: 'border-red-500' },
+  medium: { label: 'Medium', color: 'border-yellow-500' },
+  low: { label: 'Low', color: 'border-blue-500' },
+};
 
 const TodoList: React.FC = () => {
   const { toast } = useToast();
@@ -27,9 +41,15 @@ const TodoList: React.FC = () => {
   // Load tasks from local storage on initial render
   useEffect(() => {
     try {
-      const storedTasks = localStorage.getItem('todo-tasks');
+      const storedTasks = localStorage.getItem('todo-tasks-v2');
       if (storedTasks) {
-        setTasks(JSON.parse(storedTasks));
+        const parsedTasks = JSON.parse(storedTasks, (key, value) => {
+          if (key === 'dueDate' && typeof value === 'string') {
+            return new Date(value);
+          }
+          return value;
+        });
+        setTasks(parsedTasks);
       }
     } catch (error) {
       console.error('Failed to parse tasks from localStorage', error);
@@ -44,7 +64,7 @@ const TodoList: React.FC = () => {
   // Save tasks to local storage whenever they change
   useEffect(() => {
     try {
-      localStorage.setItem('todo-tasks', JSON.stringify(tasks));
+      localStorage.setItem('todo-tasks-v2', JSON.stringify(tasks));
     } catch (error) {
       console.error('Failed to save tasks to localStorage', error);
       toast({
@@ -68,6 +88,7 @@ const TodoList: React.FC = () => {
       id: Date.now(),
       text: input,
       completed: false,
+      priority: 'medium',
     };
     setTasks([...tasks, newTask]);
     setInput('');
@@ -77,14 +98,10 @@ const TodoList: React.FC = () => {
     });
   };
 
-  const handleToggleTask = (id: number) => {
-    setTasks(
-      tasks.map(task =>
-        task.id === id ? { ...task, completed: !task.completed } : task
-      )
-    );
+  const handleUpdateTask = (id: number, updates: Partial<Task>) => {
+    setTasks(tasks.map(task => task.id === id ? { ...task, ...updates } : task));
   };
-
+  
   const handleDeleteTask = (id: number) => {
     const taskToDelete = tasks.find(task => task.id === id);
     setTasks(tasks.filter(task => task.id !== id));
@@ -111,11 +128,7 @@ const TodoList: React.FC = () => {
       });
       return;
     }
-    setTasks(
-      tasks.map(task =>
-        task.id === id ? { ...task, text: editingText } : task
-      )
-    );
+    handleUpdateTask(id, { text: editingText });
     setEditingTaskId(null);
     setEditingText('');
     toast({
@@ -133,10 +146,18 @@ const TodoList: React.FC = () => {
       }
     }
   };
+  
+  const sortedTasks = useMemo(() => {
+    return [...tasks].sort((a, b) => {
+      if (a.completed && !b.completed) return 1;
+      if (!a.completed && b.completed) return -1;
+      return 0; // Keep original order for same-completed status
+    });
+  }, [tasks]);
 
   return (
     <div className="flex flex-col items-center justify-center w-full h-full bg-card p-4 sm:p-6 lg:p-8">
-      <Card className="w-full max-w-lg mx-auto shadow-2xl">
+      <Card className="w-full max-w-2xl mx-auto shadow-2xl">
         <CardHeader>
           <CardTitle className="text-2xl text-center font-bold text-primary">My To-Do List</CardTitle>
         </CardHeader>
@@ -155,74 +176,97 @@ const TodoList: React.FC = () => {
               <Plus className="h-4 w-4" />
             </Button>
           </div>
-          <ScrollArea className="h-[40vh] border rounded-md p-2">
+          <ScrollArea className="h-[50vh] border rounded-md">
             {tasks.length > 0 ? (
-              <ul className="space-y-2">
-                {tasks.map(task => (
+              <ul className="p-2 space-y-2">
+                {sortedTasks.map(task => (
                   <li
                     key={task.id}
                     className={cn(
-                      "flex items-center gap-2 p-2 rounded-md transition-colors",
-                      task.completed ? 'bg-muted/50' : 'bg-card'
+                      "flex items-center gap-2 p-2 rounded-md transition-colors border-l-4",
+                      task.completed ? 'bg-muted/30' : 'bg-card',
+                      priorityConfig[task.priority].color
                     )}
                   >
                     <Checkbox
                       id={`task-${task.id}`}
                       checked={task.completed}
-                      onCheckedChange={() => handleToggleTask(task.id)}
+                      onCheckedChange={() => handleUpdateTask(task.id, { completed: !task.completed })}
                       aria-label={`Mark ${task.text} as ${task.completed ? 'incomplete' : 'complete'}`}
                     />
-                    {editingTaskId === task.id ? (
-                      <Input
-                        type="text"
-                        value={editingText}
-                        onChange={(e) => setEditingText(e.target.value)}
-                        onKeyPress={handleKeyPress}
-                        onBlur={() => handleSaveEdit(task.id)}
-                        autoFocus
-                        className="flex-grow h-8"
-                        aria-label="Edit task input"
-                      />
-                    ) : (
-                      <label
-                        htmlFor={`task-${task.id}`}
-                        className={cn(
-                          "flex-grow cursor-pointer",
-                          task.completed && "line-through text-muted-foreground"
-                        )}
-                      >
-                        {task.text}
-                      </label>
-                    )}
-                    <div className="flex gap-1">
+                    <div className='flex-grow'>
                       {editingTaskId === task.id ? (
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => handleSaveEdit(task.id)}
-                          aria-label="Save task"
-                          className="h-8 w-8"
-                        >
-                          <Save className="h-4 w-4 text-primary" />
-                        </Button>
+                        <Input
+                          type="text"
+                          value={editingText}
+                          onChange={(e) => setEditingText(e.target.value)}
+                          onKeyPress={handleKeyPress}
+                          onBlur={() => handleSaveEdit(task.id)}
+                          autoFocus
+                          className="flex-grow h-8"
+                          aria-label="Edit task input"
+                        />
                       ) : (
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => handleEditTask(task)}
-                          aria-label="Edit task"
-                          className="h-8 w-8"
+                        <label
+                          htmlFor={`task-${task.id}`}
+                          className={cn(
+                            "flex-grow cursor-pointer",
+                            task.completed && "line-through text-muted-foreground"
+                          )}
                         >
+                          {task.text}
+                        </label>
+                      )}
+                      {task.dueDate && (
+                        <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
+                          <CalendarIcon className="h-3 w-3" />
+                          <span>{format(task.dueDate, 'PPp')}</span>
+                        </div>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-1">
+                       <Popover>
+                        <PopoverTrigger asChild>
+                          <Button variant="ghost" size="icon" className="h-8 w-8"><CalendarIcon className="h-4 w-4" /></Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0">
+                          <Calendar
+                            mode="single"
+                            selected={task.dueDate}
+                            onSelect={(date) => handleUpdateTask(task.id, { dueDate: date })}
+                            initialFocus
+                          />
+                           <div className="p-2 border-t">
+                            <Input type="time"
+                              defaultValue={task.dueDate ? format(task.dueDate, 'HH:mm') : ''}
+                              onChange={(e) => {
+                                const [hours, minutes] = e.target.value.split(':').map(Number);
+                                const newDate = task.dueDate || new Date();
+                                newDate.setHours(hours, minutes);
+                                handleUpdateTask(task.id, { dueDate: newDate });
+                              }}
+                            />
+                           </div>
+                        </PopoverContent>
+                      </Popover>
+
+                      <Select value={task.priority} onValueChange={(p: Priority) => handleUpdateTask(task.id, { priority: p })}>
+                        <SelectTrigger className="w-[100px] h-8 text-xs">
+                          <SelectValue placeholder="Priority" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="low">Low</SelectItem>
+                          <SelectItem value="medium">Medium</SelectItem>
+                          <SelectItem value="high">High</SelectItem>
+                        </SelectContent>
+                      </Select>
+
+                      {editingTaskId !== task.id && (
+                        <Button variant="ghost" size="icon" onClick={() => handleEditTask(task)} aria-label="Edit task" className="h-8 w-8">
                           <Edit className="h-4 w-4" />
                         </Button>
                       )}
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => handleDeleteTask(task.id)}
-                        aria-label="Delete task"
-                        className="h-8 w-8"
-                      >
+                      <Button variant="ghost" size="icon" onClick={() => handleDeleteTask(task.id)} aria-label="Delete task" className="h-8 w-8">
                         <Trash2 className="h-4 w-4 text-destructive" />
                       </Button>
                     </div>

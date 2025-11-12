@@ -607,7 +607,7 @@ export default function ProjectsPage() {
       
       {modalProject && (
         <Dialog open={!!modalProject} onOpenChange={(isOpen) => !isOpen && setModalProject(null)}>
-          <DialogContent className="max-w-4xl w-[90vw] h-[80vh] flex flex-col p-0">
+          <DialogContent className="max-w-7xl w-[90vw] h-[90vh] flex flex-col p-0">
             <DialogHeader className="p-4 border-b">
               <DialogTitle>{modalProject.title}</DialogTitle>
             </DialogHeader>

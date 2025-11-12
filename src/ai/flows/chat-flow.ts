@@ -1,73 +1,59 @@
+
 'use server';
+
 /**
- * @fileOverview A simple Genkit flow for a conversational chatbot.
+ * @fileoverview A chatbot that can remember the history of the conversation.
  *
- * - chat - A function that takes conversation history and a new message, and returns a response.
- * - ChatInput - The input type for the chat function.
- * - ChatOutput - The return type for the chat function.
+ * This file defines a Genkit flow that takes a user's message and a history of
+ * the conversation as input, and returns a response from the AI model.
+ *
+ * It exports the following functions:
+ * - chat: The main function that handles the chatbot logic.
+ * - ChatHistory: The type definition for the conversation history.
  */
 
 import { ai } from '@/ai/genkit';
 import { z } from 'genkit';
 
-const MessageSchema = z.object({
-  role: z.enum(['user', 'model']),
-  content: z.string(),
-});
-
-const ChatInputSchema = z.object({
-  history: z.array(MessageSchema).describe('The conversation history.'),
-  message: z.string().describe('The user\'s latest message.'),
-});
-export type ChatInput = z.infer<typeof ChatInputSchema>;
-
-const ChatOutputSchema = z.object({
-  response: z.string().describe("The model's response."),
-});
-export type ChatOutput = z.infer<typeof ChatOutputSchema>;
-
-
-export async function chat(input: ChatInput): Promise<ChatOutput> {
-  return chatFlow(input);
-}
-
-const chatPrompt = ai.definePrompt({
-  name: 'chatPrompt',
-  input: {
-    schema: z.object({
-      message: z.string(),
-    }),
-  },
-  output: {
-    schema: ChatOutputSchema,
-  },
-  prompt: `You are a helpful assistant. Respond to the following message:
-  
-  {{message}}
-  
-  Ensure your response is in the correct JSON format.`,
-});
-
-
-const chatFlow = ai.defineFlow(
-  {
-    name: 'chatFlow',
-    inputSchema: ChatInputSchema,
-    outputSchema: ChatOutputSchema,
-  },
-  async (input) => {
-    const { history, message } = input;
-
-    // Use the user's new message as the prompt and provide the past conversation as history.
-    const { output } = await ai.generate({
-      prompt: message,
-      history: history,
-      config: {
-        // Lower temperature for more predictable, less "creative" responses
-        temperature: 0.5,
-      },
-    });
-
-    return { response: output?.text ?? 'Sorry, I could not generate a response.' };
-  }
+/**
+ * The type definition for the conversation history.
+ *
+ * The history is an array of messages, where each message has a role (user or
+ * model) and an array of parts (the content of the message).
+ */
+export const ChatHistory = z.array(
+  z.object({
+    role: z.enum(['user', 'model']),
+    parts: z.array(z.object({ text: z.string() })),
+  })
 );
+export type ChatHistory = z.infer<typeof ChatHistory>;
+
+/**
+ * The main function that handles the chatbot logic.
+ *
+ * @param history The history of the conversation.
+ * @param message The user's new message.
+ * @returns The AI's response.
+ */
+export async function chat(history: ChatHistory, message: string) {
+  // Add a new message to the history.
+  history.push({ role: 'user', parts: [{ text: message }] });
+
+  // Use the user's new message as the prompt and provide the past conversation as history.
+  const { output } = await ai.generate({
+    prompt: message,
+    history: history,
+    model: 'googleai/gemini-1.5-pro-preview-0514'
+  });
+
+  const response = output?.text;
+
+  // Add the AI's response to the history.
+  if (response) {
+    history.push({ role: 'model', parts: [{ text: response }] });
+  }
+
+  // Return the AI's response.
+  return response;
+}

@@ -1,51 +1,50 @@
+
 'use server';
+
 /**
- * @fileOverview A Genkit flow to generate a short story from a prompt.
+ * @fileoverview A story generator that creates stories from a prompt.
  *
- * - generateStory - Generates a story based on a user-provided prompt.
- * - GenerateStoryInput - Input type for the flow.
- * - GenerateStoryOutput - Output type for the flow.
+ * This file defines a Genkit flow that takes a prompt as input and returns a
+ * story.
+ *
+ * It exports the following functions:
+ * - generateStory: The main function that handles the story generation.
+ * - Story, StoryPrompt: The type definitions for the story and story prompt.
  */
 
 import { ai } from '@/ai/genkit';
 import { z } from 'genkit';
 
-const GenerateStoryInputSchema = z.object({
-  prompt: z.string().describe('A short prompt or starting sentence for the story.'),
+/** The type definition for the story prompt. */
+export const StoryPrompt = z.object({
+  character: z.string(),
+  setting: z.string(),
 });
-export type GenerateStoryInput = z.infer<typeof GenerateStoryInputSchema>;
+export type StoryPrompt = z.infer<typeof StoryPrompt>;
 
-const GenerateStoryOutputSchema = z.object({
-  story: z.string().describe('The generated story, which should be at least three paragraphs long.'),
+/** The type definition for the story. */
+export const Story = z.object({
+  title: z.string(),
+  story: z.string(),
 });
-export type GenerateStoryOutput = z.infer<typeof GenerateStoryOutputSchema>;
+export type Story = z.infer<typeof Story>;
 
-export async function generateStory(input: GenerateStoryInput): Promise<GenerateStoryOutput> {
-  return generateStoryFlow(input);
+/**
+ * The main function that handles the story generation.
+ *
+ * @param prompt The prompt for the story.
+ * @returns The generated story.
+ */
+export async function generateStory(prompt: StoryPrompt) {
+  const storyPrompt = ai.definePrompt(
+    {
+      name: 'storyPrompt',
+      input: { schema: StoryPrompt },
+      output: { schema: Story },
+      prompt: `Write a story about {{{character}}} in {{{setting}}}.`,
+    },
+  );
+
+  const { output } = await storyPrompt(prompt);
+  return output;
 }
-
-const storyPrompt = ai.definePrompt({
-  name: 'storyPrompt',
-  input: { schema: GenerateStoryInputSchema },
-  output: { schema: GenerateStoryOutputSchema },
-  prompt: `You are a master storyteller. Write a short, engaging story based on the following prompt. The story should be imaginative, well-structured, and at least three paragraphs long.
-
-Prompt: "{{prompt}}"
-
-Generate a compelling narrative with a clear beginning, middle, and end.`,
-});
-
-const generateStoryFlow = ai.defineFlow(
-  {
-    name: 'generateStoryFlow',
-    inputSchema: GenerateStoryInputSchema,
-    outputSchema: GenerateStoryOutputSchema,
-  },
-  async (input) => {
-    const { output } = await storyPrompt(input);
-    if (!output) {
-      throw new Error('Failed to generate a story.');
-    }
-    return output;
-  }
-);

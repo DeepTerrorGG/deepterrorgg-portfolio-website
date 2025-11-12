@@ -1,3 +1,4 @@
+
 // src/app/projects/page.tsx
 'use client';
 
@@ -20,25 +21,24 @@ import UnitConverter from '@/components/projects/unit-converter';
 import Calculator3D from '@/components/projects/calculator-3d';
 import SimpleTextAnimator from '@/components/projects/simple-text-animator';
 import FractalRenderer from '@/components/projects/fractal-renderer';
-import Chatbot from '@/components/projects/chatbot';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import PomodoroTimer from '@/components/projects/pomodoro-timer';
 import PasswordGenerator from '@/components/projects/password-generator';
 import BmiCalculator from '@/components/projects/bmi-calculator';
-import AiRecipeGenerator from '@/components/projects/ai-recipe-generator';
 import BudgetPlanner from '@/components/projects/budget-planner';
 import DraggableGallery from '@/components/projects/draggable-gallery';
 import GithubProfileFinder from '@/components/projects/github-profile-finder';
 import MusicVisualizer from '@/components/projects/music-visualizer';
 import MarkdownEditor from '@/components/projects/markdown-editor';
-import AiStoryGenerator from '@/components/projects/ai-story-generator';
-import CodeEditor from '@/components/projects/code-editor';
 import WeatherApp from '@/components/projects/weather-app';
 import QuizApp from '@/components/projects/quiz-app';
 import StockTracker from '@/components/projects/stock-tracker';
-import AIImageGenerator from '@/components/projects/ai-image-generator';
 import Spreadsheet from '@/components/projects/spreadsheet';
-
+import AIChatbot from '@/components/projects/ai-chatbot';
+import AIStoryGenerator from '@/components/projects/ai-story-generator';
+import AIRecipeGenerator from '@/components/projects/ai-recipe-generator';
+import AIImageGenerator from '@/components/projects/ai-image-generator';
+import CodeEditor from '@/components/projects/code-editor';
 
 interface Technology {
   name: string;
@@ -55,7 +55,7 @@ interface Project {
   description: string;
   longDescription?: string;
   personalNote: string;
-  difficulty: 'Easy' | 'Medium' | 'Hard' | 'Advanced' | 'Community';
+  difficulty: 'Easy' | 'Medium' | 'Hard' | 'Advanced' | 'Community' | 'AI';
   technologies: Technology[];
   component?: React.ReactNode;
   externalLink?: string;
@@ -63,22 +63,92 @@ interface Project {
 }
 
 const projectsData: Project[] = [
-    {
+  {
     id: 'ai-image-generator',
     title: 'AI Image Generator',
-    imageUrls: ['https://i.imgur.com/3Z3gAmC.png'],
-    imageAlt: 'AI image generator interface',
-    imageHint: 'ai image generator app',
-    description: 'An AI-powered image generator that creates unique images from a text prompt.',
-    personalNote: 'This project utilizes Genkit to connect to Google\'s Imagen model. It was a great challenge to create an interface that allows users to generate images and see the results in real-time.',
-    difficulty: 'Advanced',
+    imageUrls: ['https://i.imgur.com/3f4lJ3v.png'],
+    imageAlt: 'AI Image Generator app',
+    imageHint: 'ai image generator interface',
+    description: 'Create unique images from text prompts using generative AI.',
+    personalNote:
+      "This was my first time using a text-to-image model and it was incredible to see how the AI could interpret my text prompts and turn them into art. It's a fun way to explore creativity and AI.",
+    difficulty: 'AI',
     component: <AIImageGenerator />,
     technologies: [
       { name: 'React', iconSrc: '/icons/react.svg' },
-      { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },
-      { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss.svg' },
+      { name: 'Next.js', iconSrc: '/icons/nextjs.svg' },
       { name: 'Genkit', iconSrc: '/icons/genkit.svg' },
-      { name: 'Imagen', iconSrc: '/icons/gemini.svg' },
+    ],
+    renderImage: true,
+  },
+  {
+    id: 'ai-chatbot',
+    title: 'AI Chatbot',
+    imageUrls: ['https://i.imgur.com/sdJjVAd.png'],
+    imageAlt: 'AI Chatbot interface',
+    imageHint: 'ai chatbot interface',
+    description: 'A conversational AI chatbot that remembers past interactions.',
+    personalNote:
+      "Building a chatbot that could hold a conversation and remember what was said earlier was a great way to learn about managing conversational state. It's a fun project that shows the power of large language models.",
+    difficulty: 'AI',
+    component: <AIChatbot />,
+    technologies: [
+      { name: 'React', iconSrc: '/icons/react.svg' },
+      { name: 'Next.js', iconSrc: '/icons/nextjs.svg' },
+      { name: 'Genkit', iconSrc: '/icons/genkit.svg' },
+    ],
+    renderImage: true,
+  },
+  {
+    id: 'ai-recipe-generator',
+    title: 'AI Recipe Generator',
+    imageUrls: ['https://i.imgur.com/cWbx8fE.png'],
+    imageAlt: 'AI Recipe Generator interface',
+    imageHint: 'ai recipe generator app',
+    description: 'Generate creative recipes based on a list of ingredients.',
+    personalNote:
+      'This project combines my interests in coding and cooking. It’s amazing to see how AI can take a few ingredients and come up with a full recipe. It really shows how AI can be a tool for everyday creativity.',
+    difficulty: 'AI',
+    component: <AIRecipeGenerator />,
+    technologies: [
+      { name: 'React', iconSrc: '/icons/react.svg' },
+      { name: 'Next.js', iconSrc: '/icons/nextjs.svg' },
+      { name: 'Genkit', iconSrc: '/icons/genkit.svg' },
+    ],
+    renderImage: true,
+  },
+  {
+    id: 'ai-story-generator',
+    title: 'AI Story Generator',
+    imageUrls: ['https://i.imgur.com/1Tx3iQ9.png'],
+    imageAlt: 'AI Story Generator interface',
+    imageHint: 'ai story generator app',
+    description: 'Create unique stories with characters and settings from your imagination.',
+    personalNote:
+      'I love storytelling, so building a tool that could help generate creative stories was a really fun project. It’s a great example of how AI can be used as a creative partner to spark new ideas.',
+    difficulty: 'AI',
+    component: <AIStoryGenerator />,
+    technologies: [
+      { name: 'React', iconSrc: '/icons/react.svg' },
+      { name: 'Next.js', iconSrc: '/icons/nextjs.svg' },
+      { name: 'Genkit', iconSrc: '/icons/genkit.svg' },
+    ],
+    renderImage: true,
+  },
+  {
+    id: 'code-editor',
+    title: 'AI Coding Assistant',
+    imageUrls: ['https://i.imgur.com/y8V3eGo.png'],
+    imageAlt: 'Code editor with AI assistant',
+    imageHint: 'code editor ai assistant',
+    description: 'A code editor with an integrated AI assistant that can explain, refactor, and add comments to your code.',
+    personalNote: 'This was a challenging but very rewarding project. Integrating an AI that can understand and manipulate code really opened my eyes to the future of software development. It feels like building a tool from the future.',
+    difficulty: 'AI',
+    component: <CodeEditor />,
+    technologies: [
+        { name: 'React', iconSrc: '/icons/react.svg' },
+        { name: 'Next.js', iconSrc: '/icons/nextjs.svg' },
+        { name: 'Genkit', iconSrc: '/icons/genkit.svg' },
     ],
     renderImage: true,
   },
@@ -96,44 +166,6 @@ const projectsData: Project[] = [
       { name: 'React', iconSrc: '/icons/react.svg' },
       { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },
       { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss.svg' },
-    ],
-    renderImage: true,
-  },
-  {
-    id: 'ai-chatbot',
-    title: 'AI Chatbot',
-    imageUrls: ['https://i.imgur.com/sdJjVAd.png'],
-    imageAlt: 'AI Chatbot interface',
-    imageHint: 'ai chatbot interface',
-    description: 'A conversational AI chatbot powered by Google\'s Gemini model through Genkit.',
-    personalNote: "This was a fun project to explore the capabilities of large language models. It's built with Genkit, which makes it easy to create and manage AI flows.",
-    difficulty: 'Medium',
-    component: <Chatbot />,
-    technologies: [
-      { name: 'React', iconSrc: '/icons/react.svg' },
-      { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },
-      { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss.svg' },
-      { name: 'Genkit', iconSrc: '/icons/genkit.svg' },
-      { name: 'Gemini', iconSrc: '/icons/gemini.svg' },
-    ],
-    renderImage: true,
-  },
-  {
-    id: 'ai-recipe-generator',
-    title: 'AI Recipe Generator',
-    imageUrls: ['https://i.imgur.com/gKZT5rS.png'],
-    imageAlt: 'AI recipe generator interface',
-    imageHint: 'recipe generator app',
-    description: 'An AI-powered recipe generator that creates unique recipes from a list of ingredients.',
-    personalNote: 'This project combines the power of generative AI with a practical application. It was a great challenge to structure the AI prompts to get creative, useful, and consistently formatted recipes.',
-    difficulty: 'Medium',
-    component: <AiRecipeGenerator />,
-    technologies: [
-      { name: 'React', iconSrc: '/icons/react.svg' },
-      { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },
-      { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss.svg' },
-      { name: 'Genkit', iconSrc: '/icons/genkit.svg' },
-      { name: 'Gemini', iconSrc: '/icons/gemini.svg' },
     ],
     renderImage: true,
   },
@@ -364,42 +396,6 @@ const projectsData: Project[] = [
     renderImage: true,
   },
   {
-    id: 'ai-story-generator',
-    title: 'AI Story Generator',
-    imageUrls: ['https://i.imgur.com/6XQ3A3o.png'],
-    imageAlt: 'AI story generator interface',
-    imageHint: 'writing assistant application',
-    description: 'A creative tool that uses generative AI to write a short story from a user-provided prompt.',
-    personalNote: 'This project was a fascinating dive into creative AI. I set up a Genkit flow that takes a simple prompt and generates a complete narrative. It was a great challenge to guide the AI to produce coherent and imaginative stories consistently.',
-    difficulty: 'Advanced',
-    component: <AiStoryGenerator />,
-    technologies: [
-      { name: 'React', iconSrc: '/icons/react.svg' },
-      { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },
-      { name: 'Genkit', iconSrc: '/icons/genkit.svg' },
-      { name: 'Gemini', iconSrc: '/icons/gemini.svg' },
-      { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss.svg' },
-    ],
-    renderImage: true,
-  },
-  {
-    id: 'code-editor',
-    title: 'In-Browser Code Editor',
-    imageUrls: ['https://i.imgur.com/h9H3A3b.png'],
-    imageAlt: 'In-browser code editor for HTML, CSS, and JS',
-    imageHint: 'code editor interface',
-    description: 'A mini front-end playground to write HTML, CSS, and JavaScript and see a live preview.',
-    personalNote: 'This was one of the most challenging projects. It required deep knowledge of React hooks for state management, using iframes securely, and debouncing user input for performance. It’s a powerful demonstration of building a complex, interactive application.',
-    difficulty: 'Advanced',
-    component: <CodeEditor />,
-    technologies: [
-      { name: 'React', iconSrc: '/icons/react.svg' },
-      { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },
-      { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss.svg' },
-    ],
-    renderImage: true,
-  },
-  {
     id: 'weather-app',
     title: 'Weather App',
     imageUrls: ['https://i.imgur.com/J3C1g9g.png'],
@@ -492,7 +488,8 @@ const difficultyOrder = {
   'Medium': 2,
   'Hard': 3,
   'Advanced': 4,
-  'Community': 5,
+  'AI': 5,
+  'Community': 6,
 };
 
 const allProjects = [...projectsData, communityProject].sort((a, b) => {
@@ -522,6 +519,7 @@ export default function ProjectsPage() {
     'Medium': 'text-yellow-400',
     'Hard': 'text-orange-400',
     'Advanced': 'text-red-400',
+    'AI': 'text-purple-400',
     'Community': 'text-blue-400',
   };
 
@@ -562,21 +560,15 @@ export default function ProjectsPage() {
           <ScrollArea className="h-full">
             <div className="p-4 sm:p-8 md:p-12 animate-fade-in" key={selectedProject.id}>
               <div className="relative w-full aspect-video rounded-lg overflow-hidden mb-8 bg-card">
-                {selectedProject.renderImage ? (
-                    <Image
-                      src={selectedProject.imageUrls[0]}
-                      alt={selectedProject.imageAlt}
-                      fill
-                      sizes="(max-width: 767px) 100vw, 60vw"
-                      className="object-cover"
-                      data-ai-hint={selectedProject.imageHint}
-                      priority
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center bg-muted/30">
-                        <h3 className="text-3xl font-bold text-muted-foreground">{selectedProject.title.replace(' App', '')}</h3>
-                    </div>
-                  )}
+                <Image
+                  src={selectedProject.imageUrls[0]}
+                  alt={selectedProject.imageAlt}
+                  fill
+                  sizes="(max-width: 767px) 100vw, 60vw"
+                  className="object-cover"
+                  data-ai-hint={selectedProject.imageHint}
+                  priority
+                />
               </div>
 
               <div className="max-w-3xl mx-auto">

@@ -32,19 +32,18 @@ const personalityPrompts = {
  * @param history The history of the conversation.
  * @param message The user's new message.
  * @param personality The personality the AI should adopt.
- * @returns The AI's response.
+ * @returns The updated conversation history.
  */
-export async function chat(history: ChatHistory, message: string, personality: ChatPersonality) {
-  // Add a new message to the history.
-  history.push({ role: 'user', parts: [{ text: message }] });
+export async function chat(history: ChatHistory, message: string, personality: ChatPersonality): Promise<ChatHistory> {
+  const newHistory: ChatHistory = [...history, { role: 'user', parts: [{ text: message }] }];
 
   const systemPrompt = personalityPrompts[personality] || '';
 
   // Use the user's new message as the prompt and provide the past conversation as history.
   const { output } = await ai.generate({
     prompt: message,
-    history: history,
-    model: 'googleai/gemini-1.5-flash-latest',
+    history: newHistory,
+    model: 'googleai/gemini-2.0-flash',
     system: systemPrompt,
   });
 
@@ -52,9 +51,11 @@ export async function chat(history: ChatHistory, message: string, personality: C
 
   // Add the AI's response to the history.
   if (response) {
-    history.push({ role: 'model', parts: [{ text: response }] });
+    newHistory.push({ role: 'model', parts: [{ text: response }] });
+  } else {
+    newHistory.push({ role: 'model', parts: [{text: "Sorry, I couldn't generate a response."}]})
   }
 
-  // Return the AI's response.
-  return response;
+  // Return the full, updated history
+  return newHistory;
 }

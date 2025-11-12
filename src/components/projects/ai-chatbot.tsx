@@ -3,7 +3,7 @@
 
 import { chat } from '@/ai/flows/chat-flow';
 import { type ChatHistory, type ChatPersonality } from '@/ai/flows/chat-flow-types';
-import { FormEvent, useState } from 'react';
+import { FormEvent, useState, useRef, useEffect } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -11,7 +11,6 @@ import { Input } from '@/components/ui/input';
 import { Bot, User, Loader2 } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
-import { Label } from '../ui/label';
 
 const personalities: ChatPersonality[] = [
     'Default', 'Helpful Assistant', 'Snarky', 'Pirate', 'Poet', 'Shakespearean', 'Tech Bro', 'Philosopher', 'Flirty'
@@ -22,24 +21,41 @@ export default function AIChatbot() {
   const [message, setMessage] = useState<string>('');
   const [loading, setLoading] = useState(false);
   const [personality, setPersonality] = useState<ChatPersonality>('Default');
+  const scrollAreaRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (scrollAreaRef.current) {
+        scrollAreaRef.current.scrollTo({
+            top: scrollAreaRef.current.scrollHeight,
+            behavior: 'smooth'
+        });
+    }
+  }, [history]);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
+    if (!message.trim()) return;
+
     setLoading(true);
+    // Add user message to history for immediate feedback
+    setHistory(prev => [...prev, { role: 'user', parts: [{ text: message }] }]);
+    const currentMessage = message;
+    setMessage('');
 
     try {
-      await chat(history, message, personality);
+      // Pass the current history and get the full updated history back
+      const updatedHistory = await chat(history, currentMessage, personality);
+      setHistory(updatedHistory);
     } catch (e: any) {
       console.error(e);
-      history.push({
+      // Add an error message to the history
+      setHistory(prev => [...prev, {
         role: 'model',
         parts: [{ text: `Error: ${e.message || 'An unexpected error occurred.'}` }],
-      });
+      }]);
+    } finally {
+        setLoading(false);
     }
-
-    setHistory([...history]);
-    setMessage('');
-    setLoading(false);
   };
 
   return (
@@ -57,7 +73,7 @@ export default function AIChatbot() {
             </Select>
         </div>
       </div>
-      <ScrollArea className="flex-grow p-4">
+      <ScrollArea className="flex-grow p-4" ref={scrollAreaRef}>
         <div className="space-y-4">
           {history.map((msg, index) => (
             <div key={index} className={`flex items-start gap-4 ${msg.role === 'user' ? 'justify-end' : ''}`}>

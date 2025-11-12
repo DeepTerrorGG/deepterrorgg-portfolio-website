@@ -11,4 +11,3 @@ export type CraftItemInput = z.infer<typeof CraftItemInputSchema>;
 export const CraftItemOutputSchema = z.object({
   result: z.string().describe('The single, resulting item from the combination. Should be a noun, like "Steam", "Mud", or "Life".'),
 });
-export type CraftItemOutput = z.infer<typeof CraftItemOutputSchema>;

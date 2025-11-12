@@ -1,4 +1,3 @@
-// src/components/ui/spline-viewer.tsx
 'use client';
 
 import Spline from '@splinetool/react-spline';

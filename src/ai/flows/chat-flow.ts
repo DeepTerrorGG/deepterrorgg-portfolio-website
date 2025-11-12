@@ -31,6 +31,23 @@ export async function chat(input: ChatInput): Promise<ChatOutput> {
   return chatFlow(input);
 }
 
+const chatPrompt = ai.definePrompt({
+  name: 'chatPrompt',
+  input: {
+    schema: z.object({
+      message: z.string(),
+    }),
+  },
+  output: {
+    schema: ChatOutputSchema,
+  },
+  prompt: `You are a helpful assistant. Respond to the following message:
+  
+  {{message}}
+  
+  Ensure your response is in the correct JSON format.`,
+});
+
 
 const chatFlow = ai.defineFlow(
   {

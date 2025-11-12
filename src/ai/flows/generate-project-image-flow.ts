@@ -35,7 +35,7 @@ const generateProjectImageFlow = ai.defineFlow(
     console.log(`[generateProjectImageFlow] Generating image for prompt: "${input.prompt}"`);
     try {
       const { media } = await ai.generate({
-        model: 'googleai/imagen-2-fast',
+        model: 'googleai/imagen-2',
         prompt: `Generate a visually appealing and clear thumbnail image (approx 320x180 aspect ratio) representing: ${input.prompt}. The style should be modern and clean, suitable for a project portfolio.`,
         config: {
           responseModalities: ['IMAGE'], // Request only IMAGE modality for this flow

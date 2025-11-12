@@ -1,4 +1,3 @@
-
 // src/app/projects/page.tsx
 'use client';
 
@@ -18,7 +17,6 @@ import {
 } from '@/components/ui/dialog';
 import TodoList from '@/components/projects/todo-list';
 import UnitConverter from '@/components/projects/unit-converter';
-import TicTacToe from '@/components/projects/tic-tac-toe';
 import Calculator3D from '@/components/projects/calculator-3d';
 import SimpleTextAnimator from '@/components/projects/simple-text-animator';
 import FractalRenderer from '@/components/projects/fractal-renderer';
@@ -33,7 +31,6 @@ import AiRecipeGenerator from '@/components/projects/ai-recipe-generator';
 import BudgetPlanner from '@/components/projects/budget-planner';
 import DraggableGallery from '@/components/projects/draggable-gallery';
 import GithubProfileFinder from '@/components/projects/github-profile-finder';
-import CollaborativeWhiteboard from '@/components/projects/collaborative-whiteboard';
 import MusicVisualizer from '@/components/projects/music-visualizer';
 import MarkdownEditor from '@/components/projects/markdown-editor';
 import AiStoryGenerator from '@/components/projects/ai-story-generator';
@@ -294,25 +291,6 @@ const projectsData: Project[] = [
     renderImage: true,
   },
   {
-    id: 'collaborative-whiteboard',
-    title: 'Collaborative Whiteboard',
-    imageUrls: ['https://i.imgur.com/y8Q3C0d.png'],
-    imageAlt: 'A real-time collaborative whiteboard',
-    imageHint: 'whiteboard collaboration tool',
-    description: 'A real-time whiteboard where multiple users can draw together. Powered by Firebase.',
-    personalNote: 'This was a serious challenge. Syncing drawing paths in real-time across different clients while maintaining performance required a deep dive into Firestore data structures and SVG rendering. It was incredibly rewarding to see it work.',
-    difficulty: 'Advanced',
-    component: <CollaborativeWhiteboard />,
-    technologies: [
-      { name: 'React', iconSrc: '/icons/react.svg' },
-      { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },
-      { name: 'Firebase', iconSrc: '/icons/firebase.svg' },
-      { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss.svg' },
-      { name: 'D3.js', iconSrc: '/icons/d3.svg' },
-    ],
-    renderImage: true,
-  },
-  {
     id: 'music-visualizer',
     title: 'Audio Visualizer',
     imageUrls: ['https://i.imgur.com/9C3rC2c.png'],
@@ -344,24 +322,6 @@ const projectsData: Project[] = [
       { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },
       { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss.svg' },
       { name: 'React Markdown', iconSrc: '/icons/react-markdown.svg' },
-    ],
-    renderImage: true,
-  },
-  {
-    id: 'tic-tac-toe',
-    title: 'Real-Time Multiplayer Game',
-    imageUrls: ['https://i.imgur.com/3V3bO8H.png'],
-    imageAlt: 'Tic-Tac-Toe multiplayer game',
-    imageHint: 'tic tac toe game',
-    description: 'A classic Tic-Tac-Toe game with real-time multiplayer support using Firebase.',
-    personalNote: "This project was a great introduction to real-time databases and handling concurrent user interactions. It's a simple concept but has a surprising amount of depth when you factor in the networking.",
-    difficulty: 'Advanced',
-    component: <TicTacToe />,
-    technologies: [
-      { name: 'React', iconSrc: '/icons/react.svg' },
-      { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },
-      { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss.svg' },
-      { name: 'Firebase', iconSrc: '/icons/firebase.svg' },
     ],
     renderImage: true,
   },

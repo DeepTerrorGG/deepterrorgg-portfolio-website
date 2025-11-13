@@ -1,24 +1,102 @@
+
 'use client';
 
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Plus, Wand2, Loader2, ArrowRight, RefreshCw, X } from 'lucide-react';
+import { Plus, Wand2, Loader2, ArrowRight, RefreshCw, X, Sparkles } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { craftItem } from '@/ai/flows/craft-item-flow';
-import type { CraftItemInput } from '@/ai/flows/craft-item-flow-types';
 import { cn } from '@/lib/utils';
+import { useFirestore } from '@/firebase';
+import { collection, query, getDocs } from 'firebase/firestore';
 
 const initialElements = ['Water', 'Fire', 'Wind', 'Earth'];
+const DISCOVERED_ITEMS_KEY = 'infinity-craft-items';
+const FIRST_DISCOVERIES_KEY = 'infinity-craft-first-discoveries';
+
 
 const AIInfinityCraft: React.FC = () => {
   const { toast } = useToast();
-  const [discoveredItems, setDiscoveredItems] = useState<string[]>(initialElements);
+  const firestore = useFirestore();
+
+  const [discoveredItems, setDiscoveredItems] = useState<string[]>(() => {
+    if (typeof window !== 'undefined') {
+        const saved = localStorage.getItem(DISCOVERED_ITEMS_KEY);
+        if (saved) {
+            try {
+                const parsed = JSON.parse(saved);
+                if(Array.isArray(parsed) && parsed.length > 0) return parsed;
+            } catch (e) {
+                console.error("Failed to parse saved items from localStorage", e);
+            }
+        }
+    }
+    return initialElements;
+  });
+
+  const [firstDiscoveries, setFirstDiscoveries] = useState<Set<string>>(() => {
+    if (typeof window !== 'undefined') {
+        const saved = localStorage.getItem(FIRST_DISCOVERIES_KEY);
+        if (saved) {
+            try {
+                return new Set(JSON.parse(saved));
+            } catch (e) {
+                console.error("Failed to parse first discoveries from localStorage", e);
+            }
+        }
+    }
+    return new Set();
+  });
+
   const [slot1, setSlot1] = useState<string | null>(null);
   const [slot2, setSlot2] = useState<string | null>(null);
   const [isCrafting, setIsCrafting] = useState(false);
-  const [lastResult, setLastResult] = useState<string | null>(null);
+  const [lastResult, setLastResult] = useState<{ item: string; isNew: boolean } | null>(null);
+  
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem(DISCOVERED_ITEMS_KEY, JSON.stringify(discoveredItems));
+    }
+  }, [discoveredItems]);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+        localStorage.setItem(FIRST_DISCOVERIES_KEY, JSON.stringify(Array.from(firstDiscoveries)));
+    }
+  }, [firstDiscoveries]);
+
+
+   useEffect(() => {
+    if (!firestore) return;
+    
+    const syncAllDiscoveries = async () => {
+      const allItems = new Set<string>(initialElements);
+      try {
+        const recipesQuery = query(collection(firestore, 'recipes'));
+        const snapshot = await getDocs(recipesQuery);
+        snapshot.forEach(doc => {
+          const recipe = doc.data();
+          allItems.add(recipe.item1);
+          allItems.add(recipe.item2);
+          allItems.add(recipe.result);
+        });
+        
+        setDiscoveredItems(prevItems => {
+            const combined = new Set([...prevItems, ...Array.from(allItems)]);
+            return Array.from(combined).sort();
+        });
+
+      } catch (error) {
+        console.error("Error fetching all discoveries:", error);
+        toast({ title: 'Connection Error', description: 'Could not sync all discoveries from the database.', variant: 'destructive' });
+      }
+    };
+    
+    syncAllDiscoveries();
+  }, [firestore, toast]);
+
 
   const handleItemClick = (item: string) => {
     if (isCrafting) return;
@@ -39,12 +117,19 @@ const AIInfinityCraft: React.FC = () => {
     setLastResult(null);
 
     try {
-      const result = await craftItem({ item1: slot1, item2: slot2 });
+      const { result, isNew } = await craftItem({ item1: slot1, item2: slot2 });
+
       if (result) {
-        setLastResult(result);
-        if (!discoveredItems.find(i => i.toLowerCase() === result.toLowerCase())) {
-          setDiscoveredItems(prev => [...prev, result].sort());
-          toast({ title: 'New Discovery!', description: `You have created ${result}!` });
+        setLastResult({ item: result, isNew });
+        if (!discoveredItems.find(i => i.toLowerCase() === result!.toLowerCase())) {
+          setDiscoveredItems(prev => [...prev, result!].sort());
+        }
+        if (isNew) {
+            setFirstDiscoveries(prev => new Set(prev).add(result));
+            toast({
+                title: 'First Discovery!',
+                description: `You're the first to create ${result}!`,
+            });
         } else {
            toast({ title: 'Combination Result', description: `${slot1} + ${slot2} = ${result}` });
         }
@@ -68,11 +153,12 @@ const AIInfinityCraft: React.FC = () => {
 
   const resetGame = () => {
     setDiscoveredItems(initialElements);
+    setFirstDiscoveries(new Set());
     setSlot1(null);
     setSlot2(null);
     setIsCrafting(false);
     setLastResult(null);
-    toast({title: "Game Reset", description: "Your discoveries have been reset to the basic elements."})
+    toast({title: "Game Reset", description: "Your local discoveries have been reset. Shared server discoveries will reload."})
   }
 
   return (
@@ -90,11 +176,12 @@ const AIInfinityCraft: React.FC = () => {
                   <Button
                     key={item}
                     variant="outline"
-                    className="justify-start truncate"
+                    className="justify-start truncate flex items-center gap-2"
                     onClick={() => handleItemClick(item)}
                     disabled={isCrafting}
                   >
-                    {item}
+                    {firstDiscoveries.has(item) && <Sparkles className="h-3 w-3 text-yellow-400 flex-shrink-0" />}
+                    <span className="truncate">{item}</span>
                   </Button>
                 ))}
               </div>
@@ -141,8 +228,14 @@ const AIInfinityCraft: React.FC = () => {
                 {lastResult && !isCrafting && (
                      <div className="flex items-center gap-4 animate-fade-in">
                         <ArrowRight className="h-8 w-8 text-muted-foreground"/>
-                        <div className="h-24 w-24 sm:h-32 sm:w-32 rounded-lg bg-primary/10 border-2 border-primary flex items-center justify-center text-center p-2 text-primary font-bold text-lg">
-                           {lastResult}
+                        <div className="relative h-24 w-24 sm:h-32 sm:w-32 rounded-lg bg-primary/10 border-2 border-primary flex items-center justify-center text-center p-2 text-primary font-bold text-lg">
+                           {lastResult.item}
+                           {lastResult.isNew && (
+                             <div className="absolute -top-3 -right-3 bg-yellow-400 text-black p-1 rounded-full text-xs font-bold flex items-center gap-1">
+                                <Sparkles className="h-3 w-3" />
+                                1st
+                             </div>
+                           )}
                         </div>
                      </div>
                 )}

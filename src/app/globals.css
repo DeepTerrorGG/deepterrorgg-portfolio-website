@@ -34,7 +34,7 @@
     --ring: 180 100% 25.1%; /* Teal #008080 */
 
     --radius: 0.5rem;
-
+    
     --chart-1: 180 100% 25.1%; /* Teal */
     --chart-2: 180 80% 35%; 
     --chart-3: 180 60% 45%;
@@ -125,37 +125,5 @@
   }
 }
 
-/* Subtle Animations */
-@layer utilities {
-  .animate-fade-in {
-    animation: fadeIn 1s ease-out forwards;
-  }
-  .animate-slide-up {
-    animation: slideUp 1s ease-out forwards;
-  }
-  @keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
-  }
-  @keyframes slideUp {
-    from { opacity: 0; transform: translateY(20px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-
-  .animate-on-scroll {
-    animation: auto linear fade-in-on-scroll;
-    animation-timeline: view();
-    animation-range: entry 25% cover 50%;
-  }
-
-  @keyframes fade-in-on-scroll {
-    from {
-      opacity: 0;
-      transform: translateY(20px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
+@layer components {
 }

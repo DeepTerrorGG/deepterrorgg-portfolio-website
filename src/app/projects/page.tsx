@@ -1,42 +1,56 @@
+
 // src/app/projects/page.tsx
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, Suspense } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import dynamic from 'next/dynamic';
 import PageTitle from '@/components/ui/page-title';
 import { Button } from '@/components/ui/button';
 import { TechStack } from '@/components/ui/tech-stack';
-import { ExternalLink, Rocket } from 'lucide-react';
+import { ExternalLink, Rocket, Loader2, ArrowLeft } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import TodoList from '@/components/projects/todo-list';
-import UnitConverter from '@/components/projects/unit-converter';
-import Calculator3D from '@/components/projects/calculator-3d';
-import SimpleTextAnimator from '@/components/projects/simple-text-animator';
-import FractalRenderer from '@/components/projects/fractal-renderer';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import PomodoroTimer from '@/components/projects/pomodoro-timer';
-import PasswordGenerator from '@/components/projects/password-generator';
-import BmiCalculator from '@/components/projects/bmi-calculator';
-import BudgetPlanner from '@/components/projects/budget-planner';
-import GithubProfileFinder from '@/components/projects/github-profile-finder';
-import BeatMaker from '@/components/projects/beat-maker';
-import MarkdownEditor from '@/components/projects/markdown-editor';
-import WeatherApp from '@/components/projects/weather-app';
-import QuizApp from '@/components/projects/quiz-app';
-import StockTracker from '@/components/projects/stock-tracker';
-import Spreadsheet from '@/components/projects/spreadsheet';
-import AIChatbot from '@/components/projects/ai-chatbot';
-import AIStoryGenerator from '@/components/projects/ai-story-generator';
-import AIRecipeGenerator from '@/components/projects/ai-recipe-generator';
-import AIImageGenerator from '@/components/projects/ai-image-generator';
-import CodeEditor from '@/components/projects/code-editor';
-import TicTacToe from '@/components/projects/tic-tac-toe';
-import RockPaperScissors from '@/components/projects/rock-paper-scissors';
-import ThePasswordGame from '@/components/projects/the-password-game';
-import AIInfinityCraft from '@/components/projects/ai-infinity-craft';
-import AudioVisualizer from '@/components/projects/audio-visualizer';
-import CharacterCounter from '@/components/projects/character-counter';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogClose,
+} from "@/components/ui/dialog";
+
+// Dynamically import all project components
+const TodoList = dynamic(() => import('@/components/projects/todo-list'), { loading: () => <ProjectLoader /> });
+const UnitConverter = dynamic(() => import('@/components/projects/unit-converter'), { loading: () => <ProjectLoader /> });
+const Calculator3D = dynamic(() => import('@/components/projects/calculator-3d'), { loading: () => <ProjectLoader /> });
+const SimpleTextAnimator = dynamic(() => import('@/components/projects/simple-text-animator'), { loading: () => <ProjectLoader /> });
+const FractalRenderer = dynamic(() => import('@/components/projects/fractal-renderer'), { loading: () => <ProjectLoader /> });
+const PomodoroTimer = dynamic(() => import('@/components/projects/pomodoro-timer'), { loading: () => <ProjectLoader /> });
+const PasswordGenerator = dynamic(() => import('@/components/projects/password-generator'), { loading: () => <ProjectLoader /> });
+const BmiCalculator = dynamic(() => import('@/components/projects/bmi-calculator'), { loading: () => <ProjectLoader /> });
+const BudgetPlanner = dynamic(() => import('@/components/projects/budget-planner'), { loading: () => <ProjectLoader /> });
+const GithubProfileFinder = dynamic(() => import('@/components/projects/github-profile-finder'), { loading: () => <ProjectLoader /> });
+const BeatMaker = dynamic(() => import('@/components/projects/beat-maker'), { loading: () => <ProjectLoader /> });
+const MarkdownEditor = dynamic(() => import('@/components/projects/markdown-editor'), { loading: () => <ProjectLoader /> });
+const WeatherApp = dynamic(() => import('@/components/projects/weather-app'), { loading: () => <ProjectLoader /> });
+const QuizApp = dynamic(() => import('@/components/projects/quiz-app'), { loading: () => <ProjectLoader /> });
+const StockTracker = dynamic(() => import('@/components/projects/stock-tracker'), { loading: () => <ProjectLoader /> });
+const Spreadsheet = dynamic(() => import('@/components/projects/spreadsheet'), { loading: () => <ProjectLoader /> });
+const AIChatbot = dynamic(() => import('@/components/projects/ai-chatbot'), { loading: () => <ProjectLoader /> });
+const AIStoryGenerator = dynamic(() => import('@/components/projects/ai-story-generator'), { loading: () => <ProjectLoader /> });
+const AIRecipeGenerator = dynamic(() => import('@/components/projects/ai-recipe-generator'), { loading: () => <ProjectLoader /> });
+const AIImageGenerator = dynamic(() => import('@/components/projects/ai-image-generator'), { loading: () => <ProjectLoader /> });
+const CodeEditor = dynamic(() => import('@/components/projects/code-editor'), { loading: () => <ProjectLoader /> });
+const TicTacToe = dynamic(() => import('@/components/projects/tic-tac-toe'), { loading: () => <ProjectLoader /> });
+const RockPaperScissors = dynamic(() => import('@/components/projects/rock-paper-scissors'), { loading: () => <ProjectLoader /> });
+const ThePasswordGame = dynamic(() => import('@/components/projects/the-password-game'), { loading: () => <ProjectLoader /> });
+const AIInfinityCraft = dynamic(() => import('@/components/projects/ai-infinity-craft'), { loading: () => <ProjectLoader /> });
+const AudioVisualizer = dynamic(() => import('@/components/projects/audio-visualizer'), { loading: () => <ProjectLoader /> });
+const CharacterCounter = dynamic(() => import('@/components/projects/character-counter'), { loading: () => <ProjectLoader /> });
+const CollaborativeWhiteboard = dynamic(() => import('@/components/projects/collaborative-whiteboard'), { loading: () => <ProjectLoader /> });
+const KanbanBoard = dynamic(() => import('@/components/projects/kanban-board'), { loading: () => <ProjectLoader /> });
+const PixelEditor = dynamic(() => import('@/components/projects/pixel-editor'), { loading: () => <ProjectLoader /> });
 
 interface Technology {
   name: string;
@@ -60,7 +74,68 @@ interface Project {
   renderImage: boolean;
 }
 
+const ProjectLoader = () => (
+    <div className="flex h-full w-full items-center justify-center bg-card">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+    </div>
+);
+
 const projectsData: Project[] = [
+    {
+    id: 'kanban-board',
+    title: 'Project Management Board',
+    imageUrls: ['/placeholder.png'],
+    imageAlt: 'A Kanban-style project management board',
+    imageHint: 'kanban board project management',
+    description: 'A Trello-like board with draggable cards to manage tasks across different stages of a workflow.',
+    personalNote: 'This project was a fantastic exercise in complex state management and user interaction. Implementing smooth drag-and-drop functionality using native browser APIs and ensuring the state updates correctly was a rewarding challenge.',
+    difficulty: 'Advanced',
+    component: <KanbanBoard />,
+    technologies: [
+      { name: 'React', iconSrc: '/icons/react.svg' },
+      { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },
+      { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss.svg' },
+       { name: 'Firebase', iconSrc: '/icons/firebase.svg' },
+    ],
+    renderImage: true,
+  },
+  {
+    id: 'pixel-editor',
+    title: 'Pixel Art Editor',
+    imageUrls: ['/placeholder.png'],
+    imageAlt: 'A pixel art editor interface',
+    imageHint: 'pixel art editor drawing',
+    description: 'A simple browser-based editor for creating and exporting pixel art with basic tools like a pencil, eraser, and color palette.',
+    personalNote: 'Building this felt like creating a mini-Photoshop. It was a deep dive into handling the HTML canvas, managing pixel data in a grid, and implementing core drawing tool logic. It really highlights how much complexity can go into seemingly simple creative tools.',
+    difficulty: 'Advanced',
+    component: <PixelEditor />,
+    technologies: [
+      { name: 'React', iconSrc: '/icons/react.svg' },
+      { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },
+      { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss.svg' },
+    ],
+    renderImage: true,
+  },
+  {
+    id: 'collaborative-whiteboard',
+    title: 'Real-Time Collaborative Whiteboard',
+    imageUrls: ['/placeholder.png'],
+    imageAlt: 'A real-time collaborative whiteboard interface',
+    imageHint: 'whiteboard collaboration drawing',
+    description: 'A shared digital canvas where multiple users can draw and diagram in real-time with AI-assisted features.',
+    personalNote: 'This is a highly complex project that combines real-time data synchronization using Firestore with a custom HTML canvas rendering engine. The AI-assisted diagramming feature, which will neaten up sketches, represents a practical and impressive use of generative AI.',
+    difficulty: 'Advanced',
+    component: <CollaborativeWhiteboard />,
+    technologies: [
+      { name: 'React', iconSrc: '/icons/react.svg' },
+      { name: 'Next.js', iconSrc: '/icons/nextjs.svg' },
+      { name: 'Firebase', iconSrc: '/icons/firebase.svg' },
+      { name: 'Genkit', iconSrc: '/icons/genkit.svg' },
+      { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },
+      { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss.svg' },
+    ],
+    renderImage: true,
+  },
   {
     id: 'ai-infinity-craft',
     title: 'AI Infinity Craft',
@@ -622,6 +697,7 @@ const ProjectDetailContent = ({ project }: { project: Project }) => {
 
 export default function ProjectsPage() {
   const [selectedProjectId, setSelectedProjectId] = useState<string>(allProjects[0].id);
+  const [mobileProject, setMobileProject] = useState<Project | null>(null);
 
   const selectedProject = useMemo(() => {
     return allProjects.find(p => p.id === selectedProjectId) || allProjects[0];
@@ -636,66 +712,119 @@ export default function ProjectsPage() {
     'Community': 'text-blue-400',
   };
 
+  const handleProjectSelect = (project: Project) => {
+    setSelectedProjectId(project.id);
+    setMobileProject(project);
+  };
+
   return (
-    <div className="grid grid-cols-1 md:grid-cols-12 md:h-[calc(100vh-80px)]">
-      {/* Left Column: Project List */}
-      <div className="md:col-span-4 lg:col-span-3 border-r border-border flex flex-col h-full overflow-hidden">
-        <div className="p-6 border-b">
-          <PageTitle subtitle="A selection of my creative and technical endeavors." className="text-left !mb-0 !pt-0">
-            My Projects
-          </PageTitle>
-        </div>
+    <div className="flex-grow flex flex-col">
+      {/* Mobile View: Full-screen list, dialog for details */}
+      <div className="md:hidden flex flex-col h-full">
+        <PageTitle subtitle="A selection of my creative and technical endeavors." className="!pt-6 !mb-6">
+          My Projects
+        </PageTitle>
         <ScrollArea className="flex-grow">
-          <ul className="space-y-1 p-4">
+          <ul className="space-y-2 p-4">
             {allProjects.map((project) => (
               <li key={project.id}>
                 <button
-                  onClick={() => setSelectedProjectId(project.id)}
-                  className={cn(
-                    "w-full text-left p-3 rounded-md transition-colors duration-200",
-                    selectedProjectId === project.id
-                      ? 'bg-primary/10 text-primary'
-                      : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground'
-                  )}
+                  onClick={() => handleProjectSelect(project)}
+                  className="w-full text-left p-4 rounded-lg transition-colors duration-200 bg-card border hover:bg-muted"
                 >
                   <h3 className="font-semibold">{project.title}</h3>
-                  <p className={cn("text-xs", difficultyColors[project.difficulty])}>{project.difficulty}</p>
+                  <p className={cn("text-xs font-medium", difficultyColors[project.difficulty])}>{project.difficulty}</p>
+                  <p className="text-sm text-muted-foreground mt-1">{project.description}</p>
                 </button>
               </li>
             ))}
           </ul>
         </ScrollArea>
+        {mobileProject && (
+          <Dialog open={!!mobileProject} onOpenChange={(isOpen) => !isOpen && setMobileProject(null)}>
+             <DialogContent className="p-0 sm:p-0 w-screen h-screen max-w-full max-h-full sm:max-w-full sm:max-h-full rounded-none sm:rounded-none flex flex-col" hideDefaultClose>
+              <DialogHeader className="p-4 border-b flex-row items-center space-y-0 shrink-0">
+                  <DialogClose asChild>
+                    <Button variant="ghost" size="icon">
+                      <ArrowLeft className="h-5 w-5" />
+                      <span className="sr-only">Back</span>
+                    </Button>
+                  </DialogClose>
+                  <DialogTitle className="flex-grow text-center pr-10">{mobileProject.title}</DialogTitle>
+              </DialogHeader>
+              <ScrollArea className="flex-grow min-h-0">
+                <Suspense fallback={<ProjectLoader/>}>
+                    {mobileProject.component}
+                </Suspense>
+              </ScrollArea>
+            </DialogContent>
+          </Dialog>
+        )}
       </div>
 
-      {/* Right Column: Project Details */}
-      <div className="md:col-span-8 lg:col-span-9 h-full overflow-hidden flex flex-col" key={selectedProject.id}>
-        <ScrollArea className="flex-grow">
-          <div className="flex flex-col h-full animate-fade-in">
-            {selectedProject.component ? (
-                <div className="flex-grow flex flex-col">
-                    <div className="flex-grow">{selectedProject.component}</div>
-                    <div className="p-4 sm:p-8 md:p-12 border-t bg-background">
-                       <ProjectDetailContent project={selectedProject} />
-                    </div>
-                </div>
-            ) : (
-                <div className="p-4 sm:p-8 md:p-12">
-                    <div className="relative w-full aspect-video rounded-lg overflow-hidden mb-8 bg-card">
-                    <Image
-                        src={selectedProject.imageUrls[0]}
-                        alt={selectedProject.imageAlt}
-                        fill
-                        sizes="(max-width: 767px) 100vw, 60vw"
-                        className="object-cover"
-                        data-ai-hint={selectedProject.imageHint}
-                        priority
-                    />
-                    </div>
-                    <ProjectDetailContent project={selectedProject} />
-                </div>
-            )}
+      {/* Desktop View: Two-column layout */}
+      <div className="hidden md:grid md:grid-cols-12 flex-grow">
+        {/* Left Column: Project List */}
+        <div className="md:col-span-4 lg:col-span-3 border-r border-border flex flex-col">
+          <div className="p-6 border-b shrink-0">
+            <PageTitle subtitle="A selection of my creative and technical endeavors." className="text-left !mb-0 !pt-0">
+              My Projects
+            </PageTitle>
           </div>
-        </ScrollArea>
+          <ScrollArea className="flex-1">
+            <ul className="space-y-1 p-4">
+              {allProjects.map((project) => (
+                <li key={project.id}>
+                  <button
+                    onClick={() => setSelectedProjectId(project.id)}
+                    className={cn(
+                      "w-full text-left p-3 rounded-md transition-colors duration-200",
+                      selectedProjectId === project.id
+                        ? 'bg-primary/10 text-primary'
+                        : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground'
+                    )}
+                  >
+                    <h3 className="font-semibold">{project.title}</h3>
+                    <p className={cn("text-xs", difficultyColors[project.difficulty])}>{project.difficulty}</p>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </ScrollArea>
+        </div>
+
+        {/* Right Column: Project Details */}
+        <div className="md:col-span-8 lg:col-span-9 flex flex-col">
+          <ScrollArea className="flex-1 w-full">
+            <div className="flex flex-col h-full animate-fade-in">
+              {selectedProject.component ? (
+                <div className="flex-grow flex flex-col">
+                  <Suspense fallback={<ProjectLoader />}>
+                    <div className="flex-grow">{selectedProject.component}</div>
+                  </Suspense>
+                  <div className="p-4 sm:p-8 md:p-12 border-t bg-background shrink-0">
+                    <ProjectDetailContent project={selectedProject} />
+                  </div>
+                </div>
+              ) : (
+                <div className="p-4 sm:p-8 md:p-12">
+                  <div className="relative w-full aspect-video rounded-lg overflow-hidden mb-8 bg-card">
+                    <Image
+                      src={selectedProject.imageUrls[0]}
+                      alt={selectedProject.imageAlt}
+                      fill
+                      sizes="(max-width: 767px) 100vw, 60vw"
+                      className="object-cover"
+                      data-ai-hint={selectedProject.imageHint}
+                      priority
+                    />
+                  </div>
+                  <ProjectDetailContent project={selectedProject} />
+                </div>
+              )}
+            </div>
+          </ScrollArea>
+        </div>
       </div>
     </div>
   );

@@ -22,41 +22,52 @@ import { type StoryPrompt, type Story, StorySchema } from './story-generator-flo
  */
 export async function generateStory(prompt: StoryPrompt): Promise<Story | null> {
   
-  let constructedPrompt = `Write a creative and engaging story based on the following details.
-
+  let systemPrompt = `You are a creative writing assistant. You will be given a set of parameters and must write a creative and engaging story based on them.
+The story must have a clear beginning, middle, and end. It should be well-structured with a compelling title.
+Ensure the tone of the story matches the specified genre and style.
+You must respond with ONLY a valid JSON object string. Do not include any other text or markdown formatting.
+The JSON object must have two fields: "title" (a string) and "story" (a string).`;
+  
+  let userPrompt = `Generate a story with the following details:\n
 Character: ${prompt.character}
 Setting: ${prompt.setting}
 `;
 
   if (prompt.genre && prompt.genre !== 'Any') {
-    constructedPrompt += `Genre: ${prompt.genre}\n`;
+    userPrompt += `Genre: ${prompt.genre}\n`;
   }
   if (prompt.style && prompt.style !== 'Default') {
-    constructedPrompt += `Literary Style: ${prompt.style}\n`;
+    userPrompt += `Literary Style: ${prompt.style}\n`;
   }
   if (prompt.twist && prompt.twist !== 'None') {
-    constructedPrompt += `Incorporate the following plot twist: ${prompt.twist}\n`;
+    userPrompt += `Incorporate the following plot twist: ${prompt.twist}\n`;
   }
 
-  constructedPrompt += `
-The story must have a clear beginning, middle, and end. It should be well-structured with a compelling title.
-Ensure the tone of the story matches the specified genre and style.
-The output must be a JSON object with two fields: "title" (a string) and "story" (a string).
-`;
-
-  const { output } = await ai.generate({
-      prompt: constructedPrompt,
-      model: 'googleai/gemini-2.0-flash',
-      output: {
-          format: 'json',
-          schema: StorySchema,
-      }
+  const { text } = await ai.generate({
+    prompt: userPrompt,
+    system: systemPrompt,
+    model: 'googleai/gemini-2.0-flash',
   });
 
-  const structuredResponse = output?.structured;
-  if (!structuredResponse) {
+  try {
+    const jsonRegex = /```json\s*([\s\S]*?)\s*```/;
+    const match = text.match(jsonRegex);
+    
+    let jsonString = text;
+    if (match) {
+      jsonString = match[1];
+    }
+
+    const parsed = JSON.parse(jsonString);
+    const validated = StorySchema.safeParse(parsed);
+    if (validated.success) {
+      return validated.data;
+    } else {
+      console.error("AI returned invalid story format:", validated.error);
+      return null;
+    }
+  } catch (error) {
+    console.error("Failed to parse AI response as JSON:", error);
     return null;
   }
-
-  return structuredResponse as Story;
 }

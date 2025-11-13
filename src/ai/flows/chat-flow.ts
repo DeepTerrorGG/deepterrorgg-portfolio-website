@@ -13,6 +13,7 @@
 
 import { ai } from '@/ai/genkit';
 import { type ChatHistory, type ChatPersonality } from './chat-flow-types';
+import { generate, type GenerateResponse, type Message } from 'genkit';
 
 const personalityPrompts = {
     'Default': '',
@@ -40,17 +41,22 @@ export async function chat(history: ChatHistory, personality: ChatPersonality): 
     return "Sorry, I didn't receive a message.";
   }
   
-  const latestMessage = history[history.length - 1];
-  const precedingHistory = history.slice(0, -1);
+  // The history for the model should not include the latest user message
+  const modelHistory: Message[] = history.slice(0, -1).map(msg => ({
+      role: msg.role,
+      content: [{ text: msg.parts[0].text }],
+  }));
 
-  if (!latestMessage) {
+  const latestMessage = history[history.length - 1];
+
+  if (!latestMessage?.parts[0]?.text) {
     return "Sorry, I couldn't process your message.";
   }
 
   try {
-    const { output } = await ai.generate({
+    const response = await ai.generate({
       prompt: latestMessage.parts[0].text,
-      history: precedingHistory.length > 0 ? precedingHistory : undefined,
+      history: modelHistory.length > 0 ? modelHistory : undefined,
       model: 'googleai/gemini-2.0-flash',
       system: systemPrompt,
       config: {
@@ -75,13 +81,18 @@ export async function chat(history: ChatHistory, personality: ChatPersonality): 
       }
     });
 
-    const response = output?.text;
+    const responseText = response.text;
     
-    if (response) {
-      return response;
+    if (responseText) {
+      return responseText;
     }
 
     // Handle cases where the response is empty (e.g., safety-blocked)
+    const finishReason = response.candidates[0]?.finishReason;
+    if (finishReason === 'SAFETY') {
+        return "I'm sorry, I can't respond to that topic due to safety guidelines.";
+    }
+    
     return "I'm sorry, I couldn't formulate a response for that. Please try a different topic.";
 
   } catch (error: any) {
@@ -94,8 +105,8 @@ export async function chat(history: ChatHistory, personality: ChatPersonality): 
             errorMessage = "AI configuration error: The API key is not valid. Please check your environment variables.";
         } else if (error.message.includes('429')) {
             errorMessage = "AI Service Overloaded: The service is currently experiencing high traffic. Please try again in a moment.";
-        } else if (error.message.includes('Not Found')) {
-            errorMessage = `AI Model Not Found: The model 'googleai/gemini-2.0-flash' is not available.`;
+        } else if (error.message.includes('404 Not Found') || error.message.includes('model')) {
+            errorMessage = `AI Model Not Found: The configured model is not available. Please check the model name.`;
         }
         else {
             errorMessage = `An error occurred: ${error.message}`;

@@ -12,8 +12,9 @@
  */
 
 import { ai } from '@/ai/genkit';
+import { type MediaPart } from 'genkit';
 import { type ImageGenerationInput } from './generate-project-image-flow-types';
-import { MediaPart } from 'genkit';
+
 
 /**
  * The main function that handles the image generation.
@@ -26,23 +27,23 @@ export async function generateProjectImage(input: ImageGenerationInput) {
     
     const stylePrompt = style === 'Default' ? '' : `in a ${style.toLowerCase()} style, `;
     const fullPrompt = `A high-quality, creative image. The image should be visually interesting and capture the essence of the following description: "${description}". The image should be ${stylePrompt}professional and polished. The desired aspect ratio is ${aspectRatio}.`;
-    
+
     if (imageDataUris && imageDataUris.length > 0) {
-        // Image-to-Image generation
-        const promptParts: (string | MediaPart)[] = imageDataUris.map(uri => ({ media: { url: uri } }));
+        // Image-to-image generation using Gemini Vision
+        const promptParts: MediaPart[] = imageDataUris.map(uri => ({ media: { url: uri } }));
         promptParts.push({ text: fullPrompt });
 
         const { media } = await ai.generate({
-            model: 'googleai/gemini-2.5-flash-image-preview',
+            model: 'googleai/gemini-2.5-flash-image',
             prompt: promptParts,
             config: {
-                responseModalities: ['TEXT', 'IMAGE'],
-            },
+                responseModalities: ['IMAGE', 'TEXT'],
+            }
         });
         return media.url;
 
     } else {
-        // Text-to-Image generation
+        // Text-to-image generation using Imagen
         const { media } = await ai.generate({
             model: 'googleai/imagen-4.0-fast-generate-001',
             prompt: fullPrompt,
@@ -50,3 +51,4 @@ export async function generateProjectImage(input: ImageGenerationInput) {
         return media.url;
     }
 }
+

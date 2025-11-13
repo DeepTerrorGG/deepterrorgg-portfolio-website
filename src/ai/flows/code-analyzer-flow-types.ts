@@ -1,4 +1,3 @@
-
 'use client';
 
 /**
@@ -15,15 +14,15 @@
 import { z } from 'zod';
 
 // Define the valid tasks the AI can perform.
-export const CodeTask = z.enum(['explain', 'refactor', 'comment']);
-export type CodeTask = z.infer<typeof CodeTask>;
+export const CodeTaskSchema = z.enum(['explain', 'refactor', 'comment', 'debug', 'optimize', 'test']);
+export type CodeTask = z.infer<typeof CodeTaskSchema>;
 
-export const CodeLanguageSchema = z.enum(['Auto-detect', 'JavaScript', 'Python', 'TypeScript', 'Java', 'C++', 'HTML', 'CSS']);
+export const CodeLanguageSchema = z.enum(['Auto-detect', 'JavaScript', 'Python', 'TypeScript', 'Java', 'C#', 'C++', 'Go', 'Rust', 'C', 'Swift', 'HTML', 'CSS', 'SQL', 'Assembly', 'Lisp', 'Fortran', 'COBOL', 'Pascal', 'Perl', 'LOLCODE', 'Whitespace', 'Brainf*ck', 'ArnoldC', 'Shakespeare']);
 export type CodeLanguage = z.infer<typeof CodeLanguageSchema>;
 
 // Define the input schema for the flow.
 export const CodeAnalysisInputSchema = z.object({
-  task: CodeTask,
+  task: CodeTaskSchema,
   code: z.string(),
   language: CodeLanguageSchema,
 });

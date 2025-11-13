@@ -3,8 +3,9 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { FlameKindling, Menu } from 'lucide-react';
+import { Menu } from 'lucide-react';
 import React, { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
 
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -16,41 +17,62 @@ const navLinks = [
   { href: '/projects', label: 'Projects' },
   { href: '/about', label: 'About Me' },
   { href: '/contact', label: 'Contact' },
+  { href: '/aichattest', label: 'AI Chat Test' },
 ];
 
 export default function Header() {
   const pathname = usePathname();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
-  const [isMounted, setIsMounted] = useState(false);
+  const [hoveredPath, setHoveredPath] = useState(pathname);
 
   useEffect(() => {
-    setIsMounted(true);
-  }, []);
+    setHoveredPath(pathname);
+  }, [pathname]);
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md shadow-md">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex h-16 md:h-20 items-center justify-center md:justify-center relative">
+        <div className="flex h-16 md:h-20 items-center justify-between">
           
-          {/* Desktop Navigation - Centered */}
-          <nav className="hidden md:flex space-x-2 lg:space-x-4">
+          {/* Logo */}
+          <Link href="/" className="flex items-center gap-2 group transition-transform hover:scale-105">
+            <span className="text-lg font-bold text-foreground group-hover:text-primary transition-colors">
+              DeepTerrorGG
+            </span>
+          </Link>
+          
+          {/* Desktop Navigation */}
+          <nav className="hidden md:flex items-center space-x-2 lg:space-x-1 p-1 rounded-full">
             {navLinks.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
+                onMouseOver={() => setHoveredPath(link.href)}
+                onMouseLeave={() => setHoveredPath(pathname)}
                 className={cn(
                   'relative px-3 py-2 text-sm font-medium text-foreground/80 transition-colors duration-300 hover:text-foreground',
-                  'after:absolute after:bottom-0 after:left-1/2 after:h-0.5 after:w-0 after:bg-primary after:transition-all after:duration-300 after:ease-out-cubic hover:after:w-full hover:after:left-0',
-                  isMounted && pathname === link.href && 'text-foreground after:w-full after:left-0'
+                  pathname === link.href && 'text-foreground'
                 )}
               >
                 {link.label}
+                 {link.href === hoveredPath && (
+                  <motion.div
+                    className="absolute bottom-0 left-0 h-full w-full bg-muted rounded-full -z-10"
+                    layoutId="navbar"
+                    aria-hidden="true"
+                    transition={{
+                      type: "spring",
+                      stiffness: 350,
+                      damping: 30,
+                    }}
+                  />
+                )}
               </Link>
             ))}
           </nav>
 
-          {/* Mobile Navigation - Burger menu remains on the right */}
-          <div className="md:hidden flex-1 flex justify-end">
+          {/* Mobile Navigation - Burger menu */}
+          <div className="md:hidden">
             <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
               <SheetTrigger asChild>
                 <Button variant="ghost" size="icon" aria-label="Open menu">
@@ -61,7 +83,6 @@ export default function Header() {
                 <SheetHeader className="p-6 border-b border-border">
                   <SheetTitle>
                      <Link href="/" className="flex items-center gap-2" onClick={() => setIsMobileMenuOpen(false)}>
-                      <FlameKindling aria-hidden="true" className="h-7 w-7 text-primary" />
                       <span className="text-lg font-bold text-foreground">
                         Navigation
                       </span>
@@ -77,7 +98,7 @@ export default function Header() {
                           onClick={() => setIsMobileMenuOpen(false)}
                           className={cn(
                             'block px-3 py-3 rounded-md text-base font-medium transition-colors',
-                            isMounted && pathname === link.href
+                            pathname === link.href
                               ? 'bg-primary text-primary-foreground'
                               : 'text-foreground/80 hover:bg-accent hover:text-accent-foreground'
                           )}

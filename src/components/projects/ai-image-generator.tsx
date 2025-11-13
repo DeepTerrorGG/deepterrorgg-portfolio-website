@@ -7,7 +7,7 @@ import { FormEvent, useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Loader2, Upload, X } from 'lucide-react';
+import { Loader2, Upload, X, Plus } from 'lucide-react';
 import Image from 'next/image';
 import {
   Select,
@@ -111,7 +111,7 @@ export default function AIImageGenerator() {
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
-            {uploadedImages.length > 0 ? (
+             {uploadedImages.length > 0 ? (
                 <div className="relative w-full border rounded-md p-2">
                     <ScrollArea className="h-32">
                         <div className="flex gap-2 p-1">
@@ -129,6 +129,15 @@ export default function AIImageGenerator() {
                                     </Button>
                                 </div>
                             ))}
+                             <Button
+                                type="button"
+                                variant="outline"
+                                className="w-28 h-28 flex-shrink-0 flex-col gap-1 border-dashed"
+                                onClick={() => fileInputRef.current?.click()}
+                            >
+                                <Plus className="h-6 w-6 text-muted-foreground" />
+                                <span className="text-xs text-muted-foreground">Add More</span>
+                            </Button>
                         </div>
                     </ScrollArea>
                 </div>
@@ -138,6 +147,7 @@ export default function AIImageGenerator() {
                     Upload Base Image(s) (Optional)
                 </Button>
             )}
+
             <Input
                 type="file"
                 ref={fileInputRef}
@@ -211,3 +221,5 @@ export default function AIImageGenerator() {
     </div>
   );
 }
+
+    

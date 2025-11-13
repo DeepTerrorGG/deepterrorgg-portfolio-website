@@ -2,57 +2,100 @@
 'use server';
 
 import { ai } from '@/ai/genkit';
-import { z } from 'genkit';
+import { z } from 'zod';
 
-const PasswordRuleOutputSchema = z.object({
-  rule: z.string().describe("A new, creative, and somewhat absurd rule for a password. For example: 'Your password must include a color.' or 'Your password must contain a zodiac sign.'"),
-  validationLogic: z.string().describe("A snippet of JavaScript boolean logic to validate this rule. The password will be available as a variable named 'password'. For example, for the color rule: '/(red|green|blue|yellow|black|white)/i.test(password)'"),
+const RuleGenerationInputSchema = z.array(z.string());
+
+const RuleGenerationOutputSchema = z.object({
+  rule: z.string().describe("A creative, specific, and verifiable password rule. The rule should be a single sentence and not be a generic 'must contain' rule. It must be something that can be programmatically checked."),
 });
-export type PasswordRuleOutput = z.infer<typeof PasswordRuleOutputSchema>;
 
-const SYSTEM_PROMPT = `
-You are a creative game designer for "The Password Game". Your task is to generate a new, single, fun, and quirky password rule.
-You MUST also provide the JavaScript logic to validate the rule.
+const RuleValidationInputSchema = z.object({
+    password: z.string(),
+    rule: z.string(),
+});
 
-### Your Response Format
-Your response MUST be a raw JSON object that conforms to the following schema, and nothing else. Do not wrap it in markdown or add any explanatory text.
+const RuleValidationOutputSchema = z.object({
+    isValid: z.boolean().describe("Whether the password successfully meets the rule's criteria."),
+});
 
-### Schema
-{
-  "rule": "<The password rule text>",
-  "validationLogic": "<The JavaScript validation logic as a string>"
+
+export async function generatePasswordRule(existingRules: string[]): Promise<{ rule: string } | null> {
+  const systemPrompt = `You are an AI for a password game. Your job is to invent a new, creative, and programmatically verifiable password rule that is NOT in the list of existing rules.
+
+Existing rules (do not repeat these):
+${existingRules.join('\n- ')}
+
+Good examples of creative rules:
+- Your password must include a chemical element symbol (e.g., Fe, Au).
+- The Roman numerals in your password must sum to 50.
+- Your password must contain the name of a US state capital.
+- Your password must start with a letter from the first half of the alphabet and end with one from the second half.
+- Any numbers in your password must be in ascending order.
+- Your password must include the name of a figure from Greek mythology.
+- Your password must contain a food that is a fruit.
+- Your password must contain a type of geometric shape.
+- Your password must include a sound an animal makes.
+- Your password must include the name of a musical instrument.
+
+Bad examples (too generic or simple):
+- Your password must be long.
+- Your password must have a special character.
+- Your password must have a capital letter.
+
+Generate one new, unique rule.
+`;
+  try {
+      const { output } = await ai.generate({
+        model: 'googleai/gemini-2.0-flash',
+        prompt: systemPrompt,
+        output: {
+          format: 'json',
+          schema: RuleGenerationOutputSchema,
+        },
+        config: {
+          temperature: 0.9, // Higher temperature for more creativity
+        }
+      });
+
+      if (!output?.structured) {
+        console.error("AI failed to return structured data for rule generation.");
+        // Fallback or retry logic could go here
+        return null;
+      }
+      return output.structured;
+
+  } catch (error) {
+      console.error("Error in generatePasswordRule:", error);
+      return null;
+  }
 }
 
-### Example 1
-{
-  "rule": "Your password must include a day of the week.",
-  "validationLogic": "/(monday|tuesday|wednesday|thursday|friday|saturday|sunday)/i.test(password)"
-}
+export async function validatePasswordRule(password: string, rule: string): Promise<boolean> {
+    const prompt = `Given the password and the rule, determine if the password strictly follows the rule.
+Respond with only true or false in the JSON output.
 
-### Example 2
-{
-  "rule": "Your password must include a Roman numeral.",
-  "validationLogic": "/\\b(I|V|X|L|C|D|M)+\\b/i.test(password)"
-}
+Password: "${password}"
+Rule: "${rule}"
 `;
 
+    try {
+        const { output } = await ai.generate({
+            model: 'googleai/gemini-2.0-flash',
+            prompt: prompt,
+            output: {
+                format: 'json',
+                schema: RuleValidationOutputSchema,
+            },
+             config: {
+                temperature: 0, // Zero temperature for deterministic validation
+            }
+        });
 
-export async function generatePasswordRule(existingRules: string[]): Promise<PasswordRuleOutput> {
-  const { output } = await ai.generate({
-    model: 'googleai/gemini-2.0-flash',
-    output: {
-        schema: PasswordRuleOutputSchema,
-        format: 'json',
-    },
-    system: SYSTEM_PROMPT,
-    prompt: `
-    Generate a new rule. Do not generate a duplicate of any of the following existing rules:
-    - ${existingRules.join('\n- ')}
-    `,
-  });
+        return output?.structured?.isValid ?? false;
 
-  if (!output?.structured) {
-    throw new Error("Failed to generate a valid rule from the AI.");
-  }
-  return output.structured;
+    } catch (error) {
+        console.error("Error in validatePasswordRule:", error);
+        return false;
+    }
 }

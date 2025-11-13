@@ -1,19 +1,19 @@
+// src/firebase/client-provider.tsx
 'use client';
 
-import React, { useMemo, type ReactNode } from 'react';
-import { FirebaseProvider } from '@/firebase/provider';
+import { ReactNode, useMemo } from 'react';
 import { initializeFirebase } from '@/firebase';
+import { FirebaseProvider } from '@/firebase/provider';
 
-interface FirebaseClientProviderProps {
-  children: ReactNode;
-}
-
-export function FirebaseClientProvider({ children }: FirebaseClientProviderProps) {
+export function FirebaseClientProvider({ children }: { children: ReactNode }) {
+  // Memoize the initialization to ensure it only runs once.
   const firebaseServices = useMemo(() => {
-    // Initialize Firebase on the client side, once per component mount.
     return initializeFirebase();
-  }, []); // Empty dependency array ensures this runs only once on mount
+  }, []);
 
+  // The actual FirebaseProvider now receives the initialized services as props.
+  // This pattern avoids running initialization logic directly inside the
+  // provider's render path, which can be problematic for RSC and bundling.
   return (
     <FirebaseProvider
       firebaseApp={firebaseServices.firebaseApp}

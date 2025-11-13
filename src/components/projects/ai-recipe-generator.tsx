@@ -22,6 +22,7 @@ const cuisines: RecipeCuisine[] = ['Any', 'Italian', 'Mexican', 'Indian', 'Chine
 
 export default function AIRecipeGenerator() {
   const [ingredients, setIngredients] = useState<string>('chicken, rice, broccoli');
+  const [allergies, setAllergies] = useState<string>('');
   const [recipe, setRecipe] = useState<Recipe | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -37,6 +38,7 @@ export default function AIRecipeGenerator() {
       ingredients: ingredients.split(',').map((i) => i.trim()),
       diet,
       cuisine,
+      allergies,
     };
 
     try {
@@ -58,7 +60,7 @@ export default function AIRecipeGenerator() {
         <CardHeader>
           <CardTitle>AI Recipe Generator</CardTitle>
           <CardDescription>
-            Enter ingredients separated by commas.
+            Enter ingredients separated by commas to get a recipe.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -71,6 +73,18 @@ export default function AIRecipeGenerator() {
                   value={ingredients}
                   onChange={(e) => setIngredients(e.target.value)}
                   placeholder="e.g., chicken, rice, broccoli"
+                  disabled={loading}
+                  className='mt-1'
+                />
+            </div>
+             <div>
+                <Label htmlFor='allergies-input'>Allergies / Exclusions</Label>
+                <Input
+                  id='allergies-input'
+                  type="text"
+                  value={allergies}
+                  onChange={(e) => setAllergies(e.target.value)}
+                  placeholder="e.g., peanuts, shellfish, dairy"
                   disabled={loading}
                   className='mt-1'
                 />
@@ -115,11 +129,11 @@ export default function AIRecipeGenerator() {
                     ))}
               </ul>
               <h3 className="mt-4 text-xl font-semibold">Instructions</h3>
-              <ul className="mt-2 list-decimal list-inside space-y-2">
+              <ol className="mt-2 list-decimal list-inside space-y-2">
                 {recipe.instructions.map((step, index) => (
                   <li key={index}>{step}</li>
                 ))}
-              </ul>
+              </ol>
             </ScrollArea>
           )}
         </CardContent>

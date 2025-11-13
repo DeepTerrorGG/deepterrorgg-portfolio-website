@@ -1,5 +1,7 @@
+
 import type { Config } from "tailwindcss";
 import defaultTheme from 'tailwindcss/defaultTheme';
+const plugin = require('tailwindcss/plugin');
 
 export default {
     darkMode: ["class"],
@@ -90,13 +92,32 @@ export default {
   				to: {
   					height: '0'
   				}
-  			}
+  			},
+            'scrolling-left': {
+                '0%': { transform: 'translateX(0)' },
+                '100%': { transform: 'translateX(-100%)' },
+            },
+            'scrolling-right': {
+                '0%': { transform: 'translateX(-100%)' },
+                '100%': { transform: 'translateX(0)' },
+            },
   		},
   		animation: {
   			'accordion-down': 'accordion-down 1s ease-out',
-  			'accordion-up': 'accordion-up 1s ease-out'
+  			'accordion-up': 'accordion-up 1s ease-out',
+            'scrolling-left': 'scrolling-left 40s linear infinite',
+            'scrolling-right': 'scrolling-right 40s linear infinite',
   		}
   	}
   },
-  plugins: [require("tailwindcss-animate")],
+  plugins: [
+    require("tailwindcss-animate"),
+    plugin(function({ addUtilities }: { addUtilities: any }) {
+      addUtilities({
+        '.break-inside-avoid': {
+          'break-inside': 'avoid',
+        },
+      })
+    })
+  ],
 } satisfies Config;

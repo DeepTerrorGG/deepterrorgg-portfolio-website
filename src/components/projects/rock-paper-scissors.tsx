@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useEffect } from 'react';
@@ -15,7 +16,7 @@ type Difficulty = 'Normal' | 'Adaptive';
 const moves: Move[] = ['rock', 'paper', 'scissors'];
 
 const moveIcons: Record<Move, React.ReactNode> = {
-  rock: <Hand className="h-10 w-10" />,
+  rock: <Hand className="h-10 w-10 rotate-90" />,
   paper: <HandMetal className="h-10 w-10" />,
   scissors: <Scissors className="h-10 w-10 -rotate-90" />,
 };

@@ -27,6 +27,7 @@ export const IngredientsSchema = z.object({
   ingredients: z.array(z.string()),
   diet: RecipeDietSchema,
   cuisine: RecipeCuisineSchema,
+  allergies: z.string().optional().describe('A comma-separated list of ingredients to exclude.'),
 });
 export type Ingredients = z.infer<typeof IngredientsSchema>;
 

@@ -65,7 +65,7 @@ export default function ContactPage() {
           detail = `The server returned an error (status: ${response.status}).`;
         }
         
-        throw new Error(`Server communication error (status: ${response.status}). ${detail} Expected JSON response.`);
+        throw new Error(`Server communication error. ${detail} Expected JSON response.`);
       }
 
 

@@ -1,3 +1,4 @@
+
 // src/components/ui/carousel.tsx
 "use client"
 
@@ -206,9 +207,9 @@ const CarouselPrevious = React.forwardRef<
       variant={variant}
       size={size}
       className={cn(
-        "absolute  h-8 w-8 rounded-full",
+        "absolute h-8 w-8 rounded-full",
         orientation === "horizontal"
-          ? "-left-12 top-1/2 -translate-y-1/2"
+          ? "left-[-50px] top-1/2 -translate-y-1/2" // Adjusted default
           : "-top-12 left-1/2 -translate-x-1/2 rotate-90",
         className
       )}
@@ -237,7 +238,7 @@ const CarouselNext = React.forwardRef<
       className={cn(
         "absolute h-8 w-8 rounded-full",
         orientation === "horizontal"
-          ? "-right-12 top-1/2 -translate-y-1/2"
+          ? "right-[-50px] top-1/2 -translate-y-1/2" // Adjusted default
           : "-bottom-12 left-1/2 -translate-x-1/2 rotate-90",
         className
       )}

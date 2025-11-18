@@ -10,6 +10,8 @@ import { Label } from '../ui/label';
 const AudioVisualizer: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const audioRef = useRef<HTMLAudioElement>(null);
+  
+  // Use refs to store single instances of audio nodes and animation ID
   const audioContextRef = useRef<AudioContext | null>(null);
   const analyserRef = useRef<AnalyserNode | null>(null);
   const sourceNodeRef = useRef<MediaElementAudioSourceNode | null>(null);
@@ -18,33 +20,28 @@ const AudioVisualizer: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
 
-  // The main drawing function that runs on every frame
   const draw = useCallback(() => {
+    // This function will be called on every animation frame
     const analyser = analyserRef.current;
     const canvas = canvasRef.current;
-    const ctx = canvas?.getContext('2d');
-
-    if (!analyser || !canvas || !ctx) {
-      if (animationFrameIdRef.current) {
-        cancelAnimationFrame(animationFrameIdRef.current);
-      }
+    if (!analyser || !canvas) {
+      if (animationFrameIdRef.current) cancelAnimationFrame(animationFrameIdRef.current);
       return;
     }
+    
+    // Request the next frame *before* doing the work
+    animationFrameIdRef.current = requestAnimationFrame(draw);
 
     const bufferLength = analyser.frequencyBinCount;
     const dataArray = new Uint8Array(bufferLength);
-
-    // Schedule the next frame
-    animationFrameIdRef.current = requestAnimationFrame(draw);
-    
-    // Get waveform data
     analyser.getByteTimeDomainData(dataArray);
 
-    // Draw background
-    ctx.fillStyle = 'hsl(var(--background))';
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    ctx.fillStyle = 'hsl(var(--card))';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    // Draw the waveform
     ctx.lineWidth = 2;
     ctx.strokeStyle = 'hsl(var(--primary))';
     ctx.beginPath();
@@ -53,7 +50,7 @@ const AudioVisualizer: React.FC = () => {
     let x = 0;
 
     for (let i = 0; i < bufferLength; i++) {
-      const v = dataArray[i] / 128.0; // byte values are 0-255
+      const v = dataArray[i] / 128.0;
       const y = v * canvas.height / 2;
 
       if (i === 0) {
@@ -69,49 +66,48 @@ const AudioVisualizer: React.FC = () => {
   }, []);
 
   const setupAudioContext = () => {
+    // This function should only ever run ONCE
     if (audioContextRef.current || !audioRef.current) return;
 
     try {
-        const context = new (window.AudioContext || (window as any).webkitAudioContext)();
-        audioContextRef.current = context;
+      const context = new (window.AudioContext || (window as any).webkitAudioContext)();
+      const analyser = context.createAnalyser();
+      analyser.fftSize = 2048;
+      
+      const source = context.createMediaElementSource(audioRef.current);
+      
+      // Critical connection order: source -> analyser -> destination (speakers)
+      source.connect(analyser);
+      analyser.connect(context.destination);
+      
+      // Store the created nodes in refs to persist them
+      audioContextRef.current = context;
+      analyserRef.current = analyser;
+      sourceNodeRef.current = source;
 
-        const analyser = context.createAnalyser();
-        analyser.fftSize = 2048;
-        analyserRef.current = analyser;
-        
-        // Create the source node from the audio element ONCE
-        const source = context.createMediaElementSource(audioRef.current);
-        sourceNodeRef.current = source;
-
-        // Connect the graph: source -> analyser -> speakers (destination)
-        source.connect(analyser);
-        analyser.connect(context.destination);
     } catch (e) {
-        console.error("Error creating audio context:", e);
-        setError('Web Audio API is not supported by this browser.');
+      console.error("Error creating audio context:", e);
+      setError('Web Audio API is not supported by this browser.');
     }
   };
 
   const onPlay = () => {
-    // Lazy initialization on first play
     if (!audioContextRef.current) {
       setupAudioContext();
     }
     
-    // Ensure context is running (important for some browsers)
-    if (audioContextRef.current && audioContextRef.current.state === 'suspended') {
-      audioContextRef.current.resume();
+    const context = audioContextRef.current;
+    if (context && context.state === 'suspended') {
+      context.resume();
     }
     
-    // Start drawing loop
     if (animationFrameIdRef.current) {
       cancelAnimationFrame(animationFrameIdRef.current);
     }
-    draw();
+    draw(); // Start the drawing loop
   };
 
   const onPauseOrEnd = () => {
-    // Stop drawing loop
     if (animationFrameIdRef.current) {
       cancelAnimationFrame(animationFrameIdRef.current);
       animationFrameIdRef.current = null;
@@ -121,46 +117,39 @@ const AudioVisualizer: React.FC = () => {
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file && audioRef.current) {
-      onPauseOrEnd(); // Stop any current visualization
+      onPauseOrEnd();
       
       const url = URL.createObjectURL(file);
       audioRef.current.src = url;
-      audioRef.current.load();
       setError(null);
       
       toast({ title: 'Audio loaded!', description: 'Press play to start the visualization.' });
     }
   };
-  
-   // Handle canvas resizing
-   useEffect(() => {
-    const canvas = canvasRef.current;
-    let resizeObserver: ResizeObserver;
 
-    if(canvas && canvas.parentElement) {
-      resizeObserver = new ResizeObserver(() => {
-          if(canvas && canvas.parentElement){
-            canvas.width = canvas.parentElement.clientWidth;
-            canvas.height = canvas.parentElement.clientHeight;
-          }
-      });
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    
+    const resizeObserver = new ResizeObserver(() => {
+      if (canvas && canvas.parentElement) {
+        canvas.width = canvas.parentElement.clientWidth;
+        canvas.height = canvas.parentElement.clientHeight;
+      }
+    });
+
+    if (canvas.parentElement) {
       resizeObserver.observe(canvas.parentElement);
     }
+
     return () => {
-        if(resizeObserver && canvas && canvas.parentElement) {
+        onPauseOrEnd(); // Stop animation on unmount
+        if (audioContextRef.current) {
+            audioContextRef.current.close().catch(console.error);
+        }
+        if (canvas && canvas.parentElement) {
             resizeObserver.unobserve(canvas.parentElement);
         }
-    };
-  }, []);
-
-  // Cleanup on unmount
-  useEffect(() => {
-    const audioContext = audioContextRef.current;
-    return () => {
-      onPauseOrEnd();
-      if (audioContext) {
-        audioContext.close();
-      }
     };
   }, []);
 
@@ -183,7 +172,7 @@ const AudioVisualizer: React.FC = () => {
             onPlay={onPlay} 
             onPause={onPauseOrEnd} 
             onEnded={onPauseOrEnd}
-            crossOrigin="anonymous"
+            crossOrigin="anonymous" // ** THE CRITICAL FIX **
         ></audio>
         <div>
           <Label htmlFor="audio-upload" className="sr-only">Upload Audio</Label>

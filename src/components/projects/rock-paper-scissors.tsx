@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useEffect } from 'react';
@@ -8,36 +9,17 @@ import { cn } from '@/lib/utils';
 import { Label } from '../ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
+import Image from 'next/image';
 
 type Move = 'rock' | 'paper' | 'scissors';
 type Difficulty = 'Normal' | 'Adaptive';
 
 const moves: Move[] = ['rock', 'paper', 'scissors'];
 
-const RockIcon = (props: React.SVGProps<SVGSVGElement>) => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    {...props}
-  >
-    <path d="M14.53 10.55a4.5 4.5 0 1 0-6.36-6.36l-1.07 1.07a5.5 5.5 0 0 0 7.78 7.78l1.07-1.07z" />
-    <path d="m9 11-4.04 4.04a2.83 2.83 0 0 0 4 4L13 15" />
-    <path d="M12.5 15.5 14 14" />
-    <path d="m15.5 12.5 1.5-1.5" />
-    <path d="M4 20h.01" />
-  </svg>
-);
-
-
 const moveIcons: Record<Move, React.ReactNode> = {
-  rock: <RockIcon className="h-10 w-10" />,
-  paper: <Hand className="h-10 w-10" />,
-  scissors: <Scissors className="h-10 w-10 -rotate-90" />,
+  rock: <Image src="/icons/rock.svg" alt="Rock" width={40} height={40} />,
+  paper: <Image src="/icons/paper.svg" alt="Paper" width={40} height={40} />,
+  scissors: <Image src="/icons/scissors.svg" alt="Scissors" width={40} height={40} className="-rotate-90" />,
 };
 
 const RockPaperScissors: React.FC = () => {

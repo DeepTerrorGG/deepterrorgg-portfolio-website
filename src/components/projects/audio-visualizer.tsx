@@ -14,12 +14,10 @@ const AudioVisualizer: React.FC = () => {
   const analyserRef = useRef<AnalyserNode | null>(null);
   const sourceRef = useRef<MediaElementAudioSourceNode | null>(null);
   const animationFrameRef = useRef<number | null>(null);
-  const isInitialized = useRef(false);
-
+  
   const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
 
-  // Draw function remains the same
   const draw = useCallback(() => {
     const analyser = analyserRef.current;
     const canvas = canvasRef.current;
@@ -27,6 +25,15 @@ const AudioVisualizer: React.FC = () => {
 
     const canvasCtx = canvas.getContext('2d');
     if (!canvasCtx) return;
+    
+    // Ensure canvas has a size.
+    if(canvas.width === 0 || canvas.height === 0) {
+      const parent = canvas.parentElement;
+      if(parent){
+        canvas.width = parent.clientWidth;
+        canvas.height = parent.clientHeight;
+      }
+    }
 
     const bufferLength = analyser.frequencyBinCount;
     const dataArray = new Uint8Array(bufferLength);
@@ -63,9 +70,10 @@ const AudioVisualizer: React.FC = () => {
 
     drawLoop();
   }, []);
-  
-  const setupAudioContext = useCallback(() => {
-    if (isInitialized.current) return;
+
+  const setupAudioContext = () => {
+    // Already setup
+    if (audioContextRef.current && sourceRef.current) return;
     if (!audioRef.current) return;
 
     try {
@@ -75,16 +83,17 @@ const AudioVisualizer: React.FC = () => {
       analyserRef.current = context.createAnalyser();
       analyserRef.current.fftSize = 2048;
 
-      sourceRef.current = context.createMediaElementSource(audioRef.current);
-      sourceRef.current.connect(analyserRef.current);
-      analyserRef.current.connect(context.destination);
-      
-      isInitialized.current = true;
+      // The source can only be created once per audio element
+      if (!sourceRef.current) {
+        sourceRef.current = context.createMediaElementSource(audioRef.current);
+        sourceRef.current.connect(analyserRef.current);
+        analyserRef.current.connect(context.destination);
+      }
     } catch (e) {
       console.error("Error setting up audio context:", e);
       setError('Web Audio API is not supported by this browser.');
     }
-  }, []);
+  };
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -92,28 +101,26 @@ const AudioVisualizer: React.FC = () => {
       if (animationFrameRef.current) {
         cancelAnimationFrame(animationFrameRef.current);
       }
-
+      
       const url = URL.createObjectURL(file);
       audioRef.current.src = url;
       audioRef.current.load();
       setError(null);
       
-      if (!isInitialized.current) {
-        setupAudioContext();
-      }
-
       toast({ title: 'Audio loaded!', description: 'Press play to start the visualization.' });
     }
   };
 
   const onPlay = () => {
-    if(!isInitialized.current) {
-        setupAudioContext();
+    if (!audioContextRef.current) {
+      setupAudioContext();
     }
     
+    // Resume context if it was suspended
     if (audioContextRef.current?.state === 'suspended') {
       audioContextRef.current.resume();
     }
+
     if (animationFrameRef.current) {
       cancelAnimationFrame(animationFrameRef.current);
     }
@@ -126,6 +133,16 @@ const AudioVisualizer: React.FC = () => {
       animationFrameRef.current = null;
     }
   };
+  
+   useEffect(() => {
+    // Cleanup on unmount
+    return () => {
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
+      }
+      audioContextRef.current?.close();
+    };
+  }, []);
 
   return (
     <div className="flex flex-col items-center justify-center w-full h-full bg-card p-4 sm:p-6 lg:p-8">

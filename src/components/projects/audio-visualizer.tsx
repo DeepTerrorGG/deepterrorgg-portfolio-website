@@ -1,7 +1,7 @@
 
 'use client';
 
-import React, { useRef, useState, useCallback } from 'react';
+import React, { useRef, useState, useCallback, useEffect } from 'react';
 import { AlertTriangle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Input } from '../ui/input';
@@ -14,10 +14,12 @@ const AudioVisualizer: React.FC = () => {
   const analyserRef = useRef<AnalyserNode | null>(null);
   const sourceRef = useRef<MediaElementAudioSourceNode | null>(null);
   const animationFrameRef = useRef<number | null>(null);
+  const isInitialized = useRef(false);
 
   const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
 
+  // Draw function remains the same
   const draw = useCallback(() => {
     const analyser = analyserRef.current;
     const canvas = canvasRef.current;
@@ -61,6 +63,28 @@ const AudioVisualizer: React.FC = () => {
 
     drawLoop();
   }, []);
+  
+  const setupAudioContext = useCallback(() => {
+    if (isInitialized.current) return;
+    if (!audioRef.current) return;
+
+    try {
+      const context = new (window.AudioContext || (window as any).webkitAudioContext)();
+      audioContextRef.current = context;
+      
+      analyserRef.current = context.createAnalyser();
+      analyserRef.current.fftSize = 2048;
+
+      sourceRef.current = context.createMediaElementSource(audioRef.current);
+      sourceRef.current.connect(analyserRef.current);
+      analyserRef.current.connect(context.destination);
+      
+      isInitialized.current = true;
+    } catch (e) {
+      console.error("Error setting up audio context:", e);
+      setError('Web Audio API is not supported by this browser.');
+    }
+  }, []);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -68,48 +92,25 @@ const AudioVisualizer: React.FC = () => {
       if (animationFrameRef.current) {
         cancelAnimationFrame(animationFrameRef.current);
       }
-      if (sourceRef.current) {
-        sourceRef.current.disconnect();
-      }
 
       const url = URL.createObjectURL(file);
       audioRef.current.src = url;
       audioRef.current.load();
       setError(null);
-
-      if (!audioContextRef.current) {
-        try {
-          const context = new (window.AudioContext || (window as any).webkitAudioContext)();
-          audioContextRef.current = context;
-        } catch (e) {
-          setError('Web Audio API is not supported by this browser.');
-          return;
-        }
+      
+      if (!isInitialized.current) {
+        setupAudioContext();
       }
 
-      if (audioContextRef.current) {
-        if (!sourceRef.current) {
-          try {
-            sourceRef.current = audioContextRef.current.createMediaElementSource(audioRef.current);
-          } catch(e) {
-             // This can happen if the audio element is already a source
-             console.warn("Could not create media element source:", e);
-             return;
-          }
-        }
-        if (!analyserRef.current) {
-          analyserRef.current = audioContextRef.current.createAnalyser();
-          analyserRef.current.fftSize = 2048;
-        }
-
-        sourceRef.current.connect(analyserRef.current);
-        analyserRef.current.connect(audioContextRef.current.destination);
-        toast({ title: 'Audio loaded!', description: 'Press play to start the visualization.' });
-      }
+      toast({ title: 'Audio loaded!', description: 'Press play to start the visualization.' });
     }
   };
 
   const onPlay = () => {
+    if(!isInitialized.current) {
+        setupAudioContext();
+    }
+    
     if (audioContextRef.current?.state === 'suspended') {
       audioContextRef.current.resume();
     }
@@ -138,7 +139,7 @@ const AudioVisualizer: React.FC = () => {
         </div>
       )}
       <div className="w-full max-w-2xl space-y-4">
-        <audio ref={audioRef} controls className="w-full" onPlay={onPlay} onPause={onPause} onEnded={onPause}></audio>
+        <audio ref={audioRef} controls className="w-full" onPlay={onPlay} onPause={onPause} onEnded={onPause} crossOrigin="anonymous"></audio>
         <div>
           <Label htmlFor="audio-upload" className="sr-only">Upload Audio</Label>
           <Input id="audio-upload" type="file" accept="audio/*" onChange={handleFileChange} className="w-full file:text-primary file:font-bold hover:file:cursor-pointer" />

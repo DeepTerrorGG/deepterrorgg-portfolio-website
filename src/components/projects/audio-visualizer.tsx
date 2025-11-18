@@ -12,95 +12,116 @@ const AudioVisualizer: React.FC = () => {
   const audioRef = useRef<HTMLAudioElement>(null);
   const audioContextRef = useRef<AudioContext | null>(null);
   const analyserRef = useRef<AnalyserNode | null>(null);
-  const sourceRef = useRef<MediaElementAudioSourceNode | null>(null);
-  const animationFrameRef = useRef<number | null>(null);
+  const sourceNodeRef = useRef<MediaElementAudioSourceNode | null>(null);
+  const animationFrameIdRef = useRef<number | null>(null);
   
   const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
 
+  // The main drawing function that runs on every frame
   const draw = useCallback(() => {
     const analyser = analyserRef.current;
     const canvas = canvasRef.current;
-    if (!analyser || !canvas) return;
+    const ctx = canvas?.getContext('2d');
 
-    const canvasCtx = canvas.getContext('2d');
-    if (!canvasCtx) return;
-    
-    // Ensure canvas has a size.
-    if(canvas.width === 0 || canvas.height === 0) {
-      const parent = canvas.parentElement;
-      if(parent){
-        canvas.width = parent.clientWidth;
-        canvas.height = parent.clientHeight;
+    if (!analyser || !canvas || !ctx) {
+      if (animationFrameIdRef.current) {
+        cancelAnimationFrame(animationFrameIdRef.current);
       }
+      return;
     }
 
     const bufferLength = analyser.frequencyBinCount;
     const dataArray = new Uint8Array(bufferLength);
 
-    const drawLoop = () => {
-      animationFrameRef.current = requestAnimationFrame(drawLoop);
-      analyser.getByteTimeDomainData(dataArray);
+    // Schedule the next frame
+    animationFrameIdRef.current = requestAnimationFrame(draw);
+    
+    // Get waveform data
+    analyser.getByteTimeDomainData(dataArray);
 
-      canvasCtx.fillStyle = 'hsl(var(--background))';
-      canvasCtx.fillRect(0, 0, canvas.width, canvas.height);
+    // Draw background
+    ctx.fillStyle = 'hsl(var(--background))';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      canvasCtx.lineWidth = 2;
-      canvasCtx.strokeStyle = 'hsl(var(--primary))';
-      canvasCtx.beginPath();
+    // Draw the waveform
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = 'hsl(var(--primary))';
+    ctx.beginPath();
 
-      const sliceWidth = canvas.width * 1.0 / bufferLength;
-      let x = 0;
+    const sliceWidth = canvas.width * 1.0 / bufferLength;
+    let x = 0;
 
-      for (let i = 0; i < bufferLength; i++) {
-        const v = dataArray[i] / 128.0;
-        const y = v * canvas.height / 2;
+    for (let i = 0; i < bufferLength; i++) {
+      const v = dataArray[i] / 128.0; // byte values are 0-255
+      const y = v * canvas.height / 2;
 
-        if (i === 0) {
-          canvasCtx.moveTo(x, y);
-        } else {
-          canvasCtx.lineTo(x, y);
-        }
-        x += sliceWidth;
+      if (i === 0) {
+        ctx.moveTo(x, y);
+      } else {
+        ctx.lineTo(x, y);
       }
+      x += sliceWidth;
+    }
 
-      canvasCtx.lineTo(canvas.width, canvas.height / 2);
-      canvasCtx.stroke();
-    };
-
-    drawLoop();
+    ctx.lineTo(canvas.width, canvas.height / 2);
+    ctx.stroke();
   }, []);
 
   const setupAudioContext = () => {
-    // Already setup
-    if (audioContextRef.current && sourceRef.current) return;
-    if (!audioRef.current) return;
+    if (audioContextRef.current || !audioRef.current) return;
 
     try {
-      const context = new (window.AudioContext || (window as any).webkitAudioContext)();
-      audioContextRef.current = context;
-      
-      analyserRef.current = context.createAnalyser();
-      analyserRef.current.fftSize = 2048;
+        const context = new (window.AudioContext || (window as any).webkitAudioContext)();
+        audioContextRef.current = context;
 
-      // The source can only be created once per audio element
-      if (!sourceRef.current) {
-        sourceRef.current = context.createMediaElementSource(audioRef.current);
-        sourceRef.current.connect(analyserRef.current);
-        analyserRef.current.connect(context.destination);
-      }
+        const analyser = context.createAnalyser();
+        analyser.fftSize = 2048;
+        analyserRef.current = analyser;
+        
+        // Create the source node from the audio element ONCE
+        const source = context.createMediaElementSource(audioRef.current);
+        sourceNodeRef.current = source;
+
+        // Connect the graph: source -> analyser -> speakers (destination)
+        source.connect(analyser);
+        analyser.connect(context.destination);
     } catch (e) {
-      console.error("Error setting up audio context:", e);
-      setError('Web Audio API is not supported by this browser.');
+        console.error("Error creating audio context:", e);
+        setError('Web Audio API is not supported by this browser.');
+    }
+  };
+
+  const onPlay = () => {
+    // Lazy initialization on first play
+    if (!audioContextRef.current) {
+      setupAudioContext();
+    }
+    
+    // Ensure context is running (important for some browsers)
+    if (audioContextRef.current && audioContextRef.current.state === 'suspended') {
+      audioContextRef.current.resume();
+    }
+    
+    // Start drawing loop
+    if (animationFrameIdRef.current) {
+      cancelAnimationFrame(animationFrameIdRef.current);
+    }
+    draw();
+  };
+
+  const onPauseOrEnd = () => {
+    // Stop drawing loop
+    if (animationFrameIdRef.current) {
+      cancelAnimationFrame(animationFrameIdRef.current);
+      animationFrameIdRef.current = null;
     }
   };
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file && audioRef.current) {
-      if (animationFrameRef.current) {
-        cancelAnimationFrame(animationFrameRef.current);
-      }
+      onPauseOrEnd(); // Stop any current visualization
       
       const url = URL.createObjectURL(file);
       audioRef.current.src = url;
@@ -110,44 +131,43 @@ const AudioVisualizer: React.FC = () => {
       toast({ title: 'Audio loaded!', description: 'Press play to start the visualization.' });
     }
   };
-
-  const onPlay = () => {
-    if (!audioContextRef.current) {
-      setupAudioContext();
-    }
-    
-    // Resume context if it was suspended
-    if (audioContextRef.current?.state === 'suspended') {
-      audioContextRef.current.resume();
-    }
-
-    if (animationFrameRef.current) {
-      cancelAnimationFrame(animationFrameRef.current);
-    }
-    draw();
-  };
-
-  const onPause = () => {
-    if (animationFrameRef.current) {
-      cancelAnimationFrame(animationFrameRef.current);
-      animationFrameRef.current = null;
-    }
-  };
   
+   // Handle canvas resizing
    useEffect(() => {
-    // Cleanup on unmount
+    const canvas = canvasRef.current;
+    let resizeObserver: ResizeObserver;
+
+    if(canvas && canvas.parentElement) {
+      resizeObserver = new ResizeObserver(() => {
+          if(canvas && canvas.parentElement){
+            canvas.width = canvas.parentElement.clientWidth;
+            canvas.height = canvas.parentElement.clientHeight;
+          }
+      });
+      resizeObserver.observe(canvas.parentElement);
+    }
     return () => {
-      if (animationFrameRef.current) {
-        cancelAnimationFrame(animationFrameRef.current);
+        if(resizeObserver && canvas && canvas.parentElement) {
+            resizeObserver.unobserve(canvas.parentElement);
+        }
+    };
+  }, []);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    const audioContext = audioContextRef.current;
+    return () => {
+      onPauseOrEnd();
+      if (audioContext) {
+        audioContext.close();
       }
-      audioContextRef.current?.close();
     };
   }, []);
 
   return (
     <div className="flex flex-col items-center justify-center w-full h-full bg-card p-4 sm:p-6 lg:p-8">
       <div className="w-full max-w-2xl aspect-video bg-background rounded-lg shadow-inner overflow-hidden mb-4">
-        <canvas ref={canvasRef} className="w-full h-full" width="1000" height="562" />
+        <canvas ref={canvasRef} className="w-full h-full" />
       </div>
       {error && (
         <div className="flex items-center gap-2 text-destructive mb-4">
@@ -156,7 +176,15 @@ const AudioVisualizer: React.FC = () => {
         </div>
       )}
       <div className="w-full max-w-2xl space-y-4">
-        <audio ref={audioRef} controls className="w-full" onPlay={onPlay} onPause={onPause} onEnded={onPause} crossOrigin="anonymous"></audio>
+        <audio 
+            ref={audioRef} 
+            controls 
+            className="w-full" 
+            onPlay={onPlay} 
+            onPause={onPauseOrEnd} 
+            onEnded={onPauseOrEnd}
+            crossOrigin="anonymous"
+        ></audio>
         <div>
           <Label htmlFor="audio-upload" className="sr-only">Upload Audio</Label>
           <Input id="audio-upload" type="file" accept="audio/*" onChange={handleFileChange} className="w-full file:text-primary file:font-bold hover:file:cursor-pointer" />

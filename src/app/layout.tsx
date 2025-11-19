@@ -47,9 +47,6 @@ export default function RootLayout({
             {children}
           </main>
           <Toaster />
-          <footer className="py-6 text-center text-sm text-muted-foreground/60 border-t">
-            © {new Date().getFullYear()} DeepTerrorGG. All Rights Reserved.
-          </footer>
         </FirebaseClientProvider>
       </body>
     </html>

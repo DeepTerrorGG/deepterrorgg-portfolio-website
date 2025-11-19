@@ -95,7 +95,8 @@ const ScrollingTechRow = ({ items, direction = 'left' }: { items: typeof technol
 
 export default function HomePage() {
   return (
-    <div className="flex flex-col min-h-screen bg-background">
+    <>
+    <div className="flex flex-col flex-grow bg-background">
       {/* Hero Section */}
       <AnimateOnScroll className="text-center h-[calc(100vh-80px)] min-h-[700px] flex flex-col justify-center items-center bg-grid-pattern relative">
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-background" />
@@ -193,5 +194,9 @@ export default function HomePage() {
         </div>
       </SectionContainer>
     </div>
+    <footer className="py-6 text-center text-sm text-muted-foreground/60 border-t">
+      © {new Date().getFullYear()} DeepTerrorGG. All Rights Reserved.
+    </footer>
+    </>
   );
 }

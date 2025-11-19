@@ -7,11 +7,12 @@ import SectionContainer from '@/components/ui/section-container';
 import { motion } from 'framer-motion';
 import AnimateOnScroll from '@/components/ui/animate-on-scroll';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, Mail } from 'lucide-react';
+import { ArrowRight, Mail, Instagram, User } from 'lucide-react';
 import ProjectShowcase from '@/components/home/project-showcase';
 import FractalRenderer from '@/components/projects/fractal-renderer';
 import AIImageGenerator from '@/components/projects/ai-image-generator';
 import KanbanBoard from '@/components/projects/kanban-board';
+import SplineModel from '@/components/home/spline-model';
 
 const featuredProjects = [
     {
@@ -94,6 +95,12 @@ const ScrollingTechRow = ({ items, direction = 'left' }: { items: typeof technol
 
 
 export default function HomePage() {
+  const socialLinks = [
+    { name: 'Instagram', icon: <Instagram className="h-6 w-6" />, href: 'https://www.instagram.com/deep_terror_gg/?next=%2F' },
+    { name: 'Steam', icon: <User className="h-6 w-6" />, href: 'https://steamcommunity.com/id/DeepTerrorGG/' },
+    { name: 'TikTok', icon: <svg className="h-6 w-6" viewBox="0 0 24 24" fill="currentColor"><path d="M12.21,5.36a1.27,1.27,0,0,1,1.27-1.27h3.33a1.27,1.27,0,0,1,1.27,1.27v10a1.27,1.27,0,0,1-1.27,1.27H13.48a1.27,1.27,0,0,1-1.27-1.27ZM10.94,5.36a1.27,1.27,0,0,0-1.27-1.27H6.34A1.27,1.27,0,0,0,5.07,5.36V6.63a1.27,1.27,0,0,0,1.27,1.27h3.33a1.27,1.27,0,0,0,1.27-1.27Z"/></svg>, href: 'https://www.tiktok.com/@deep_terror_gg' },
+  ];
+
   return (
     <>
     <div className="flex flex-col flex-grow bg-background">
@@ -161,6 +168,17 @@ export default function HomePage() {
         </div>
         <ProjectShowcase projects={featuredProjects} />
       </SectionContainer>
+      
+      {/* Spline Model Section */}
+      <SectionContainer id="spline-test">
+        <div className="text-center mb-12">
+          <h2 className="text-3xl md:text-4xl font-bold text-foreground">3D Model Showcase</h2>
+          <p className="text-muted-foreground mt-3 max-w-2xl mx-auto">An interactive 3D model embedded from Spline.</p>
+        </div>
+        <div className="relative h-[500px] w-full max-w-4xl mx-auto rounded-lg overflow-hidden border">
+           <SplineModel />
+        </div>
+      </SectionContainer>
 
        {/* Skills Section */}
       <SectionContainer id="skills">
@@ -194,8 +212,28 @@ export default function HomePage() {
         </div>
       </SectionContainer>
     </div>
-    <footer className="py-6 text-center text-sm text-muted-foreground/60 border-t">
-      © {new Date().getFullYear()} DeepTerrorGG. All Rights Reserved.
+    <footer className="border-t border-border/30 bg-background">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
+          <p className="text-sm text-muted-foreground">
+            © {new Date().getFullYear()} DeepTerrorGG. All Rights Reserved.
+          </p>
+          <div className="flex items-center gap-4">
+            {socialLinks.map((social) => (
+              <Link
+                key={social.name}
+                href={social.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-muted-foreground hover:text-primary transition-colors"
+                aria-label={social.name}
+              >
+                {social.icon}
+              </Link>
+            ))}
+          </div>
+        </div>
+      </div>
     </footer>
     </>
   );

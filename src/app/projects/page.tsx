@@ -34,7 +34,7 @@ const GithubProfileFinder = dynamic(() => import('@/components/projects/github-p
 const BeatMaker = dynamic(() => import('@/components/projects/beat-maker'), { loading: () => <ProjectLoader /> });
 const MarkdownEditor = dynamic(() => import('@/components/projects/markdown-editor'), { loading: () => <ProjectLoader /> });
 const WeatherApp = dynamic(() => import('@/components/projects/weather-app'), { loading: () => <ProjectLoader /> });
-const QuizApp = dynamic(() => import('@/components/projects/quiz-app'), { loading: () => <ProjectLoader /> });
+const AIVideoGenerator = dynamic(() => import('@/components/projects/ai-video-generator'), { loading: () => <ProjectLoader /> });
 const StockTracker = dynamic(() => import('@/components/projects/stock-tracker'), { loading: () => <ProjectLoader /> });
 const Spreadsheet = dynamic(() => import('@/components/projects/spreadsheet'), { loading: () => <ProjectLoader /> });
 const AIChatbot = dynamic(() => import('@/components/projects/ai-chatbot'), { loading: () => <ProjectLoader /> });
@@ -67,7 +67,7 @@ interface Project {
   description: string;
   longDescription?: string;
   personalNote: string;
-  difficulty: 'Easy' | 'Medium' | 'Hard' | 'Advanced' | 'Community' | 'AI';
+  difficulty: 'Easy' | 'Medium' | 'Hard' | 'Advanced' | 'AI' | 'Community';
   technologies: Technology[];
   component?: React.ReactNode;
   externalLink?: string;
@@ -247,19 +247,20 @@ const projectsData: Project[] = [
     renderImage: true,
   },
   {
-    id: 'quiz-app',
-    title: 'AI-Powered Quiz App',
-    imageUrls: ['https://i.imgur.com/M6L1kQc.png'],
-    imageAlt: 'Interactive quiz application interface',
-    imageHint: 'quiz game multiple choice',
-    description: 'Generate a dynamic quiz on any topic using AI, with selectable difficulty and question types.',
-    personalNote: 'This was a fun evolution of a standard quiz app. Instead of hard-coding questions, I used AI to generate them on the fly. It taught me how to structure prompts to get reliable, formatted data back from an LLM.',
+    id: 'ai-video-generator',
+    title: 'AI Video Generator',
+    imageUrls: ['/placeholder.png'],
+    imageAlt: 'AI video generator interface',
+    imageHint: 'ai video generator app',
+    description: 'Generate short video clips from text prompts using the Veo model.',
+    personalNote: 'This was an exciting project to explore the cutting-edge of generative AI. The process is asynchronous and can take time, which presented interesting UI/UX challenges for managing loading and progress states.',
     difficulty: 'AI',
-    component: <QuizApp />,
+    component: <AIVideoGenerator />,
     technologies: [
         { name: 'React', iconSrc: '/icons/react.svg' },
         { name: 'Next.js', iconSrc: '/icons/nextjs.svg' },
         { name: 'Genkit', iconSrc: '/icons/genkit.svg' },
+        { name: 'Google Veo', iconSrc: '/icons/gemini.svg'}
     ],
     renderImage: true,
   },
@@ -718,7 +719,7 @@ export default function ProjectsPage() {
   };
 
   return (
-    <div className="flex-grow flex flex-col">
+    <div className="flex-grow flex flex-col h-full">
       {/* Mobile View: Full-screen list, dialog for details */}
       <div className="md:hidden flex flex-col h-full">
         <PageTitle subtitle="A selection of my creative and technical endeavors." className="!pt-6 !mb-6">
@@ -763,15 +764,15 @@ export default function ProjectsPage() {
       </div>
 
       {/* Desktop View: Two-column layout */}
-      <div className="hidden md:grid md:grid-cols-12 flex-grow">
+      <div className="hidden md:grid md:grid-cols-12 flex-grow h-full">
         {/* Left Column: Project List */}
-        <div className="md:col-span-4 lg:col-span-3 border-r border-border flex flex-col">
+        <div className="md:col-span-4 lg:col-span-3 border-r border-border flex flex-col h-full">
           <div className="p-6 border-b shrink-0">
             <PageTitle subtitle="A selection of my creative and technical endeavors." className="text-left !mb-0 !pt-0">
               My Projects
             </PageTitle>
           </div>
-          <ScrollArea className="flex-1">
+          <ScrollArea className="flex-1 min-h-0">
             <ul className="space-y-1 p-4">
               {allProjects.map((project) => (
                 <li key={project.id}>
@@ -794,11 +795,11 @@ export default function ProjectsPage() {
         </div>
 
         {/* Right Column: Project Details */}
-        <div className="md:col-span-8 lg:col-span-9 flex flex-col">
-          <ScrollArea className="flex-1 w-full">
+        <div className="md:col-span-8 lg:col-span-9 flex flex-col h-full">
+          <ScrollArea className="flex-1 w-full h-full">
             <div className="flex flex-col h-full animate-fade-in">
               {selectedProject.component ? (
-                <div className="flex-grow flex flex-col">
+                <div className="flex-grow flex flex-col h-full">
                   <Suspense fallback={<ProjectLoader />}>
                     <div className="flex-grow">{selectedProject.component}</div>
                   </Suspense>

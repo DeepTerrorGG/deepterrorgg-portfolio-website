@@ -1,4 +1,3 @@
-
 'use client';
 
 import Link from 'next/link';
@@ -11,8 +10,17 @@ import { ArrowRight, Mail, Instagram, User } from 'lucide-react';
 import ProjectShowcase from '@/components/home/project-showcase';
 import FractalRenderer from '@/components/projects/fractal-renderer';
 import AIImageGenerator from '@/components/projects/ai-image-generator';
-import KanbanBoard from '@/components/projects/kanban-board';
-import SplineModel from '@/components/home/spline-model';
+import dynamic from 'next/dynamic';
+import { useRef } from 'react';
+
+const SplineModel = dynamic(
+  () => import('@/components/home/spline-model'),
+  { 
+    ssr: false,
+    loading: () => <div className="flex items-center justify-center h-full w-full bg-muted/20" />
+  }
+);
+
 
 const featuredProjects = [
     {
@@ -100,7 +108,7 @@ export default function HomePage() {
     { name: 'Steam', icon: <User className="h-6 w-6" />, href: 'https://steamcommunity.com/id/DeepTerrorGG/' },
     { name: 'TikTok', icon: <svg className="h-6 w-6" viewBox="0 0 24 24" fill="currentColor"><path d="M12.21,5.36a1.27,1.27,0,0,1,1.27-1.27h3.33a1.27,1.27,0,0,1,1.27,1.27v10a1.27,1.27,0,0,1-1.27,1.27H13.48a1.27,1.27,0,0,1-1.27-1.27ZM10.94,5.36a1.27,1.27,0,0,0-1.27-1.27H6.34A1.27,1.27,0,0,0,5.07,5.36V6.63a1.27,1.27,0,0,0,1.27,1.27h3.33a1.27,1.27,0,0,0,1.27-1.27Z"/></svg>, href: 'https://www.tiktok.com/@deep_terror_gg' },
   ];
-
+  
   return (
     <>
     <div className="flex flex-col flex-grow bg-background">
@@ -170,17 +178,15 @@ export default function HomePage() {
       </SectionContainer>
       
       {/* Spline Model Section */}
-      <AnimateOnScroll>
-        <SectionContainer id="spline-test">
-          <div className="text-center mb-12">
+      <SectionContainer id="spline-test">
+            <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold text-foreground">My Game Stack</h2>
             <p className="text-muted-foreground mt-3 max-w-2xl mx-auto">An interactive 3D model representing the games I enjoy.</p>
-          </div>
-          <div className="relative h-[500px] md:h-[700px] w-full mx-auto rounded-lg overflow-hidden">
-            <SplineModel />
-          </div>
-        </SectionContainer>
-      </AnimateOnScroll>
+            </div>
+            <div className="relative h-[500px] md:h-[700px] w-full mx-auto rounded-lg overflow-hidden">
+                <SplineModel />
+            </div>
+      </SectionContainer>
 
        {/* Skills Section */}
       <SectionContainer id="skills">

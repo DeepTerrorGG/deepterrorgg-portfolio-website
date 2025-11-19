@@ -275,8 +275,7 @@ export default function ArtworksPage() {
                               alt={artwork.alt}
                               fill
                               sizes="(max-width: 639px) 90vw, (max-width: 767px) 80vw, (max-width: 1023px) 75vw, 320px"
-                              className="object-contain transition-transform duration-700 ease-in-out opacity-0 animate-image-fade-in"
-                              style={{ animationFillMode: 'forwards' }}
+                              className="object-contain transition-transform duration-700 ease-in-out"
                               data-ai-hint={artwork.hint}
                               unoptimized={artwork.src.includes('imgur.com')}
                               priority={['1', '2', '3'].includes(artwork.id)}
@@ -333,8 +332,7 @@ export default function ArtworksPage() {
                                 alt={artwork.alt}
                                 fill
                                 sizes="(min-width: 1536px) calc(20vw - 16px), (min-width: 1280px) calc(25vw - 16px), (min-width: 1024px) calc(33.33vw - 16px), 100vw"
-                                className="object-contain transition-transform duration-700 ease-in-out opacity-0 animate-image-fade-in"
-                                style={{ animationFillMode: 'forwards' }}
+                                className="object-contain transition-transform duration-700 ease-in-out"
                                 data-ai-hint={artwork.hint}
                                 unoptimized={artwork.src.includes('imgur.com')}
                                 priority={index <= 2} 
@@ -388,7 +386,7 @@ export default function ArtworksPage() {
             hideDefaultClose={true}
             className="p-0 bg-card border-border shadow-2xl rounded-lg flex flex-col items-center justify-center w-auto max-w-[95vw] sm:max-w-lg md:max-w-xl lg:max-w-3xl xl:max-w-4xl h-auto max-h-[95vh] overflow-hidden data-[state=open]:animate-fade-in-slow data-[state=closed]:animate-fade-out-slow"
           >
-             <DialogTitle className="sr-only">{selectedArtwork.title}</DialogTitle>
+            <DialogTitle className="sr-only">{selectedArtwork.title}</DialogTitle>
             <div className="p-2 md:p-4 flex-grow overflow-hidden flex items-center justify-center w-full h-full">
               <Image
                 src={selectedArtwork.src}
@@ -406,16 +404,6 @@ export default function ArtworksPage() {
         </Dialog>
       )}
        <style jsx global>{`
-        @keyframes image-fade-in {
-          from { opacity: 0; background-color: hsl(var(--card)); }
-          to { opacity: 1; background-color: transparent; }
-        }
-        .animate-image-fade-in {
-          animation-name: image-fade-in;
-          animation-duration: 1.2s;
-          animation-timing-function: cubic-bezier(0.25, 0.46, 0.45, 0.94);
-          animation-fill-mode: forwards;
-        }
         @keyframes fade-in-slow {
           from { opacity: 0; transform: scale(0.95) translateY(10px); }
           to { opacity: 1; transform: scale(1) translateY(0); }

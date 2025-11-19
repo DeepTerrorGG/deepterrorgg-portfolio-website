@@ -13,7 +13,7 @@ export default function SplineModel() {
 
   return (
     <Spline
-      scene="https://prod.spline.design/N-k5Fdzo0rHCcK-3/scene.splinecode"
+      scene="https://prod.spline.design/wl4X9XbiCMDi6bUv/scene.splinecode"
       onLoad={onLoad}
     />
   );

@@ -170,15 +170,17 @@ export default function HomePage() {
       </SectionContainer>
       
       {/* Spline Model Section */}
-      <SectionContainer id="spline-test">
-        <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-bold text-foreground">3D Model Showcase</h2>
-          <p className="text-muted-foreground mt-3 max-w-2xl mx-auto">An interactive 3D model embedded from Spline.</p>
-        </div>
-        <div className="relative h-[500px] w-full max-w-4xl mx-auto rounded-lg overflow-hidden border">
-           <SplineModel />
-        </div>
-      </SectionContainer>
+      <AnimateOnScroll>
+        <SectionContainer id="spline-test">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold text-foreground">3D Model Showcase</h2>
+            <p className="text-muted-foreground mt-3 max-w-2xl mx-auto">An interactive 3D model embedded from Spline.</p>
+          </div>
+          <div className="relative h-[500px] w-full max-w-4xl mx-auto rounded-lg overflow-hidden border">
+            <SplineModel />
+          </div>
+        </SectionContainer>
+      </AnimateOnScroll>
 
        {/* Skills Section */}
       <SectionContainer id="skills">

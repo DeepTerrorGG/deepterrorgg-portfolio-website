@@ -17,7 +17,6 @@ const SplineModel = dynamic(
   () => import('@/components/home/spline-model'),
   { 
     ssr: false,
-    loading: () => <div className="flex items-center justify-center h-full w-full bg-muted/20" />
   }
 );
 
@@ -183,7 +182,7 @@ export default function HomePage() {
             <h2 className="text-3xl md:text-4xl font-bold text-foreground">My Game Stack</h2>
             <p className="text-muted-foreground mt-3 max-w-2xl mx-auto">An interactive 3D model representing the games I enjoy.</p>
             </div>
-            <div className="relative h-[500px] md:h-[700px] w-full mx-auto rounded-lg overflow-hidden">
+            <div className="relative h-[500px] md:h-[700px] w-full mx-auto rounded-lg overflow-hidden bg-muted/20 min-h-[500px]">
                 <SplineModel />
             </div>
       </SectionContainer>

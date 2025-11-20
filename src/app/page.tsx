@@ -7,12 +7,11 @@ import SectionContainer from '@/components/ui/section-container';
 import { motion } from 'framer-motion';
 import AnimateOnScroll from '@/components/ui/animate-on-scroll';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, Mail, Instagram, User } from 'lucide-react';
+import { ArrowRight, Mail, User, ArrowUp, Compass } from 'lucide-react';
 import ProjectShowcase from '@/components/home/project-showcase';
 import FractalRenderer from '@/components/projects/fractal-renderer';
 import AIImageGenerator from '@/components/projects/ai-image-generator';
 import dynamic from 'next/dynamic';
-import { useRef } from 'react';
 import SplineShowcase from '@/components/home/spline-showcase';
 
 const SplineModel = dynamic(
@@ -81,10 +80,10 @@ const technologies = [
 ];
 
 const splineModels = [
-    { url: 'https://prod.spline.design/FfjWOhoEErL5Sia2/scene.splinecode', title: 'Cyberpunk Room' },
-    { url: 'https://prod.spline.design/Oy8cFTtrLNL36Qll/scene.splinecode', title: 'Cozy Living Room' },
-    { url: 'https://prod.spline.design/qC2WtYn7OhOcS8L0/scene.splinecode', title: 'Abstract Shapes' },
-    { url: 'https://prod.spline.design/3SU82luCTBxFgmZk/scene.splinecode', title: 'Gaming Setup' },
+    { url: 'https://prod.spline.design/FfjWOhoEErL5Sia2/scene.splinecode', title: 'Cyberpunk Room', scrollable: false },
+    { url: 'https://prod.spline.design/Oy8cFTtrLNL36Qll/scene.splinecode', title: 'Cozy Living Room', scrollable: true },
+    { url: 'https://prod.spline.design/qC2WtYn7OhOcS8L0/scene.splinecode', title: 'Abstract Shapes', scrollable: true },
+    { url: 'https://prod.spline.design/3SU82luCTBxFgmZk/scene.splinecode', title: 'Gaming Setup', scrollable: false },
 ];
 
 const ScrollingTechRow = ({ items, direction = 'left' }: { items: typeof technologies, direction?: 'left' | 'right' }) => (
@@ -112,155 +111,151 @@ const ScrollingTechRow = ({ items, direction = 'left' }: { items: typeof technol
 
 
 export default function HomePage() {
-  const socialLinks = [
-    { name: 'Instagram', icon: <Instagram className="h-6 w-6" />, href: 'https://www.instagram.com/deep_terror_gg/?next=%2F' },
-    { name: 'Steam', icon: <User className="h-6 w-6" />, href: 'https://steamcommunity.com/id/DeepTerrorGG/' },
-    { name: 'TikTok', icon: <svg className="h-6 w-6" viewBox="0 0 24 24" fill="currentColor"><path d="M12.21,5.36a1.27,1.27,0,0,1,1.27-1.27h3.33a1.27,1.27,0,0,1,1.27,1.27v10a1.27,1.27,0,0,1-1.27,1.27H13.48a1.27,1.27,0,0,1-1.27-1.27ZM10.94,5.36a1.27,1.27,0,0,0-1.27-1.27H6.34A1.27,1.27,0,0,0,5.07,5.36V6.63a1.27,1.27,0,0,0,1.27,1.27h3.33a1.27,1.27,0,0,0,1.27-1.27Z"/></svg>, href: 'https://www.tiktok.com/@deep_terror_gg' },
+  const footerLinks = [
+    { name: 'Contact', icon: <Mail className="h-5 w-5" />, href: '/contact' },
+    { name: 'About', icon: <User className="h-5 w-5" />, href: '/about' },
+    { name: 'Back to Top', icon: <ArrowUp className="h-5 w-5" />, action: () => window.scrollTo({ top: 0, behavior: 'smooth' }) },
   ];
   
   return (
     <>
-    <div className="flex flex-col flex-grow bg-background">
-      {/* Hero Section */}
-      <AnimateOnScroll className="text-center h-[calc(100vh-80px)] min-h-[700px] flex flex-col justify-center items-center bg-grid-pattern relative">
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-background" />
-        <div className="z-10">
-          <motion.div
-            className="relative mb-8"
-            initial={{ opacity: 0, scale: 0.8, y: 20 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.2, ease: [0.25, 1, 0.5, 1] }}
-          >
-            <Image
-              src="https://i.imgur.com/TsFpBse.png"
-              alt="User avatar"
-              width={160}
-              height={160}
-              className="rounded-full border-4 border-primary shadow-xl object-cover mx-auto filter saturate-125"
-              data-ai-hint="avatar illustration"
-              priority
-            />
-          </motion.div>
-          <motion.h1
-            className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-foreground mb-6 tracking-tighter"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.4, ease: [0.25, 1, 0.5, 1] }}
-          >
-            AI/Software Engineer
-          </motion.h1>
-          <motion.p
-            className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto mb-10"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.6, ease: [0.25, 1, 0.5, 1] }}
-          >
-            Exploring the intersection of code, emotion, and imagination. I build web applications and create digital art that tells a story.
-          </motion.p>
-          <motion.div
-            className="flex flex-wrap justify-center gap-4"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.8, ease: [0.25, 1, 0.5, 1] }}
-          >
-            <Button asChild size="lg">
-              <Link href="/projects">
-                View My Work <ArrowRight className="ml-2 h-5 w-5" />
-              </Link>
-            </Button>
-            <Button asChild variant="outline" size="lg">
-              <Link href="/contact">
-                Get In Touch <Mail className="ml-2 h-5 w-5" />
-              </Link>
-            </Button>
-          </motion.div>
-        </div>
-      </AnimateOnScroll>
-      
-      {/* Featured Projects Section */}
-      <SectionContainer id="featured-work" className="!py-24 md:!py-32">
-        <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-4xl font-bold text-foreground">Featured Projects</h2>
-          <p className="text-muted-foreground mt-3 max-w-2xl mx-auto">A curated selection of my projects, showcasing a blend of technical skill and creative vision.</p>
-        </div>
-        <ProjectShowcase projects={featuredProjects} />
-      </SectionContainer>
-      
-      {/* Old Spline Model Section - now replaced by showcase */}
-      <SectionContainer id="spline-test">
-            <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground">My Game Stack</h2>
-            <p className="text-muted-foreground mt-3 max-w-2xl mx-auto">An interactive 3D model representing the games I enjoy.</p>
-            </div>
-            <div className="relative h-[500px] md:h-[700px] w-full mx-auto rounded-lg overflow-hidden bg-muted/20 min-h-[500px]">
-                <SplineModel sceneUrl="https://prod.spline.design/wl4X9XbiCMDi6bUv/scene.splinecode" />
-            </div>
-      </SectionContainer>
-
-       {/* Skills Section */}
-      <SectionContainer id="skills">
-         <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-bold text-foreground">Skills & Expertise</h2>
-          <p className="text-muted-foreground mt-3 max-w-2xl mx-auto">The tools and technologies I use to bring ideas to life.</p>
-        </div>
-        <div className="space-y-8">
-            <ScrollingTechRow items={technologies.slice(0, Math.ceil(technologies.length / 2))} />
-            <ScrollingTechRow items={technologies.slice(Math.ceil(technologies.length / 2))} direction="right" />
-        </div>
-        <div className="text-center mt-12">
-            <Button asChild size="lg">
-              <Link href="/about">
-                View All Skills <ArrowRight className="ml-2 h-4 w-4" />
-              </Link>
-            </Button>
+      <div className="flex flex-col flex-grow bg-background">
+        {/* Hero Section */}
+        <AnimateOnScroll className="text-center h-[calc(100vh-80px)] min-h-[700px] flex flex-col justify-center items-center bg-grid-pattern relative">
+          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-background" />
+          <div className="z-10">
+            <motion.div
+              className="relative mb-8"
+              initial={{ opacity: 0, scale: 0.8, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              transition={{ duration: 0.7, delay: 0.2, ease: [0.25, 1, 0.5, 1] }}
+            >
+              <Image
+                src="https://i.imgur.com/TsFpBse.png"
+                alt="User avatar"
+                width={160}
+                height={160}
+                className="rounded-full border-4 border-primary shadow-xl object-cover mx-auto filter saturate-125"
+                data-ai-hint="avatar illustration"
+                priority
+              />
+            </motion.div>
+            <motion.h1
+              className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-foreground mb-6 tracking-tighter"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7, delay: 0.4, ease: [0.25, 1, 0.5, 1] }}
+            >
+              AI/Software Engineer
+            </motion.h1>
+            <motion.p
+              className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto mb-10"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7, delay: 0.6, ease: [0.25, 1, 0.5, 1] }}
+            >
+              Exploring the intersection of code, emotion, and imagination. I build web applications and create digital art that tells a story.
+            </motion.p>
+            <motion.div
+              className="flex flex-wrap justify-center gap-4"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7, delay: 0.8, ease: [0.25, 1, 0.5, 1] }}
+            >
+              <Button asChild size="lg">
+                <Link href="/projects">
+                  View My Work <ArrowRight className="ml-2 h-5 w-5" />
+                </Link>
+              </Button>
+              <Button asChild variant="outline" size="lg">
+                <Link href="/contact">
+                  Get In Touch <Mail className="ml-2 h-5 w-5" />
+                </Link>
+              </Button>
+            </motion.div>
           </div>
-      </SectionContainer>
-
-      {/* 3D Model Showcase */}
-       <SectionContainer id="spline-showcase">
-        <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-bold text-foreground">3D Model Showcase</h2>
-          <p className="text-muted-foreground mt-3 max-w-2xl mx-auto">A collection of my 3D creations. Use the arrows to navigate.</p>
-        </div>
-        <SplineShowcase models={splineModels} />
-      </SectionContainer>
-      
-      {/* Call to Action Section */}
-      <SectionContainer id="contact-cta">
-        <div className="text-center p-8 md:p-12">
-           <h2 className="text-3xl md:text-4xl font-bold text-primary">Have a Project in Mind?</h2>
-           <p className="text-muted-foreground mt-3 max-w-xl mx-auto">I'm always open to discussing new projects, creative ideas, or opportunities to be part of an ambitious vision. Let's create something amazing together.</p>
-            <Button asChild size="lg" className="mt-8">
-              <Link href="/contact">
-                Contact Me <Mail className="ml-2 h-5 w-5" />
-              </Link>
-            </Button>
-        </div>
-      </SectionContainer>
-    </div>
-    <footer className="border-t border-border/30 bg-background">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
-          <p className="text-sm text-muted-foreground">
-            © {new Date().getFullYear()} DeepTerrorGG. All Rights Reserved.
-          </p>
-          <div className="flex items-center gap-4">
-            {socialLinks.map((social) => (
-              <Link
-                key={social.name}
-                href={social.href}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-muted-foreground hover:text-primary transition-colors"
-                aria-label={social.name}
-              >
-                {social.icon}
-              </Link>
-            ))}
+        </AnimateOnScroll>
+        
+        {/* Featured Projects Section */}
+        <SectionContainer id="featured-work" className="!py-24 md:!py-32">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-4xl font-bold text-foreground">Featured Projects</h2>
+            <p className="text-muted-foreground mt-3 max-w-2xl mx-auto">A curated selection of my projects, showcasing a blend of technical skill and creative vision.</p>
           </div>
-        </div>
+          <ProjectShowcase projects={featuredProjects} />
+        </SectionContainer>
+        
+        {/* Old Spline Model Section - now replaced by showcase */}
+        <SectionContainer id="spline-test">
+              <div className="text-center mb-12">
+              <h2 className="text-3xl md:text-4xl font-bold text-foreground">My Game Stack</h2>
+              <p className="text-muted-foreground mt-3 max-w-2xl mx-auto">An interactive 3D model representing the games I enjoy.</p>
+              </div>
+              <div className="relative h-[500px] md:h-[700px] w-full mx-auto rounded-lg overflow-hidden bg-muted/20 min-h-[500px]">
+                  <SplineModel sceneUrl="https://prod.spline.design/wl4X9XbiCMDi6bUv/scene.splinecode" />
+              </div>
+        </SectionContainer>
+
+         {/* Skills Section */}
+        <SectionContainer id="skills">
+           <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold text-foreground">Skills & Expertise</h2>
+            <p className="text-muted-foreground mt-3 max-w-2xl mx-auto">The tools and technologies I use to bring ideas to life.</p>
+          </div>
+          <div className="space-y-8">
+              <ScrollingTechRow items={technologies.slice(0, Math.ceil(technologies.length / 2))} />
+              <ScrollingTechRow items={technologies.slice(Math.ceil(technologies.length / 2))} direction="right" />
+          </div>
+          <div className="text-center mt-12">
+              <Button asChild size="lg">
+                <Link href="/about">
+                  View All Skills <ArrowRight className="ml-2 h-4 w-4" />
+                </Link>
+              </Button>
+            </div>
+        </SectionContainer>
+
+        {/* 3D Model Showcase */}
+         <SectionContainer id="spline-showcase">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold text-foreground">3D Model Showcase</h2>
+            <p className="text-muted-foreground mt-3 max-w-2xl mx-auto">A collection of my 3D creations. Use the arrows to navigate.</p>
+          </div>
+          <SplineShowcase models={splineModels} />
+        </SectionContainer>
+        
+        {/* Call to Action Section */}
+        <SectionContainer id="contact-cta">
+          <div className="text-center p-8 md:p-12">
+             <h2 className="text-3xl md:text-4xl font-bold text-primary">Have a Project in Mind?</h2>
+             <p className="text-muted-foreground mt-3 max-w-xl mx-auto">I'm always open to discussing new projects, creative ideas, or opportunities to be part of an ambitious vision. Let's create something amazing together.</p>
+              <Button asChild size="lg" className="mt-8">
+                <Link href="/contact">
+                  Contact Me <Mail className="ml-2 h-5 w-5" />
+                </Link>
+              </Button>
+          </div>
+        </SectionContainer>
       </div>
-    </footer>
+      <footer className="py-16 bg-background">
+        <div className="container mx-auto px-4 text-center">
+          <h2 className="text-2xl font-bold text-foreground mb-4">You've reached the edge of this world.</h2>
+          <p className="text-muted-foreground mb-8">What will you do now?</p>
+          <div className="flex justify-center gap-4">
+            <Button variant="outline" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
+              <ArrowUp className="mr-2 h-4 w-4" /> Return to Top
+            </Button>
+            <Button asChild>
+              <Link href="/projects">
+                <Compass className="mr-2 h-4 w-4" /> Explore More
+              </Link>
+            </Button>
+          </div>
+          <p className="text-xs text-muted-foreground mt-12">
+            &copy; {new Date().getFullYear()} DeepTerrorGG. All Rights Reserved.
+          </p>
+        </div>
+      </footer>
     </>
   );
 }

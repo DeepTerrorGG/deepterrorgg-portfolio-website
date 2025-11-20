@@ -4,8 +4,7 @@ import { Geist, Geist_Mono } from 'next/font/google';
 import './globals.css';
 import Header from '@/components/layout/header';
 import { cn } from '@/lib/utils';
-import { FirebaseClientProvider } from '@/firebase/client-provider';
-import { Toaster } from '@/components/ui/toaster';
+import { Providers } from './providers';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -41,13 +40,12 @@ export default function RootLayout({
         className="antialiased text-foreground font-sans flex flex-col min-h-screen"
         suppressHydrationWarning={true}
       >
-        <FirebaseClientProvider>
+        <Providers>
           <Header />
           <main className="flex-grow flex flex-col z-0 pt-16 md:pt-20">
             {children}
           </main>
-          <Toaster />
-        </FirebaseClientProvider>
+        </Providers>
       </body>
     </html>
   );

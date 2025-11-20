@@ -1,3 +1,4 @@
+
 // src/app/artworks/page.tsx
 'use client';
 
@@ -115,8 +116,6 @@ export default function ArtworksPage() {
   const [apiMobile, setApiMobile] = useState<CarouselApi>();
   const [apiDesktop, setApiDesktop] = useState<CarouselApi>();
   const [activeIndexDesktop, setActiveIndexDesktop] = useState(0);
-  const [scrollSnapsDesktop, setScrollSnapsDesktop] = useState<number[]>([]);
-
 
   const autoplayPluginMobile = useRef(
     Autoplay({ delay: 3000, stopOnInteraction: true, stopOnMouseEnter: true })
@@ -152,22 +151,14 @@ export default function ArtworksPage() {
     if (!apiDesktop) {
       return;
     }
-    setScrollSnapsDesktop(apiDesktop.scrollSnapList());
     setActiveIndexDesktop(apiDesktop.selectedScrollSnap());
-
     const onSelect = () => {
       setActiveIndexDesktop(apiDesktop.selectedScrollSnap());
     };
-    const onReInit = () => {
-        setScrollSnapsDesktop(apiDesktop.scrollSnapList());
-        setActiveIndexDesktop(apiDesktop.selectedScrollSnap());
-    }
 
     apiDesktop.on('select', onSelect);
-    apiDesktop.on('reInit', onReInit);
     return () => {
       apiDesktop.off('select', onSelect);
-      apiDesktop.off('reInit', onReInit);
     };
   }, [apiDesktop]);
 
@@ -198,7 +189,6 @@ export default function ArtworksPage() {
       setSelectedArtwork(null);
     }, 500);
   };
-
 
   return (
     <div className="w-full flex-grow flex flex-col">
@@ -302,23 +292,25 @@ export default function ArtworksPage() {
             </Carousel>
           </div>
 
-          {/* Desktop View: Main image with faded side previews */}
-          <div className="hidden lg:flex flex-col flex-grow w-full bg-black py-4 justify-center">
-            <div className="container mx-auto px-4 md:px-8 relative">
-              <Carousel
+          {/* Desktop View: Cover Flow Carousel */}
+          <div className="hidden lg:flex flex-col flex-grow w-full justify-center items-center overflow-hidden">
+             <Carousel
                 setApi={setApiDesktop}
                 opts={{
-                  align: 'center',
+                  align: "center",
                   loop: true,
                 }}
-                className="w-full"
+                className="w-full max-w-7xl"
               >
-                <CarouselContent className="-ml-4 flex items-center py-4">
+                <CarouselContent className="-ml-4 py-4 flex items-center">
                   {artworksData.map((artwork, index) => (
-                    <CarouselItem key={artwork.id + '-desktop'} className="pl-4 basis-full md:basis-1/2 lg:basis-1/3 xl:basis-1/4 2xl:basis-1/5">
-                      <div className="p-1">
+                    <CarouselItem key={artwork.id + '-desktop'} className="pl-4 basis-1/3">
+                       <div className="p-1">
                         <Card
-                          className="overflow-hidden bg-card border-border group cursor-pointer aspect-[600/950]"
+                          className={cn(
+                            "overflow-hidden bg-card border-border group cursor-pointer aspect-[600/950] transition-all duration-500 ease-out-cubic",
+                            index === activeIndexDesktop ? 'scale-105 opacity-100' : 'scale-80 opacity-40'
+                          )}
                           onClick={() => openModal(artwork)}
                           role="button"
                           tabIndex={0}
@@ -326,56 +318,39 @@ export default function ArtworksPage() {
                           aria-label={`View details for ${artwork.title}`}
                         >
                           <CardContent className="p-0 relative flex flex-col items-center justify-center h-full w-full bg-black">
-                            <div className="relative w-full h-full">
-                              <Image
-                                src={artwork.src}
-                                alt={artwork.alt}
-                                fill
-                                sizes="(min-width: 1536px) calc(20vw - 16px), (min-width: 1280px) calc(25vw - 16px), (min-width: 1024px) calc(33.33vw - 16px), 100vw"
-                                className="object-contain transition-transform duration-700 ease-in-out"
-                                data-ai-hint={artwork.hint}
-                                unoptimized={artwork.src.includes('imgur.com')}
-                                priority={index <= 2} 
-                                onError={(e) => console.error(`Failed to load image: ${artwork.src}`, e)}
-                                crossOrigin="anonymous"
-                              />
-                            </div>
-                            <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-end justify-start p-4">
-                              <Button
-                                variant="secondary"
-                                size="sm"
-                                className="pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300 delay-100 translate-y-2 group-hover:translate-y-0"
-                                aria-hidden="true"
-                              >
-                                <Maximize className="mr-2 h-4 w-4" /> View
-                              </Button>
-                            </div>
+                             <div className="relative w-full h-full">
+                                <Image
+                                  src={artwork.src}
+                                  alt={artwork.alt}
+                                  fill
+                                  sizes="30vw"
+                                  className="object-contain"
+                                  data-ai-hint={artwork.hint}
+                                  unoptimized={artwork.src.includes('imgur.com')}
+                                  priority={index <= 2} 
+                                  onError={(e) => console.error(`Failed to load image: ${artwork.src}`, e)}
+                                  crossOrigin="anonymous"
+                                />
+                              </div>
+                              <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-end justify-start p-4">
+                                <Button
+                                  variant="secondary"
+                                  size="sm"
+                                  className="pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300 delay-100 translate-y-2 group-hover:translate-y-0"
+                                  aria-hidden="true"
+                                >
+                                  <Maximize className="mr-2 h-4 w-4" /> View
+                                </Button>
+                              </div>
                           </CardContent>
                         </Card>
-                      </div>
+                       </div>
                     </CarouselItem>
                   ))}
                 </CarouselContent>
-                <CarouselPrevious className="absolute left-4 sm:left-8 md:left-12 top-1/2 -translate-y-1/2 z-20 h-10 w-10 sm:h-12 sm:w-12 rounded-full bg-background/50 hover:bg-background/80 text-foreground p-0" />
-                <CarouselNext className="absolute right-4 sm:right-8 md:right-12 top-1/2 -translate-y-1/2 z-20 h-10 w-10 sm:h-12 sm:w-12 rounded-full bg-background/50 hover:bg-background/80 text-foreground p-0" />
+                <CarouselPrevious className="absolute left-0 top-1/2 -translate-y-1/2 z-20 h-12 w-12 rounded-full bg-background/50 hover:bg-background/80 text-foreground p-0" />
+                <CarouselNext className="absolute right-0 top-1/2 -translate-y-1/2 z-20 h-12 w-12 rounded-full bg-background/50 hover:bg-background/80 text-foreground p-0" />
               </Carousel>
-              
-              <div className="flex justify-center gap-2 mt-4">
-                {scrollSnapsDesktop.map((_, index) => (
-                  <Button
-                    key={index}
-                    variant="outline"
-                    size="icon"
-                    className={cn(
-                      "h-2 w-2 sm:h-2.5 sm:w-2.5 rounded-full p-0 transition-all duration-300",
-                      index === activeIndexDesktop ? "bg-primary scale-125" : "bg-muted hover:bg-muted/70"
-                    )}
-                    aria-label={`Go to slide ${index + 1}`}
-                    onClick={() => apiDesktop?.scrollTo(index)}
-                  />
-                ))}
-              </div>
-            </div>
           </div>
         </>
       )}

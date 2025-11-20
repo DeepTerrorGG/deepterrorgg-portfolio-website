@@ -1,3 +1,4 @@
+
 'use client';
 
 import Link from 'next/link';
@@ -12,11 +13,13 @@ import FractalRenderer from '@/components/projects/fractal-renderer';
 import AIImageGenerator from '@/components/projects/ai-image-generator';
 import dynamic from 'next/dynamic';
 import { useRef } from 'react';
+import SplineShowcase from '@/components/home/spline-showcase';
 
 const SplineModel = dynamic(
   () => import('@/components/home/spline-model'),
   { 
     ssr: false,
+    loading: () => <div className="bg-muted/20 w-full h-full min-h-[500px]" />,
   }
 );
 
@@ -75,6 +78,13 @@ const technologies = [
   { name: 'JavaScript', href: 'https://developer.mozilla.org/en-US/docs/Web/JavaScript', iconSrc: '/icons/javascript.svg' },
   { name: 'Docker', href: 'https://www.docker.com/', iconSrc: '/icons/docker.svg'},
   { name: 'Webflow', href: 'https://webflow.com/', iconSrc: '/icons/webflow.svg' },
+];
+
+const splineModels = [
+    { url: 'https://prod.spline.design/FfjWOhoEErL5Sia2/scene.splinecode', title: 'Cyberpunk Room' },
+    { url: 'https://prod.spline.design/Oy8cFTtrLNL36Qll/scene.splinecode', title: 'Cozy Living Room' },
+    { url: 'https://prod.spline.design/qC2WtYn7OhOcS8L0/scene.splinecode', title: 'Abstract Shapes' },
+    { url: 'https://prod.spline.design/3SU82luCTBxFgmZk/scene.splinecode', title: 'Gaming Setup' },
 ];
 
 const ScrollingTechRow = ({ items, direction = 'left' }: { items: typeof technologies, direction?: 'left' | 'right' }) => (
@@ -176,14 +186,14 @@ export default function HomePage() {
         <ProjectShowcase projects={featuredProjects} />
       </SectionContainer>
       
-      {/* Spline Model Section */}
+      {/* Old Spline Model Section - now replaced by showcase */}
       <SectionContainer id="spline-test">
             <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold text-foreground">My Game Stack</h2>
             <p className="text-muted-foreground mt-3 max-w-2xl mx-auto">An interactive 3D model representing the games I enjoy.</p>
             </div>
             <div className="relative h-[500px] md:h-[700px] w-full mx-auto rounded-lg overflow-hidden bg-muted/20 min-h-[500px]">
-                <SplineModel />
+                <SplineModel sceneUrl="https://prod.spline.design/wl4X9XbiCMDi6bUv/scene.splinecode" />
             </div>
       </SectionContainer>
 
@@ -204,6 +214,15 @@ export default function HomePage() {
               </Link>
             </Button>
           </div>
+      </SectionContainer>
+
+      {/* 3D Model Showcase */}
+       <SectionContainer id="spline-showcase">
+        <div className="text-center mb-12">
+          <h2 className="text-3xl md:text-4xl font-bold text-foreground">3D Model Showcase</h2>
+          <p className="text-muted-foreground mt-3 max-w-2xl mx-auto">A collection of my 3D creations. Use the arrows to navigate.</p>
+        </div>
+        <SplineShowcase models={splineModels} />
       </SectionContainer>
       
       {/* Call to Action Section */}

@@ -4,11 +4,12 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { HardHat, Cog, Box, Play, Pause, RefreshCw, ZoomIn, ZoomOut, Hand, RotateCcw, Zap, Factory } from 'lucide-react';
+import { HardHat, Cog, Box, Play, Pause, RefreshCw, ZoomIn, ZoomOut, RotateCcw, Zap, Factory, HelpCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import { Slider } from '../ui/slider';
 import { Label } from '../ui/label';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '../ui/accordion';
 
 // --- TYPE DEFINITIONS ---
 type BuildingType = 'miner' | 'belt' | 'assembler' | 'adv_assembler' | 'generator';
@@ -252,7 +253,7 @@ const FactorySimulator: React.FC = () => {
         // Draw Buildings
         buildings.forEach(b => {
             ctx.fillStyle = b.type === 'miner' ? '#4f46e5' : b.type === 'belt' ? '#64748b' : b.type === 'generator' ? '#facc15' : b.type === 'adv_assembler' ? '#0f766e' : '#0d9488';
-            ctx.fillRect(b.x*cellSize, y*cellSize, cellSize, cellSize);
+            ctx.fillRect(b.x*cellSize, b.y*cellSize, cellSize, cellSize);
             
             const centerX = b.x*cellSize + cellSize/2, centerY = b.y*cellSize + cellSize/2;
             const drawArrow = (angle: number) => {
@@ -315,8 +316,8 @@ const FactorySimulator: React.FC = () => {
     const handlePanEnd = () => setIsPanning(false);
 
     return (
-        <div className="flex flex-col w-full h-full bg-slate-900 text-white">
-            <div className="flex items-center justify-between p-2 border-b border-slate-700">
+        <div className="flex flex-col w-full h-full bg-card text-foreground">
+            <div className="flex items-center justify-between p-2 border-b border-border bg-background">
                 <h3 className="text-lg font-bold text-primary">Automation Simulator</h3>
                 <div className={cn("text-sm font-bold flex items-center gap-2", powerGridStatus ? "text-green-400" : "text-red-500")}>
                     <Zap/> {totalPowerConsumption} / {totalPowerProduction} MW
@@ -329,33 +330,66 @@ const FactorySimulator: React.FC = () => {
                 </div>
             </div>
             <div className="flex-grow flex">
-                <div className="w-48 p-2 border-r border-slate-700 space-y-2">
-                    <h4 className="font-bold">Buildings</h4>
-                    <Button variant={selectedBuilding === 'generator' ? 'secondary' : 'outline'} onClick={() => setSelectedBuilding('generator')} className="w-full justify-start gap-2"><Zap/> Generator</Button>
-                    <Button variant={selectedBuilding === 'miner' ? 'secondary' : 'outline'} onClick={() => setSelectedBuilding('miner')} className="w-full justify-start gap-2"><HardHat/> Miner</Button>
-                    <Button variant={selectedBuilding === 'belt' ? 'secondary' : 'outline'} onClick={() => setSelectedBuilding('belt')} className="w-full justify-start gap-2"><Box/> Belt</Button>
-                    <div className="pl-4">
-                        <Label>Tier: {beltTier}</Label>
-                        <Slider min={1} max={3} step={1} value={[beltTier]} onValueChange={v => setBeltTier(v[0] as 1|2|3)}/>
-                    </div>
-                    <Button variant={selectedBuilding === 'assembler' ? 'secondary' : 'outline'} onClick={() => setSelectedBuilding('assembler')} className="w-full justify-start gap-2"><Cog/> Assembler</Button>
-                    <Button variant={selectedBuilding === 'adv_assembler' ? 'secondary' : 'outline'} onClick={() => setSelectedBuilding('adv_assembler')} className="w-full justify-start gap-2"><Factory/> Adv. Assembler</Button>
-                    {(selectedBuilding === 'assembler' || selectedBuilding === 'adv_assembler') && (
-                        <div className="pl-4">
-                           {Object.keys(recipes).filter(r => recipes[r as Resource].building.includes(selectedBuilding)).map(recipe => (
-                               <Button key={recipe} size="sm" variant={selectedRecipe === recipe ? 'secondary' : 'ghost'} onClick={() => setSelectedRecipe(recipe as Resource)}>{recipe}</Button>
-                           ))}
-                        </div>
-                    )}
-                    <h4 className="font-bold pt-4">Direction (R)</h4>
-                    <div className="flex justify-center">
-                        <Button size="icon" variant="outline" onClick={() => setBuildingDirection(d => d === 'right' ? 'down' : d === 'down' ? 'left' : d === 'left' ? 'up' : 'right')}>
-                            <RotateCcw/>
-                        </Button>
-                    </div>
+                <div className="w-64 p-4 border-r border-border bg-background space-y-4">
+                    <Card>
+                        <CardHeader className='p-2'><CardTitle className='text-base'>How to Play</CardTitle></CardHeader>
+                        <CardContent className='p-2'>
+                            <Accordion type="single" collapsible className='text-xs'>
+                                <AccordionItem value="goal">
+                                    <AccordionTrigger>Goal</AccordionTrigger>
+                                    <AccordionContent>Automate the production of complex items from raw resources.</AccordionContent>
+                                </AccordionItem>
+                                <AccordionItem value="basics">
+                                    <AccordionTrigger>Basics</AccordionTrigger>
+                                    <AccordionContent>
+                                        Place Miners on resource patches (colored squares). Use Belts to transport items. Use Assemblers to craft new items.
+                                    </AccordionContent>
+                                </AccordionItem>
+                                <AccordionItem value="power">
+                                    <AccordionTrigger>Power</AccordionTrigger>
+                                    <AccordionContent>
+                                        All buildings require power. Build Generators to produce power. Keep an eye on the power meter at the top!
+                                    </AccordionContent>
+                                </AccordionItem>
+                            </Accordion>
+                        </CardContent>
+                    </Card>
+                    <Card>
+                        <CardHeader className='p-2'><CardTitle className='text-base'>Buildings</CardTitle></CardHeader>
+                        <CardContent className="p-2 space-y-2">
+                            <Button variant={selectedBuilding === 'generator' ? 'secondary' : 'outline'} onClick={() => setSelectedBuilding('generator')} className="w-full justify-start gap-2"><Zap/> Generator</Button>
+                            <Button variant={selectedBuilding === 'miner' ? 'secondary' : 'outline'} onClick={() => setSelectedBuilding('miner')} className="w-full justify-start gap-2"><HardHat/> Miner</Button>
+                            <Button variant={selectedBuilding === 'belt' ? 'secondary' : 'outline'} onClick={() => setSelectedBuilding('belt')} className="w-full justify-start gap-2"><Box/> Belt</Button>
+                            <div className="pl-4">
+                                <Label>Tier: {beltTier}</Label>
+                                <Slider min={1} max={3} step={1} value={[beltTier]} onValueChange={v => setBeltTier(v[0] as 1|2|3)}/>
+                            </div>
+                            <Button variant={selectedBuilding === 'assembler' ? 'secondary' : 'outline'} onClick={() => setSelectedBuilding('assembler')} className="w-full justify-start gap-2"><Cog/> Assembler</Button>
+                            <Button variant={selectedBuilding === 'adv_assembler' ? 'secondary' : 'outline'} onClick={() => setSelectedBuilding('adv_assembler')} className="w-full justify-start gap-2"><Factory/> Adv. Assembler</Button>
+                            {(selectedBuilding === 'assembler' || selectedBuilding === 'adv_assembler') && (
+                                <div className="pl-4 space-y-1">
+                                <Label>Recipe</Label>
+                                {Object.keys(recipes).filter(r => recipes[r as Resource].building.includes(selectedBuilding)).map(recipe => (
+                                    <Button key={recipe} size="sm" variant={selectedRecipe === recipe ? 'secondary' : 'ghost'} onClick={() => setSelectedRecipe(recipe as Resource)} className="w-full justify-start text-xs">{recipe}</Button>
+                                ))}
+                                </div>
+                            )}
+                        </CardContent>
+                    </Card>
+                     <Card>
+                        <CardHeader className='p-2'><CardTitle className='text-base'>Controls</CardTitle></CardHeader>
+                        <CardContent className="p-2 space-y-2">
+                            <div className="flex items-center gap-2">
+                                <Button size="icon" variant="outline" onClick={() => setBuildingDirection(d => d === 'right' ? 'down' : d === 'down' ? 'left' : d === 'left' ? 'up' : 'right')}>
+                                    <RotateCcw/>
+                                </Button>
+                                <span className="text-sm">Rotate (R)</span>
+                            </div>
+                        </CardContent>
+                    </Card>
                 </div>
                 <div className="flex-grow relative bg-background overflow-hidden" onMouseDown={handlePanStart} onMouseMove={handlePanMove} onMouseUp={handlePanEnd} onMouseLeave={handlePanEnd}>
-                    <canvas ref={canvasRef} width={GRID_SIZE * 32} height={GRID_SIZE * 32} onClick={handleCanvasClick} className={cn("absolute top-0 left-0", isPanning && 'cursor-grabbing')} />
+                    <canvas ref={canvasRef} width={GRID_SIZE * 32} height={GRID_SIZE * 32} onClick={handleCanvasClick} className={cn("absolute top-0 left-0", isPanning ? 'cursor-grabbing' : 'cursor-crosshair')} />
                 </div>
             </div>
         </div>

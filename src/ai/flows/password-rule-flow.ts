@@ -113,7 +113,10 @@ Rule: "${rule}"
             temperature: 0.7,
         }
       });
-      return text || "I'm stumped too! Try a different password.";
+      if (!text) {
+        throw new Error("AI returned an empty hint.");
+      }
+      return text;
     } catch (error) {
       console.error("Error in getPasswordHint:", error);
       throw new Error("Failed to get hint from AI.");

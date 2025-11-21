@@ -21,22 +21,25 @@ interface Unit {
   owner: 'player' | 'enemy';
   hasMoved: boolean;
   hasAttacked: boolean;
+  type: 'swordsman' | 'archer' | 'knight';
 }
 
 type GamePhase = 'player-turn-start' | 'select-unit' | 'move-unit' | 'attack-unit' | 'enemy-turn' | 'game-over';
 
-const GRID_SIZE = 8;
+const GRID_SIZE = 10;
 const TILE_SIZE = 48; // in pixels
 
 // --- INITIAL STATE ---
 const initialUnits: Unit[] = [
-  { id: 1, x: 2, y: 1, hp: 20, maxHp: 20, attack: 7, defense: 4, movement: 2, owner: 'player', hasMoved: false, hasAttacked: false },
-  { id: 2, x: 1, y: 5, hp: 18, maxHp: 18, attack: 6, defense: 5, movement: 3, owner: 'player', hasMoved: false, hasAttacked: false },
-  { id: 3, x: 6, y: 1, hp: 15, maxHp: 15, attack: 8, defense: 3, owner: 'enemy', hasMoved: false, hasAttacked: false },
-  { id: 4, x: 5, y: 5, hp: 15, maxHp: 15, attack: 8, defense: 3, owner: 'enemy', hasMoved: false, hasAttacked: false },
+  { id: 1, x: 1, y: 1, hp: 20, maxHp: 20, attack: 7, defense: 4, movement: 3, owner: 'player', hasMoved: false, hasAttacked: false, type: 'swordsman' },
+  { id: 2, x: 1, y: 3, hp: 15, maxHp: 15, attack: 8, defense: 2, movement: 2, owner: 'player', hasMoved: false, hasAttacked: false, type: 'archer' },
+  { id: 3, x: 2, y: 2, hp: 25, maxHp: 25, attack: 6, defense: 6, movement: 4, owner: 'player', hasMoved: false, hasAttacked: false, type: 'knight' },
+  { id: 4, x: 8, y: 8, hp: 20, maxHp: 20, attack: 7, defense: 4, movement: 3, owner: 'enemy', hasMoved: false, hasAttacked: false, type: 'swordsman' },
+  { id: 5, x: 7, y: 6, hp: 15, maxHp: 15, attack: 8, defense: 2, movement: 2, owner: 'enemy', hasMoved: false, hasAttacked: false, type: 'archer' },
+  { id: 6, x: 8, y: 2, hp: 25, maxHp: 25, attack: 6, defense: 6, movement: 4, owner: 'enemy', hasMoved: false, hasAttacked: false, type: 'knight' },
 ];
-const gridLayout = ['g','g','g','w','w','g','g','g','g','g','g','w','w','g','g','g','g','g','g','w','w','g','g','g','g','w','w','w','w','w','w','g','g','g','g','g','g','g','g','g','g','g','g','g','g','g','g','g','g','g','g','g','g','g','g','g','g','g','g','g','g','g','g','g'];
 
+const gridLayout = "gggggggggggwgggggggggwgggggggggwgggggggggwggggggggggwgwwwwwwwgggggggggggwgggggggggggwgggggggggggggggggggggg".split('');
 
 const TurnBasedStrategy: React.FC = () => {
   const [units, setUnits] = useState<Unit[]>(JSON.parse(JSON.stringify(initialUnits)));
@@ -47,6 +50,8 @@ const TurnBasedStrategy: React.FC = () => {
   const [winner, setWinner] = useState<'player' | 'enemy' | null>(null);
 
   const selectedUnit = useMemo(() => units.find(u => u.id === selectedUnitId), [units, selectedUnitId]);
+
+  const getAttackRange = (unit: Unit): number => (unit.type === 'archer' ? 2 : 1);
 
   const calculatePossibleMoves = useCallback((unit: Unit) => {
     const moves = new Set<string>();
@@ -71,17 +76,22 @@ const TurnBasedStrategy: React.FC = () => {
 
   const calculatePossibleAttacks = useCallback((unit: Unit) => {
     const attacks = new Set<string>();
-    const {x, y} = unit;
-    [[x+1, y], [x-1, y], [x, y+1], [x, y-1]].forEach(([nx, ny]) => {
-        const target = units.find(u => u.x === nx && u.y === ny && u.owner !== unit.owner);
-        if (target) attacks.add(`${nx},${ny}`);
-    });
+    const attackRange = getAttackRange(unit);
+    for(let y=0; y<GRID_SIZE; y++) {
+        for(let x=0; x<GRID_SIZE; x++) {
+            const dist = Math.abs(x - unit.x) + Math.abs(y - unit.y);
+            if (dist > 0 && dist <= attackRange) {
+                 const target = units.find(u => u.x === x && u.y === y && u.owner !== unit.owner);
+                 if (target) attacks.add(`${x},${y}`);
+            }
+        }
+    }
     setPossibleAttacks(attacks);
   }, [units]);
   
   useEffect(() => {
     if (gamePhase === 'player-turn-start') {
-      setUnits(u => u.map(unit => ({ ...unit, hasMoved: false, hasAttacked: false })));
+      setUnits(u => u.map(unit => unit.owner === 'player' ? { ...unit, hasMoved: false, hasAttacked: false } : unit));
       setGamePhase('select-unit');
     }
   }, [gamePhase]);
@@ -90,29 +100,22 @@ const TurnBasedStrategy: React.FC = () => {
     if (winner) return;
 
     if (gamePhase === 'select-unit') {
-      const unit = units.find(u => u.x === x && u.y === y && u.owner === 'player' && !u.hasMoved && !u.hasAttacked);
+      const unit = units.find(u => u.x === x && u.y === y && u.owner === 'player' && !u.hasAttacked);
       if (unit) {
         setSelectedUnitId(unit.id);
-        calculatePossibleMoves(unit);
-        calculatePossibleAttacks(unit);
-        setGamePhase('move-unit');
+        if(!unit.hasMoved) calculatePossibleMoves(unit);
+        if(!unit.hasAttacked) calculatePossibleAttacks(unit);
+        setGamePhase(unit.hasMoved ? 'attack-unit' : 'move-unit');
       }
-    } else if (gamePhase === 'move-unit' && selectedUnit) {
+    } else if ((gamePhase === 'move-unit' || gamePhase === 'attack-unit') && selectedUnit) {
       if (possibleMoves.has(`${x},${y}`)) {
         moveUnit(selectedUnit, x, y);
       } else if (possibleAttacks.has(`${x},${y}`)) {
         attackUnit(selectedUnit, x, y);
       } else { // Deselect
-        setSelectedUnitId(null);
+        setSelectedUnitId(null); setPossibleMoves(new Set()); setPossibleAttacks(new Set());
         setGamePhase('select-unit');
       }
-    } else if (gamePhase === 'attack-unit' && selectedUnit) {
-        if (possibleAttacks.has(`${x},${y}`)) {
-            attackUnit(selectedUnit, x, y);
-        } else { // Deselect or cancel attack
-            setSelectedUnitId(null);
-            setGamePhase('select-unit');
-        }
     }
   };
 
@@ -120,7 +123,7 @@ const TurnBasedStrategy: React.FC = () => {
     setUnits(prev => prev.map(u => u.id === unit.id ? { ...u, x, y, hasMoved: true } : u));
     const movedUnit = { ...unit, x, y, hasMoved: true };
     calculatePossibleAttacks(movedUnit);
-    setPossibleMoves(new Set()); // Cannot move again
+    setPossibleMoves(new Set());
     setGamePhase('attack-unit');
   };
 
@@ -136,43 +139,37 @@ const TurnBasedStrategy: React.FC = () => {
         return u;
     }).filter(u => u.hp > 0));
 
-    setSelectedUnitId(null);
+    setSelectedUnitId(null); setPossibleMoves(new Set()); setPossibleAttacks(new Set());
     setGamePhase('select-unit');
   };
 
   const endTurn = () => {
-    setGamePhase('enemy-turn');
-    setSelectedUnitId(null);
-    setPossibleMoves(new Set());
-    setPossibleAttacks(new Set());
+    setGamePhase('enemy-turn'); setSelectedUnitId(null); setPossibleMoves(new Set()); setPossibleAttacks(new Set());
     
-    // Basic AI logic
     setTimeout(() => {
-      let currentUnits = units;
-      const enemyUnits = units.filter(u => u.owner === 'enemy');
+      let currentUnits = [...units];
+      const enemyUnits = currentUnits.filter(u => u.owner === 'enemy');
       
       enemyUnits.forEach(enemy => {
+        if (!currentUnits.find(u => u.id === enemy.id)) return; // Was defeated mid-turn
         const playerUnits = currentUnits.filter(u => u.owner === 'player');
         if(playerUnits.length === 0) return;
 
-        let closestPlayer = playerUnits[0];
-        let minDistance = 100;
+        let closestPlayer: Unit | null = null;
+        let minDistance = Infinity;
         playerUnits.forEach(player => {
             const dist = Math.abs(enemy.x - player.x) + Math.abs(enemy.y - player.y);
             if (dist < minDistance) { minDistance = dist; closestPlayer = player; }
         });
-        
-        // Attack if in range
-        if (minDistance === 1) {
+        if(!closestPlayer) return;
+
+        if (minDistance <= getAttackRange(enemy)) {
           const damage = Math.max(1, enemy.attack - closestPlayer.defense);
-          currentUnits = currentUnits.map(u => u.id === closestPlayer.id ? {...u, hp: u.hp - damage} : u).filter(u => u.hp > 0);
+          currentUnits = currentUnits.map(u => u.id === closestPlayer!.id ? {...u, hp: u.hp - damage} : u).filter(u => u.hp > 0);
         } else {
-            // Move towards player
             let newX = enemy.x; let newY = enemy.y;
-            if (closestPlayer.x > enemy.x) newX++;
-            else if (closestPlayer.x < enemy.x) newX--;
-            else if (closestPlayer.y > enemy.y) newY++;
-            else if (closestPlayer.y < enemy.y) newY--;
+            if (closestPlayer.x > enemy.x) newX++; else if (closestPlayer.x < enemy.x) newX--;
+            else if (closestPlayer.y > enemy.y) newY++; else if (closestPlayer.y < enemy.y) newY--;
 
             if (!currentUnits.some(u => u.x === newX && u.y === newY) && gridLayout[newY*GRID_SIZE+newX] !== 'w') {
                 currentUnits = currentUnits.map(u => u.id === enemy.id ? {...u, x: newX, y: newY} : u);
@@ -201,13 +198,19 @@ const TurnBasedStrategy: React.FC = () => {
   
   const unitAt = (x:number, y:number) => units.find(u => u.x === x && u.y === y);
 
+  const unitIcons = {
+    swordsman: <Swords/>,
+    archer: <User/>,
+    knight: <Shield/>
+  }
+
   return (
     <div className="flex flex-col items-center justify-center w-full h-full bg-card p-4 sm:p-6 lg:p-8">
       <AnimatePresence>
         {winner && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="absolute inset-0 bg-black/70 z-20 flex flex-col items-center justify-center gap-4">
             <h2 className={cn("text-6xl font-bold", winner === 'player' ? "text-green-400" : "text-red-500")}>
-              {winner === 'player' ? "You Win!" : "You Lose!"}
+              {winner === 'player' ? "Victory!" : "Defeat!"}
             </h2>
             <Button onClick={restartGame}>Play Again</Button>
           </motion.div>
@@ -226,7 +229,9 @@ const TurnBasedStrategy: React.FC = () => {
                         <div key={index} onClick={() => handleTileClick(x,y)} className={cn('w-12 h-12 border border-border/20 flex items-center justify-center relative', (isMoveable || isAttackable) && 'cursor-pointer' )}>
                             <div className={cn('w-full h-full', gridLayout[index] === 'w' ? 'bg-blue-800' : 'bg-green-800/50', isMoveable && 'bg-blue-500/30', isAttackable && 'bg-red-500/30')}/>
                             {unitOnTile && (
-                                <motion.div layoutId={`unit-${unitOnTile.id}`} className={cn('absolute inset-0 flex items-center justify-center rounded-full m-1', unitOnTile.owner === 'player' ? 'bg-blue-500' : 'bg-red-500', selectedUnitId === unitOnTile.id && 'ring-2 ring-yellow-400')}/>
+                                <motion.div layoutId={`unit-${unitOnTile.id}`} className={cn('absolute inset-0 flex items-center justify-center rounded-full m-1', unitOnTile.owner === 'player' ? 'bg-blue-600' : 'bg-red-600', selectedUnitId === unitOnTile.id && 'ring-2 ring-yellow-400')}>
+                                    <div className="text-white h-6 w-6">{unitIcons[unitOnTile.type]}</div>
+                                </motion.div>
                             )}
                         </div>
                     )
@@ -234,20 +239,20 @@ const TurnBasedStrategy: React.FC = () => {
             </div>
             <div className="w-full md:w-56 space-y-4">
                 <Card>
-                    <CardHeader className="p-2 pb-0"><CardTitle className="text-base text-center">{gamePhase.replace(/-/g, ' ')}</CardTitle></CardHeader>
+                    <CardHeader className="p-2 pb-0"><CardTitle className="text-base text-center capitalize">{gamePhase.replace(/-/g, ' ')}</CardTitle></CardHeader>
                     <CardContent className="p-4 flex justify-around text-center">
                         {selectedUnit ? (
                             <div className="text-left w-full space-y-1">
-                                <h4 className="font-bold">{selectedUnit.owner === 'player' ? 'Player Unit' : 'Enemy Unit'}</h4>
+                                <h4 className="font-bold capitalize">{selectedUnit.type}</h4>
                                 <div className="text-sm flex justify-between"><span>HP:</span> <span>{selectedUnit.hp}/{selectedUnit.maxHp}</span></div>
                                 <div className="text-sm flex justify-between"><span>ATK:</span> <span>{selectedUnit.attack}</span></div>
                                 <div className="text-sm flex justify-between"><span>DEF:</span> <span>{selectedUnit.defense}</span></div>
                                 <div className="text-sm flex justify-between"><span>MOV:</span> <span>{selectedUnit.movement}</span></div>
                             </div>
-                        ) : <p className="text-sm text-muted-foreground">No unit selected</p>}
+                        ) : <p className="text-sm text-muted-foreground">Select a player unit.</p>}
                     </CardContent>
                 </Card>
-                <Button onClick={endTurn} disabled={gamePhase !== 'select-unit' && gamePhase !== 'move-unit' && gamePhase !== 'attack-unit'} className="w-full">End Turn</Button>
+                <Button onClick={endTurn} disabled={gamePhase.startsWith('enemy') || gamePhase === 'game-over'} className="w-full">End Turn</Button>
             </div>
         </CardContent>
       </Card>

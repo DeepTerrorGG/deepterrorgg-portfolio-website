@@ -1,9 +1,10 @@
+
 'use client';
 
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { HardHat, Cog, Box, Play, Pause, RefreshCw, ZoomIn, ZoomOut, RotateCcw, Zap, Factory, HelpCircle, Warehouse, Hammer, ShoppingCart, DollarSign } from 'lucide-react';
+import { HardHat, Cog, Box, Play, Pause, RefreshCw, ZoomIn, ZoomOut, RotateCcw, Zap, Factory, HelpCircle, Warehouse, Hammer, ShoppingCart, DollarSign, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import { Slider } from '../ui/slider';
@@ -13,7 +14,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
 
 // --- TYPE DEFINITIONS ---
 type BuildingType = 'miner' | 'belt' | 'assembler' | 'adv_assembler' | 'generator' | 'chest';
-type Resource = 'iron_ore' | 'copper_ore' | 'coal' | 'iron_plate' | 'copper_wire' | 'gear' | 'circuit' | 'belt' | 'miner' | 'assembler';
+type Resource = 'iron_ore' | 'copper_ore' | 'coal' | 'iron_plate' | 'copper_wire' | 'gear' | 'circuit' | 'belt' | 'miner' | 'assembler' | 'adv_assembler';
 type Direction = 'up' | 'down' | 'left' | 'right';
 
 interface Building {
@@ -21,6 +22,8 @@ interface Building {
   type: BuildingType;
   x: number;
   y: number;
+  width: number;
+  height: number;
   direction: Direction;
   recipe?: Resource; // For assemblers
   inventory?: Partial<Record<Resource, number>>;
@@ -38,7 +41,7 @@ interface ItemOnBelt {
 }
 
 // --- CONSTANTS ---
-const GRID_SIZE = 30;
+const GRID_SIZE = 40;
 const TICK_RATE = 100; // ms per game tick
 
 const BELT_SPEEDS = { 1: 0.1, 2: 0.2, 3: 0.4 };
@@ -51,8 +54,7 @@ const resourceColors: Record<Resource, string> = {
   copper_wire: '#fbbf24',
   gear: '#71717a',
   circuit: '#22c55e',
-  // Craftable items (buildings) don't need colors as they aren't on belts
-  belt: '', miner: '', assembler: '',
+  belt: '', miner: '', assembler: '', adv_assembler: '',
 };
 
 const resourcePatches: Record<string, Resource> = {
@@ -74,6 +76,7 @@ const buildingCosts: Partial<Record<BuildingType, Partial<Record<Resource, numbe
     belt: { iron_plate: 1 },
     miner: { iron_plate: 3, gear: 2 },
     assembler: { gear: 4, circuit: 2 },
+    adv_assembler: { gear: 8, circuit: 8 },
     chest: { iron_plate: 4 },
     generator: { iron_plate: 5, gear: 3 },
 };
@@ -85,6 +88,15 @@ const buildingPower: Record<BuildingType, number> = {
     adv_assembler: 40,
     generator: -100, // negative means production
     chest: 0,
+}
+
+const buildingSizes: Record<BuildingType, {w: number, h: number}> = {
+    miner: {w: 1, h: 1},
+    belt: {w: 1, h: 1},
+    assembler: {w: 1, h: 1},
+    adv_assembler: {w: 2, h: 2},
+    generator: {w: 1, h: 1},
+    chest: {w: 1, h: 1},
 }
 
 const resourcePrices: Partial<Record<Resource, { buy: number; sell: number }>> = {
@@ -102,10 +114,10 @@ const FactorySimulator: React.FC = () => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const [buildings, setBuildings] = useState<Building[]>([]);
     const [items, setItems] = useState<ItemOnBelt[]>([]);
-    const [inventory, setInventory] = useState<Partial<Record<Resource, number>>>({ iron_plate: 20, gear: 5 });
+    const [inventory, setInventory] = useState<Partial<Record<Resource, number>>>({ iron_plate: 20, gear: 5, circuit: 10 });
     const [money, setMoney] = useState(1000);
     
-    const [selectedBuilding, setSelectedBuilding] = useState<BuildingType>('belt');
+    const [selectedBuildingType, setSelectedBuildingType] = useState<BuildingType>('belt');
     const [buildingDirection, setBuildingDirection] = useState<Direction>('right');
     const [beltTier, setBeltTier] = useState<1|2|3>(1);
     const [selectedRecipe, setSelectedRecipe] = useState<Resource>('iron_plate');
@@ -116,46 +128,47 @@ const FactorySimulator: React.FC = () => {
     const [isPanning, setIsPanning] = useState(false);
     const [panStart, setPanStart] = useState({ x: 0, y: 0 });
     const [viewOffset, setViewOffset] = useState({ x: 0, y: 0 });
+    const [selectedBuildingId, setSelectedBuildingId] = useState<number | null>(null);
 
     const totalPowerConsumption = useMemo(() => buildings.reduce((acc, b) => acc + (b.power || 0), 0), [buildings]);
     const totalPowerProduction = useMemo(() => buildings.filter(b => b.type === 'generator').length * -buildingPower.generator, [buildings]);
     const powerGridStatus = useMemo(() => totalPowerProduction >= totalPowerConsumption, [totalPowerConsumption, totalPowerProduction]);
-
+    const selectedBuilding = useMemo(() => buildings.find(b => b.id === selectedBuildingId), [buildings, selectedBuildingId]);
+    
     const placeBuilding = (x: number, y: number) => {
-        if(buildings.some(b => b.x === x && b.y === y)) return;
-
-        const cost = buildingCosts[selectedBuilding];
-        if (cost) {
-            for (const [resource, amount] of Object.entries(cost)) {
-                if ((inventory[resource as Resource] || 0) < amount) {
-                    toast({ title: 'Not enough resources', description: `You need ${amount} ${resource} to build a ${selectedBuilding}.`, variant: 'destructive'});
+        const { w, h } = buildingSizes[selectedBuildingType];
+        for (let i = 0; i < w; i++) {
+            for (let j = 0; j < h; j++) {
+                if (buildings.some(b => b.x <= x + i && b.x + b.width -1 >= x + i && b.y <= y + j && b.y + b.height - 1 >= y + j)) {
+                     toast({ title: 'Cannot place here', description: 'Space is already occupied.', variant: 'destructive'});
                     return;
                 }
             }
-            // Deduct resources
+        }
+
+        const cost = buildingCosts[selectedBuildingType];
+        if (cost) {
+            for (const [resource, amount] of Object.entries(cost)) {
+                if ((inventory[resource as Resource] || 0) < amount) {
+                    toast({ title: 'Not enough resources', description: `You need ${amount} ${resource} to build a ${selectedBuildingType}.`, variant: 'destructive'});
+                    return;
+                }
+            }
             const newInventory = {...inventory};
             for (const [resource, amount] of Object.entries(cost)) {
                 newInventory[resource as Resource]! -= amount;
             }
             setInventory(newInventory);
-        } else {
-             // For buildings without cost, we check if they are in inventory
-            if((inventory[selectedBuilding as Resource] || 0) < 1) {
-                toast({ title: 'No building in inventory', description: `You need to craft a ${selectedBuilding} first.`, variant: 'destructive'});
-                return;
-            }
-            setInventory(inv => ({...inv, [selectedBuilding as Resource]: (inv[selectedBuilding as Resource] || 0) - 1}));
         }
-
 
         const newBuilding: Building = {
             id: nextId.current++,
-            type: selectedBuilding, x, y,
+            type: selectedBuildingType, x, y, width: w, height: h,
             direction: buildingDirection,
             overclock: 1,
-            power: buildingPower[selectedBuilding],
+            power: buildingPower[selectedBuildingType],
             inventory: {}, 
-            ...( (selectedBuilding === 'assembler' || selectedBuilding === 'adv_assembler') && { recipe: selectedRecipe, productionProgress: 0 }),
+            ...( (selectedBuildingType === 'assembler' || selectedBuildingType === 'adv_assembler') && { recipe: selectedRecipe, productionProgress: 0 }),
         };
         setBuildings(prev => [...prev, newBuilding]);
     };
@@ -189,17 +202,11 @@ const FactorySimulator: React.FC = () => {
 
         if (type === 'buy') {
             const totalCost = price * amount;
-            if (money < totalCost) {
-                toast({ title: 'Insufficient Funds', variant: 'destructive'});
-                return;
-            }
+            if (money < totalCost) { toast({ title: 'Insufficient Funds', variant: 'destructive'}); return; }
             setMoney(m => m - totalCost);
             setInventory(inv => ({ ...inv, [resource]: (inv[resource] || 0) + amount }));
         } else { // sell
-            if ((inventory[resource] || 0) < amount) {
-                toast({ title: 'Not enough items to sell', variant: 'destructive'});
-                return;
-            }
+            if ((inventory[resource] || 0) < amount) { toast({ title: 'Not enough items to sell', variant: 'destructive'}); return; }
             const totalGain = price * amount;
             setMoney(m => m + totalGain);
             setInventory(inv => ({ ...inv, [resource]: (inv[resource] || 0) - amount }));
@@ -224,6 +231,13 @@ const FactorySimulator: React.FC = () => {
         const rect = canvas.getBoundingClientRect();
         const x = Math.floor((e.clientX - rect.left - viewOffset.x) / cellSize);
         const y = Math.floor((e.clientY - rect.top - viewOffset.y) / cellSize);
+        
+        const clickedBuilding = buildings.find(b => x >= b.x && x < b.x + b.width && y >= b.y && y < b.y + b.height);
+        if (clickedBuilding) {
+            setSelectedBuildingId(clickedBuilding.id);
+            return;
+        }
+        
         if (x >= 0 && x < GRID_SIZE && y >= 0 && y < GRID_SIZE) {
             placeBuilding(x, y);
         }
@@ -233,43 +247,27 @@ const FactorySimulator: React.FC = () => {
     useEffect(() => {
         if (!isPlaying) return;
         const gameTick = setInterval(() => {
-            const hasPower = powerGridStatus;
             setBuildings(currentBuildings => {
-                const updatedBuildings = [...currentBuildings];
-                const currentItems = [...items];
-                const newItems: ItemOnBelt[] = [];
-                
-                updatedBuildings.forEach(b => {
-                    b.power = buildingPower[b.type] * b.overclock;
-                    if (!hasPower && b.type !== 'generator') return; // No power, no work
+                const updatedBuildings = currentBuildings.map(b => {
+                    const power = buildingPower[b.type] * Math.pow(b.overclock, 1.6);
+                    const isPowered = powerGridStatus || b.type === 'generator';
+                    let newB = {...b, power};
+                    if(!isPowered) return newB;
 
-                    // Miner Production
                     if (b.type === 'miner') {
                         const resource = resourcePatches[`${b.x},${b.y}`];
-                        if (resource && Math.random() < 0.1 * b.overclock) {
+                        if (resource && Math.random() < (0.1 * b.overclock)) {
                             const [ox, oy] = getOutputCoords(b);
-                            if (!currentItems.some(i => i.x === ox && i.y === oy && i.progress < BELT_SPEEDS[beltTier])) {
-                                newItems.push({ id: nextId.current++, resource, x: ox, y: oy, progress: 0 });
+                            const canPlace = !items.some(i => i.x === ox && i.y === oy && i.progress < BELT_SPEEDS[beltTier]);
+                            if (canPlace) {
+                                setItems(prev => [...prev, { id: nextId.current++, resource, x: ox, y: oy, progress: 0 }]);
                             }
                         }
                     }
-                    // Assembler Logic
-                    if ((b.type === 'assembler' || b.type === 'adv_assembler') && b.recipe) {
+                    else if ((b.type === 'assembler' || b.type === 'adv_assembler') && b.recipe) {
                         const recipe = recipes[b.recipe];
-                        if(!recipe) return;
-                        // 1. Grab ingredients
-                        getAdjacentInputCoords(b).forEach(([ix, iy]) => {
-                            const ingredient = currentItems.find(item => item.x === ix && item.y === iy && item.progress >= 1);
-                            if (ingredient && Object.keys(recipe.inputs).includes(ingredient.resource)) {
-                                b.inventory = b.inventory || {};
-                                const currentAmount = b.inventory[ingredient.resource] || 0;
-                                if (currentAmount < 10) { // Limit inventory
-                                    b.inventory[ingredient.resource] = currentAmount + 1;
-                                    setItems(prev => prev.filter(i => i.id !== ingredient.id));
-                                }
-                            }
-                        });
-                        // 2. Craft
+                        if(!recipe) return newB;
+                        // Crafting logic... (simplified for brevity, assume it updates inventory and progress)
                         let canCraft = true;
                         for (const [res, amount] of Object.entries(recipe.inputs)) {
                             if ((b.inventory?.[res as Resource] || 0) < amount) {
@@ -277,50 +275,64 @@ const FactorySimulator: React.FC = () => {
                             }
                         }
                         if (canCraft) {
-                            b.productionProgress = (b.productionProgress || 0) + b.overclock;
-                            if (b.productionProgress >= recipe.time) {
-                                // 3. Eject
+                            newB.productionProgress = (b.productionProgress || 0) + b.overclock;
+                            if (newB.productionProgress >= recipe.time) {
                                 const [ox, oy] = getOutputCoords(b);
-                                if (!currentItems.some(i => i.x === ox && i.y === oy && i.progress < BELT_SPEEDS[beltTier])) {
-                                    newItems.push({ id: nextId.current++, resource: b.recipe, x: ox, y: oy, progress: 0 });
+                                if (!items.some(i => i.x === ox && i.y === oy && i.progress < BELT_SPEEDS[beltTier])) {
+                                    setItems(prev => [...prev, { id: nextId.current++, resource: b.recipe!, x: ox, y: oy, progress: 0 }]);
+                                    newB.inventory = {...b.inventory};
                                     for (const [res, amount] of Object.entries(recipe.inputs)) {
-                                        b.inventory![res as Resource]! -= amount;
+                                        newB.inventory[res as Resource]! -= amount;
                                     }
-                                    b.productionProgress = 0;
+                                    newB.productionProgress = 0;
                                 }
                             }
                         } else {
-                            b.productionProgress = 0;
+                            newB.productionProgress = 0;
                         }
                     }
+                    return newB;
                 });
-                setItems(prev => [...prev, ...newItems]);
+
+                updatedBuildings.forEach(b => {
+                     if ((b.type === 'assembler' || b.type === 'adv_assembler') && b.recipe) {
+                         const recipe = recipes[b.recipe];
+                         if(!recipe) return;
+                         getAdjacentInputCoords(b).forEach(([ix, iy]) => {
+                             const ingredientIndex = items.findIndex(item => item.x === ix && item.y === iy && item.progress >= 1);
+                             if(ingredientIndex > -1) {
+                                const ingredient = items[ingredientIndex];
+                                if (Object.keys(recipe.inputs).includes(ingredient.resource)) {
+                                    const currentAmount = b.inventory![ingredient.resource] || 0;
+                                    if (currentAmount < 10) {
+                                         b.inventory![ingredient.resource] = currentAmount + 1;
+                                         setItems(prev => prev.filter(i => i.id !== ingredient.id));
+                                    }
+                                }
+                             }
+                         });
+                     }
+                });
+
                 return updatedBuildings;
             });
 
-            // Item Movement on Belts
-            setItems(currentItems => {
+            setItems(currentItems => { /* ... movement logic ... */
                 const movedItems: ItemOnBelt[] = [];
                 currentItems.forEach(item => {
                     const belt = buildings.find(b => b.x === item.x && b.y === item.y);
-                    if (!belt || (belt.type !== 'belt' && belt.type !== 'miner' && belt.type !== 'assembler' && belt.type !== 'adv_assembler' && belt.type !== 'chest')) {
+                    if (!belt || !['belt', 'miner', 'assembler', 'adv_assembler', 'chest'].includes(belt.type)) {
                       movedItems.push(item); return; 
                     }
-
-                    // Handle chest input
                     if (belt.type === 'chest') {
-                        if (Object.values(belt.inventory || {}).reduce((s, a) => s+a, 0) < 50) { // Chest capacity
-                             belt.inventory = belt.inventory || {};
-                             belt.inventory[item.resource] = (belt.inventory[item.resource] || 0) + 1;
-                             // Item consumed, don't add to movedItems
+                        if (Object.values(belt.inventory || {}).reduce((s, a) => s+a, 0) < 50) {
+                             belt.inventory![item.resource] = (belt.inventory![item.resource] || 0) + 1;
                         } else {
-                             movedItems.push({ ...item, progress: 1 }); // Belt is backed up
+                             movedItems.push({ ...item, progress: 1 });
                         }
                         return;
                     }
-                    
                     const [nextX, nextY] = getOutputCoords(belt);
-                    
                     let newProgress = item.progress + BELT_SPEEDS[beltTier];
                     if(newProgress >= 1) {
                         const nextTile = buildings.find(b => b.x === nextX && b.y === nextY);
@@ -335,7 +347,8 @@ const FactorySimulator: React.FC = () => {
                     }
                 });
                 return movedItems;
-            });
+             });
+
         }, TICK_RATE);
         return () => clearInterval(gameTick);
     }, [isPlaying, buildings, items, powerGridStatus, beltTier]);
@@ -344,79 +357,79 @@ const FactorySimulator: React.FC = () => {
     const draw = useCallback(() => {
         const canvas = canvasRef.current; if (!canvas) return;
         const ctx = canvas.getContext('2d'); if (!ctx) return;
-        
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         ctx.save();
         ctx.translate(viewOffset.x, viewOffset.y);
 
-        // Draw Patches & Grid
         for(let y=0; y<GRID_SIZE; y++) for(let x=0; x<GRID_SIZE; x++) {
             const resource = resourcePatches[`${x},${y}`];
             if (resource) {
-                ctx.fillStyle = resourceColors[resource] + '33'; // transparent
+                ctx.fillStyle = resourceColors[resource] + '33';
                 ctx.fillRect(x*cellSize, y*cellSize, cellSize, cellSize);
             }
             ctx.strokeStyle = '#3f3f46'; ctx.lineWidth = 0.5;
             ctx.strokeRect(x*cellSize, y*cellSize, cellSize, cellSize);
         }
 
-        // Draw Buildings
         buildings.forEach(b => {
             ctx.fillStyle = b.type === 'miner' ? '#4f46e5' : b.type === 'belt' ? '#64748b' : b.type === 'generator' ? '#facc15' : b.type === 'adv_assembler' ? '#0f766e' : b.type === 'chest' ? '#ca8a04' : '#0d9488';
-            ctx.fillRect(b.x*cellSize, b.y*cellSize, cellSize, cellSize);
+            if (b.id === selectedBuildingId) {
+                ctx.strokeStyle = '#facc15';
+                ctx.lineWidth = 4;
+                ctx.strokeRect(b.x*cellSize, b.y*cellSize, b.width*cellSize, b.height*cellSize);
+            }
+            ctx.fillRect(b.x*cellSize, b.y*cellSize, b.width*cellSize, b.height*cellSize);
             
-            const centerX = b.x*cellSize + cellSize/2, centerY = b.y*cellSize + cellSize/2;
-            const drawArrow = (angle: number) => {
+            const centerX = b.x*cellSize + (b.width*cellSize)/2, centerY = b.y*cellSize + (b.height*cellSize)/2;
+            if(!['chest', 'generator'].includes(b.type)) {
                 ctx.save();
                 ctx.translate(centerX, centerY);
-                ctx.rotate(angle);
+                ctx.rotate(b.direction === 'right' ? 0 : b.direction === 'down' ? Math.PI/2 : b.direction === 'left' ? Math.PI : -Math.PI/2);
                 ctx.fillStyle = 'white'; ctx.beginPath();
                 ctx.moveTo(-5*zoom, -5*zoom); ctx.lineTo(5*zoom, 0); ctx.lineTo(-5*zoom, 5*zoom);
                 ctx.closePath(); ctx.fill();
                 ctx.restore();
             }
-            if(b.type === 'belt' || b.type === 'miner' || b.type === 'assembler' || b.type === 'adv_assembler') {
-                if(b.direction === 'right') drawArrow(0);
-                if(b.direction === 'down') drawArrow(Math.PI/2);
-                if(b.direction === 'left') drawArrow(Math.PI);
-                if(b.direction === 'up') drawArrow(-Math.PI/2);
-            }
         });
 
-        // Draw Items
         items.forEach(item => {
             const currentTile = buildings.find(b => b.x === item.x && b.y === item.y);
             let itemX = item.x * cellSize + cellSize / 2, itemY = item.y * cellSize + cellSize / 2;
-
-            if(currentTile){
+            if(currentTile && !['chest'].includes(currentTile.type)){
                 const [nextX, nextY] = getOutputCoords(currentTile);
                 const startX = item.x * cellSize + cellSize / 2, startY = item.y * cellSize + cellSize / 2;
                 const endX = nextX * cellSize + cellSize / 2, endY = nextY * cellSize + cellSize / 2;
                 itemX = startX + (endX - startX) * item.progress;
                 itemY = startY + (endY - startY) * item.progress;
             }
-            
             ctx.fillStyle = resourceColors[item.resource] || '#ffffff';
             ctx.beginPath();
             ctx.arc(itemX, itemY, cellSize * 0.2, 0, 2*Math.PI);
             ctx.fill();
         });
-
         ctx.restore();
-    }, [buildings, items, cellSize, viewOffset, zoom]);
+    }, [buildings, items, cellSize, viewOffset, zoom, selectedBuildingId]);
 
     const getOutputCoords = (b: Building) => {
-        let {x, y} = b;
-        if(b.direction === 'right') x++; if(b.direction === 'left') x--;
-        if(b.direction === 'down') y++; if(b.direction === 'up') y--;
-        return [x,y];
+        let {x, y, width, height, direction} = b;
+        let ox = x, oy = y;
+        if (direction === 'right') { ox = x + width; oy = y + Math.floor(height / 2); }
+        else if (direction === 'left') { ox = x - 1; oy = y + Math.floor(height / 2); }
+        else if (direction === 'down') { ox = x + Math.floor(width/2); oy = y + height; }
+        else { ox = x + Math.floor(width/2); oy = y - 1; }
+        return [ox,oy];
     }
 
-    const getAdjacentInputCoords = (b: Building) => {
-        const {x, y, direction} = b;
-        const coords = [[x+1, y], [x-1, y], [x, y+1], [x, y-1]];
-        const output = getOutputCoords(b);
-        return coords.filter(([ix, iy]) => !(ix === output[0] && iy === output[1]));
+    const getAdjacentInputCoords = (b: Building): [number, number][] => {
+        const coords: [number, number][] = [];
+        for (let i = 0; i < b.width; i++) {
+            coords.push([b.x + i, b.y - 1], [b.x + i, b.y + b.height]);
+        }
+        for (let i = 0; i < b.height; i++) {
+            coords.push([b.x - 1, b.y + i], [b.x + b.width, b.y + i]);
+        }
+        const [ox, oy] = getOutputCoords(b);
+        return coords.filter(([ix, iy]) => !(ix === ox && iy === oy));
     }
     
     useEffect(() => { const anim = requestAnimationFrame(draw); return () => cancelAnimationFrame(anim); }, [draw]);
@@ -424,6 +437,10 @@ const FactorySimulator: React.FC = () => {
     const handlePanStart = (e: React.MouseEvent) => { setIsPanning(true); setPanStart({ x: e.clientX - viewOffset.x, y: e.clientY - viewOffset.y }); };
     const handlePanMove = (e: React.MouseEvent) => { if (!isPanning) return; setViewOffset({ x: e.clientX - panStart.x, y: e.clientY - panStart.y }); };
     const handlePanEnd = () => setIsPanning(false);
+
+    const updateOverclock = (id: number, overclock: number) => {
+        setBuildings(prev => prev.map(b => b.id === id ? {...b, overclock} : b));
+    };
 
     return (
         <div className="flex flex-col w-full h-full bg-card text-foreground">
@@ -434,12 +451,12 @@ const FactorySimulator: React.FC = () => {
                         <DollarSign size={16}/> ${money.toLocaleString()}
                     </div>
                     <div className={cn("text-sm font-bold flex items-center gap-2", powerGridStatus ? "text-green-400" : "text-red-500")}>
-                        <Zap size={16}/> {totalPowerConsumption} / {totalPowerProduction} MW
+                        <Zap size={16}/> {totalPowerConsumption.toFixed(0)} / {totalPowerProduction} MW
                     </div>
                 </div>
                 <div className="flex items-center gap-2">
                     <Button variant={isPlaying ? 'destructive' : 'default'} onClick={() => setIsPlaying(!isPlaying)} size="sm">{isPlaying ? <Pause/>:<Play/>}</Button>
-                    <Button variant="outline" onClick={() => { setBuildings([]); setItems([]); setInventory({ iron_plate: 20, gear: 5 }); setMoney(1000); }} size="sm"><RefreshCw/></Button>
+                    <Button variant="outline" onClick={() => { setBuildings([]); setItems([]); setInventory({ iron_plate: 20, gear: 5, circuit: 10 }); setMoney(1000); }} size="sm"><RefreshCw/></Button>
                     <Button variant="outline" onClick={() => setZoom(z => Math.min(z*1.2, 2))} size="sm"><ZoomIn/></Button>
                     <Button variant="outline" onClick={() => setZoom(z => Math.max(z/1.2, 0.5))} size="sm"><ZoomOut/></Button>
                 </div>
@@ -454,47 +471,58 @@ const FactorySimulator: React.FC = () => {
                             <TabsTrigger value="help"><HelpCircle size={16}/></TabsTrigger>
                         </TabsList>
                         <TabsContent value="build" className="space-y-2 mt-2">
-                             <Card>
-                                <CardHeader className='p-2'><CardTitle className='text-base'>Hand Crafting</CardTitle></CardHeader>
-                                <CardContent className="p-2 space-y-1">
-                                    {Object.keys(buildingCosts).map((building) => (
-                                        <Button key={building} variant="outline" size="sm" className="w-full justify-start gap-2" onClick={() => handCraft(building as BuildingType)}><Hammer size={14}/> {building}</Button>
-                                    ))}
-                                </CardContent>
-                            </Card>
-                            <Card>
-                                <CardHeader className='p-2'><CardTitle className='text-base'>Place Buildings</CardTitle></CardHeader>
-                                <CardContent className="p-2 space-y-2">
-                                    <div className="flex items-center gap-2">
-                                        <Button size="icon" variant="outline" onClick={rotateBuilding}>
-                                            <RotateCcw className={cn( 'transition-transform', buildingDirection === 'down' && 'rotate-90', buildingDirection === 'left' && 'rotate-180', buildingDirection === 'up' && 'rotate-[-90deg]' )}/>
-                                        </Button>
-                                        <span className="text-sm">Rotate (R key)</span>
-                                    </div>
-                                    <Button variant={selectedBuilding === 'generator' ? 'secondary' : 'outline'} onClick={() => setSelectedBuilding('generator')} className="w-full justify-start gap-2"><Zap/> Generator</Button>
-                                    <Button variant={selectedBuilding === 'miner' ? 'secondary' : 'outline'} onClick={() => setSelectedBuilding('miner')} className="w-full justify-start gap-2"><HardHat/> Miner</Button>
-                                    <Button variant={selectedBuilding === 'belt' ? 'secondary' : 'outline'} onClick={() => setSelectedBuilding('belt')} className="w-full justify-start gap-2"><Box/> Belt</Button>
-                                    <Button variant={selectedBuilding === 'chest' ? 'secondary' : 'outline'} onClick={() => setSelectedBuilding('chest')} className="w-full justify-start gap-2"><Warehouse/> Chest</Button>
-                                    <div className="pl-4">
-                                        <Label>Belt Tier: {beltTier}</Label>
-                                        <Slider min={1} max={3} step={1} value={[beltTier]} onValueChange={v => setBeltTier(v[0] as 1|2|3)}/>
-                                    </div>
-                                    <Button variant={selectedBuilding === 'assembler' ? 'secondary' : 'outline'} onClick={() => setSelectedBuilding('assembler')} className="w-full justify-start gap-2"><Cog/> Assembler</Button>
-                                    <Button variant={selectedBuilding === 'adv_assembler' ? 'secondary' : 'outline'} onClick={() => setSelectedBuilding('adv_assembler')} className="w-full justify-start gap-2"><Factory/> Adv. Assembler</Button>
-                                    {(selectedBuilding === 'assembler' || selectedBuilding === 'adv_assembler') && (
-                                        <div className="pl-4 space-y-1">
-                                        <Label>Recipe</Label>
-                                        {Object.keys(recipes).filter(r => recipes[r as Resource]?.building.includes(selectedBuilding)).map(recipe => (
-                                            <Button key={recipe} size="sm" variant={selectedRecipe === recipe ? 'secondary' : 'ghost'} onClick={() => setSelectedRecipe(recipe as Resource)} className="w-full justify-start text-xs">{recipe}</Button>
-                                        ))}
+                            {selectedBuilding ? (
+                                <Card>
+                                    <CardHeader className='p-2 flex-row justify-between items-center'>
+                                        <CardTitle className='text-base capitalize'>{selectedBuilding.type.replace('_', ' ')}</CardTitle>
+                                        <Button size="icon" variant="ghost" className="h-6 w-6" onClick={() => setSelectedBuildingId(null)}><X className="h-4 w-4" /></Button>
+                                    </CardHeader>
+                                    <CardContent className="p-2 space-y-2">
+                                        <p className="text-xs text-muted-foreground">ID: {selectedBuilding.id}</p>
+                                        <div>
+                                            <Label>Overclock: {Math.round(selectedBuilding.overclock*100)}%</Label>
+                                            <Slider min={0.5} max={2} step={0.1} value={[selectedBuilding.overclock]} onValueChange={v => updateOverclock(selectedBuilding.id, v[0])}/>
+                                            <p className="text-xs text-muted-foreground">Power: {selectedBuilding.power?.toFixed(1)} MW</p>
                                         </div>
-                                    )}
-                                </CardContent>
-                            </Card>
+                                    </CardContent>
+                                </Card>
+                            ) : (
+                                <>
+                                 <Card>
+                                    <CardHeader className='p-2'><CardTitle className='text-base'>Place Buildings</CardTitle></CardHeader>
+                                    <CardContent className="p-2 space-y-2">
+                                        <div className="flex items-center gap-2">
+                                            <Button size="icon" variant="outline" onClick={rotateBuilding}>
+                                                <RotateCcw className={cn( 'transition-transform', buildingDirection === 'down' && 'rotate-90', buildingDirection === 'left' && 'rotate-180', buildingDirection === 'up' && 'rotate-[-90deg]' )}/>
+                                            </Button>
+                                            <span className="text-sm">Rotate (R key)</span>
+                                        </div>
+                                        <Button variant={selectedBuildingType === 'generator' ? 'secondary' : 'outline'} onClick={() => setSelectedBuildingType('generator')} className="w-full justify-start gap-2"><Zap/> Generator</Button>
+                                        <Button variant={selectedBuildingType === 'miner' ? 'secondary' : 'outline'} onClick={() => setSelectedBuildingType('miner')} className="w-full justify-start gap-2"><HardHat/> Miner</Button>
+                                        <Button variant={selectedBuildingType === 'belt' ? 'secondary' : 'outline'} onClick={() => setSelectedBuildingType('belt')} className="w-full justify-start gap-2"><Box/> Belt</Button>
+                                        <Button variant={selectedBuildingType === 'chest' ? 'secondary' : 'outline'} onClick={() => setSelectedBuildingType('chest')} className="w-full justify-start gap-2"><Warehouse/> Chest</Button>
+                                        <div className="pl-4">
+                                            <Label>Belt Tier: {beltTier}</Label>
+                                            <Slider min={1} max={3} step={1} value={[beltTier]} onValueChange={v => setBeltTier(v[0] as 1|2|3)}/>
+                                        </div>
+                                        <Button variant={selectedBuildingType === 'assembler' ? 'secondary' : 'outline'} onClick={() => setSelectedBuildingType('assembler')} className="w-full justify-start gap-2"><Cog/> Assembler</Button>
+                                        <Button variant={selectedBuildingType === 'adv_assembler' ? 'secondary' : 'outline'} onClick={() => setSelectedBuildingType('adv_assembler')} className="w-full justify-start gap-2"><Factory/> Adv. Assembler (2x2)</Button>
+                                        {(selectedBuildingType === 'assembler' || selectedBuildingType === 'adv_assembler') && (
+                                            <div className="pl-4 space-y-1">
+                                            <Label>Recipe</Label>
+                                            {Object.keys(recipes).filter(r => recipes[r as Resource]?.building.includes(selectedBuildingType)).map(recipe => (
+                                                <Button key={recipe} size="sm" variant={selectedRecipe === recipe ? 'secondary' : 'ghost'} onClick={() => setSelectedRecipe(recipe as Resource)} className="w-full justify-start text-xs">{recipe}</Button>
+                                            ))}
+                                            </div>
+                                        )}
+                                    </CardContent>
+                                </Card>
+                                </>
+                            )}
                         </TabsContent>
                          <TabsContent value="inventory" className="mt-2">
                              <Card><CardHeader className='p-2'><CardTitle className='text-base'>Inventory</CardTitle></CardHeader>
-                                <CardContent className='p-2 text-xs space-y-1 h-96 overflow-y-auto'>
+                                <CardContent className='p-2 text-xs space-y-1 h-[60vh] overflow-y-auto'>
                                     {Object.entries(inventory).map(([res, count]) => count > 0 && <p key={res}>{res}: {count}</p>)}
                                     {Object.keys(inventory).length === 0 && <p className="text-muted-foreground">Your inventory is empty.</p>}
                                 </CardContent>
@@ -503,7 +531,7 @@ const FactorySimulator: React.FC = () => {
                          <TabsContent value="market" className="mt-2">
                               <Card>
                                 <CardHeader className='p-2'><CardTitle className='text-base'>Market</CardTitle></CardHeader>
-                                <CardContent className='p-2 text-xs space-y-2 h-96 overflow-y-auto'>
+                                <CardContent className='p-2 text-xs space-y-2 h-[60vh] overflow-y-auto'>
                                    {Object.entries(resourcePrices).map(([res, prices]) => (
                                     <div key={res} className="p-2 border rounded-md">
                                         <p className="font-bold capitalize">{res}</p>
@@ -531,15 +559,11 @@ const FactorySimulator: React.FC = () => {
                                         </AccordionItem>
                                         <AccordionItem value="basics">
                                             <AccordionTrigger>Basics</AccordionTrigger>
-                                            <AccordionContent>Place Miners on resource patches (colored squares). Use Belts to transport items. Use Assemblers to craft new items. Store items in Chests.</AccordionContent>
+                                            <AccordionContent>Place Miners on resource patches. Use Belts to transport items. Use Assemblers to craft new items. Store items in Chests.</AccordionContent>
                                         </AccordionItem>
                                         <AccordionItem value="power">
                                             <AccordionTrigger>Power</AccordionTrigger>
-                                            <AccordionContent>All buildings require power. Build Generators to produce power. Keep an eye on the power meter at the top!</AccordionContent>
-                                        </AccordionItem>
-                                        <AccordionItem value="crafting">
-                                            <AccordionTrigger>Crafting</AccordionTrigger>
-                                            <AccordionContent>You must craft buildings from resources. Use the "Hand Crafting" panel to get started. Place buildings from your inventory.</AccordionContent>
+                                            <AccordionContent>All buildings require power. Build Generators to produce power. Overclocking buildings increases speed but consumes much more power.</AccordionContent>
                                         </AccordionItem>
                                     </Accordion>
                                 </CardContent>
@@ -555,3 +579,5 @@ const FactorySimulator: React.FC = () => {
     );
 };
 export default FactorySimulator;
+
+    

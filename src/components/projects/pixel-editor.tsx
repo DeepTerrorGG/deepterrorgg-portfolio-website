@@ -466,7 +466,7 @@ const PixelEditor: React.FC = () => {
     toast({ title: 'Transformation Applied' });
 };
   
-  const toolGroups: { name: string; tools: { id: Tool; icon: React.ReactNode; name: string }[] }[] = [
+  const toolGroups: { name: string; tools: { id: Tool; icon: React.ReactNode; name: string }[] } = [
     { name: "Selection", tools: [
         { id: 'move', icon: <MousePointer />, name: 'Select' }, { id: 'lasso', icon: <Lasso />, name: 'Lasso Select' }, 
         { id: 'rectangle', icon: <div className="w-4 h-4 border-2 border-current" />, name: 'Rectangle Select' }, 
@@ -526,9 +526,9 @@ const PixelEditor: React.FC = () => {
                 <Tooltip><TooltipTrigger asChild><Button variant="outline" className="w-full" onClick={() => setSelectionMask(null)}>Deselect</Button></TooltipTrigger><TooltipContent><p>Clear current selection (Ctrl+D)</p></TooltipContent></Tooltip>
              </div>
         </div>
-        <div className={cn("flex-grow relative overflow-hidden bg-muted/30", isPanning ? 'cursor-grabbing' : 'cursor-crosshair')}>
+        <div className={cn("flex-grow relative overflow-auto bg-muted/30 flex items-center justify-center", isPanning ? 'cursor-grabbing' : 'cursor-crosshair')}>
             <div
-                className="absolute"
+                className="relative"
                 style={{ transform: `translate(${canvasOffset.x}px, ${canvasOffset.y}px)` }}
                 onMouseDown={handleMouseDown} onMouseMove={handleMouseMove} onMouseUp={handleMouseUp} onMouseLeave={handleMouseUp}
             >
@@ -572,3 +572,5 @@ const PixelEditor: React.FC = () => {
   );
 };
 export default PixelEditor;
+
+    

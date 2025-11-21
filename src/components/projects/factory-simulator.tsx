@@ -1,10 +1,9 @@
-
 'use client';
 
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { HardHat, Cog, Box, Play, Pause, RefreshCw, ZoomIn, ZoomOut, RotateCcw, Zap, Factory, HelpCircle } from 'lucide-react';
+import { HardHat, Cog, Box, Play, Pause, RefreshCw, ZoomIn, ZoomOut, RotateCcw, Zap, Factory, HelpCircle, Warehouse, Hammer } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import { Slider } from '../ui/slider';
@@ -12,8 +11,8 @@ import { Label } from '../ui/label';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '../ui/accordion';
 
 // --- TYPE DEFINITIONS ---
-type BuildingType = 'miner' | 'belt' | 'assembler' | 'adv_assembler' | 'generator';
-type Resource = 'iron_ore' | 'copper_ore' | 'coal' | 'iron_plate' | 'copper_wire' | 'gear' | 'circuit';
+type BuildingType = 'miner' | 'belt' | 'assembler' | 'adv_assembler' | 'generator' | 'chest';
+type Resource = 'iron_ore' | 'copper_ore' | 'coal' | 'iron_plate' | 'copper_wire' | 'gear' | 'circuit' | 'belt' | 'miner' | 'assembler';
 type Direction = 'up' | 'down' | 'left' | 'right';
 
 interface Building {
@@ -51,6 +50,8 @@ const resourceColors: Record<Resource, string> = {
   copper_wire: '#fbbf24',
   gear: '#71717a',
   circuit: '#22c55e',
+  // Craftable items (buildings) don't need colors as they aren't on belts
+  belt: '', miner: '', assembler: '',
 };
 
 const resourcePatches: Record<string, Resource> = {
@@ -59,15 +60,21 @@ const resourcePatches: Record<string, Resource> = {
     '10,25': 'coal', '11,25': 'coal', '10,26': 'coal',
 };
 
-const recipes: Record<Resource, { inputs: Partial<Record<Resource, number>>, time: number, output: number, building: BuildingType[] }> = {
+type RecipeDefinition = { inputs: Partial<Record<Resource, number>>, time: number, output: number, building: BuildingType[] };
+
+const recipes: Partial<Record<Resource, RecipeDefinition>> = {
     iron_plate: { inputs: { iron_ore: 1 }, time: 20, output: 1, building: ['assembler', 'adv_assembler'] },
     copper_wire: { inputs: { copper_ore: 1 }, time: 10, output: 2, building: ['assembler', 'adv_assembler'] },
     gear: { inputs: { iron_plate: 2 }, time: 50, output: 1, building: ['assembler', 'adv_assembler'] },
     circuit: { inputs: { iron_plate: 1, copper_wire: 3}, time: 60, output: 1, building: ['adv_assembler']},
-    // required to make the type checker happy
-    iron_ore: { inputs: {}, time: 0, output: 0, building: [] },
-    copper_ore: { inputs: {}, time: 0, output: 0, building: [] },
-    coal: { inputs: {}, time: 0, output: 0, building: [] },
+};
+
+const buildingCosts: Partial<Record<BuildingType, Partial<Record<Resource, number>>>> = {
+    belt: { iron_plate: 1 },
+    miner: { iron_plate: 3, gear: 2 },
+    assembler: { gear: 4, circuit: 2 },
+    chest: { iron_plate: 4 },
+    generator: { iron_plate: 5, gear: 3 },
 };
 
 const buildingPower: Record<BuildingType, number> = {
@@ -75,7 +82,8 @@ const buildingPower: Record<BuildingType, number> = {
     belt: 1,
     assembler: 20,
     adv_assembler: 40,
-    generator: -100 // negative means production
+    generator: -100, // negative means production
+    chest: 0,
 }
 
 const FactorySimulator: React.FC = () => {
@@ -83,7 +91,9 @@ const FactorySimulator: React.FC = () => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const [buildings, setBuildings] = useState<Building[]>([]);
     const [items, setItems] = useState<ItemOnBelt[]>([]);
-    const [selectedBuilding, setSelectedBuilding] = useState<BuildingType>('miner');
+    const [inventory, setInventory] = useState<Partial<Record<Resource, number>>>({ iron_plate: 20, gear: 5 });
+    
+    const [selectedBuilding, setSelectedBuilding] = useState<BuildingType>('belt');
     const [buildingDirection, setBuildingDirection] = useState<Direction>('right');
     const [beltTier, setBeltTier] = useState<1|2|3>(1);
     const [selectedRecipe, setSelectedRecipe] = useState<Resource>('iron_plate');
@@ -101,18 +111,66 @@ const FactorySimulator: React.FC = () => {
 
     const placeBuilding = (x: number, y: number) => {
         if(buildings.some(b => b.x === x && b.y === y)) return;
+
+        const cost = buildingCosts[selectedBuilding];
+        if (cost) {
+            for (const [resource, amount] of Object.entries(cost)) {
+                if ((inventory[resource as Resource] || 0) < amount) {
+                    toast({ title: 'Not enough resources', description: `You need ${amount} ${resource} to build a ${selectedBuilding}.`, variant: 'destructive'});
+                    return;
+                }
+            }
+            // Deduct resources
+            const newInventory = {...inventory};
+            for (const [resource, amount] of Object.entries(cost)) {
+                newInventory[resource as Resource]! -= amount;
+            }
+            setInventory(newInventory);
+        } else {
+             // For buildings without cost, we check if they are in inventory
+            if((inventory[selectedBuilding as Resource] || 0) < 1) {
+                toast({ title: 'No building in inventory', description: `You need to craft a ${selectedBuilding} first.`, variant: 'destructive'});
+                return;
+            }
+            setInventory(inv => ({...inv, [selectedBuilding as Resource]: (inv[selectedBuilding as Resource] || 0) - 1}));
+        }
+
+
         const newBuilding: Building = {
             id: nextId.current++,
             type: selectedBuilding, x, y,
             direction: buildingDirection,
             overclock: 1,
             power: buildingPower[selectedBuilding],
-            ...(selectedBuilding === 'assembler' && { recipe: selectedRecipe, inventory: {}, productionProgress: 0 }),
-            ...(selectedBuilding === 'adv_assembler' && { recipe: selectedRecipe, inventory: {}, productionProgress: 0 }),
+            inventory: {}, 
+            ...( (selectedBuilding === 'assembler' || selectedBuilding === 'adv_assembler') && { recipe: selectedRecipe, productionProgress: 0 }),
         };
         setBuildings(prev => [...prev, newBuilding]);
     };
     
+    const handCraft = (building: BuildingType) => {
+        const cost = buildingCosts[building];
+        if (!cost) {
+            toast({title: 'Cannot be crafted', description: `This item cannot be hand-crafted.`});
+            return;
+        }
+
+        for (const [resource, amount] of Object.entries(cost)) {
+            if ((inventory[resource as Resource] || 0) < amount) {
+                toast({ title: 'Not enough resources', description: `You need ${amount} ${resource}.`, variant: 'destructive'});
+                return;
+            }
+        }
+        
+        const newInventory = {...inventory};
+        for (const [resource, amount] of Object.entries(cost)) {
+            newInventory[resource as Resource]! -= amount;
+        }
+        newInventory[building as Resource] = (newInventory[building as Resource] || 0) + 1;
+        setInventory(newInventory);
+        toast({title: 'Crafted!', description: `You crafted 1x ${building}.`});
+    }
+
     const rotateBuilding = useCallback(() => {
         setBuildingDirection(d => d === 'right' ? 'down' : d === 'down' ? 'left' : d === 'left' ? 'up' : 'right');
     }, []);
@@ -163,6 +221,7 @@ const FactorySimulator: React.FC = () => {
                     // Assembler Logic
                     if ((b.type === 'assembler' || b.type === 'adv_assembler') && b.recipe) {
                         const recipe = recipes[b.recipe];
+                        if(!recipe) return;
                         // 1. Grab ingredients
                         getAdjacentInputCoords(b).forEach(([ix, iy]) => {
                             const ingredient = currentItems.find(item => item.x === ix && item.y === iy && item.progress >= 1);
@@ -209,8 +268,20 @@ const FactorySimulator: React.FC = () => {
                 const movedItems: ItemOnBelt[] = [];
                 currentItems.forEach(item => {
                     const belt = buildings.find(b => b.x === item.x && b.y === item.y);
-                    if (!belt || (belt.type !== 'belt' && belt.type !== 'miner' && belt.type !== 'assembler' && belt.type !== 'adv_assembler')) {
+                    if (!belt || (belt.type !== 'belt' && belt.type !== 'miner' && belt.type !== 'assembler' && belt.type !== 'adv_assembler' && belt.type !== 'chest')) {
                       movedItems.push(item); return; 
+                    }
+
+                    // Handle chest input
+                    if (belt.type === 'chest') {
+                        if (Object.values(belt.inventory || {}).reduce((s, a) => s+a, 0) < 50) { // Chest capacity
+                             belt.inventory = belt.inventory || {};
+                             belt.inventory[item.resource] = (belt.inventory[item.resource] || 0) + 1;
+                             // Item consumed, don't add to movedItems
+                        } else {
+                             movedItems.push({ ...item, progress: 1 }); // Belt is backed up
+                        }
+                        return;
                     }
                     
                     const [nextX, nextY] = getOutputCoords(belt);
@@ -256,7 +327,7 @@ const FactorySimulator: React.FC = () => {
 
         // Draw Buildings
         buildings.forEach(b => {
-            ctx.fillStyle = b.type === 'miner' ? '#4f46e5' : b.type === 'belt' ? '#64748b' : b.type === 'generator' ? '#facc15' : b.type === 'adv_assembler' ? '#0f766e' : '#0d9488';
+            ctx.fillStyle = b.type === 'miner' ? '#4f46e5' : b.type === 'belt' ? '#64748b' : b.type === 'generator' ? '#facc15' : b.type === 'adv_assembler' ? '#0f766e' : b.type === 'chest' ? '#ca8a04' : '#0d9488';
             ctx.fillRect(b.x*cellSize, b.y*cellSize, cellSize, cellSize);
             
             const centerX = b.x*cellSize + cellSize/2, centerY = b.y*cellSize + cellSize/2;
@@ -328,34 +399,23 @@ const FactorySimulator: React.FC = () => {
                 </div>
                 <div className="flex items-center gap-2">
                     <Button variant={isPlaying ? 'destructive' : 'default'} onClick={() => setIsPlaying(!isPlaying)} size="sm">{isPlaying ? <Pause/>:<Play/>}</Button>
-                    <Button variant="outline" onClick={() => { setBuildings([]); setItems([]); }} size="sm"><RefreshCw/></Button>
+                    <Button variant="outline" onClick={() => { setBuildings([]); setItems([]); setInventory({ iron_plate: 20, gear: 5 }); }} size="sm"><RefreshCw/></Button>
                     <Button variant="outline" onClick={() => setZoom(z => Math.min(z*1.2, 2))} size="sm"><ZoomIn/></Button>
                     <Button variant="outline" onClick={() => setZoom(z => Math.max(z/1.2, 0.5))} size="sm"><ZoomOut/></Button>
                 </div>
             </div>
             <div className="flex-grow flex">
-                <div className="w-64 p-4 border-r border-border bg-background space-y-4">
-                    <Card>
-                        <CardHeader className='p-2'><CardTitle className='text-base'>How to Play</CardTitle></CardHeader>
-                        <CardContent className='p-2'>
-                            <Accordion type="single" collapsible className='text-xs'>
-                                <AccordionItem value="goal">
-                                    <AccordionTrigger>Goal</AccordionTrigger>
-                                    <AccordionContent>Automate the production of complex items from raw resources.</AccordionContent>
-                                </AccordionItem>
-                                <AccordionItem value="basics">
-                                    <AccordionTrigger>Basics</AccordionTrigger>
-                                    <AccordionContent>
-                                        Place Miners on resource patches (colored squares). Use Belts to transport items. Use Assemblers to craft new items.
-                                    </AccordionContent>
-                                </AccordionItem>
-                                <AccordionItem value="power">
-                                    <AccordionTrigger>Power</AccordionTrigger>
-                                    <AccordionContent>
-                                        All buildings require power. Build Generators to produce power. Keep an eye on the power meter at the top!
-                                    </AccordionContent>
-                                </AccordionItem>
-                            </Accordion>
+                <div className="w-64 p-2 border-r border-border bg-background space-y-2">
+                    <Card><CardHeader className='p-2'><CardTitle className='text-base'>Inventory</CardTitle></CardHeader>
+                        <CardContent className='p-2 text-xs space-y-1'>
+                            {Object.entries(inventory).map(([res, count]) => count > 0 && <p key={res}>{res}: {count}</p>)}
+                        </CardContent>
+                    </Card>
+                    <Card><CardHeader className='p-2'><CardTitle className='text-base'>Hand Crafting</CardTitle></CardHeader>
+                        <CardContent className="p-2 space-y-1">
+                            {Object.entries(buildingCosts).map(([building, cost]) => (
+                                <Button key={building} variant="outline" size="sm" className="w-full justify-start gap-2" onClick={() => handCraft(building as BuildingType)}><Hammer size={14}/> {building}</Button>
+                            ))}
                         </CardContent>
                     </Card>
                     <Card>
@@ -364,8 +424,9 @@ const FactorySimulator: React.FC = () => {
                             <Button variant={selectedBuilding === 'generator' ? 'secondary' : 'outline'} onClick={() => setSelectedBuilding('generator')} className="w-full justify-start gap-2"><Zap/> Generator</Button>
                             <Button variant={selectedBuilding === 'miner' ? 'secondary' : 'outline'} onClick={() => setSelectedBuilding('miner')} className="w-full justify-start gap-2"><HardHat/> Miner</Button>
                             <Button variant={selectedBuilding === 'belt' ? 'secondary' : 'outline'} onClick={() => setSelectedBuilding('belt')} className="w-full justify-start gap-2"><Box/> Belt</Button>
+                            <Button variant={selectedBuilding === 'chest' ? 'secondary' : 'outline'} onClick={() => setSelectedBuilding('chest')} className="w-full justify-start gap-2"><Warehouse/> Chest</Button>
                             <div className="pl-4">
-                                <Label>Tier: {beltTier}</Label>
+                                <Label>Belt Tier: {beltTier}</Label>
                                 <Slider min={1} max={3} step={1} value={[beltTier]} onValueChange={v => setBeltTier(v[0] as 1|2|3)}/>
                             </div>
                             <Button variant={selectedBuilding === 'assembler' ? 'secondary' : 'outline'} onClick={() => setSelectedBuilding('assembler')} className="w-full justify-start gap-2"><Cog/> Assembler</Button>
@@ -373,7 +434,7 @@ const FactorySimulator: React.FC = () => {
                             {(selectedBuilding === 'assembler' || selectedBuilding === 'adv_assembler') && (
                                 <div className="pl-4 space-y-1">
                                 <Label>Recipe</Label>
-                                {Object.keys(recipes).filter(r => recipes[r as Resource].building.includes(selectedBuilding)).map(recipe => (
+                                {Object.keys(recipes).filter(r => recipes[r as Resource]?.building.includes(selectedBuilding)).map(recipe => (
                                     <Button key={recipe} size="sm" variant={selectedRecipe === recipe ? 'secondary' : 'ghost'} onClick={() => setSelectedRecipe(recipe as Resource)} className="w-full justify-start text-xs">{recipe}</Button>
                                 ))}
                                 </div>

@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useRef, useState, useEffect, useCallback } from 'react';
@@ -44,7 +45,10 @@ import {
   Replace,
   ZoomIn,
   ZoomOut,
-  Hand
+  Hand,
+  Square,
+  Circle,
+  Type
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
@@ -490,88 +494,105 @@ const PixelEditor: React.FC = () => {
   ];
 
   return (
-    <div className="flex flex-col w-full h-full bg-card">
-        <TooltipProvider>
-      <div className="flex-grow flex flex-col md:flex-row overflow-hidden">
-        <div className="w-full md:w-48 border-b md:border-b-0 md:border-r p-2 flex flex-col gap-2 overflow-y-auto">
-            {toolGroups.map(group => (
-                <div key={group.name}>
-                    <h3 className="text-base font-bold text-primary mb-2 px-2">{group.name}</h3>
-                    <div className="grid grid-cols-4 md:grid-cols-2 gap-1">
-                        {group.tools.map(t => (
-                            <Tooltip key={t.id}>
-                                <TooltipTrigger asChild>
-                                  <Button 
-                                    variant={tool === t.id ? 'secondary' : 'ghost'} 
-                                    size="icon" 
-                                    onClick={() => group.name === 'Transform' ? transformLayer(t.id.split('-')[1] as 'h' | 'v' | 'cw') : setTool(t.id)}
-                                  >
-                                    {t.icon}
-                                  </Button>
-                                </TooltipTrigger>
-                                <TooltipContent side="right"><p>{t.name}</p></TooltipContent>
-                            </Tooltip>
+    <div className="flex flex-col w-full h-full bg-card text-foreground">
+      <TooltipProvider>
+        <div className="flex-grow flex flex-col md:flex-row overflow-hidden">
+          {/* LEFT TOOLBAR */}
+          <div className="w-full md:w-16 border-b md:border-b-0 md:border-r p-2 flex flex-row md:flex-col items-center gap-2 overflow-x-auto md:overflow-y-auto">
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button variant={'ghost'} size="icon" className="flex-shrink-0"><ChevronsUpDown /></Button>
+                </PopoverTrigger>
+                <PopoverContent side="right" className="w-auto p-2">
+                    <div className="space-y-4">
+                        {toolGroups.map(group => (
+                          <div key={group.name}>
+                              <h3 className="text-sm font-bold text-primary mb-2 px-2">{group.name}</h3>
+                              <div className="grid grid-cols-2 gap-1">
+                                  {group.tools.map(t => (
+                                      <Tooltip key={t.id}>
+                                          <TooltipTrigger asChild>
+                                            <Button 
+                                              variant={tool === t.id ? 'secondary' : 'ghost'} 
+                                              size="icon" 
+                                              onClick={() => group.name === 'Transform' ? transformLayer(t.id.split('-')[1] as 'h' | 'v' | 'cw') : setTool(t.id)}
+                                            >
+                                              {t.icon}
+                                            </Button>
+                                          </TooltipTrigger>
+                                          <TooltipContent side="right"><p>{t.name}</p></TooltipContent>
+                                      </Tooltip>
+                                  ))}
+                              </div>
+                          </div>
                         ))}
                     </div>
-                </div>
-            ))}
-             <div>
-                <h3 className="text-base font-bold text-primary mt-2 mb-2 px-2">Color</h3>
-                <div className="flex items-center gap-2">
-                    <input type="color" value={primaryColor} onChange={e => setPrimaryColor(e.target.value)} className="w-10 h-10 bg-transparent border-2 border-primary rounded-md cursor-pointer"/>
-                    <input type="color" value={secondaryColor} onChange={e => setSecondaryColor(e.target.value)} className="w-10 h-10 bg-transparent border-2 border-border rounded-md cursor-pointer"/>
-                </div>
-             </div>
-             <div className="mt-auto space-y-2 pt-4">
-                <Tooltip><TooltipTrigger asChild><Button variant="outline" className="w-full" onClick={() => setSelectionMask(null)}>Deselect</Button></TooltipTrigger><TooltipContent><p>Clear current selection (Ctrl+D)</p></TooltipContent></Tooltip>
-             </div>
-        </div>
-        <div className={cn("flex-grow relative bg-muted/30", isPanning ? 'cursor-grabbing' : 'cursor-crosshair')}>
-            <ScrollArea className="w-full h-full">
+                </PopoverContent>
+              </Popover>
+              <div className="flex flex-col gap-2 my-auto">
+                <input type="color" value={primaryColor} onChange={e => setPrimaryColor(e.target.value)} className="w-8 h-8 md:w-10 md:h-10 bg-transparent border-2 border-primary rounded-md cursor-pointer"/>
+                <input type="color" value={secondaryColor} onChange={e => setSecondaryColor(e.target.value)} className="w-8 h-8 md:w-10 md:h-10 bg-transparent border-2 border-border rounded-md cursor-pointer"/>
+              </div>
+          </div>
+          
+          {/* MAIN CANVAS AREA */}
+          <div className="flex-grow relative bg-muted/30" onContextMenu={(e) => e.preventDefault()}>
+            <div className="absolute inset-0 overflow-auto">
                 <div
-                    className="relative w-max h-max"
-                    style={{ transform: `translate(${canvasOffset.x}px, ${canvasOffset.y}px)` }}
+                    className={cn("relative w-max h-max m-auto", isPanning ? 'cursor-grabbing' : 'cursor-crosshair')}
                     onMouseDown={handleMouseDown} onMouseMove={handleMouseMove} onMouseUp={handleMouseUp} onMouseLeave={handleMouseUp}
+                    style={{ 
+                        transform: `translate(${canvasOffset.x}px, ${canvasOffset.y}px)`,
+                        width: gridSize * pixelSize,
+                        height: gridSize * pixelSize
+                    }}
                 >
-                    <canvas 
-                        ref={canvasRef}
-                        style={{ imageRendering: 'pixelated' }}
-                        className="shadow-lg"
-                    />
+                    <canvas ref={canvasRef} />
                 </div>
-            </ScrollArea>
+            </div>
+          </div>
+          
+          {/* RIGHT PANELS */}
+          <div className="w-full md:w-64 border-t md:border-t-0 md:border-l flex flex-col">
+              <ScrollArea>
+                  <div className="p-2 space-y-2">
+                    <Card>
+                      <CardHeader className="p-2"><h4 className="font-bold text-center text-sm">Animation</h4></CardHeader>
+                      <CardContent className="p-2 space-y-2">
+                          <canvas ref={previewCanvasRef} width={gridSize} height={gridSize} className="w-full aspect-square border bg-background" style={{ imageRendering: 'pixelated' }}/>
+                          <div className="flex items-center gap-2"><Button variant="outline" size="icon" onClick={()=>setIsAnimating(!isAnimating)}>{isAnimating?<Pause/>:<Play/>}</Button><div className="w-full"><Label className="text-xs">FPS: {fps}</Label><Slider min={1} max={24} step={1} value={[fps]} onValueChange={v=>setFps(v[0])} /></div></div>
+                          <div className="flex items-center space-x-2"><input type="checkbox" id="onion-skin" checked={showOnionSkin} onChange={e=>setShowOnionSkin(e.target.checked)}/><Label htmlFor="onion-skin" className="text-sm">Onion Skin</Label></div>
+                          <div className="flex gap-2"><Button onClick={()=>downloadImage('png')} className="flex-1"><Download className="mr-2 h-4 w-4"/>PNG</Button><Button onClick={()=>downloadImage('gif')} className="flex-1"><Download className="mr-2 h-4 w-4"/>GIF</Button></div>
+                      </CardContent>
+                    </Card>
+                    <Card>
+                        <CardHeader className="p-2"><h4 className="font-bold text-center text-sm">Canvas</h4></CardHeader>
+                        <CardContent className="p-2 space-y-2">
+                            <div>
+                                <Label className="text-xs">Zoom</Label>
+                                <div className="flex items-center gap-2">
+                                    <Button variant="outline" size="icon" onClick={() => setPixelSize(s => Math.max(s - 4, 4))}><ZoomOut className="h-4 w-4"/></Button>
+                                    <Slider min={4} max={40} step={2} value={[pixelSize]} onValueChange={v => setPixelSize(v[0])} />
+                                    <Button variant="outline" size="icon" onClick={() => setPixelSize(s => Math.min(s + 4, 40))}><ZoomIn className="h-4 w-4"/></Button>
+                                </div>
+                            </div>
+                            <Label className="text-xs">Grid Size</Label>
+                            <div className="grid grid-cols-2 gap-2">
+                                {GRID_SIZE_OPTIONS.map(size => (
+                                    <Button key={size} variant={gridSize === size ? 'secondary' : 'outline'} onClick={() => handleGridSizeChange(size)}>{size}x{size}</Button>
+                                ))}
+                            </div>
+                        </CardContent>
+                    </Card>
+                  </div>
+              </ScrollArea>
+          </div>
         </div>
-        <div className="w-full md:w-64 border-t md:border-t-0 md:border-l p-2 flex flex-col gap-2 overflow-y-auto">
-            <Card><CardHeader className="p-2"><h4 className="font-bold text-center text-sm">Animation</h4></CardHeader><CardContent className="p-2 space-y-2">
-                <canvas ref={previewCanvasRef} width={gridSize} height={gridSize} className="w-full aspect-square border bg-background" style={{ imageRendering: 'pixelated' }}/>
-                <div className="flex items-center gap-2"><Button variant="outline" size="icon" onClick={()=>setIsAnimating(!isAnimating)}>{isAnimating?<Pause/>:<Play/>}</Button><div className="w-full"><Label className="text-xs">FPS: {fps}</Label><Slider min={1} max={24} step={1} value={[fps]} onValueChange={v=>setFps(v[0])} /></div></div>
-                <div className="flex items-center space-x-2"><input type="checkbox" id="onion-skin" checked={showOnionSkin} onChange={e=>setShowOnionSkin(e.target.checked)}/><Label htmlFor="onion-skin" className="text-sm">Onion Skin</Label></div>
-                <div className="flex gap-2"><Button onClick={()=>downloadImage('png')} className="flex-1"><Download className="mr-2 h-4 w-4"/>PNG</Button><Button onClick={()=>downloadImage('gif')} className="flex-1"><Download className="mr-2 h-4 w-4"/>GIF</Button></div>
-            </CardContent></Card>
-            <Card>
-                <CardHeader className="p-2"><h4 className="font-bold text-center text-sm">Canvas</h4></CardHeader>
-                <CardContent className="p-2 space-y-2">
-                    <div>
-                        <Label className="text-xs">Zoom</Label>
-                        <div className="flex items-center gap-2">
-                            <Button variant="outline" size="icon" onClick={() => setPixelSize(s => Math.max(s - 4, 4))}><ZoomOut className="h-4 w-4"/></Button>
-                            <Slider min={4} max={40} step={2} value={[pixelSize]} onValueChange={v => setPixelSize(v[0])} />
-                            <Button variant="outline" size="icon" onClick={() => setPixelSize(s => Math.min(s + 4, 40))}><ZoomIn className="h-4 w-4"/></Button>
-                        </div>
-                    </div>
-                    <Label className="text-xs">Grid Size</Label>
-                    <div className="grid grid-cols-2 gap-2">
-                        {GRID_SIZE_OPTIONS.map(size => (
-                            <Button key={size} variant={gridSize === size ? 'secondary' : 'outline'} onClick={() => handleGridSizeChange(size)}>{size}x{size}</Button>
-                        ))}
-                    </div>
-                </CardContent>
-            </Card>
-        </div>
-      </div>
-      <AnimationTimeline frames={frames.map(f => f.layers.map(l => l.data))} activeFrameIndex={activeFrameIndex} onSelectFrame={setActiveFrameIndex} onAddFrame={addFrame} onDuplicateFrame={duplicateFrame} onDeleteFrame={deleteFrame} gridSize={gridSize} />
+        <AnimationTimeline frames={frames.map(f => f.layers.map(l => l.data))} activeFrameIndex={activeFrameIndex} onSelectFrame={setActiveFrameIndex} onAddFrame={addFrame} onDuplicateFrame={duplicateFrame} onDeleteFrame={deleteFrame} gridSize={gridSize} />
       </TooltipProvider>
     </div>
   );
 };
 export default PixelEditor;
+
+    

@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
@@ -69,12 +70,13 @@ const ThePasswordGame: React.FC = () => {
         };
         setAiValidationResults(prev => ({ ...prev, [newRule.id]: false }));
         setActiveRules(prev => [...prev, newRule]);
+        setHintStates({}); // Clear hints for new rule
       } else {
         toast({ title: "AI rule generation failed", description: "Could not generate a new rule. Please try again.", variant: 'destructive' });
       }
     } catch (e) {
       console.error(e);
-      toast({ title: "AI Error", description: "An error occurred while fetching a new rule.", variant: 'destructive' });
+      toast({ title: "AI Error", description: "An error occurred while fetching a new rule.", variant: "destructive" });
     }
     setIsFetchingRule(false);
   }, [activeRules, toast, isFetchingRule]);
@@ -89,6 +91,7 @@ const ThePasswordGame: React.FC = () => {
       const nextInitialRule = initialRules.find(r => !currentRuleIds.has(r.id));
       if (nextInitialRule) {
         setActiveRules(prev => [...prev, nextInitialRule]);
+        setHintStates({}); // Clear hints for new rule
         return;
       }
 
@@ -114,6 +117,7 @@ const ThePasswordGame: React.FC = () => {
           }
 
           setActiveRules(prev => [...prev, ruleToAdd]);
+          setHintStates({}); // Clear hints for new rule
         }
         return; // Exit after adding a rule.
       }
@@ -146,6 +150,9 @@ const ThePasswordGame: React.FC = () => {
     setIsFetchingRule(false);
     setHintStates({});
   }
+  
+  const lastUnmetRuleIndex = validationResults.findLastIndex(r => !r.isMet);
+
 
   return (
     <div className="flex flex-col items-center justify-center w-full min-h-full bg-card p-4 sm:p-6 lg:p-8">
@@ -172,7 +179,7 @@ const ThePasswordGame: React.FC = () => {
           <div className="space-y-3">
             <h3 className="font-semibold">Rules:</h3>
             <ul className="space-y-2">
-              {validationResults.map(rule => (
+              {validationResults.map((rule, index) => (
                 <li key={rule.id} className={cn(
                   "flex items-start gap-3 p-3 rounded-md transition-all duration-300 flex-col",
                   rule.isMet ? 'bg-green-500/10 text-green-300' : 'bg-red-500/10 text-red-300'
@@ -188,7 +195,7 @@ const ThePasswordGame: React.FC = () => {
                            rule.text
                           }
                         </span>
-                        {!rule.isMet && (
+                        {!rule.isMet && index === lastUnmetRuleIndex && (
                             <Button variant="ghost" size="sm" onClick={() => handleGetHint(rule)} disabled={hintStates[rule.id]?.isLoading} className="text-current h-6 px-1">
                                 {hintStates[rule.id]?.isLoading ? <Loader2 className="h-4 w-4 animate-spin"/> : <Wand2 className="h-4 w-4"/>}
                                 <span className="sr-only">Get Hint</span>
@@ -233,3 +240,4 @@ const ThePasswordGame: React.FC = () => {
 };
 
 export default ThePasswordGame;
+

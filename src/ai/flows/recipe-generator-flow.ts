@@ -6,7 +6,7 @@
  * ingredients.
  *
  * This file defines a Genkit flow that takes a list of ingredients as input
- * and returns a recipe.
+ * and returns a recipe as a formatted Markdown string.
  *
  * It exports the following functions:
  * - generateRecipe: The main function that handles the recipe generation.
@@ -15,22 +15,30 @@
 import { ai } from '@/ai/genkit';
 import {
   type Ingredients,
-  type Recipe,
-  RecipeSchema,
 } from './recipe-generator-flow-types';
 
 /**
  * The main function that handles the recipe generation.
  *
  * @param ingredients The list of ingredients and other options.
- * @returns The generated recipe.
+ * @returns The generated recipe as a Markdown formatted string.
  */
-export async function generateRecipe(ingredients: Ingredients): Promise<Recipe | null> {
+export async function generateRecipe(ingredients: Ingredients): Promise<string | null> {
   
   let systemPrompt = `You are an expert chef. The user will provide a list of ingredients and some options. Generate a creative and delicious recipe based on their input.
-You must respond with ONLY a valid JSON object string. Do not include any other text or markdown formatting.
-The JSON object must have the fields "name", "description", "ingredients" (an array of strings), and "instructions" (an array of strings).
-The "ingredients" field should include quantities. The "instructions" field should have each string be a step in the recipe.`;
+You must respond with ONLY the recipe formatted in Markdown. Do not include any other text.
+The format should be:
+# Recipe Name
+A short, enticing description of the dish.
+
+## Ingredients
+- 1 cup of Ingredient A
+- 2 tbsp of Ingredient B
+
+## Instructions
+1. First step of the recipe.
+2. Second step of the recipe.
+`;
 
   let userPrompt = `I have the following ingredients: ${ingredients.ingredients.join(', ')}.`;
 
@@ -51,27 +59,5 @@ The "ingredients" field should include quantities. The "instructions" field shou
       model: 'googleai/gemini-2.0-flash',
   });
 
-  try {
-    // Clean the raw text response to extract only the JSON part.
-    // The AI sometimes wraps the JSON in ```json ... ```
-    const jsonRegex = /```json\s*([\s\S]*?)\s*```/;
-    const match = text.match(jsonRegex);
-    
-    let jsonString = text;
-    if (match) {
-      jsonString = match[1];
-    }
-
-    const parsed = JSON.parse(jsonString);
-    const validated = RecipeSchema.safeParse(parsed);
-    if (validated.success) {
-      return validated.data;
-    } else {
-      console.error("AI returned invalid recipe format:", validated.error);
-      return null;
-    }
-  } catch (error) {
-    console.error("Failed to parse AI response as JSON:", error);
-    return null;
-  }
+  return text || null;
 }

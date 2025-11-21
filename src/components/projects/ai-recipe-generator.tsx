@@ -16,6 +16,9 @@ import { Loader2 } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Label } from '../ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+
 
 const diets: RecipeDiet[] = ['None', 'Vegetarian', 'Vegan', 'Gluten-Free', 'Keto'];
 const cuisines: RecipeCuisine[] = ['Any', 'Italian', 'Mexican', 'Indian', 'Chinese', 'Japanese', 'French', 'American'];
@@ -23,7 +26,7 @@ const cuisines: RecipeCuisine[] = ['Any', 'Italian', 'Mexican', 'Indian', 'Chine
 export default function AIRecipeGenerator() {
   const [ingredients, setIngredients] = useState<string>('chicken, rice, broccoli');
   const [allergies, setAllergies] = useState<string>('');
-  const [recipe, setRecipe] = useState<Recipe | null>(null);
+  const [recipe, setRecipe] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
   const [diet, setDiet] = useState<RecipeDiet>('None');
@@ -120,24 +123,21 @@ export default function AIRecipeGenerator() {
 
           {recipe && (
             <ScrollArea className="mt-6 border p-4 rounded-md h-[40vh]">
-              <h2 className="text-2xl font-bold text-primary">{recipe.name}</h2>
-              <p className="mt-2 text-muted-foreground">{recipe.description}</p>
-              <h3 className="mt-4 text-xl font-semibold">Ingredients</h3>
-                <ul className="mt-2 list-disc list-inside space-y-1">
-                    {recipe.ingredients.map((ing, index) => (
-                    <li key={index}>{ing}</li>
-                    ))}
-              </ul>
-              <h3 className="mt-4 text-xl font-semibold">Instructions</h3>
-              <ol className="mt-2 list-decimal list-inside space-y-2">
-                {recipe.instructions.map((step, index) => (
-                  <li key={index}>{step}</li>
-                ))}
-              </ol>
+              <article className="prose prose-sm prose-invert max-w-none">
+                <ReactMarkdown remarkPlugins={[remarkGfm]}>{recipe}</ReactMarkdown>
+              </article>
             </ScrollArea>
           )}
         </CardContent>
       </Card>
+      <style jsx global>{`
+        .prose h1, .prose h2, .prose h3 {
+          color: hsl(var(--primary));
+        }
+        .prose ul, .prose ol {
+          color: hsl(var(--foreground));
+        }
+       `}</style>
     </div>
   );
 }

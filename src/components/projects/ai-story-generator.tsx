@@ -3,7 +3,6 @@
 
 import { generateStory } from '@/ai/flows/story-generator-flow';
 import { 
-  type Story, 
   type StoryPrompt,
   type StoryGenre,
   type StoryStyle,
@@ -25,7 +24,7 @@ const twists: StoryPlotTwist[] = ['None', 'Betrayal', 'Amnesia', 'It was all a d
 export default function AIStoryGenerator() {
   const [character, setCharacter] = useState<string>('A brave knight');
   const [setting, setSetting] = useState<string>('A dark forest');
-  const [story, setStory] = useState<Story | null>(null);
+  const [story, setStory] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
   const [genre, setGenre] = useState<StoryGenre>('Any');
@@ -57,6 +56,14 @@ export default function AIStoryGenerator() {
 
     setLoading(false);
   };
+
+  const { title, storyText } = (() => {
+    if (!story) return { title: '', storyText: '' };
+    const lines = story.split('\n');
+    const storyTitle = lines[0] || 'Untitled Story';
+    const storyContent = lines.slice(1).join('\n').trim();
+    return { title: storyTitle, storyText: storyContent };
+  })();
 
   return (
     <div className="p-4 md:p-8 flex items-center justify-center bg-card h-full">
@@ -134,8 +141,8 @@ export default function AIStoryGenerator() {
 
           {story && (
             <ScrollArea className="mt-6 border p-4 rounded-md h-[40vh]">
-              <h2 className="text-2xl font-bold text-primary">{story.title}</h2>
-              <p className="mt-4 whitespace-pre-wrap">{story.story}</p>
+              <h2 className="text-2xl font-bold text-primary">{title}</h2>
+              <p className="mt-4 whitespace-pre-wrap">{storyText}</p>
             </ScrollArea>
           )}
         </CardContent>

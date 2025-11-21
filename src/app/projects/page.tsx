@@ -1,3 +1,4 @@
+
 // src/app/projects/page.tsx
 'use client';
 
@@ -781,7 +782,7 @@ export default function ProjectsPage() {
       </div>
 
       {/* Desktop View: Two-column layout */}
-      <div className="hidden md:flex flex-grow h-full overflow-hidden">
+      <div className="hidden md:flex flex-row flex-grow h-full overflow-hidden">
         {/* Left Column: Project List */}
         <div className="w-1/3 max-w-sm border-r border-border flex flex-col h-full">
           <div className="p-6 border-b shrink-0">
@@ -847,3 +848,5 @@ export default function ProjectsPage() {
     </div>
   );
 }
+
+    

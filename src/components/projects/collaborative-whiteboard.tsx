@@ -266,14 +266,24 @@ const CollaborativeWhiteboard: React.FC = () => {
 
   // --- MOUSE/TOUCH & NAVIGATION HANDLERS ---
   const getCanvasCoordinates = (e: React.MouseEvent | React.TouchEvent): Point => {
-      const canvas = canvasRef.current!;
-      const rect = canvas.getBoundingClientRect();
-      const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
-      const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
-      const x = (clientX - rect.left - viewTransform.x) / viewTransform.scale;
-      const y = (clientY - rect.top - viewTransform.y) / viewTransform.scale;
-      return { x, y };
-  };
+    const canvas = canvasRef.current!;
+    const rect = canvas.getBoundingClientRect();
+    const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
+    const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
+
+    // Adjust for canvas rendering size vs display size
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+
+    const canvasX = (clientX - rect.left) * scaleX;
+    const canvasY = (clientY - rect.top) * scaleY;
+    
+    // Adjust for pan and zoom
+    const x = (canvasX - viewTransform.x) / viewTransform.scale;
+    const y = (canvasY - viewTransform.y) / viewTransform.scale;
+    
+    return { x, y };
+};
 
   const handleMouseDown = (e: React.MouseEvent | React.TouchEvent) => {
     if (action === 'editing-text') return;

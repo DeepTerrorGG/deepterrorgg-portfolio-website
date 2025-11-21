@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useRef, useState, useEffect, useCallback } from 'react';
@@ -145,15 +146,13 @@ const PixelEditor: React.FC = () => {
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
     
-    const parent = canvas.parentElement;
-    if (!parent) return;
-    canvas.width = parent.clientWidth;
-    canvas.height = parent.clientHeight;
+    // Set canvas dimensions based on pixel size and grid size
+    const canvasSize = gridSize * pixelSize;
+    canvas.width = canvasSize;
+    canvas.height = canvasSize;
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.save();
-    ctx.translate(canvasOffset.x, canvasOffset.y);
-
+    
     // Onion Skinning
     if (showOnionSkin && activeFrameIndex > 0) {
         const prevFrame = frames[activeFrameIndex - 1];
@@ -209,8 +208,7 @@ const PixelEditor: React.FC = () => {
         if (bounds) ctx.strokeRect(bounds.minX * pixelSize, bounds.minY * pixelSize, (bounds.maxX - bounds.minX + 1) * pixelSize, (bounds.maxY - bounds.minY + 1) * pixelSize);
         ctx.setLineDash([]);
     }
-    ctx.restore();
-  }, [gridSize, pixelSize, activeFrame, activeLayerIndex, showOnionSkin, activeFrameIndex, frames, tempLayer, selectionMask, canvasOffset]);
+  }, [gridSize, pixelSize, activeFrame, activeLayerIndex, showOnionSkin, activeFrameIndex, frames, tempLayer, selectionMask]);
 
   useEffect(() => { drawGrid(); }, [drawGrid]);
   
@@ -528,8 +526,17 @@ const PixelEditor: React.FC = () => {
                 <Tooltip><TooltipTrigger asChild><Button variant="outline" className="w-full" onClick={() => setSelectionMask(null)}>Deselect</Button></TooltipTrigger><TooltipContent><p>Clear current selection (Ctrl+D)</p></TooltipContent></Tooltip>
              </div>
         </div>
-        <div className={cn("flex-grow flex flex-col items-center justify-center p-2 md:p-4 bg-muted/30 overflow-hidden", isPanning ? 'cursor-grabbing' : 'cursor-crosshair')}>
-            <canvas ref={canvasRef} onMouseDown={handleMouseDown} onMouseMove={handleMouseMove} onMouseUp={handleMouseUp} onMouseLeave={handleMouseUp} style={{ imageRendering: 'pixelated' }} />
+        <div className={cn("flex-grow relative overflow-hidden bg-muted/30", isPanning ? 'cursor-grabbing' : 'cursor-crosshair')}>
+            <div
+                className="absolute"
+                style={{ transform: `translate(${canvasOffset.x}px, ${canvasOffset.y}px)` }}
+                onMouseDown={handleMouseDown} onMouseMove={handleMouseMove} onMouseUp={handleMouseUp} onMouseLeave={handleMouseUp}
+            >
+                <canvas 
+                    ref={canvasRef}
+                    style={{ imageRendering: 'pixelated' }}
+                />
+            </div>
         </div>
         <div className="w-full md:w-64 border-t md:border-t-0 md:border-l p-2 flex flex-col gap-2 overflow-y-auto">
             <Card><CardHeader className="p-2"><h4 className="font-bold text-center text-sm">Animation</h4></CardHeader><CardContent className="p-2 space-y-2">

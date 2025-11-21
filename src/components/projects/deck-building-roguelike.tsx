@@ -57,6 +57,7 @@ type MapNodeType = 'combat' | 'elite' | 'boss' | 'rest' | 'victory';
 type MapNode = {
   id: string;
   level: number;
+  col: number;
   type: MapNodeType;
   enemyTypeIndex?: number;
 };
@@ -124,44 +125,41 @@ const shuffle = <T,>(array: T[]): T[] => {
 };
 
 const generateMap = (): MapData => {
-  const numLevels = 8;
+  const numLevels = 10;
+  const nodesPerLevel = [1, 2, 3, 2, 3, 2, 1, 1, 1, 1]; // Boss at level 8, Rest at 7, Elite at 6
   const levels: MapNode[][] = [];
   let nodeIdCounter = 0;
 
-  // Generate levels with nodes
   for (let i = 0; i < numLevels; i++) {
     const nodesInLevel: MapNode[] = [];
-    const numNodes = i === 0 || i === numLevels - 1 ? 1 : Math.floor(Math.random() * 2) + 2; // Start/End have 1, others have 2-3
+    const levelNodeCount = nodesPerLevel[i];
+    const availableCols = [0, 1, 2, 3, 4].sort(() => 0.5 - Math.random()).slice(0, levelNodeCount);
 
-    for (let j = 0; j < numNodes; j++) {
+    for (let j = 0; j < levelNodeCount; j++) {
       let nodeType: MapNodeType;
-      if (i === 0) nodeType = 'combat';
-      else if (i === numLevels - 1) nodeType = 'boss';
-      else {
-        const rand = Math.random();
-        if (rand < 0.25) nodeType = 'rest';
-        else if (rand < 0.4) nodeType = 'elite';
-        else nodeType = 'combat';
-      }
+      if (i === numLevels - 1) nodeType = 'victory';
+      else if (i === numLevels - 2) nodeType = 'boss';
+      else if (i === 6) nodeType = 'elite';
+      else if (i === 4 || i === 7) nodeType = 'rest';
+      else nodeType = 'combat';
       
-      const enemyTypeIndex = nodeType === 'boss' ? 6 : nodeType === 'elite' ? 6 : Math.floor(Math.random() * 4);
+      const enemyTypeIndex = 
+        nodeType === 'boss' ? 6 : 
+        nodeType === 'elite' ? 6 :
+        Math.floor(Math.random() * 4);
 
       nodesInLevel.push({
         id: `node-${nodeIdCounter++}`,
         level: i,
+        col: availableCols[j],
         type: nodeType,
-        enemyTypeIndex: nodeType === 'rest' ? undefined : enemyTypeIndex,
+        enemyTypeIndex: nodeType === 'rest' || nodeType === 'victory' ? undefined : enemyTypeIndex,
       });
     }
-    levels.push(nodesInLevel);
+    levels.push(nodesInLevel.sort((a,b) => a.col - b.col));
   }
-  
-  // Add final victory node
-  levels.push([{ id: 'victory', level: numLevels, type: 'victory' }]);
-
   return { levels };
 };
-
 
 const DeckBuildingRoguelike: React.FC = () => {
     const initialDeck = useMemo(() => [
@@ -183,7 +181,8 @@ const DeckBuildingRoguelike: React.FC = () => {
 
     const [gameState, setGameState] = useState<GameState>('map');
     const [mapData, setMapData] = useState<MapData>(generateMap());
-    const [currentLevel, setCurrentLevel] = useState(0);
+    const [currentLevel, setCurrentLevel] = useState(-1); // Start before the first level
+    const [currentNode, setCurrentNode] = useState<MapNode | null>(null);
     
     const [cardRewards, setCardRewards] = useState<GameCard[]>([]);
     const [winner, setWinner] = useState<'player' | 'enemy' | null>(null);
@@ -242,6 +241,7 @@ const DeckBuildingRoguelike: React.FC = () => {
   const startCombat = (node: MapNode) => {
     if (node.type === 'rest') {
         setGameState('rest');
+        setCurrentNode(node);
         return;
     }
     if (node.type === 'victory') {
@@ -263,6 +263,7 @@ const DeckBuildingRoguelike: React.FC = () => {
         currentAttackIndex: 0,
     });
     setGameState('combat');
+    setCurrentNode(node);
     startPlayerTurn(true); 
   };
 
@@ -425,7 +426,8 @@ const DeckBuildingRoguelike: React.FC = () => {
     setPlayer({ hp: 80, maxHp: 80, block: 0, statusEffects: [] });
     setEnemy(null);
     setMapData(generateMap());
-    setCurrentLevel(0);
+    setCurrentLevel(-1);
+    setCurrentNode(null);
     setDeck(shuffle([...initialDeck]));
     setDiscardPile([]); setHand([]); setExhaustPile([]); setPlayedPowers([]);
     setEnergy(maxEnergy);
@@ -436,20 +438,40 @@ const DeckBuildingRoguelike: React.FC = () => {
   const renderCard = (card: GameCard, index: number, context: 'hand' | 'codex' | 'reward' | 'upgrade') => {
       const isPlayable = card.cost <= energy || card.cost < 0;
       const cardTypeColors: Record<CardType, string> = {
-          'Attack': 'bg-red-800/80 border-red-500',
-          'Skill': 'bg-blue-800/80 border-blue-500',
-          'Power': 'bg-purple-800/80 border-purple-500',
-          'Curse': 'bg-zinc-800/80 border-zinc-500',
+          'Attack': 'border-red-500/50',
+          'Skill': 'border-blue-500/50',
+          'Power': 'border-purple-500/50',
+          'Curse': 'border-zinc-500/50',
       };
       
       const cardComponent = (
-        <div className={cn("w-40 h-56 rounded-lg p-3 flex flex-col justify-between shadow-lg text-white", cardTypeColors[card.type], card.upgraded && 'border-yellow-400 ring-2 ring-yellow-400')}>
+        <div className={cn(
+          "w-44 h-60 rounded-xl p-3 flex flex-col justify-between shadow-lg text-white border-2 bg-slate-800/80 backdrop-blur-sm",
+          cardTypeColors[card.type],
+          card.upgraded && 'border-yellow-400 ring-2 ring-yellow-400/50'
+        )}>
+            {/* Header */}
             <div className="flex justify-between items-start">
-              <h3 className="font-bold text-base w-2/3">{card.name}{card.upgraded && '+'}</h3>
-                {card.cost >= 0 && <span className="w-8 h-8 text-xl rounded-full bg-sky-300 text-black font-bold flex items-center justify-center border-2 border-sky-100">{card.cost}</span>}
+              <h3 className="font-bold text-base flex items-center">
+                {card.name}
+                {card.upgraded && <span className="text-yellow-400 ml-1">+</span>}
+              </h3>
+              {card.cost >= 0 && (
+                <span className={cn(
+                  "w-8 h-8 text-xl rounded-full font-bold flex items-center justify-center border-2",
+                  "bg-sky-900 border-sky-400 text-sky-200"
+                )}>{card.cost}</span>
+              )}
             </div>
-            <p className="text-xs">{card.description}</p>
-            <p className="text-center text-xs font-bold uppercase">{card.type}</p>
+
+            {/* Art Placeholder */}
+            <div className="h-20 w-full bg-slate-900/50 rounded-md my-2 border border-slate-700"></div>
+
+            {/* Description */}
+            <p className="text-xs flex-grow">{card.description}</p>
+            
+            {/* Type */}
+            <p className="text-center text-xs font-bold uppercase opacity-60 mt-1">{card.type}</p>
         </div>
       );
       
@@ -487,58 +509,58 @@ const DeckBuildingRoguelike: React.FC = () => {
       </div>
     );
   };
-  
-  const renderMap = () => {
-    const currentNodeLevel = mapData.levels[currentLevel];
-    if (!currentNodeLevel) return <div>Map Error</div>;
 
-    return (
-        <div className="flex flex-col items-center justify-center gap-4 text-white w-full">
-            <h2 className="text-3xl font-bold text-yellow-300">Choose Your Path</h2>
-            <div className="flex justify-center items-center gap-8 p-4 w-full">
-                {currentNodeLevel.map(node => {
-                    const nodeIcons: Record<MapNodeType, React.ReactNode> = { combat: <Swords/>, elite: <Skull/>, boss: <Crown/>, victory: <Star/>, rest: <Bed/> };
-                    const nodeColors: Record<MapNodeType, string> = { 
-                        combat: 'bg-gray-700 border-gray-500 hover:bg-gray-600', 
-                        elite: 'bg-red-800 border-red-600 hover:bg-red-700', 
-                        boss: 'bg-purple-900 border-purple-600 hover:bg-purple-800', 
-                        victory: 'bg-yellow-600 border-yellow-400 hover:bg-yellow-500', 
-                        rest: 'bg-green-800 border-green-600 hover:bg-green-700' 
-                    };
+  const renderMap = () => (
+    <div className="flex flex-col items-center justify-center gap-4 text-white w-full">
+      <h2 className="text-3xl font-bold text-yellow-300">Choose Your Path</h2>
+      <div className="flex justify-center items-center gap-8 p-4 w-full">
+        {mapData.levels[currentLevel + 1]?.map(node => {
+          const nodeIcons: Record<MapNodeType, React.ReactNode> = { combat: <Swords/>, elite: <Skull/>, boss: <Crown/>, victory: <Star/>, rest: <Bed/> };
+          const nodeColors: Record<MapNodeType, string> = { 
+            combat: 'bg-gray-700 border-gray-500 hover:bg-gray-600', 
+            elite: 'bg-red-800 border-red-600 hover:bg-red-700', 
+            boss: 'bg-purple-900 border-purple-600 hover:bg-purple-800', 
+            victory: 'bg-yellow-600 border-yellow-400 hover:bg-yellow-500', 
+            rest: 'bg-green-800 border-green-600 hover:bg-green-700' 
+          };
+          const isReachable = currentLevel === -1 || true; // In a real game, you'd check connections
 
-                    return (
-                        <motion.button
-                            key={node.id}
-                            onClick={() => startCombat(node)}
-                            className={cn("w-32 h-32 flex flex-col items-center justify-center rounded-lg border-2 transition-all duration-300 transform", nodeColors[node.type])}
-                            whileHover={{ scale: 1.1 }}
-                        >
-                            <div className="w-12 h-12">{nodeIcons[node.type]}</div>
-                            <span className="text-lg font-semibold capitalize mt-1">{node.type}</span>
-                        </motion.button>
-                    );
-                })}
-            </div>
-            <div className="flex gap-2 mt-4">
-                <Button onClick={restartGame}>Restart Run</Button>
-                <Dialog><DialogTrigger asChild><Button variant="secondary"><BookOpen className="mr-2"/>Card Codex</Button></DialogTrigger>
-                    <DialogContent className="max-w-4xl h-[90vh] flex flex-col bg-gray-900/90 border-gray-700 text-white">
-                        <DialogHeader>
-                          <DialogTitle className="text-primary text-2xl">Card Codex</DialogTitle>
-                          <DialogClose asChild>
-                            <Button variant="ghost" size="icon" className="absolute right-4 top-4 text-gray-400 hover:text-white">
-                              <X className="h-4 w-4" />
-                              <span className="sr-only">Close</span>
-                            </Button>
-                          </DialogClose>
-                        </DialogHeader>
-                        {renderCodex()}
-                    </DialogContent>
-                </Dialog>
-            </div>
-        </div>
-    );
-  };
+          return (
+            <motion.button
+              key={node.id}
+              onClick={() => startCombat(node)}
+              className={cn(
+                "w-32 h-32 flex flex-col items-center justify-center rounded-lg border-2 transition-all duration-300 transform",
+                isReachable ? nodeColors[node.type] : 'bg-gray-900 border-gray-700 opacity-50 cursor-not-allowed'
+              )}
+              whileHover={{ scale: isReachable ? 1.1 : 1 }}
+              disabled={!isReachable}
+            >
+              <div className="w-12 h-12">{nodeIcons[node.type]}</div>
+              <span className="text-lg font-semibold capitalize mt-1">{node.type}</span>
+            </motion.button>
+          );
+        })}
+      </div>
+      <div className="flex gap-2 mt-4">
+        <Button onClick={restartGame}>Restart Run</Button>
+        <Dialog><DialogTrigger asChild><Button variant="secondary"><BookOpen className="mr-2"/>Card Codex</Button></DialogTrigger>
+          <DialogContent className="max-w-4xl h-[90vh] flex flex-col bg-gray-900/90 border-gray-700 text-white">
+            <DialogHeader>
+              <DialogTitle className="text-primary text-2xl">Card Codex</DialogTitle>
+              <DialogClose asChild>
+                <Button variant="ghost" size="icon" className="absolute right-4 top-4 text-gray-400 hover:text-white">
+                  <X className="h-4 w-4" />
+                  <span className="sr-only">Close</span>
+                </Button>
+              </DialogClose>
+            </DialogHeader>
+            {renderCodex()}
+          </DialogContent>
+        </Dialog>
+      </div>
+    </div>
+  );
   
   const renderReward = () => (
     <div className="flex flex-col items-center justify-center gap-4">

@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useRef, useState, useEffect, useCallback } from 'react';
@@ -56,6 +55,7 @@ import GIF from 'gif.js';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip';
 import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
 import { getOutline, applyDithering, type Selection, getSelectionBounds, createSelectionMask } from './pixel-editor/selection';
+import { ScrollArea } from '../ui/scroll-area';
 
 const GRID_SIZE_OPTIONS = [16, 32, 48, 64];
 const DEFAULT_GRID_SIZE = 32;
@@ -526,17 +526,20 @@ const PixelEditor: React.FC = () => {
                 <Tooltip><TooltipTrigger asChild><Button variant="outline" className="w-full" onClick={() => setSelectionMask(null)}>Deselect</Button></TooltipTrigger><TooltipContent><p>Clear current selection (Ctrl+D)</p></TooltipContent></Tooltip>
              </div>
         </div>
-        <div className={cn("flex-grow relative overflow-auto bg-muted/30 flex items-center justify-center", isPanning ? 'cursor-grabbing' : 'cursor-crosshair')}>
-            <div
-                className="relative"
-                style={{ transform: `translate(${canvasOffset.x}px, ${canvasOffset.y}px)` }}
-                onMouseDown={handleMouseDown} onMouseMove={handleMouseMove} onMouseUp={handleMouseUp} onMouseLeave={handleMouseUp}
-            >
-                <canvas 
-                    ref={canvasRef}
-                    style={{ imageRendering: 'pixelated' }}
-                />
-            </div>
+        <div className={cn("flex-grow relative bg-muted/30", isPanning ? 'cursor-grabbing' : 'cursor-crosshair')}>
+            <ScrollArea className="w-full h-full">
+                <div
+                    className="relative w-max h-max"
+                    style={{ transform: `translate(${canvasOffset.x}px, ${canvasOffset.y}px)` }}
+                    onMouseDown={handleMouseDown} onMouseMove={handleMouseMove} onMouseUp={handleMouseUp} onMouseLeave={handleMouseUp}
+                >
+                    <canvas 
+                        ref={canvasRef}
+                        style={{ imageRendering: 'pixelated' }}
+                        className="shadow-lg"
+                    />
+                </div>
+            </ScrollArea>
         </div>
         <div className="w-full md:w-64 border-t md:border-t-0 md:border-l p-2 flex flex-col gap-2 overflow-y-auto">
             <Card><CardHeader className="p-2"><h4 className="font-bold text-center text-sm">Animation</h4></CardHeader><CardContent className="p-2 space-y-2">
@@ -572,5 +575,3 @@ const PixelEditor: React.FC = () => {
   );
 };
 export default PixelEditor;
-
-    

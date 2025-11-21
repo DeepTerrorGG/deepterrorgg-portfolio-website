@@ -781,9 +781,9 @@ export default function ProjectsPage() {
       </div>
 
       {/* Desktop View: Two-column layout */}
-      <div className="hidden md:grid md:grid-cols-12 flex-grow h-full">
+      <div className="hidden md:flex flex-grow h-full overflow-hidden">
         {/* Left Column: Project List */}
-        <div className="md:col-span-4 lg:col-span-3 border-r border-border flex flex-col h-full">
+        <div className="w-1/3 max-w-sm border-r border-border flex flex-col h-full">
           <div className="p-6 border-b shrink-0">
             <PageTitle subtitle="A selection of my creative and technical endeavors." className="text-left !mb-0 !pt-0">
               My Projects
@@ -812,7 +812,7 @@ export default function ProjectsPage() {
         </div>
 
         {/* Right Column: Project Details */}
-        <div className="md:col-span-8 lg:col-span-9 flex flex-col h-full">
+        <div className="flex-1 flex flex-col h-full">
           <ScrollArea className="flex-1 w-full h-full">
             <div className="flex flex-col h-full animate-fade-in">
               {selectedProject.component ? (

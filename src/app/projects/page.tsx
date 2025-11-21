@@ -1,4 +1,3 @@
-
 // src/app/projects/page.tsx
 'use client';
 
@@ -52,6 +51,10 @@ const CollaborativeWhiteboard = dynamic(() => import('@/components/projects/coll
 const KanbanBoard = dynamic(() => import('@/components/projects/kanban-board'), { loading: () => <ProjectLoader /> });
 const PixelEditor = dynamic(() => import('@/components/projects/pixel-editor'), { loading: () => <ProjectLoader /> });
 const AIPromptEnhancer = dynamic(() => import('@/components/projects/ai-prompt-enhancer'), { loading: () => <ProjectLoader /> });
+const TurnBasedStrategy = dynamic(() => import('@/components/projects/turn-based-strategy'), { loading: () => <ProjectLoader /> });
+const FactorySimulator = dynamic(() => import('@/components/projects/factory-simulator'), { loading: () => <ProjectLoader /> });
+const DeckBuildingRoguelike = dynamic(() => import('@/components/projects/deck-building-roguelike'), { loading: () => <ProjectLoader /> });
+
 
 interface Technology {
   name: string;
@@ -83,6 +86,57 @@ const ProjectLoader = () => (
 
 const projectsData: Project[] = [
     {
+    id: 'deck-building-roguelike',
+    title: 'Deck-Builder Adventure',
+    imageUrls: ['/placeholder.png'],
+    imageAlt: 'A hand of cards in a roguelike game',
+    imageHint: 'deck building card game',
+    description: 'A single-player card game where you build a powerful deck to battle through a procedurally generated map.',
+    personalNote: 'This combines two of my favorite genres. It\'s a huge challenge in system design—creating a flexible system for cards, enemies, and map progression is the core of making it fun and replayable.',
+    difficulty: 'Advanced',
+    component: <DeckBuildingRoguelike />,
+    technologies: [
+      { name: 'React', iconSrc: '/icons/react.svg' },
+      { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },
+      { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss.svg' },
+    ],
+    renderImage: true,
+  },
+  {
+    id: 'factory-simulator',
+    title: 'Automation Simulator',
+    imageUrls: ['/placeholder.png'],
+    imageAlt: 'A top-down factory with conveyor belts',
+    imageHint: 'factory automation game',
+    description: 'A game about building and optimizing automated factories, from simple miners to complex assembly lines.',
+    personalNote: 'The complexity of managing the state for thousands of items moving on belts and being processed by machines is a fascinating challenge. It\'s a test of performance optimization and state management.',
+    difficulty: 'Advanced',
+    component: <FactorySimulator />,
+    technologies: [
+      { name: 'React', iconSrc: '/icons/react.svg' },
+      { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },
+      { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss.svg' },
+    ],
+    renderImage: true,
+  },
+  {
+    id: 'turn-based-strategy',
+    title: 'Grid-Based Strategy Game',
+    imageUrls: ['/placeholder.png'],
+    imageAlt: 'A grid-based tactical game with units',
+    imageHint: 'strategy game grid',
+    description: 'Command a squad of units on a grid in turn-based combat, inspired by classics like Fire Emblem and Advance Wars.',
+    personalNote: 'This project is a great way to dive into game algorithms like pathfinding for movement and creating a simple AI for the opponent. It forces you to think strategically, both as a player and a developer.',
+    difficulty: 'Advanced',
+    component: <TurnBasedStrategy />,
+    technologies: [
+      { name: 'React', iconSrc: '/icons/react.svg' },
+      { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },
+      { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss.svg' },
+    ],
+    renderImage: true,
+  },
+  {
     id: 'kanban-board',
     title: 'Project Management Board',
     imageUrls: ['/placeholder.png'],

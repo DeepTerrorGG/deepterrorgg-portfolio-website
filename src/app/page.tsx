@@ -80,10 +80,10 @@ const technologies = [
 ];
 
 const splineModels = [
-    { url: 'https://prod.spline.design/FfjWOhoEErL5Sia2/scene.splinecode', title: 'Cyberpunk Room', scrollable: false },
+    { url: 'https://prod.spline.design/FfjWOhoEErL5Sia2/scene.splinecode', title: 'Cyberpunk Room', scrollable: true },
     { url: 'https://prod.spline.design/Oy8cFTtrLNL36Qll/scene.splinecode', title: 'Cozy Living Room', scrollable: true },
     { url: 'https://prod.spline.design/qC2WtYn7OhOcS8L0/scene.splinecode', title: 'Abstract Shapes', scrollable: true },
-    { url: 'https://prod.spline.design/3SU82luCTBxFgmZk/scene.splinecode', title: 'Gaming Setup', scrollable: false },
+    { url: 'https://prod.spline.design/3SU82luCTBxFgmZk/scene.splinecode', title: 'Gaming Setup', scrollable: true },
 ];
 
 const ScrollingTechRow = ({ items, direction = 'left' }: { items: typeof technologies, direction?: 'left' | 'right' }) => (
@@ -186,7 +186,7 @@ export default function HomePage() {
         </SectionContainer>
         
         {/* Call to Action Section */}
-        <SectionContainer id="contact-cta">
+        <SectionContainer id="contact-cta" className="!pt-0">
           <div className="text-center p-8 md:p-12">
              <h2 className="text-3xl md:text-4xl font-bold text-primary">Have a Project in Mind?</h2>
              <p className="text-muted-foreground mt-3 max-w-xl mx-auto">I'm always open to discussing new projects, creative ideas, or opportunities to be part of an ambitious vision. Let's create something amazing together.</p>

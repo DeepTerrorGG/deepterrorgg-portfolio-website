@@ -4,9 +4,10 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Swords, Shield, Heart, User, Bot, Move, LocateFixed } from 'lucide-react';
+import { Swords, Shield, Heart, User, Bot, Move, LocateFixed, HelpCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '../ui/accordion';
 
 // --- TYPE DEFINITIONS ---
 interface Unit {
@@ -253,7 +254,7 @@ const TurnBasedStrategy: React.FC = () => {
                     )
                 })}
             </div>
-            <div className="w-full md:w-56 space-y-4">
+            <div className="w-full md:w-64 space-y-4">
                 <Card>
                     <CardHeader className="p-2 pb-0"><CardTitle className="text-base text-center capitalize">{gamePhase.replace(/-/g, ' ')}</CardTitle></CardHeader>
                     <CardContent className="p-4 flex justify-around text-center">
@@ -268,6 +269,16 @@ const TurnBasedStrategy: React.FC = () => {
                         ) : <p className="text-sm text-muted-foreground">Select a player unit.</p>}
                     </CardContent>
                 </Card>
+                <Accordion type="single" collapsible>
+                    <AccordionItem value="how-to-play">
+                        <AccordionTrigger>How to Play</AccordionTrigger>
+                        <AccordionContent className="text-xs space-y-2">
+                            <p><strong>Goal:</strong> Defeat all enemy units.</p>
+                            <p><strong>Turns:</strong> Select a unit on your turn. Blue squares are possible moves, red squares are possible attacks. A unit can move and then attack, but cannot move after attacking.</p>
+                            <p>Press "End Turn" when you are finished. The AI will then take its turn.</p>
+                        </AccordionContent>
+                    </AccordionItem>
+                </Accordion>
                 <Button onClick={endTurn} disabled={gamePhase.startsWith('enemy') || gamePhase === 'game-over'} className="w-full">End Turn</Button>
             </div>
         </CardContent>

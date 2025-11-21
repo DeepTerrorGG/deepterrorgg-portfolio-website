@@ -19,11 +19,6 @@ const RuleValidationOutputSchema = z.object({
     isValid: z.boolean().describe("Whether the password successfully meets the rule's criteria."),
 });
 
-const HintGenerationOutputSchema = z.object({
-  hint: z.string().describe("A helpful but not too obvious hint to guide the user to solve the password rule."),
-});
-
-
 export async function generatePasswordRule(existingRules: string[]): Promise<{ rule: string } | null> {
   const systemPrompt = `You are an AI for a password game. Your job is to invent a new, creative, and programmatically verifiable password rule that is NOT in the list of existing rules.
 
@@ -106,23 +101,19 @@ Rule: "${rule}"
 
 
 export async function getPasswordHint(rule: string): Promise<string> {
-    const prompt = `The user is playing a password game and is stuck on the following rule. Provide a short, clever hint that helps them without giving away the answer directly.
+    const prompt = `The user is playing a password game and is stuck on the following rule. Provide a short, clever hint that helps them without giving away the answer directly. Return ONLY the hint text, and nothing else.
 
 Rule: "${rule}"
 `;
     try {
-      const { output } = await ai.generate({
+      const { text } = await ai.generate({
         model: 'googleai/gemini-2.0-flash',
         prompt: prompt,
-        output: {
-          format: 'json',
-          schema: HintGenerationOutputSchema,
-        },
          config: {
             temperature: 0.7,
         }
       });
-      return output?.structured?.hint ?? "Try thinking outside the box!";
+      return text || "I'm stumped too! Try a different password.";
     } catch (error) {
       console.error("Error in getPasswordHint:", error);
       throw new Error("Failed to get hint from AI.");

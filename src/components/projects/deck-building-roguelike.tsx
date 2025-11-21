@@ -4,17 +4,19 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Swords, Shield, Heart, Zap, RotateCcw, Dna, Trash, Map, Star } from 'lucide-react';
+import { Swords, Shield, Heart, Zap, RotateCcw, Dna, Trash, Map, Star, ShieldAlert, ShieldOff } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Progress } from '../ui/progress';
 import { motion, AnimatePresence } from 'framer-motion';
 
 // --- TYPE DEFINITIONS ---
-type CardEffect = 
-  | { type: 'ATTACK'; amount: number }
-  | { type: 'BLOCK'; amount: number }
-  | { type: 'DRAW'; amount: number }
-  | { type: 'HEAL'; amount: number };
+type EffectType = 'ATTACK' | 'BLOCK' | 'DRAW' | 'HEAL' | 'VULNERABLE' | 'WEAK' | 'ENERGY';
+
+type CardEffect = { 
+  type: EffectType;
+  amount: number; 
+  duration?: number; // For status effects
+};
 
 type GameCard = {
   id: number;
@@ -22,17 +24,24 @@ type GameCard = {
   cost: number;
   description: string;
   effects: CardEffect[];
+  upgraded?: boolean;
 };
+
+type StatusEffect = {
+    type: 'vulnerable' | 'weak';
+    duration: number;
+}
 
 type Actor = {
   hp: number;
   maxHp: number;
   block: number;
+  statusEffects: StatusEffect[];
 };
 
 type Enemy = Actor & {
     name: string;
-    attackPattern: number[]; // e.g. [8, 8, 15] -> attacks for 8, 8, then 15, then repeats
+    attackPattern: {damage: number, block?: number, effect?: CardEffect}[];
     currentAttackIndex: number;
 };
 
@@ -40,27 +49,59 @@ type GameState = 'map' | 'combat' | 'reward' | 'game-over';
 
 // --- CARD & ENEMY DEFINITIONS ---
 const cardLibrary: GameCard[] = [
+  // Basic
   { id: 1, name: 'Strike', cost: 1, description: 'Deal 6 damage.', effects: [{ type: 'ATTACK', amount: 6 }] },
   { id: 2, name: 'Defend', cost: 1, description: 'Gain 5 block.', effects: [{ type: 'BLOCK', amount: 5 }] },
+  // Common
   { id: 3, name: 'Heavy Strike', cost: 2, description: 'Deal 12 damage.', effects: [{ type: 'ATTACK', amount: 12 }] },
   { id: 4, name: 'Fortify', cost: 2, description: 'Gain 10 block.', effects: [{ type: 'BLOCK', amount: 10 }] },
   { id: 5, name: 'Quick Draw', cost: 1, description: 'Deal 3 damage. Draw 1 card.', effects: [{ type: 'ATTACK', amount: 3 }, { type: 'DRAW', amount: 1 }] },
   { id: 6, name: 'First Aid', cost: 1, description: 'Heal 5 HP.', effects: [{ type: 'HEAL', amount: 5 }] },
   { id: 7, name: 'Bash', cost: 2, description: 'Deal 8 damage. Gain 8 block.', effects: [{ type: 'ATTACK', amount: 8 }, { type: 'BLOCK', amount: 8 }] },
-  { id: 8, name: 'Slice', cost: 0, description: 'Deal 3 damage.', effects: [{ type: 'ATTACK', amount: 3 }] },
-  { id: 9, name: 'Energize', cost: 0, description: 'Draw 2 cards. Next turn, you have 1 less energy.', effects: [{ type: 'DRAW', amount: 2 }] },
+  { id: 8, name: 'Slice', cost: 0, description: 'Deal 4 damage.', effects: [{ type: 'ATTACK', amount: 4 }] },
+  { id: 9, name: 'Energize', cost: 0, description: 'Draw 2 cards. Next turn, you have 1 less energy.', effects: [{ type: 'DRAW', amount: 2 }] }, // Special effect needed
+  { id: 10, name: 'Double Tap', cost: 1, description: 'Deal 5 damage twice.', effects: [{ type: 'ATTACK', amount: 5 }, { type: 'ATTACK', amount: 5 }] },
+  { id: 11, name: 'Intimidate', cost: 1, description: 'Apply 2 Vulnerable.', effects: [{ type: 'VULNERABLE', amount: 2 }] },
+  { id: 12, name: 'Trip', cost: 0, description: 'Apply 1 Weak.', effects: [{ type: 'WEAK', amount: 1 }] },
+  { id: 13, name: 'Reinforce', cost: 1, description: 'Gain 7 block. Draw 1 card if you have block.', effects: [{ type: 'BLOCK', amount: 7 }, {type: 'DRAW', amount: 1}] }, // Conditional draw
+  // Uncommon
+  { id: 14, name: 'Rampage', cost: 1, description: 'Deal 7 damage. This card\'s damage increases by 3 for the rest of combat.', effects: [{ type: 'ATTACK', amount: 7 }] }, // Needs stateful logic
+  { id: 15, name: 'Whirlwind', cost: -1, description: 'Deal 5 damage to ALL enemies X times.', effects: [{ type: 'ATTACK', amount: 5 }] }, // X-cost card
+  { id: 16, name: 'Immolate', cost: 2, description: 'Deal 20 damage to all enemies.', effects: [{ type: 'ATTACK', amount: 20 }] },
+  { id: 17, name: 'Disarm', cost: 1, description: 'Apply 2 Weak to an enemy.', effects: [{ type: 'WEAK', amount: 2 }] },
+  { id: 18, name: 'Shrug It Off', cost: 1, description: 'Gain 8 Block. Draw 1 card.', effects: [{ type: 'BLOCK', amount: 8 }, { type: 'DRAW', amount: 1 }] },
+  { id: 19, name: 'Carnage', cost: 2, description: 'Deal 20 damage.', effects: [{ type: 'ATTACK', amount: 20 }] },
+  // Rare
+  { id: 20, name: 'Limit Break', cost: 1, description: 'Double your Strength.', effects: [] }, // Needs 'Strength' buff type
+  { id: 21, name: 'Impervious', cost: 2, description: 'Gain 30 Block.', effects: [{ type: 'BLOCK', amount: 30 }] },
+  { id: 22, name: 'Reaper', cost: 2, description: 'Deal 4 damage to ALL enemies. Heal for unblocked damage dealt.', effects: [{ type: 'ATTACK', amount: 4 }] },
+  { id: 23, name: 'Offering', cost: 0, description: 'Lose 6 HP. Gain 2 Energy. Draw 3 cards.', effects: [{ type: 'ENERGY', amount: 2 }, { type: 'DRAW', amount: 3 }, { type: 'HEAL', amount: -6 }] },
+  // Adding more cards
+  { id: 24, name: 'Pummel', cost: 1, description: 'Deal 2 damage 4 times.', effects: [{ type: 'ATTACK', amount: 2 }, { type: 'ATTACK', amount: 2 }, { type: 'ATTACK', amount: 2 }, { type: 'ATTACK', amount: 2 }] },
+  { id: 25, name: 'Iron Wave', cost: 1, description: 'Gain 5 block. Deal 5 damage.', effects: [{ type: 'BLOCK', amount: 5 }, { type: 'ATTACK', amount: 5 }] },
+  { id: 26, name: 'Thunderclap', cost: 1, description: 'Deal 4 damage and apply 1 Vulnerable to ALL enemies.', effects: [{ type: 'ATTACK', amount: 4 }, { type: 'VULNERABLE', amount: 1 }] },
+  { id: 27, name: 'Body Slam', cost: 1, description: 'Deal damage equal to your block.', effects: [{ type: 'ATTACK', amount: 0 }] }, // Special calculation
+  { id: 28, name: 'Entrench', cost: 2, description: 'Double your current block.', effects: [{ type: 'BLOCK', amount: 0 }] }, // Special calculation
+  { id: 29, name: 'Uppercut', cost: 2, description: 'Deal 13 damage. Apply 1 Weak and 1 Vulnerable.', effects: [{ type: 'ATTACK', amount: 13 }, { type: 'WEAK', amount: 1 }, { type: 'VULNERABLE', amount: 1 }] },
+  { id: 30, name: 'Seeing Red', cost: 1, description: 'Gain 2 Energy.', effects: [{ type: 'ENERGY', amount: 2 }] },
 ];
 
+
 const enemyTypes: Omit<Enemy, keyof Actor | 'currentAttackIndex'>[] = [
-    { name: 'Slime', attackPattern: [7] },
-    { name: 'Goblin', attackPattern: [5, 9] },
-    { name: 'Orc', attackPattern: [10, 0, 15] }, // 0 attack represents a "charge up" or block turn
+    { name: 'Slime', attackPattern: [{damage: 7}] },
+    { name: 'Goblin', attackPattern: [{damage: 5}, {damage: 9}] },
+    { name: 'Orc', attackPattern: [{damage: 0, block: 10}, {damage: 15}] },
+    { name: 'Cultist', attackPattern: [{damage: 0, effect: {type: 'VULNERABLE', amount: 2}}, {damage: 12}] },
+    { name: 'Armored Sentry', attackPattern: [{damage: 8, block: 8}, {damage: 8, block: 8}] },
+    { name: 'Spike Slime', attackPattern: [{damage: 6}, {damage: 6}] }, // Needs thorns mechanic
 ];
 
 const mapNodes = [
     { type: 'combat', enemyTypeIndex: 0, enemyHp: 40 },
     { type: 'combat', enemyTypeIndex: 1, enemyHp: 52 },
+    { type: 'combat', enemyTypeIndex: 3, enemyHp: 48 },
     { type: 'combat', enemyTypeIndex: 2, enemyHp: 75 },
+    { type: 'combat', enemyTypeIndex: 4, enemyHp: 60 },
     { type: 'victory' },
 ];
 
@@ -80,7 +121,7 @@ const DeckBuildingRoguelike: React.FC = () => {
         ...Array(5).fill(cardLibrary.find(c => c.id === 2)!),
     ], []);
 
-    const [player, setPlayer] = useState<Actor>({ hp: 80, maxHp: 80, block: 0 });
+    const [player, setPlayer] = useState<Actor>({ hp: 80, maxHp: 80, block: 0, statusEffects: [] });
     const [enemy, setEnemy] = useState<Enemy | null>(null);
     const [energy, setEnergy] = useState(3);
     const [maxEnergy, setMaxEnergy] = useState(3);
@@ -91,6 +132,14 @@ const DeckBuildingRoguelike: React.FC = () => {
     const [mapPosition, setMapPosition] = useState(0);
     const [cardRewards, setCardRewards] = useState<GameCard[]>([]);
     const [winner, setWinner] = useState<'player' | 'enemy' | null>(null);
+
+  const applyStatusEffectsToDamage = (damage: number, target: Actor) => {
+    let modifiedDamage = damage;
+    if (target.statusEffects.some(e => e.type === 'vulnerable')) {
+      modifiedDamage = Math.floor(modifiedDamage * 1.5);
+    }
+    return modifiedDamage;
+  };
     
 
   const drawCards = useCallback((amount: number, currentDeck: GameCard[], currentDiscard: GameCard[]) => {
@@ -109,6 +158,31 @@ const DeckBuildingRoguelike: React.FC = () => {
     return { drawn, newDeck, newDiscard };
   }, []);
 
+  const startPlayerTurn = useCallback((isNewCombat = false) => {
+    let currentDeck = deck;
+    let currentDiscard = discardPile;
+
+    if(isNewCombat) {
+        let fullDeck = [...initialDeck];
+        deck.forEach(card => {
+            if(!initialDeck.some(c => c.id === card.id)) fullDeck.push(card);
+        });
+        currentDeck = shuffle(fullDeck);
+        currentDiscard = [];
+    }
+
+    const { drawn, newDeck, newDiscard } = drawCards(5, currentDeck, currentDiscard);
+    setHand(drawn);
+    setDeck(newDeck);
+    setDiscardPile(newDiscard);
+    setEnergy(maxEnergy);
+
+    // Decrement status effects at start of player turn
+    setPlayer(p => ({ ...p, block: 0, statusEffects: p.statusEffects.map(e => ({...e, duration: e.duration-1})).filter(e => e.duration > 0) }));
+    setEnemy(e => e ? ({ ...e, statusEffects: e.statusEffects.map(se => ({...se, duration: se.duration-1})).filter(se => se.duration > 0) }) : null);
+
+  }, [deck, discardPile, maxEnergy, drawCards, initialDeck]);
+
   const startCombat = (nodeIndex: number) => {
     const node = mapNodes[nodeIndex];
     if (node.type !== 'combat') return;
@@ -119,29 +193,13 @@ const DeckBuildingRoguelike: React.FC = () => {
         hp: node.enemyHp,
         maxHp: node.enemyHp,
         block: 0,
+        statusEffects: [],
         currentAttackIndex: 0,
     });
-    
-    startPlayerTurn(true); // true to reset deck for new combat
+    setPlayer(p => ({ ...p, statusEffects: [] }));
+    startPlayerTurn(true); 
     setGameState('combat');
   };
-
-  const startPlayerTurn = useCallback((isNewCombat = false) => {
-    setPlayer(p => ({ ...p, block: 0 }));
-    let currentDeck = deck;
-    let currentDiscard = discardPile;
-
-    if(isNewCombat) {
-        currentDeck = shuffle([...initialDeck, ...deck, ...discardPile]);
-        currentDiscard = [];
-    }
-
-    const { drawn, newDeck, newDiscard } = drawCards(5, currentDeck, currentDiscard);
-    setHand(drawn);
-    setDeck(newDeck);
-    setDiscardPile(newDiscard);
-    setEnergy(maxEnergy);
-  }, [deck, discardPile, maxEnergy, drawCards, initialDeck]);
 
   const playCard = (card: GameCard, cardIndex: number) => {
     if (gameState !== 'combat' || !enemy || card.cost > energy) return;
@@ -149,22 +207,37 @@ const DeckBuildingRoguelike: React.FC = () => {
     let newPlayer = { ...player };
     let newEnemy = { ...enemy };
     let cardsToDraw = 0;
+    let energyGained = 0;
 
     card.effects.forEach(effect => {
+      let finalAmount = effect.amount;
+      // Special card logic
+      if(card.name === 'Body Slam') finalAmount = newPlayer.block;
+      if(card.name === 'Entrench') finalAmount = newPlayer.block;
+
       switch (effect.type) {
         case 'ATTACK':
-          const damage = Math.max(0, effect.amount - newEnemy.block);
-          const newEnemyBlock = Math.max(0, newEnemy.block - effect.amount);
-          newEnemy = { ...newEnemy, hp: newEnemy.hp - damage, block: newEnemyBlock };
+          const damage = applyStatusEffectsToDamage(finalAmount, newEnemy);
+          const damageToHp = Math.max(0, damage - newEnemy.block);
+          newEnemy = { ...newEnemy, hp: newEnemy.hp - damageToHp, block: Math.max(0, newEnemy.block - damage) };
           break;
-        case 'BLOCK': newPlayer.block += effect.amount; break;
-        case 'DRAW': cardsToDraw += effect.amount; break;
-        case 'HEAL': newPlayer.hp = Math.min(newPlayer.maxHp, newPlayer.hp + effect.amount); break;
+        case 'BLOCK': newPlayer.block += finalAmount; break;
+        case 'DRAW': cardsToDraw += finalAmount; break;
+        case 'HEAL': newPlayer.hp = Math.min(newPlayer.maxHp, newPlayer.hp + finalAmount); break;
+        case 'ENERGY': energyGained += finalAmount; break;
+        case 'VULNERABLE': case 'WEAK':
+            const existingEffectIndex = newEnemy.statusEffects.findIndex(e => e.type === effect.type.toLowerCase());
+            if (existingEffectIndex > -1) {
+                newEnemy.statusEffects[existingEffectIndex].duration += finalAmount;
+            } else {
+                newEnemy.statusEffects.push({type: effect.type.toLowerCase() as 'vulnerable'|'weak', duration: finalAmount});
+            }
+            break;
       }
     });
     
     setPlayer(newPlayer);
-    setEnergy(e => e - card.cost);
+    setEnergy(e => e - card.cost + energyGained);
     const playedCard = hand[cardIndex];
     setHand(h => h.filter((_, i) => i !== cardIndex));
     setDiscardPile(d => [...d, playedCard]);
@@ -194,17 +267,21 @@ const DeckBuildingRoguelike: React.FC = () => {
         if (!enemy) return;
         setEnemy(e => e ? ({ ...e, block: 0 }) : null); 
         const nextAttackIndex = (enemy.currentAttackIndex + 1) % enemy.attackPattern.length;
-        const damageToDeal = enemy.attackPattern[enemy.currentAttackIndex];
+        const currentAttack = enemy.attackPattern[enemy.currentAttackIndex];
         
         setPlayer(p => {
-          const damage = Math.max(0, damageToDeal - p.block);
-          const newHp = p.hp - damage;
+          let damageToDeal = currentAttack.damage;
+          if(enemy.statusEffects.some(e => e.type === 'weak')) damageToDeal = Math.floor(damageToDeal * 0.75);
+          const damage = applyStatusEffectsToDamage(damageToDeal, p);
+
+          const finalDamage = Math.max(0, damage - p.block);
+          const newHp = p.hp - finalDamage;
           if (newHp <= 0) {
               setWinner('enemy');
               setGameState('game-over');
               return { ...p, hp: 0 };
           }
-          return { ...p, hp: newHp, block: Math.max(0, p.block - damageToDeal) };
+          return { ...p, hp: newHp, block: Math.max(0, p.block - damage) };
         });
 
         setEnemy(e => e ? ({ ...e, currentAttackIndex: nextAttackIndex }) : null);
@@ -238,7 +315,7 @@ const DeckBuildingRoguelike: React.FC = () => {
   }
 
   const restartGame = () => {
-    setPlayer({ hp: 80, maxHp: 80, block: 0 });
+    setPlayer({ hp: 80, maxHp: 80, block: 0, statusEffects: [] });
     setEnemy(null);
     const newDeck = shuffle([...initialDeck]);
     setDeck(newDeck);
@@ -250,7 +327,18 @@ const DeckBuildingRoguelike: React.FC = () => {
     setWinner(null);
   }
 
-  // Render components
+  const renderStatusEffects = (actor: Actor) => (
+    <div className="flex gap-1 absolute top-0 right-0">
+        {actor.statusEffects.map((effect, index) => (
+            <div key={index} className="flex items-center gap-1 text-xs p-1 rounded bg-black/50">
+                {effect.type === 'vulnerable' && <ShieldAlert className="w-3 h-3 text-red-400"/>}
+                {effect.type === 'weak' && <ShieldOff className="w-3 h-3 text-yellow-400"/>}
+                <span>{effect.duration}</span>
+            </div>
+        ))}
+    </div>
+  );
+
   const renderMap = () => (
     <div className="flex flex-col items-center justify-center gap-8">
         <h2 className="text-3xl font-bold text-yellow-300">Adventure Map</h2>
@@ -282,11 +370,12 @@ const DeckBuildingRoguelike: React.FC = () => {
 
   const renderCombat = () => (
     <>
-      <div className="flex flex-col items-center gap-2 mb-8">
+      <div className="flex flex-col items-center gap-2 mb-8 relative">
         {enemy && <>
+          {renderStatusEffects(enemy)}
           <Dna className="w-16 h-16 text-red-400"/>
           <p className="font-bold">{enemy.name}</p>
-          <p className="text-sm text-yellow-300">Intends to attack for {enemy.attackPattern[enemy.currentAttackIndex]}</p>
+          <p className="text-sm text-yellow-300">Intends to do {enemy.attackPattern[enemy.currentAttackIndex].damage} damage.</p>
           <div className="relative">
             <Progress value={(enemy.hp / enemy.maxHp) * 100} className="w-48 h-6 bg-red-900" />
             <div className="absolute inset-0 flex items-center justify-center text-sm font-bold">{enemy.hp} / {enemy.maxHp}</div>
@@ -301,7 +390,7 @@ const DeckBuildingRoguelike: React.FC = () => {
             key={`${card.id}-${index}`} initial={{ opacity: 0, y: 50, rotate: (index - hand.length/2) * 5 }} animate={{ opacity: 1, y: 0, rotate: (index - hand.length/2) * 5 }} whileHover={{ y: -20, scale: 1.05, zIndex: 10 }} transition={{ duration: 0.3 }} onClick={() => playCard(card, index)}
             className={cn("w-32 h-44 bg-slate-800 border-2 rounded-lg p-2 flex flex-col justify-between cursor-pointer", energy >= card.cost ? 'border-sky-400' : 'border-gray-600', energy < card.cost && 'opacity-60')}
           >
-            <div className="flex justify-between items-center"><h3 className="font-bold text-sm">{card.name}</h3><span className="w-6 h-6 rounded-full bg-yellow-400 text-black font-bold flex items-center justify-center">{card.cost}</span></div>
+            <div className="flex justify-between items-center"><h3 className="font-bold text-sm">{card.name}</h3><span className="w-6 h-6 rounded-full bg-yellow-400 text-black font-bold flex items-center justify-center">{card.cost < 0 ? 'X' : card.cost}</span></div>
             <p className="text-xs">{card.description}</p>
             <div/>
           </motion.div>
@@ -312,6 +401,7 @@ const DeckBuildingRoguelike: React.FC = () => {
         <div className="flex items-center gap-2 text-xs"><RotateCcw/>Deck: {deck.length}</div>
         <div className="flex flex-col items-center">
              <div className="flex gap-4">
+                {renderStatusEffects(player)}
                 {player.block > 0 && <div className="flex items-center gap-1 text-blue-300"><Shield/> {player.block}</div>}
                 <div className="flex items-center gap-1 text-yellow-300"><Zap/> {energy}/{maxEnergy}</div>
             </div>

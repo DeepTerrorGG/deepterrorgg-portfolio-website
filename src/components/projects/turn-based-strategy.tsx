@@ -26,9 +26,10 @@ interface Unit {
 }
 
 type GamePhase = 'player-turn-start' | 'select-unit' | 'move-unit' | 'attack-unit' | 'enemy-turn' | 'game-over';
+type DamageNumber = { id: number, x: number, y: number, amount: string, color: string };
 
 const GRID_SIZE = 12;
-const TILE_SIZE = 48; // in pixels
+const TILE_SIZE = 48;
 
 // --- INITIAL STATE ---
 const initialUnits: Unit[] = [
@@ -54,12 +55,13 @@ const TurnBasedStrategy: React.FC = () => {
   const [possibleMoves, setPossibleMoves] = useState<Set<string>>(new Set());
   const [possibleAttacks, setPossibleAttacks] = useState<Set<string>>(new Set());
   const [winner, setWinner] = useState<'player' | 'enemy' | null>(null);
+  const [damageNumbers, setDamageNumbers] = useState<DamageNumber[]>([]);
 
   const selectedUnit = useMemo(() => units.find(u => u.id === selectedUnitId), [units, selectedUnitId]);
 
   const getAttackRange = (unit: Unit): number => {
     if (unit.type === 'archer' || unit.type === 'mage') return 3;
-    if (unit.type === 'cleric') return 1; // Heal range
+    if (unit.type === 'cleric') return 1;
     return 1;
   };
 
@@ -95,8 +97,8 @@ const TurnBasedStrategy: React.FC = () => {
             if (dist > 0 && dist <= attackRange) {
                  const target = units.find(u => u.x === x && u.y === y);
                  if (target) {
-                     if (isHealer && target.owner === unit.owner) attacks.add(`${x},${y}`); // can heal allies
-                     if (!isHealer && target.owner !== unit.owner) attacks.add(`${x},${y}`); // can attack enemies
+                     if (isHealer && target.owner === unit.owner) attacks.add(`${x},${y}`);
+                     if (!isHealer && target.owner !== unit.owner) attacks.add(`${x},${y}`);
                  }
             }
         }
@@ -127,11 +129,19 @@ const TurnBasedStrategy: React.FC = () => {
         moveUnit(selectedUnit, x, y);
       } else if (possibleAttacks.has(`${x},${y}`)) {
         attackUnit(selectedUnit, x, y);
-      } else { // Deselect
+      } else { 
         setSelectedUnitId(null); setPossibleMoves(new Set()); setPossibleAttacks(new Set());
         setGamePhase('select-unit');
       }
     }
+  };
+  
+  const showDamageNumber = (amount: string, x: number, y: number, color: string) => {
+    const id = Date.now() + Math.random();
+    setDamageNumbers(prev => [...prev, { id, x, y, amount, color }]);
+    setTimeout(() => {
+      setDamageNumbers(prev => prev.filter(dn => dn.id !== id));
+    }, 1000);
   };
 
   const moveUnit = (unit: Unit, x: number, y: number) => {
@@ -147,9 +157,12 @@ const TurnBasedStrategy: React.FC = () => {
     if (!target) return;
     
     if (attacker.type === 'cleric') {
-      setUnits(prev => prev.map(u => u.id === target.id ? { ...u, hp: Math.min(u.maxHp, u.hp + attacker.attack) } : u));
+      const healAmount = attacker.attack;
+      showDamageNumber(`+${healAmount}`, targetX, targetY, 'text-green-400');
+      setUnits(prev => prev.map(u => u.id === target.id ? { ...u, hp: Math.min(u.maxHp, u.hp + healAmount) } : u));
     } else {
       const damage = Math.max(1, attacker.attack - target.defense);
+      showDamageNumber(String(damage), targetX, targetY, 'text-red-500');
       setUnits(prev => prev.map(u => u.id === target.id ? { ...u, hp: Math.max(0, u.hp - damage) } : u).filter(u => u.hp > 0));
     }
 
@@ -166,7 +179,7 @@ const TurnBasedStrategy: React.FC = () => {
       const enemyUnits = currentUnits.filter(u => u.owner === 'enemy');
       
       enemyUnits.forEach(enemy => {
-        if (!currentUnits.find(u => u.id === enemy.id)) return; // Was defeated mid-turn
+        if (!currentUnits.find(u => u.id === enemy.id)) return;
         const playerUnits = currentUnits.filter(u => u.owner === 'player');
         if(playerUnits.length === 0) return;
 
@@ -180,6 +193,7 @@ const TurnBasedStrategy: React.FC = () => {
 
         if (minDistance <= getAttackRange(enemy)) {
           const damage = Math.max(1, enemy.attack - closestPlayer.defense);
+          showDamageNumber(String(damage), closestPlayer.x, closestPlayer.y, 'text-red-500');
           currentUnits = currentUnits.map(u => u.id === closestPlayer!.id ? {...u, hp: u.hp - damage} : u).filter(u => u.hp > 0);
         } else {
             let newX = enemy.x; let newY = enemy.y;
@@ -218,7 +232,7 @@ const TurnBasedStrategy: React.FC = () => {
     archer: <LocateFixed/>,
     knight: <Shield/>,
     cleric: <Heart/>,
-    mage: <User/> // Placeholder
+    mage: <User/>
   }
 
   return (
@@ -236,7 +250,7 @@ const TurnBasedStrategy: React.FC = () => {
       <Card className="w-full max-w-5xl mx-auto shadow-2xl bg-muted/30">
         <CardHeader><CardTitle className="text-3xl font-bold text-primary text-center">Grid-Based Strategy</CardTitle></CardHeader>
         <CardContent className="flex flex-col md:flex-row gap-8 items-center justify-center">
-            <div className="grid border border-border" style={{ gridTemplateColumns: `repeat(${GRID_SIZE}, ${TILE_SIZE}px)`}}>
+            <div className="grid border border-border relative" style={{ gridTemplateColumns: `repeat(${GRID_SIZE}, ${TILE_SIZE}px)`, width: GRID_SIZE * TILE_SIZE, height: GRID_SIZE * TILE_SIZE }}>
                 {Array.from({length: GRID_SIZE * GRID_SIZE}).map((_, index) => {
                     const x = index % GRID_SIZE, y = Math.floor(index / GRID_SIZE);
                     const unitOnTile = unitAt(x, y);
@@ -244,15 +258,38 @@ const TurnBasedStrategy: React.FC = () => {
                     const isAttackable = possibleAttacks.has(`${x},${y}`);
                     return (
                         <div key={index} onClick={() => handleTileClick(x,y)} className={cn('w-12 h-12 border border-border/20 flex items-center justify-center relative', (isMoveable || isAttackable) && 'cursor-pointer' )}>
-                            <div className={cn('w-full h-full', gridLayout[index] === 'w' ? 'bg-blue-800' : 'bg-green-800/50', isMoveable && 'bg-blue-500/30', isAttackable && 'bg-red-500/30')}/>
-                            {unitOnTile && (
-                                <motion.div layoutId={`unit-${unitOnTile.id}`} className={cn('absolute inset-0 flex items-center justify-center rounded-full m-1 transition-all', unitOnTile.owner === 'player' ? 'bg-blue-600' : 'bg-red-600', selectedUnitId === unitOnTile.id && 'ring-2 ring-yellow-400', (unitOnTile.hasMoved || unitOnTile.hasAttacked) && 'opacity-50')}>
-                                    <div className="text-white h-6 w-6">{unitIcons[unitOnTile.type]}</div>
-                                </motion.div>
-                            )}
+                            <div className={cn('w-full h-full transition-colors', gridLayout[index] === 'w' ? 'bg-blue-800' : 'bg-green-800/50', isMoveable && 'bg-blue-500/30', isAttackable && 'bg-red-500/30')}/>
                         </div>
                     )
                 })}
+                 {units.map(unitOnTile => (
+                    <motion.div
+                        key={unitOnTile.id}
+                        layout
+                        transition={{ duration: 0.3 }}
+                        className={cn('absolute w-12 h-12 flex items-center justify-center')}
+                        style={{ top: unitOnTile.y * TILE_SIZE, left: unitOnTile.x * TILE_SIZE }}
+                    >
+                         <motion.div
+                            animate={ gamePhase === 'attack-unit' && selectedUnitId === unitOnTile.id ? { scale: [1, 1.2, 1]} : {}}
+                            transition={ gamePhase === 'attack-unit' && selectedUnitId === unitOnTile.id ? { duration: 0.3 } : {}}
+                            className={cn('w-10 h-10 flex items-center justify-center rounded-full transition-all', unitOnTile.owner === 'player' ? 'bg-blue-600' : 'bg-red-600', selectedUnitId === unitOnTile.id && 'ring-2 ring-yellow-400', (unitOnTile.hasMoved || unitOnTile.hasAttacked) && 'opacity-50')}>
+                            <div className="text-white h-6 w-6">{unitIcons[unitOnTile.type]}</div>
+                         </motion.div>
+                    </motion.div>
+                 ))}
+                 {damageNumbers.map(dn => (
+                    <motion.div
+                        key={dn.id}
+                        initial={{ opacity: 1, y: 0 }}
+                        animate={{ opacity: 0, y: -40 }}
+                        transition={{ duration: 1 }}
+                        className={cn("absolute font-bold text-xl pointer-events-none", dn.color)}
+                        style={{ top: dn.y * TILE_SIZE, left: dn.x * TILE_SIZE + TILE_SIZE/4 }}
+                    >
+                        {dn.amount}
+                    </motion.div>
+                 ))}
             </div>
             <div className="w-full md:w-64 space-y-4">
                 <Card>
@@ -275,6 +312,7 @@ const TurnBasedStrategy: React.FC = () => {
                         <AccordionContent className="text-xs space-y-2">
                             <p><strong>Goal:</strong> Defeat all enemy units.</p>
                             <p><strong>Turns:</strong> Select a unit on your turn. Blue squares are possible moves, red squares are possible attacks. A unit can move and then attack, but cannot move after attacking.</p>
+                            <p><strong>Units:</strong> Swordsman and Knight are melee. Archer and Mage are ranged. Cleric can heal friendly units.</p>
                             <p>Press "End Turn" when you are finished. The AI will then take its turn.</p>
                         </AccordionContent>
                     </AccordionItem>

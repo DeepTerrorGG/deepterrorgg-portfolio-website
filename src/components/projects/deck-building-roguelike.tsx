@@ -31,6 +31,7 @@ type GameCard = {
   description: string;
   effects: CardEffect[];
   upgraded?: boolean;
+  upgradeDesc?: string;
 };
 
 type StatusEffect = {
@@ -70,36 +71,36 @@ type MapData = {
 // --- CARD & ENEMY DEFINITIONS ---
 const cardLibrary: GameCard[] = [
   // Basic
-  { id: 1, name: 'Strike', type: 'Attack', cost: 1, description: 'Deal 6 damage.', effects: [{ type: 'ATTACK', amount: 6 }] },
-  { id: 2, name: 'Defend', type: 'Skill', cost: 1, description: 'Gain 5 block.', effects: [{ type: 'BLOCK', amount: 5 }] },
+  { id: 1, name: 'Strike', type: 'Attack', cost: 1, description: 'Deal 6 damage.', upgradeDesc: 'Deal 9 damage.', effects: [{ type: 'ATTACK', amount: 6 }] },
+  { id: 2, name: 'Defend', type: 'Skill', cost: 1, description: 'Gain 5 block.', upgradeDesc: 'Gain 8 block.', effects: [{ type: 'BLOCK', amount: 5 }] },
   // Common Attacks
-  { id: 3, name: 'Heavy Strike', type: 'Attack', cost: 2, description: 'Deal 12 damage.', effects: [{ type: 'ATTACK', amount: 12 }] },
-  { id: 5, name: 'Quick Draw', type: 'Attack', cost: 1, description: 'Deal 3 damage. Draw 1 card.', effects: [{ type: 'ATTACK', amount: 3 }, { type: 'DRAW', amount: 1 }] },
-  { id: 7, name: 'Bash', type: 'Attack', cost: 2, description: 'Deal 8 damage. Gain 8 block.', effects: [{ type: 'ATTACK', amount: 8 }, { type: 'BLOCK', amount: 8 }] },
-  { id: 8, name: 'Slice', type: 'Attack', cost: 0, description: 'Deal 4 damage.', effects: [{ type: 'ATTACK', amount: 4 }] },
-  { id: 10, name: 'Double Tap', type: 'Attack', cost: 1, description: 'Deal 5 damage twice.', effects: [{ type: 'ATTACK', amount: 5 }, { type: 'ATTACK', amount: 5 }] },
-  { id: 19, name: 'Carnage', type: 'Attack', cost: 2, description: 'Deal 20 damage.', effects: [{ type: 'ATTACK', amount: 20 }] },
-  { id: 24, name: 'Pummel', type: 'Attack', cost: 1, description: 'Deal 2 damage 4 times.', effects: [{ type: 'ATTACK', amount: 2 }, { type: 'ATTACK', amount: 2 }, { type: 'ATTACK', amount: 2 }, { type: 'ATTACK', amount: 2 }] },
-  { id: 25, name: 'Iron Wave', type: 'Attack', cost: 1, description: 'Gain 5 block. Deal 5 damage.', effects: [{ type: 'BLOCK', amount: 5 }, { type: 'ATTACK', amount: 5 }] },
-  { id: 26, name: 'Thunderclap', type: 'Attack', cost: 1, description: 'Deal 4 damage and apply 1 Vulnerable to ALL enemies.', effects: [{ type: 'ATTACK', amount: 4 }, { type: 'VULNERABLE', amount: 1 }] },
-  { id: 27, name: 'Body Slam', type: 'Attack', cost: 1, description: 'Deal damage equal to your block.', effects: [{ type: 'ATTACK', amount: 0 }] }, // Special calculation
-  { id: 29, name: 'Uppercut', type: 'Attack', cost: 2, description: 'Deal 13 damage. Apply 1 Weak and 1 Vulnerable.', effects: [{ type: 'ATTACK', amount: 13 }, { type: 'WEAK', amount: 1 }, { type: 'VULNERABLE', amount: 1 }] },
+  { id: 3, name: 'Heavy Strike', type: 'Attack', cost: 2, description: 'Deal 12 damage.', upgradeDesc: 'Deal 16 damage.', effects: [{ type: 'ATTACK', amount: 12 }] },
+  { id: 5, name: 'Quick Draw', type: 'Attack', cost: 1, description: 'Deal 3 damage. Draw 1 card.', upgradeDesc: 'Deal 4 damage. Draw 2 cards.', effects: [{ type: 'ATTACK', amount: 3 }, { type: 'DRAW', amount: 1 }] },
+  { id: 7, name: 'Bash', type: 'Attack', cost: 2, description: 'Deal 8 damage. Gain 8 block.', upgradeDesc: 'Deal 10 damage. Gain 10 block.', effects: [{ type: 'ATTACK', amount: 8 }, { type: 'BLOCK', amount: 8 }] },
+  { id: 8, name: 'Slice', type: 'Attack', cost: 0, description: 'Deal 4 damage.', upgradeDesc: 'Deal 6 damage.', effects: [{ type: 'ATTACK', amount: 4 }] },
+  { id: 10, name: 'Double Tap', type: 'Attack', cost: 1, description: 'Deal 5 damage twice.', upgradeDesc: 'Deal 7 damage twice.', effects: [{ type: 'ATTACK', amount: 5 }, { type: 'ATTACK', amount: 5 }] },
+  { id: 19, name: 'Carnage', type: 'Attack', cost: 2, description: 'Deal 20 damage.', upgradeDesc: 'Deal 28 damage.', effects: [{ type: 'ATTACK', amount: 20 }] },
+  { id: 24, name: 'Pummel', type: 'Attack', cost: 1, description: 'Deal 2 damage 4 times.', upgradeDesc: 'Deal 2 damage 5 times.', effects: [{ type: 'ATTACK', amount: 2 }, { type: 'ATTACK', amount: 2 }, { type: 'ATTACK', amount: 2 }, { type: 'ATTACK', amount: 2 }] },
+  { id: 25, name: 'Iron Wave', type: 'Attack', cost: 1, description: 'Gain 5 block. Deal 5 damage.', upgradeDesc: 'Gain 7 block. Deal 7 damage.', effects: [{ type: 'BLOCK', amount: 5 }, { type: 'ATTACK', amount: 5 }] },
+  { id: 26, name: 'Thunderclap', type: 'Attack', cost: 1, description: 'Deal 4 damage and apply 1 Vulnerable to ALL enemies.', upgradeDesc: 'Deal 7 damage and apply 2 Vulnerable.', effects: [{ type: 'ATTACK', amount: 4 }, { type: 'VULNERABLE', amount: 1 }] },
+  { id: 27, name: 'Body Slam', type: 'Attack', cost: 1, description: 'Deal damage equal to your block.', upgradeDesc: 'Cost 0. Deal damage equal to your block.', effects: [{ type: 'ATTACK', amount: 0 }] }, // Special calculation
+  { id: 29, name: 'Uppercut', type: 'Attack', cost: 2, description: 'Deal 13 damage. Apply 1 Weak and 1 Vulnerable.', upgradeDesc: 'Deal 16 damage. Apply 2 Weak and 2 Vulnerable.', effects: [{ type: 'ATTACK', amount: 13 }, { type: 'WEAK', amount: 1 }, { type: 'VULNERABLE', amount: 1 }] },
   // Common Skills
-  { id: 4, name: 'Fortify', type: 'Skill', cost: 2, description: 'Gain 10 block.', effects: [{ type: 'BLOCK', amount: 10 }] },
-  { id: 6, name: 'First Aid', type: 'Skill', cost: 1, description: 'Heal 5 HP.', effects: [{ type: 'HEAL', amount: 5 }] },
-  { id: 9, name: 'Energize', type: 'Skill', cost: 0, description: 'Gain 1 Energy. Draw 1 card.', effects: [{ type: 'ENERGY', amount: 1 }, { type: 'DRAW', amount: 1 }] },
-  { id: 11, name: 'Intimidate', type: 'Skill', cost: 1, description: 'Apply 2 Vulnerable.', effects: [{ type: 'VULNERABLE', amount: 2 }] },
-  { id: 12, name: 'Trip', type: 'Skill', cost: 0, description: 'Apply 1 Weak.', effects: [{ type: 'WEAK', amount: 1 }] },
-  { id: 13, name: 'Reinforce', type: 'Skill', cost: 1, description: 'Gain 7 block. If you have Block, draw 1 card.', effects: [{ type: 'BLOCK', amount: 7 }, {type: 'DRAW', amount: 1}] }, // Conditional draw
-  { id: 17, name: 'Disarm', type: 'Skill', cost: 1, description: 'Apply 2 Weak to an enemy.', effects: [{ type: 'WEAK', amount: 2 }] },
-  { id: 18, name: 'Shrug It Off', type: 'Skill', cost: 1, description: 'Gain 8 Block. Draw 1 card.', effects: [{ type: 'BLOCK', amount: 8 }, { type: 'DRAW', amount: 1 }] },
-  { id: 21, name: 'Impervious', type: 'Skill', cost: 2, description: 'Gain 30 Block.', effects: [{ type: 'BLOCK', amount: 30 }] },
-  { id: 23, name: 'Offering', type: 'Skill', cost: 0, description: 'Lose 6 HP. Gain 2 Energy. Draw 3 cards.', effects: [{ type: 'ENERGY', amount: 2 }, { type: 'DRAW', amount: 3 }, { type: 'HEAL', amount: -6 }] },
-  { id: 28, name: 'Entrench', type: 'Skill', cost: 2, description: 'Double your current block.', effects: [{ type: 'BLOCK', amount: 0 }] }, // Special calculation
-  { id: 30, name: 'Seeing Red', type: 'Skill', cost: 1, description: 'Gain 2 Energy.', effects: [{ type: 'ENERGY', amount: 2 }] },
+  { id: 4, name: 'Fortify', type: 'Skill', cost: 2, description: 'Gain 10 block.', upgradeDesc: 'Gain 14 block.', effects: [{ type: 'BLOCK', amount: 10 }] },
+  { id: 6, name: 'First Aid', type: 'Skill', cost: 1, description: 'Heal 5 HP.', upgradeDesc: 'Heal 8 HP.', effects: [{ type: 'HEAL', amount: 5 }] },
+  { id: 9, name: 'Energize', type: 'Skill', cost: 0, description: 'Gain 1 Energy. Draw 1 card.', upgradeDesc: 'Gain 2 Energy. Draw 1 card.', effects: [{ type: 'ENERGY', amount: 1 }, { type: 'DRAW', amount: 1 }] },
+  { id: 11, name: 'Intimidate', type: 'Skill', cost: 1, description: 'Apply 2 Vulnerable.', upgradeDesc: 'Apply 3 Vulnerable.', effects: [{ type: 'VULNERABLE', amount: 2 }] },
+  { id: 12, name: 'Trip', type: 'Skill', cost: 0, description: 'Apply 1 Weak.', upgradeDesc: 'Apply 2 Weak.', effects: [{ type: 'WEAK', amount: 1 }] },
+  { id: 13, name: 'Reinforce', type: 'Skill', cost: 1, description: 'Gain 7 block. If you have Block, draw 1 card.', upgradeDesc: 'Gain 10 block. If you have Block, draw 1 card.', effects: [{ type: 'BLOCK', amount: 7 }, {type: 'DRAW', amount: 1}] }, // Conditional draw
+  { id: 17, name: 'Disarm', type: 'Skill', cost: 1, description: 'Apply 2 Weak to an enemy.', upgradeDesc: 'Apply 3 Weak to an enemy.', effects: [{ type: 'WEAK', amount: 2 }] },
+  { id: 18, name: 'Shrug It Off', type: 'Skill', cost: 1, description: 'Gain 8 Block. Draw 1 card.', upgradeDesc: 'Gain 11 Block. Draw 1 card.', effects: [{ type: 'BLOCK', amount: 8 }, { type: 'DRAW', amount: 1 }] },
+  { id: 21, name: 'Impervious', type: 'Skill', cost: 2, description: 'Gain 30 Block.', upgradeDesc: 'Gain 40 Block.', effects: [{ type: 'BLOCK', amount: 30 }] },
+  { id: 23, name: 'Offering', type: 'Skill', cost: 0, description: 'Lose 6 HP. Gain 2 Energy. Draw 3 cards.', upgradeDesc: 'Lose 6 HP. Gain 2 Energy. Draw 5 cards.', effects: [{ type: 'ENERGY', amount: 2 }, { type: 'DRAW', amount: 3 }, { type: 'HEAL', amount: -6 }] },
+  { id: 28, name: 'Entrench', type: 'Skill', cost: 2, description: 'Double your current block.', upgradeDesc: 'Cost 1. Double your current block.', effects: [{ type: 'BLOCK', amount: 0 }] }, // Special calculation
+  { id: 30, name: 'Seeing Red', type: 'Skill', cost: 1, description: 'Gain 2 Energy.', upgradeDesc: 'Gain 3 Energy.', effects: [{ type: 'ENERGY', amount: 2 }] },
   // Powers
-  { id: 50, name: 'Strength Potion', type: 'Power', cost: 1, description: 'Gain 2 Strength. (Deal 2 more damage with each attack for the rest of combat)', effects: [{ type: 'STRENGTH', amount: 2 }] },
-  { id: 51, name: 'Metallicize', type: 'Power', cost: 1, description: 'At the end of your turn, gain 3 Block.', effects: [{ type: 'METALLICIZE', amount: 3 }] },
+  { id: 50, name: 'Strength Potion', type: 'Power', cost: 1, description: 'Gain 2 Strength.', upgradeDesc: 'Gain 3 Strength.', effects: [{ type: 'STRENGTH', amount: 2 }] },
+  { id: 51, name: 'Metallicize', type: 'Power', cost: 1, description: 'At the end of your turn, gain 3 Block.', upgradeDesc: 'At the end of your turn, gain 5 Block.', effects: [{ type: 'METALLICIZE', amount: 3 }] },
   // Curses
   { id: 100, name: 'Clumsy', type: 'Curse', cost: -2, description: 'Unplayable. Ethereal. (Exhausts when in hand at end of turn)', effects: []},
 ];
@@ -126,7 +127,7 @@ const shuffle = <T,>(array: T[]): T[] => {
 
 const generateMap = (): MapData => {
   const numLevels = 10;
-  const nodesPerLevel = [1, 2, 3, 2, 3, 2, 1, 1, 1, 1]; // Boss at level 8, Rest at 7, Elite at 6
+  const nodesPerLevel = [1, 2, 3, 2, 3, 2, 1, 1, 1, 1];
   const levels: MapNode[][] = [];
   let nodeIdCounter = 0;
 
@@ -181,7 +182,7 @@ const DeckBuildingRoguelike: React.FC = () => {
 
     const [gameState, setGameState] = useState<GameState>('map');
     const [mapData, setMapData] = useState<MapData>(generateMap());
-    const [currentLevel, setCurrentLevel] = useState(-1); // Start before the first level
+    const [currentLevel, setCurrentLevel] = useState(-1);
     const [currentNode, setCurrentNode] = useState<MapNode | null>(null);
     
     const [cardRewards, setCardRewards] = useState<GameCard[]>([]);
@@ -284,6 +285,11 @@ const DeckBuildingRoguelike: React.FC = () => {
       if(card.name === 'Body Slam') finalAmount = newPlayer.block;
       if(card.name === 'Entrench') finalAmount = newPlayer.block;
 
+      if(card.upgraded) {
+        if(effect.type === 'ATTACK' || effect.type === 'BLOCK') finalAmount += (card.id === 2 ? 3 : 4);
+        if(effect.type === 'HEAL') finalAmount += 3;
+      }
+
       switch (effect.type) {
         case 'ATTACK':
           const damage = applyStatusEffectsToDamage(finalAmount, newPlayer, newEnemy);
@@ -292,29 +298,39 @@ const DeckBuildingRoguelike: React.FC = () => {
           break;
         case 'BLOCK': newPlayer.block += finalAmount; break;
         case 'DRAW': 
-            const shouldDraw = !(card.name === 'Reinforce' && newPlayer.block === 0);
+            let shouldDraw = !(card.name === 'Reinforce' && newPlayer.block === 0);
+            if(card.upgraded && card.id === 5) shouldDraw = true; // Upgraded Quick Draw always draws
             if (shouldDraw) cardsToDraw += finalAmount;
+            if(card.upgraded && card.id === 5) cardsToDraw +=1; //bonus draw for upgraded quick draw
             break;
         case 'HEAL': newPlayer.hp = Math.min(newPlayer.maxHp, newPlayer.hp + finalAmount); break;
         case 'ENERGY': energyGained += finalAmount; break;
         case 'STRENGTH': case 'METALLICIZE': {
             const existing = newPlayer.statusEffects.find(e => e.type === effect.type.toLowerCase());
-            if (existing) existing.duration += effect.amount;
-            else newPlayer.statusEffects.push({ type: effect.type.toLowerCase() as 'strength'|'metallicize', duration: effect.amount });
+            let amount = effect.amount;
+            if(card.upgraded) amount +=1;
+            if (existing) existing.duration += amount;
+            else newPlayer.statusEffects.push({ type: effect.type.toLowerCase() as 'strength'|'metallicize', duration: amount });
             break;
         }
         case 'VULNERABLE': case 'WEAK':
             const target = newEnemy;
             const existingEffectIndex = target.statusEffects.findIndex(e => e.type === effect.type.toLowerCase());
-            const duration = effect.duration || effect.amount;
+            let duration = effect.duration || effect.amount;
+            if (card.upgraded) duration += 1;
             if (existingEffectIndex > -1) target.statusEffects[existingEffectIndex].duration += duration;
             else target.statusEffects.push({type: effect.type.toLowerCase() as 'vulnerable'|'weak', duration });
             break;
       }
     });
     
+    let finalCost = card.cost;
+    if(card.upgraded) {
+        if(card.id === 27) finalCost = 0; // Upgraded Body Slam
+        if(card.id === 28) finalCost = 1; // Upgraded Entrench
+    }
     setPlayer(newPlayer);
-    if(card.cost >= 0) setEnergy(e => e - card.cost + energyGained);
+    if(finalCost >= 0) setEnergy(e => e - finalCost + energyGained);
     else setEnergy(0);
     const playedCard = hand[cardIndex];
     
@@ -344,14 +360,12 @@ const DeckBuildingRoguelike: React.FC = () => {
   const endPlayerTurn = () => {
     if (gameState !== 'combat' || !enemy) return;
 
-    // Handle Ethereal cards
     const etherealInHand = hand.filter(c => c.description.includes('Ethereal'));
     const remainingHand = hand.filter(c => !c.description.includes('Ethereal'));
     setExhaustPile(e => [...e, ...etherealInHand]);
     setDiscardPile(d => [...d, ...remainingHand]);
     setHand([]);
     
-    // Apply metallicize at end of turn
     const metallicizeAmount = player.statusEffects.find(e => e.type === 'metallicize')?.duration || 0;
     if (metallicizeAmount > 0) {
         setPlayer(p => ({...p, block: p.block + metallicizeAmount}));
@@ -403,9 +417,10 @@ const DeckBuildingRoguelike: React.FC = () => {
     const availableCards = cardLibrary.filter(c => c.type !== 'Curse' && c.type !== 'Power' && c.id > 2); 
     const availablePowers = cardLibrary.filter(c => c.type === 'Power');
     
-    // 1 Power card
-    rewards.push(availablePowers[Math.floor(Math.random() * availablePowers.length)]);
-    // 2 regular cards
+    if(Math.random() < 0.3) { // 30% chance for a power card
+        rewards.push(availablePowers[Math.floor(Math.random() * availablePowers.length)]);
+    }
+    
     while(rewards.length < 3 && availableCards.length > 0) {
         const randomIndex = Math.floor(Math.random() * availableCards.length);
         rewards.push(availableCards.splice(randomIndex, 1)[0]);
@@ -437,40 +452,30 @@ const DeckBuildingRoguelike: React.FC = () => {
   
   const renderCard = (card: GameCard, index: number, context: 'hand' | 'codex' | 'reward' | 'upgrade') => {
       const isPlayable = card.cost <= energy || card.cost < 0;
-      const cardTypeColors: Record<CardType, string> = {
-          'Attack': 'border-red-500/50',
-          'Skill': 'border-blue-500/50',
-          'Power': 'border-purple-500/50',
-          'Curse': 'border-zinc-500/50',
-      };
       
       const cardComponent = (
         <div className={cn(
-          "w-44 h-60 rounded-xl p-3 flex flex-col justify-between shadow-lg text-white border-2 bg-slate-800/80 backdrop-blur-sm",
-          cardTypeColors[card.type],
-          card.upgraded && 'border-yellow-400 ring-2 ring-yellow-400/50'
+          "w-44 h-60 rounded-xl p-2 flex flex-col justify-between shadow-lg text-white border-2 bg-slate-800/80 backdrop-blur-sm",
+          card.type === 'Attack' && 'border-red-500/50',
+          card.type === 'Skill' && 'border-blue-500/50',
+          card.type === 'Power' && 'border-purple-500/50',
+          card.type === 'Curse' && 'border-zinc-500/50',
+          card.upgraded && 'border-yellow-400 ring-2 ring-yellow-400/50 shadow-yellow-500/20'
         )}>
-            {/* Header */}
             <div className="flex justify-between items-start">
-              <h3 className="font-bold text-base flex items-center">
+              <h3 className="font-bold text-sm flex items-center gap-1">
                 {card.name}
-                {card.upgraded && <span className="text-yellow-400 ml-1">+</span>}
+                {card.upgraded && <span className="text-yellow-400 font-bold">+</span>}
               </h3>
               {card.cost >= 0 && (
-                <span className={cn(
-                  "w-8 h-8 text-xl rounded-full font-bold flex items-center justify-center border-2",
-                  "bg-sky-900 border-sky-400 text-sky-200"
-                )}>{card.cost}</span>
+                <span className="w-7 h-7 text-lg rounded-full font-bold flex items-center justify-center border-2 bg-sky-900 border-sky-400 text-sky-200">{card.cost}</span>
               )}
             </div>
 
-            {/* Art Placeholder */}
-            <div className="h-20 w-full bg-slate-900/50 rounded-md my-2 border border-slate-700"></div>
+            <div className="h-20 w-full bg-slate-900/50 rounded-md my-1 border border-slate-700 flex items-center justify-center text-xs text-muted-foreground">ART</div>
 
-            {/* Description */}
-            <p className="text-xs flex-grow">{card.description}</p>
+            <p className="text-xs flex-grow">{card.upgraded && card.upgradeDesc ? card.upgradeDesc : card.description}</p>
             
-            {/* Type */}
             <p className="text-center text-xs font-bold uppercase opacity-60 mt-1">{card.type}</p>
         </div>
       );
@@ -510,57 +515,58 @@ const DeckBuildingRoguelike: React.FC = () => {
     );
   };
 
-  const renderMap = () => (
-    <div className="flex flex-col items-center justify-center gap-4 text-white w-full">
-      <h2 className="text-3xl font-bold text-yellow-300">Choose Your Path</h2>
-      <div className="flex justify-center items-center gap-8 p-4 w-full">
-        {mapData.levels[currentLevel + 1]?.map(node => {
-          const nodeIcons: Record<MapNodeType, React.ReactNode> = { combat: <Swords/>, elite: <Skull/>, boss: <Crown/>, victory: <Star/>, rest: <Bed/> };
-          const nodeColors: Record<MapNodeType, string> = { 
-            combat: 'bg-gray-700 border-gray-500 hover:bg-gray-600', 
-            elite: 'bg-red-800 border-red-600 hover:bg-red-700', 
-            boss: 'bg-purple-900 border-purple-600 hover:bg-purple-800', 
-            victory: 'bg-yellow-600 border-yellow-400 hover:bg-yellow-500', 
-            rest: 'bg-green-800 border-green-600 hover:bg-green-700' 
-          };
-          const isReachable = currentLevel === -1 || true; // In a real game, you'd check connections
+ const renderMap = () => {
+    const nodeIcons: Record<MapNodeType, React.ReactNode> = { combat: <Swords/>, elite: <Skull/>, boss: <Crown/>, victory: <Star/>, rest: <Bed/> };
+    const nodeColors: Record<MapNodeType, string> = { 
+      combat: 'bg-gray-700 border-gray-500 hover:bg-gray-600', 
+      elite: 'bg-red-800 border-red-600 hover:bg-red-700', 
+      boss: 'bg-purple-900 border-purple-600 hover:bg-purple-800', 
+      victory: 'bg-yellow-600 border-yellow-400 hover:bg-yellow-500', 
+      rest: 'bg-green-800 border-green-600 hover:bg-green-700' 
+    };
 
-          return (
-            <motion.button
-              key={node.id}
-              onClick={() => startCombat(node)}
-              className={cn(
-                "w-32 h-32 flex flex-col items-center justify-center rounded-lg border-2 transition-all duration-300 transform",
-                isReachable ? nodeColors[node.type] : 'bg-gray-900 border-gray-700 opacity-50 cursor-not-allowed'
-              )}
-              whileHover={{ scale: isReachable ? 1.1 : 1 }}
-              disabled={!isReachable}
-            >
-              <div className="w-12 h-12">{nodeIcons[node.type]}</div>
-              <span className="text-lg font-semibold capitalize mt-1">{node.type}</span>
-            </motion.button>
-          );
-        })}
+    return (
+      <div className="flex flex-col items-center justify-center gap-4 text-white w-full">
+        <h2 className="text-3xl font-bold text-yellow-300">Choose Your Path</h2>
+        <div className="flex justify-center items-center gap-8 p-4 w-full">
+          {mapData.levels[currentLevel + 1]?.map(node => {
+            const isReachable = currentLevel === -1 || true; // Simplified reachability
+            return (
+              <motion.button
+                key={node.id}
+                onClick={() => isReachable && startCombat(node)}
+                className={cn(
+                  "w-32 h-32 flex flex-col items-center justify-center rounded-lg border-2 transition-all duration-300 transform",
+                  isReachable ? nodeColors[node.type] : 'bg-gray-900 border-gray-700 opacity-50 cursor-not-allowed'
+                )}
+                whileHover={{ scale: isReachable ? 1.1 : 1 }}
+                disabled={!isReachable}
+              >
+                <div className="w-12 h-12">{nodeIcons[node.type]}</div>
+                <span className="text-lg font-semibold capitalize mt-1">{node.type}</span>
+              </motion.button>
+            );
+          })}
+        </div>
+        <div className="flex gap-2 mt-4">
+          <Button onClick={restartGame}>Restart Run</Button>
+          <Dialog><DialogTrigger asChild><Button variant="secondary"><BookOpen className="mr-2"/>Card Codex</Button></DialogTrigger>
+            <DialogContent className="max-w-4xl h-[90vh] flex flex-col bg-gray-900/90 border-gray-700 text-white">
+              <DialogHeader>
+                <DialogTitle className="text-primary text-2xl">Card Codex</DialogTitle>
+                <DialogClose asChild>
+                  <Button variant="ghost" size="icon" className="absolute right-4 top-4 text-gray-400 hover:text-white">
+                    <X className="h-4 w-4" /><span className="sr-only">Close</span>
+                  </Button>
+                </DialogClose>
+              </DialogHeader>
+              {renderCodex()}
+            </DialogContent>
+          </Dialog>
+        </div>
       </div>
-      <div className="flex gap-2 mt-4">
-        <Button onClick={restartGame}>Restart Run</Button>
-        <Dialog><DialogTrigger asChild><Button variant="secondary"><BookOpen className="mr-2"/>Card Codex</Button></DialogTrigger>
-          <DialogContent className="max-w-4xl h-[90vh] flex flex-col bg-gray-900/90 border-gray-700 text-white">
-            <DialogHeader>
-              <DialogTitle className="text-primary text-2xl">Card Codex</DialogTitle>
-              <DialogClose asChild>
-                <Button variant="ghost" size="icon" className="absolute right-4 top-4 text-gray-400 hover:text-white">
-                  <X className="h-4 w-4" />
-                  <span className="sr-only">Close</span>
-                </Button>
-              </DialogClose>
-            </DialogHeader>
-            {renderCodex()}
-          </DialogContent>
-        </Dialog>
-      </div>
-    </div>
-  );
+    );
+  };
   
   const renderReward = () => (
     <div className="flex flex-col items-center justify-center gap-4">
@@ -586,23 +592,50 @@ const DeckBuildingRoguelike: React.FC = () => {
       }
   }
   
-  const handleUpgradeCard = (cardToUpgrade: GameCard, index: number) => {
-    const upgradedCard: GameCard = { ...cardToUpgrade, upgraded: true, name: `${cardToUpgrade.name}`, description: `${cardToUpgrade.description} (Upgraded)` };
-    // Simple upgrade logic for demo
-    upgradedCard.effects = upgradedCard.effects.map(e => ({...e, amount: e.type === 'HEAL' ? e.amount + 2 : e.amount + 4}));
-    upgradedCard.description = upgradedCard.effects.map(e => {
-        if(e.type === 'ATTACK') return `Deal ${e.amount} damage.`
-        if(e.type === 'BLOCK') return `Gain ${e.amount} block.`
-        return ''
-    }).join(' ');
+  const handleUpgradeCard = (cardToUpgrade: GameCard) => {
+    const upgradedCard: GameCard = { ...cardToUpgrade, upgraded: true };
+    // Find the definition to apply specific upgrade effects
+    const definition = cardLibrary.find(c => c.id === cardToUpgrade.id);
+    if(definition) {
+        if(definition.id === 27) upgradedCard.cost = 0; // Body Slam
+        if(definition.id === 28) upgradedCard.cost = 1; // Entrench
+        upgradedCard.effects = upgradedCard.effects.map(e => {
+            if(e.type === 'ATTACK' || e.type === 'BLOCK') {
+                if (definition.id === 2) return {...e, amount: e.amount + 3}; // Defend
+                return {...e, amount: e.amount + 4};
+            }
+            if(e.type === 'HEAL') return {...e, amount: e.amount + 3};
+            if(e.type === 'DRAW' && definition.id === 5) return {...e, amount: e.amount + 1};
+            if(e.type === 'ENERGY' && definition.id === 9) return {...e, amount: e.amount + 1};
+            if(e.type === 'ENERGY' && definition.id === 30) return {...e, amount: e.amount + 1};
+            return e;
+        });
+    }
 
     const newDeck = [...deck];
-    newDeck[index] = upgradedCard;
+    const indexToUpgrade = newDeck.findIndex(c => c.id === cardToUpgrade.id && !c.upgraded);
+    if(indexToUpgrade > -1) newDeck[indexToUpgrade] = upgradedCard;
     setDeck(newDeck);
     
     setCurrentLevel(l => l + 1);
     setGameState('map');
   }
+
+  const renderUpgradeScreen = () => (
+    <div className="flex flex-col items-center justify-center gap-4 text-white w-full">
+        <h2 className="text-3xl font-bold">Upgrade a Card</h2>
+        <ScrollArea className="h-[70vh] w-full">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 p-4">
+              {[...deck, ...discardPile].filter(c => !c.upgraded).map((card, i) => (
+                  <div key={i} onClick={() => handleUpgradeCard(card)}>
+                      {renderCard(card, i, 'upgrade')}
+                  </div>
+              ))}
+          </div>
+        </ScrollArea>
+        <Button variant="outline" onClick={() => setGameState('rest')}>Back to Rest Site</Button>
+    </div>
+  );
 
   const renderRestSite = () => (
     <div className="flex flex-col items-center justify-center gap-4 text-white">
@@ -623,20 +656,6 @@ const DeckBuildingRoguelike: React.FC = () => {
     </div>
   );
   
-  const renderUpgradeScreen = () => (
-    <div className="flex flex-col items-center justify-center gap-4 text-white w-full">
-        <h2 className="text-3xl font-bold">Upgrade a Card</h2>
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 p-4 bg-black/20 rounded-lg max-h-[60vh] overflow-y-auto">
-            {deck.filter(c => !c.upgraded).map((card, i) => (
-                <div key={i} onClick={() => handleUpgradeCard(card, i)}>
-                    {renderCard(card, i, 'upgrade')}
-                </div>
-            ))}
-        </div>
-        <Button variant="outline" onClick={() => setGameState('rest')}>Back</Button>
-    </div>
-  );
-
   const renderCodex = () => {
     const cardTypes: CardType[] = ['Attack', 'Skill', 'Power', 'Curse'];
     return (
@@ -735,8 +754,7 @@ const DeckBuildingRoguelike: React.FC = () => {
                           <DialogTitle className="text-primary text-2xl">Card Codex</DialogTitle>
                            <DialogClose asChild>
                             <Button variant="ghost" size="icon" className="absolute right-4 top-4 text-gray-400 hover:text-white">
-                              <X className="h-4 w-4" />
-                              <span className="sr-only">Close</span>
+                              <X className="h-4 w-4" /><span className="sr-only">Close</span>
                             </Button>
                           </DialogClose>
                         </DialogHeader>

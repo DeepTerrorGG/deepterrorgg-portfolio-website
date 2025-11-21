@@ -113,13 +113,17 @@ const FactorySimulator: React.FC = () => {
         setBuildings(prev => [...prev, newBuilding]);
     };
     
+    const rotateBuilding = useCallback(() => {
+        setBuildingDirection(d => d === 'right' ? 'down' : d === 'down' ? 'left' : d === 'left' ? 'up' : 'right');
+    }, []);
+
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => { if (e.key.toLowerCase() === 'r') {
-            setBuildingDirection(d => d === 'right' ? 'down' : d === 'down' ? 'left' : d === 'left' ? 'up' : 'right');
+            rotateBuilding();
         }};
         window.addEventListener('keydown', handleKeyDown);
         return () => window.removeEventListener('keydown', handleKeyDown);
-    }, []);
+    }, [rotateBuilding]);
 
     const handleCanvasClick = (e: React.MouseEvent) => {
         if(isPanning) return;
@@ -380,10 +384,15 @@ const FactorySimulator: React.FC = () => {
                         <CardHeader className='p-2'><CardTitle className='text-base'>Controls</CardTitle></CardHeader>
                         <CardContent className="p-2 space-y-2">
                             <div className="flex items-center gap-2">
-                                <Button size="icon" variant="outline" onClick={() => setBuildingDirection(d => d === 'right' ? 'down' : d === 'down' ? 'left' : d === 'left' ? 'up' : 'right')}>
-                                    <RotateCcw/>
+                                <Button size="icon" variant="outline" onClick={rotateBuilding}>
+                                    <RotateCcw className={cn(
+                                        'transition-transform',
+                                        buildingDirection === 'down' && 'rotate-90',
+                                        buildingDirection === 'left' && 'rotate-180',
+                                        buildingDirection === 'up' && 'rotate-[-90deg]'
+                                    )}/>
                                 </Button>
-                                <span className="text-sm">Rotate (R)</span>
+                                <span className="text-sm">Rotate (R key)</span>
                             </div>
                         </CardContent>
                     </Card>

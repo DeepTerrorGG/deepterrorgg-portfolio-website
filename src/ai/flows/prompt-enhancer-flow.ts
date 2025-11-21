@@ -1,3 +1,4 @@
+
 'use server';
 
 import { ai } from '@/ai/genkit';
@@ -16,8 +17,6 @@ function buildSystemPrompt(input: PromptEnhancerInput): string {
   let prompt = `You are an expert AI prompt engineer. Your task is to expand on a user's simple idea and create a detailed, structured, and effective prompt tailored for a specific type of generative AI model.
 
 The user wants to generate a prompt for the "${input.targetModel}" model, focusing on a "${input.promptType}" output.
-
-Base Idea: "${input.idea}"
 
 Use the following details to enrich the prompt. Be creative and add descriptive elements where helpful.
 
@@ -76,7 +75,7 @@ Use the following details to enrich the prompt. Be creative and add descriptive 
   }
   
   prompt += `
-Generate ONLY the final, enhanced prompt as a single block of text. Do not add explanations or surrounding text. Just the prompt itself.
+Finally, generate ONLY the final, enhanced prompt as a single block of text based on the user's idea below. Do not add explanations or surrounding text. Just the prompt itself.
 `;
 
   return prompt;
@@ -90,7 +89,8 @@ export async function enhancePrompt(
   try {
     const { text } = await ai.generate({
       model: 'googleai/gemini-pro',
-      prompt: systemPrompt,
+      system: systemPrompt,
+      prompt: `Base Idea: "${input.idea}"`, // Pass the user's idea as the main prompt
       config: {
         temperature: 0.7,
       },

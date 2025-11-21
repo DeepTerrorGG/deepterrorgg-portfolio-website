@@ -18,7 +18,8 @@ import {
     ImageModels,
     VideoModels,
     CodeModels,
-    TextModels
+    TextModels,
+    TargetModelSchema
 } from '@/ai/flows/prompt-enhancer-flow-types';
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';
@@ -35,7 +36,7 @@ const AIPromptEnhancer: React.FC = () => {
 
   // State for new options
   const [promptType, setPromptType] = useState<PromptType>('Image');
-  const [targetModel, setTargetModel] = useState<string>('Midjourney');
+  const [targetModel, setTargetModel] = useState<z.infer<typeof TargetModelSchema>>('Midjourney');
   
   const [textDetails, setTextDetails] = useState<z.infer<typeof TextPromptDetailsSchema>>({ persona: '', task: '', format: '', tone: '', length: '' });
   const [imageDetails, setImageDetails] = useState<z.infer<typeof ImagePromptDetailsSchema>>({ style: 'Default' as ImageStyle, composition: '', lighting: '', mood: '', negativePrompt: '', cameraAngle: '', lensType: '', artistInspiration: '' });
@@ -179,14 +180,14 @@ const AIPromptEnhancer: React.FC = () => {
                 </TabsList>
             </Tabs>
             
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 items-end">
+            <div className="grid grid-cols-1 gap-4">
                 <div>
                   <Label htmlFor="prompt-idea">Your Core Idea</Label>
                   <Textarea id="prompt-idea" value={idea} onChange={(e) => setIdea(e.target.value)} placeholder="e.g., a logo for a coffee shop" rows={2} disabled={isLoading} className="mt-1" />
                 </div>
                  <div>
                     <Label htmlFor="target-model">Target AI Model</Label>
-                    <Select value={targetModel} onValueChange={(v) => setTargetModel(v as string)}>
+                    <Select value={targetModel} onValueChange={(v) => setTargetModel(v as z.infer<typeof TargetModelSchema>)}>
                         <SelectTrigger id="target-model" className="mt-1"><SelectValue/></SelectTrigger>
                         <SelectContent>{getModelOptions().map(m => <SelectItem key={m} value={m}>{m}</SelectItem>)}</SelectContent>
                     </Select>

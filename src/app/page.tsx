@@ -185,6 +185,19 @@ export default function HomePage() {
           <ProjectShowcase projects={featuredProjects} />
         </SectionContainer>
         
+        {/* Call to Action Section */}
+        <SectionContainer id="contact-cta">
+          <div className="text-center p-8 md:p-12">
+             <h2 className="text-3xl md:text-4xl font-bold text-primary">Have a Project in Mind?</h2>
+             <p className="text-muted-foreground mt-3 max-w-xl mx-auto">I'm always open to discussing new projects, creative ideas, or opportunities to be part of an ambitious vision. Let's create something amazing together.</p>
+              <Button asChild size="lg" className="mt-8">
+                <Link href="/contact">
+                  Contact Me <Mail className="ml-2 h-5 w-5" />
+                </Link>
+              </Button>
+          </div>
+        </SectionContainer>
+        
         {/* Old Spline Model Section - now replaced by showcase */}
         <SectionContainer id="spline-test">
               <div className="text-center mb-12">
@@ -192,7 +205,7 @@ export default function HomePage() {
               <p className="text-muted-foreground mt-3 max-w-2xl mx-auto">An interactive 3D model representing the games I enjoy.</p>
               </div>
               <div className="relative h-[500px] md:h-[700px] w-full mx-auto rounded-lg overflow-hidden bg-muted/20 min-h-[500px]">
-                  <SplineModel sceneUrl="https://prod.spline.design/wl4X9XbiCMDi6bUv/scene.splinecode" />
+                  <SplineModel sceneUrl="https://prod.spline.design/wl4X9XbiCMDi6bUv/scene.splinecode" scrollable={false} />
               </div>
         </SectionContainer>
 
@@ -222,19 +235,6 @@ export default function HomePage() {
             <p className="text-muted-foreground mt-3 max-w-2xl mx-auto">A collection of my 3D creations. Use the arrows to navigate.</p>
           </div>
           <SplineShowcase models={splineModels} />
-        </SectionContainer>
-        
-        {/* Call to Action Section */}
-        <SectionContainer id="contact-cta">
-          <div className="text-center p-8 md:p-12">
-             <h2 className="text-3xl md:text-4xl font-bold text-primary">Have a Project in Mind?</h2>
-             <p className="text-muted-foreground mt-3 max-w-xl mx-auto">I'm always open to discussing new projects, creative ideas, or opportunities to be part of an ambitious vision. Let's create something amazing together.</p>
-              <Button asChild size="lg" className="mt-8">
-                <Link href="/contact">
-                  Contact Me <Mail className="ml-2 h-5 w-5" />
-                </Link>
-              </Button>
-          </div>
         </SectionContainer>
       </div>
       <footer className="py-16 bg-background">

@@ -3,12 +3,13 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { HardHat, Cog, Box, Play, Pause, RefreshCw, ZoomIn, ZoomOut, RotateCcw, Zap, Factory, HelpCircle, Warehouse, Hammer } from 'lucide-react';
+import { HardHat, Cog, Box, Play, Pause, RefreshCw, ZoomIn, ZoomOut, RotateCcw, Zap, Factory, HelpCircle, Warehouse, Hammer, ShoppingCart, DollarSign } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import { Slider } from '../ui/slider';
 import { Label } from '../ui/label';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '../ui/accordion';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
 
 // --- TYPE DEFINITIONS ---
 type BuildingType = 'miner' | 'belt' | 'assembler' | 'adv_assembler' | 'generator' | 'chest';
@@ -86,12 +87,23 @@ const buildingPower: Record<BuildingType, number> = {
     chest: 0,
 }
 
+const resourcePrices: Partial<Record<Resource, { buy: number; sell: number }>> = {
+    iron_ore: { buy: 10, sell: 5 },
+    copper_ore: { buy: 15, sell: 8 },
+    coal: { buy: 20, sell: 12 },
+    iron_plate: { buy: 25, sell: 15 },
+    copper_wire: { buy: 30, sell: 18 },
+    gear: { buy: 100, sell: 60 },
+    circuit: { buy: 250, sell: 150 },
+};
+
 const FactorySimulator: React.FC = () => {
     const { toast } = useToast();
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const [buildings, setBuildings] = useState<Building[]>([]);
     const [items, setItems] = useState<ItemOnBelt[]>([]);
     const [inventory, setInventory] = useState<Partial<Record<Resource, number>>>({ iron_plate: 20, gear: 5 });
+    const [money, setMoney] = useState(1000);
     
     const [selectedBuilding, setSelectedBuilding] = useState<BuildingType>('belt');
     const [buildingDirection, setBuildingDirection] = useState<Direction>('right');
@@ -169,6 +181,29 @@ const FactorySimulator: React.FC = () => {
         newInventory[building as Resource] = (newInventory[building as Resource] || 0) + 1;
         setInventory(newInventory);
         toast({title: 'Crafted!', description: `You crafted 1x ${building}.`});
+    }
+
+    const handleMarketTransaction = (resource: Resource, type: 'buy' | 'sell', amount: number) => {
+        const price = resourcePrices[resource]?.[type];
+        if (!price || amount <= 0) return;
+
+        if (type === 'buy') {
+            const totalCost = price * amount;
+            if (money < totalCost) {
+                toast({ title: 'Insufficient Funds', variant: 'destructive'});
+                return;
+            }
+            setMoney(m => m - totalCost);
+            setInventory(inv => ({ ...inv, [resource]: (inv[resource] || 0) + amount }));
+        } else { // sell
+            if ((inventory[resource] || 0) < amount) {
+                toast({ title: 'Not enough items to sell', variant: 'destructive'});
+                return;
+            }
+            const totalGain = price * amount;
+            setMoney(m => m + totalGain);
+            setInventory(inv => ({ ...inv, [resource]: (inv[resource] || 0) - amount }));
+        }
     }
 
     const rotateBuilding = useCallback(() => {
@@ -394,69 +429,123 @@ const FactorySimulator: React.FC = () => {
         <div className="flex flex-col w-full h-full bg-card text-foreground">
             <div className="flex items-center justify-between p-2 border-b border-border bg-background">
                 <h3 className="text-lg font-bold text-primary">Automation Simulator</h3>
-                <div className={cn("text-sm font-bold flex items-center gap-2", powerGridStatus ? "text-green-400" : "text-red-500")}>
-                    <Zap/> {totalPowerConsumption} / {totalPowerProduction} MW
+                 <div className="flex items-center gap-4">
+                    <div className="text-sm font-bold flex items-center gap-2 text-green-400">
+                        <DollarSign size={16}/> ${money.toLocaleString()}
+                    </div>
+                    <div className={cn("text-sm font-bold flex items-center gap-2", powerGridStatus ? "text-green-400" : "text-red-500")}>
+                        <Zap size={16}/> {totalPowerConsumption} / {totalPowerProduction} MW
+                    </div>
                 </div>
                 <div className="flex items-center gap-2">
                     <Button variant={isPlaying ? 'destructive' : 'default'} onClick={() => setIsPlaying(!isPlaying)} size="sm">{isPlaying ? <Pause/>:<Play/>}</Button>
-                    <Button variant="outline" onClick={() => { setBuildings([]); setItems([]); setInventory({ iron_plate: 20, gear: 5 }); }} size="sm"><RefreshCw/></Button>
+                    <Button variant="outline" onClick={() => { setBuildings([]); setItems([]); setInventory({ iron_plate: 20, gear: 5 }); setMoney(1000); }} size="sm"><RefreshCw/></Button>
                     <Button variant="outline" onClick={() => setZoom(z => Math.min(z*1.2, 2))} size="sm"><ZoomIn/></Button>
                     <Button variant="outline" onClick={() => setZoom(z => Math.max(z/1.2, 0.5))} size="sm"><ZoomOut/></Button>
                 </div>
             </div>
             <div className="flex-grow flex">
-                <div className="w-64 p-2 border-r border-border bg-background space-y-2">
-                    <Card><CardHeader className='p-2'><CardTitle className='text-base'>Inventory</CardTitle></CardHeader>
-                        <CardContent className='p-2 text-xs space-y-1'>
-                            {Object.entries(inventory).map(([res, count]) => count > 0 && <p key={res}>{res}: {count}</p>)}
-                        </CardContent>
-                    </Card>
-                    <Card><CardHeader className='p-2'><CardTitle className='text-base'>Hand Crafting</CardTitle></CardHeader>
-                        <CardContent className="p-2 space-y-1">
-                            {Object.entries(buildingCosts).map(([building, cost]) => (
-                                <Button key={building} variant="outline" size="sm" className="w-full justify-start gap-2" onClick={() => handCraft(building as BuildingType)}><Hammer size={14}/> {building}</Button>
-                            ))}
-                        </CardContent>
-                    </Card>
-                    <Card>
-                        <CardHeader className='p-2'><CardTitle className='text-base'>Buildings</CardTitle></CardHeader>
-                        <CardContent className="p-2 space-y-2">
-                            <Button variant={selectedBuilding === 'generator' ? 'secondary' : 'outline'} onClick={() => setSelectedBuilding('generator')} className="w-full justify-start gap-2"><Zap/> Generator</Button>
-                            <Button variant={selectedBuilding === 'miner' ? 'secondary' : 'outline'} onClick={() => setSelectedBuilding('miner')} className="w-full justify-start gap-2"><HardHat/> Miner</Button>
-                            <Button variant={selectedBuilding === 'belt' ? 'secondary' : 'outline'} onClick={() => setSelectedBuilding('belt')} className="w-full justify-start gap-2"><Box/> Belt</Button>
-                            <Button variant={selectedBuilding === 'chest' ? 'secondary' : 'outline'} onClick={() => setSelectedBuilding('chest')} className="w-full justify-start gap-2"><Warehouse/> Chest</Button>
-                            <div className="pl-4">
-                                <Label>Belt Tier: {beltTier}</Label>
-                                <Slider min={1} max={3} step={1} value={[beltTier]} onValueChange={v => setBeltTier(v[0] as 1|2|3)}/>
-                            </div>
-                            <Button variant={selectedBuilding === 'assembler' ? 'secondary' : 'outline'} onClick={() => setSelectedBuilding('assembler')} className="w-full justify-start gap-2"><Cog/> Assembler</Button>
-                            <Button variant={selectedBuilding === 'adv_assembler' ? 'secondary' : 'outline'} onClick={() => setSelectedBuilding('adv_assembler')} className="w-full justify-start gap-2"><Factory/> Adv. Assembler</Button>
-                            {(selectedBuilding === 'assembler' || selectedBuilding === 'adv_assembler') && (
-                                <div className="pl-4 space-y-1">
-                                <Label>Recipe</Label>
-                                {Object.keys(recipes).filter(r => recipes[r as Resource]?.building.includes(selectedBuilding)).map(recipe => (
-                                    <Button key={recipe} size="sm" variant={selectedRecipe === recipe ? 'secondary' : 'ghost'} onClick={() => setSelectedRecipe(recipe as Resource)} className="w-full justify-start text-xs">{recipe}</Button>
-                                ))}
-                                </div>
-                            )}
-                        </CardContent>
-                    </Card>
-                     <Card>
-                        <CardHeader className='p-2'><CardTitle className='text-base'>Controls</CardTitle></CardHeader>
-                        <CardContent className="p-2 space-y-2">
-                            <div className="flex items-center gap-2">
-                                <Button size="icon" variant="outline" onClick={rotateBuilding}>
-                                    <RotateCcw className={cn(
-                                        'transition-transform',
-                                        buildingDirection === 'down' && 'rotate-90',
-                                        buildingDirection === 'left' && 'rotate-180',
-                                        buildingDirection === 'up' && 'rotate-[-90deg]'
-                                    )}/>
-                                </Button>
-                                <span className="text-sm">Rotate (R key)</span>
-                            </div>
-                        </CardContent>
-                    </Card>
+                <div className="w-72 p-2 border-r border-border bg-background">
+                    <Tabs defaultValue="build">
+                        <TabsList className="grid w-full grid-cols-4">
+                            <TabsTrigger value="build"><Hammer size={16}/></TabsTrigger>
+                            <TabsTrigger value="inventory"><Warehouse size={16}/></TabsTrigger>
+                            <TabsTrigger value="market"><ShoppingCart size={16}/></TabsTrigger>
+                            <TabsTrigger value="help"><HelpCircle size={16}/></TabsTrigger>
+                        </TabsList>
+                        <TabsContent value="build" className="space-y-2 mt-2">
+                             <Card>
+                                <CardHeader className='p-2'><CardTitle className='text-base'>Hand Crafting</CardTitle></CardHeader>
+                                <CardContent className="p-2 space-y-1">
+                                    {Object.keys(buildingCosts).map((building) => (
+                                        <Button key={building} variant="outline" size="sm" className="w-full justify-start gap-2" onClick={() => handCraft(building as BuildingType)}><Hammer size={14}/> {building}</Button>
+                                    ))}
+                                </CardContent>
+                            </Card>
+                            <Card>
+                                <CardHeader className='p-2'><CardTitle className='text-base'>Place Buildings</CardTitle></CardHeader>
+                                <CardContent className="p-2 space-y-2">
+                                    <div className="flex items-center gap-2">
+                                        <Button size="icon" variant="outline" onClick={rotateBuilding}>
+                                            <RotateCcw className={cn( 'transition-transform', buildingDirection === 'down' && 'rotate-90', buildingDirection === 'left' && 'rotate-180', buildingDirection === 'up' && 'rotate-[-90deg]' )}/>
+                                        </Button>
+                                        <span className="text-sm">Rotate (R key)</span>
+                                    </div>
+                                    <Button variant={selectedBuilding === 'generator' ? 'secondary' : 'outline'} onClick={() => setSelectedBuilding('generator')} className="w-full justify-start gap-2"><Zap/> Generator</Button>
+                                    <Button variant={selectedBuilding === 'miner' ? 'secondary' : 'outline'} onClick={() => setSelectedBuilding('miner')} className="w-full justify-start gap-2"><HardHat/> Miner</Button>
+                                    <Button variant={selectedBuilding === 'belt' ? 'secondary' : 'outline'} onClick={() => setSelectedBuilding('belt')} className="w-full justify-start gap-2"><Box/> Belt</Button>
+                                    <Button variant={selectedBuilding === 'chest' ? 'secondary' : 'outline'} onClick={() => setSelectedBuilding('chest')} className="w-full justify-start gap-2"><Warehouse/> Chest</Button>
+                                    <div className="pl-4">
+                                        <Label>Belt Tier: {beltTier}</Label>
+                                        <Slider min={1} max={3} step={1} value={[beltTier]} onValueChange={v => setBeltTier(v[0] as 1|2|3)}/>
+                                    </div>
+                                    <Button variant={selectedBuilding === 'assembler' ? 'secondary' : 'outline'} onClick={() => setSelectedBuilding('assembler')} className="w-full justify-start gap-2"><Cog/> Assembler</Button>
+                                    <Button variant={selectedBuilding === 'adv_assembler' ? 'secondary' : 'outline'} onClick={() => setSelectedBuilding('adv_assembler')} className="w-full justify-start gap-2"><Factory/> Adv. Assembler</Button>
+                                    {(selectedBuilding === 'assembler' || selectedBuilding === 'adv_assembler') && (
+                                        <div className="pl-4 space-y-1">
+                                        <Label>Recipe</Label>
+                                        {Object.keys(recipes).filter(r => recipes[r as Resource]?.building.includes(selectedBuilding)).map(recipe => (
+                                            <Button key={recipe} size="sm" variant={selectedRecipe === recipe ? 'secondary' : 'ghost'} onClick={() => setSelectedRecipe(recipe as Resource)} className="w-full justify-start text-xs">{recipe}</Button>
+                                        ))}
+                                        </div>
+                                    )}
+                                </CardContent>
+                            </Card>
+                        </TabsContent>
+                         <TabsContent value="inventory" className="mt-2">
+                             <Card><CardHeader className='p-2'><CardTitle className='text-base'>Inventory</CardTitle></CardHeader>
+                                <CardContent className='p-2 text-xs space-y-1 h-96 overflow-y-auto'>
+                                    {Object.entries(inventory).map(([res, count]) => count > 0 && <p key={res}>{res}: {count}</p>)}
+                                    {Object.keys(inventory).length === 0 && <p className="text-muted-foreground">Your inventory is empty.</p>}
+                                </CardContent>
+                            </Card>
+                         </TabsContent>
+                         <TabsContent value="market" className="mt-2">
+                              <Card>
+                                <CardHeader className='p-2'><CardTitle className='text-base'>Market</CardTitle></CardHeader>
+                                <CardContent className='p-2 text-xs space-y-2 h-96 overflow-y-auto'>
+                                   {Object.entries(resourcePrices).map(([res, prices]) => (
+                                    <div key={res} className="p-2 border rounded-md">
+                                        <p className="font-bold capitalize">{res}</p>
+                                        <div className="flex justify-between items-center text-xs text-muted-foreground">
+                                            <span>Buy: ${prices.buy}</span>
+                                            <span>Sell: ${prices.sell}</span>
+                                        </div>
+                                        <div className="flex gap-2 mt-1">
+                                            <Button size="xs" variant="outline" onClick={() => handleMarketTransaction(res as Resource, 'buy', 1)}>Buy 1</Button>
+                                            <Button size="xs" variant="destructive" onClick={() => handleMarketTransaction(res as Resource, 'sell', 1)}>Sell 1</Button>
+                                        </div>
+                                    </div>
+                                   ))}
+                                </CardContent>
+                            </Card>
+                         </TabsContent>
+                        <TabsContent value="help" className="mt-2">
+                            <Card>
+                                <CardHeader className='p-2'><CardTitle className='text-base'>How to Play</CardTitle></CardHeader>
+                                <CardContent className='p-2'>
+                                    <Accordion type="single" collapsible className='text-xs'>
+                                        <AccordionItem value="goal">
+                                            <AccordionTrigger>Goal</AccordionTrigger>
+                                            <AccordionContent>Automate the production of complex items from raw resources.</AccordionContent>
+                                        </AccordionItem>
+                                        <AccordionItem value="basics">
+                                            <AccordionTrigger>Basics</AccordionTrigger>
+                                            <AccordionContent>Place Miners on resource patches (colored squares). Use Belts to transport items. Use Assemblers to craft new items. Store items in Chests.</AccordionContent>
+                                        </AccordionItem>
+                                        <AccordionItem value="power">
+                                            <AccordionTrigger>Power</AccordionTrigger>
+                                            <AccordionContent>All buildings require power. Build Generators to produce power. Keep an eye on the power meter at the top!</AccordionContent>
+                                        </AccordionItem>
+                                        <AccordionItem value="crafting">
+                                            <AccordionTrigger>Crafting</AccordionTrigger>
+                                            <AccordionContent>You must craft buildings from resources. Use the "Hand Crafting" panel to get started. Place buildings from your inventory.</AccordionContent>
+                                        </AccordionItem>
+                                    </Accordion>
+                                </CardContent>
+                            </Card>
+                        </TabsContent>
+                    </Tabs>
                 </div>
                 <div className="flex-grow relative bg-background overflow-hidden" onMouseDown={handlePanStart} onMouseMove={handlePanMove} onMouseUp={handlePanEnd} onMouseLeave={handlePanEnd}>
                     <canvas ref={canvasRef} width={GRID_SIZE * 32} height={GRID_SIZE * 32} onClick={handleCanvasClick} className={cn("absolute top-0 left-0", isPanning ? 'cursor-grabbing' : 'cursor-crosshair')} />

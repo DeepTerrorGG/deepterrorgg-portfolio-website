@@ -7,11 +7,24 @@ import { Textarea } from '@/components/ui/textarea';
 import { Loader2, Wand2, Sparkles, Copy, MessageSquare, Image as ImageIcon, Video, Code2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { enhancePrompt } from '@/ai/flows/prompt-enhancer-flow';
-import { PromptType, TargetModel, ImageStyle, PromptTypeSchema, TargetModelSchema, ImageStyleSchema, type PromptEnhancerInput } from '@/ai/flows/prompt-enhancer-flow-types';
+import { 
+    PromptType, 
+    ImageStyle,
+    type PromptEnhancerInput,
+    TextPromptDetailsSchema,
+    ImagePromptDetailsSchema,
+    VideoPromptDetailsSchema,
+    CodePromptDetailsSchema,
+    ImageModels,
+    VideoModels,
+    CodeModels,
+    TextModels
+} from '@/ai/flows/prompt-enhancer-flow-types';
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
+import { z } from 'zod';
 
 
 const AIPromptEnhancer: React.FC = () => {
@@ -22,13 +35,34 @@ const AIPromptEnhancer: React.FC = () => {
 
   // State for new options
   const [promptType, setPromptType] = useState<PromptType>('Image');
-  const [targetModel, setTargetModel] = useState<TargetModel>('Midjourney');
+  const [targetModel, setTargetModel] = useState<string>('Midjourney');
   
-  const [textDetails, setTextDetails] = useState({ persona: '', task: '' });
-  const [imageDetails, setImageDetails] = useState({ style: 'Default' as ImageStyle, composition: '', lighting: '', mood: '', negativePrompt: '' });
-  const [videoDetails, setVideoDetails] = useState({ scene: '', shotType: '', style: '' });
-  const [codeDetails, setCodeDetails] = useState({ language: 'Python', task: '', constraints: '' });
+  const [textDetails, setTextDetails] = useState<z.infer<typeof TextPromptDetailsSchema>>({ persona: '', task: '', format: '', tone: '', length: '' });
+  const [imageDetails, setImageDetails] = useState<z.infer<typeof ImagePromptDetailsSchema>>({ style: 'Default' as ImageStyle, composition: '', lighting: '', mood: '', negativePrompt: '', cameraAngle: '', lensType: '', artistInspiration: '' });
+  const [videoDetails, setVideoDetails] = useState<z.infer<typeof VideoPromptDetailsSchema>>({ scene: '', shotType: '', style: '', cameraMovement: '', lightingStyle: '', colorGrade: '' });
+  const [codeDetails, setCodeDetails] = useState<z.infer<typeof CodePromptDetailsSchema>>({ language: 'Python', task: '', constraints: '', dependencies: '', dataStructures: '', errorHandling: '' });
+
+  const getModelOptions = () => {
+    switch (promptType) {
+        case 'Text': return TextModels;
+        case 'Image': return ImageModels;
+        case 'Video': return VideoModels;
+        case 'Code': return CodeModels;
+        default: return [];
+    }
+  };
   
+  const handleTabChange = (newTab: string) => {
+    const pt = newTab as PromptType;
+    setPromptType(pt);
+    // Reset target model to the first in the new list
+    switch (pt) {
+        case 'Text': setTargetModel(TextModels[0]); break;
+        case 'Image': setTargetModel(ImageModels[0]); break;
+        case 'Video': setTargetModel(VideoModels[0]); break;
+        case 'Code': setTargetModel(CodeModels[0]); break;
+    }
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -82,28 +116,40 @@ const AIPromptEnhancer: React.FC = () => {
             return <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <Input placeholder="Persona (e.g., 'a witty pirate')" value={textDetails.persona} onChange={e => setTextDetails({...textDetails, persona: e.target.value})}/>
                 <Input placeholder="Task (e.g., 'write a short poem')" value={textDetails.task} onChange={e => setTextDetails({...textDetails, task: e.target.value})}/>
+                <Input placeholder="Format (e.g., 'JSON object', 'list')" value={textDetails.format} onChange={e => setTextDetails({...textDetails, format: e.target.value})}/>
+                <Input placeholder="Tone (e.g., 'formal', 'humorous')" value={textDetails.tone} onChange={e => setTextDetails({...textDetails, tone: e.target.value})}/>
+                <Input placeholder="Length (e.g., 'one paragraph')" value={textDetails.length} onChange={e => setTextDetails({...textDetails, length: e.target.value})} className="sm:col-span-2"/>
             </div>
         case 'Image':
              return <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <Select value={imageDetails.style} onValueChange={(v) => setImageDetails({...imageDetails, style: v as ImageStyle})}>
                     <SelectTrigger><SelectValue placeholder="Style" /></SelectTrigger>
-                    <SelectContent>{ImageStyleSchema.options.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent>
+                    <SelectContent>{['Default', 'Photorealistic', 'Cartoon', 'Watercolor', 'Cyberpunk', 'Minimalist', 'Fantasy Art', 'Pixel Art', 'Cinematic', '3D Model', 'Vintage Photo'].map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent>
                 </Select>
                 <Input placeholder="Composition (e.g., 'wide shot')" value={imageDetails.composition} onChange={e => setImageDetails({...imageDetails, composition: e.target.value})}/>
                 <Input placeholder="Lighting (e.g., 'cinematic lighting')" value={imageDetails.lighting} onChange={e => setImageDetails({...imageDetails, lighting: e.target.value})}/>
                 <Input placeholder="Mood (e.g., 'serene, mysterious')" value={imageDetails.mood} onChange={e => setImageDetails({...imageDetails, mood: e.target.value})}/>
+                <Input placeholder="Camera Angle (e.g., 'low angle')" value={imageDetails.cameraAngle} onChange={e => setImageDetails({...imageDetails, cameraAngle: e.target.value})}/>
+                <Input placeholder="Lens Type (e.g., '50mm prime lens')" value={imageDetails.lensType} onChange={e => setImageDetails({...imageDetails, lensType: e.target.value})}/>
+                <Input placeholder="Inspired by artist (e.g., Van Gogh)" value={imageDetails.artistInspiration} onChange={e => setImageDetails({...imageDetails, artistInspiration: e.target.value})} className="sm:col-span-2"/>
                 <Input placeholder="Negative Prompt (things to avoid)" value={imageDetails.negativePrompt} onChange={e => setImageDetails({...imageDetails, negativePrompt: e.target.value})} className="sm:col-span-2"/>
             </div>
         case 'Video':
-            return <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <Input placeholder="Scene description" value={videoDetails.scene} onChange={e => setVideoDetails({...videoDetails, scene: e.target.value})} className="sm:col-span-3"/>
+            return <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <Input placeholder="Scene description" value={videoDetails.scene} onChange={e => setVideoDetails({...videoDetails, scene: e.target.value})} className="sm:col-span-2"/>
                 <Input placeholder="Shot Type (e.g., 'drone shot')" value={videoDetails.shotType} onChange={e => setVideoDetails({...videoDetails, shotType: e.target.value})}/>
-                <Input placeholder="Visual Style (e.g., '8k, hyperrealistic')" value={videoDetails.style} onChange={e => setVideoDetails({...videoDetails, style: e.target.value})} className="sm:col-span-2"/>
+                <Input placeholder="Visual Style (e.g., '8k, hyperrealistic')" value={videoDetails.style} onChange={e => setVideoDetails({...videoDetails, style: e.target.value})}/>
+                <Input placeholder="Camera Movement (e.g., 'slow pan left')" value={videoDetails.cameraMovement} onChange={e => setVideoDetails({...videoDetails, cameraMovement: e.target.value})}/>
+                <Input placeholder="Lighting Style (e.g., 'Rembrandt lighting')" value={videoDetails.lightingStyle} onChange={e => setVideoDetails({...videoDetails, lightingStyle: e.target.value})}/>
+                <Input placeholder="Color Grade (e.g., 'teal and orange')" value={videoDetails.colorGrade} onChange={e => setVideoDetails({...videoDetails, colorGrade: e.target.value})} className="sm:col-span-2"/>
             </div>
         case 'Code':
              return <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <Input placeholder="Language (e.g., 'Python')" value={codeDetails.language} onChange={e => setCodeDetails({...codeDetails, language: e.target.value})}/>
                 <Input placeholder="Task (e.g., 'sort an array')" value={codeDetails.task} onChange={e => setCodeDetails({...codeDetails, task: e.target.value})}/>
+                <Input placeholder="Dependencies (e.g., 'react, lodash')" value={codeDetails.dependencies} onChange={e => setCodeDetails({...codeDetails, dependencies: e.target.value})}/>
+                <Input placeholder="Data Structures (e.g., 'use a hash map')" value={codeDetails.dataStructures} onChange={e => setCodeDetails({...codeDetails, dataStructures: e.target.value})}/>
+                <Input placeholder="Error Handling (e.g., 'throw error on invalid input')" value={codeDetails.errorHandling} onChange={e => setCodeDetails({...codeDetails, errorHandling: e.target.value})} className="sm:col-span-2"/>
                 <Textarea placeholder="Constraints (e.g., 'must not use libraries')" value={codeDetails.constraints} onChange={e => setCodeDetails({...codeDetails, constraints: e.target.value})} className="sm:col-span-2"/>
             </div>
     }
@@ -124,7 +170,7 @@ const AIPromptEnhancer: React.FC = () => {
         <CardContent className="space-y-6">
           <form onSubmit={handleSubmit} className="space-y-4">
             
-             <Tabs value={promptType} onValueChange={(v) => setPromptType(v as PromptType)} className="w-full">
+             <Tabs value={promptType} onValueChange={handleTabChange} className="w-full">
                 <TabsList className="grid w-full grid-cols-4">
                     <TabsTrigger value="Text"><MessageSquare className="h-4 w-4 mr-2"/>Text</TabsTrigger>
                     <TabsTrigger value="Image"><ImageIcon className="h-4 w-4 mr-2"/>Image</TabsTrigger>
@@ -140,9 +186,9 @@ const AIPromptEnhancer: React.FC = () => {
                 </div>
                  <div>
                     <Label htmlFor="target-model">Target AI Model</Label>
-                    <Select value={targetModel} onValueChange={(v) => setTargetModel(v as TargetModel)}>
+                    <Select value={targetModel} onValueChange={(v) => setTargetModel(v as string)}>
                         <SelectTrigger id="target-model" className="mt-1"><SelectValue/></SelectTrigger>
-                        <SelectContent>{TargetModelSchema.options.map(m => <SelectItem key={m} value={m}>{m}</SelectItem>)}</SelectContent>
+                        <SelectContent>{getModelOptions().map(m => <SelectItem key={m} value={m}>{m}</SelectItem>)}</SelectContent>
                     </Select>
                 </div>
             </div>

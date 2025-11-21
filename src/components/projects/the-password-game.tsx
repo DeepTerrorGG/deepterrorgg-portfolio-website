@@ -1,15 +1,14 @@
-
 'use client';
 
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { CheckCircle2, XCircle, RefreshCw, Loader2 } from 'lucide-react';
+import { CheckCircle2, XCircle, RefreshCw, Loader2, Wand2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import { initialRules, rulePool, type Rule } from '@/lib/password-rules';
-import { generatePasswordRule, validatePasswordRule } from '@/ai/flows/password-rule-flow';
+import { generatePasswordRule, validatePasswordRule, getPasswordHint } from '@/ai/flows/password-rule-flow';
 import { getFormattedTime } from './password-game/current-time';
 import { getCurrentWeather } from './password-game/current-weather';
 
@@ -20,6 +19,7 @@ const ThePasswordGame: React.FC = () => {
   const [isGameWon, setIsGameWon] = useState(false);
   const [isFetchingRule, setIsFetchingRule] = useState(false);
   const [aiValidationResults, setAiValidationResults] = useState<Record<number, boolean | null>>({});
+  const [hintStates, setHintStates] = useState<Record<number, { isLoading: boolean; hint: string | null }>>({});
 
   // Dynamic values that rules might depend on
   const [currentTime, setCurrentTime] = useState(getFormattedTime());
@@ -126,12 +126,25 @@ const ThePasswordGame: React.FC = () => {
     }
   }, [allRulesMet, activeRules.length, isGameWon, toast, isFetchingRule, fetchNewAIRule, currentTime, weather]);
   
+  const handleGetHint = async (rule: Rule) => {
+    setHintStates(prev => ({...prev, [rule.id]: { isLoading: true, hint: null }}));
+    try {
+        const hint = await getPasswordHint(rule.text);
+        setHintStates(prev => ({...prev, [rule.id]: { isLoading: false, hint }}));
+    } catch (e) {
+        console.error(e);
+        toast({ title: "Hint Error", description: "Could not get a hint from the AI.", variant: "destructive" });
+        setHintStates(prev => ({...prev, [rule.id]: { isLoading: false, hint: "Sorry, the hint-master is on a break." }}));
+    }
+  }
+
   const resetGame = () => {
     setPassword('');
     setActiveRules([initialRules[0]]);
     setIsGameWon(false);
     setAiValidationResults({});
     setIsFetchingRule(false);
+    setHintStates({});
   }
 
   return (
@@ -164,16 +177,29 @@ const ThePasswordGame: React.FC = () => {
                   "flex items-start gap-3 p-3 rounded-md transition-all duration-300 flex-col",
                   rule.isMet ? 'bg-green-500/10 text-green-300' : 'bg-red-500/10 text-red-300'
                 )}>
-                    <div className="flex items-start gap-3">
-                        {aiValidationResults[rule.id] === null && rule.isAi ? <Loader2 className="h-5 w-5 mt-0.5 flex-shrink-0 animate-spin" /> :
-                         rule.isMet ? <CheckCircle2 className="h-5 w-5 mt-0.5 flex-shrink-0" /> : <XCircle className="h-5 w-5 mt-0.5 flex-shrink-0" />}
-                        <span>
+                    <div className="flex items-start gap-3 w-full">
+                        <div className="flex-shrink-0">
+                           {aiValidationResults[rule.id] === null && rule.isAi ? <Loader2 className="h-5 w-5 mt-0.5 animate-spin" /> :
+                           rule.isMet ? <CheckCircle2 className="h-5 w-5 mt-0.5" /> : <XCircle className="h-5 w-5 mt-0.5" />}
+                        </div>
+                        <span className="flex-grow">
                           {rule.id === 301 ? `Your password must include the current time: ${currentTime}` :
                            rule.id === 302 && weather ? `The current weather in New York is "${weather}". Your password must include this word.` :
                            rule.text
                           }
                         </span>
+                        {!rule.isMet && (
+                            <Button variant="ghost" size="sm" onClick={() => handleGetHint(rule)} disabled={hintStates[rule.id]?.isLoading} className="text-current h-6 px-1">
+                                {hintStates[rule.id]?.isLoading ? <Loader2 className="h-4 w-4 animate-spin"/> : <Wand2 className="h-4 w-4"/>}
+                                <span className="sr-only">Get Hint</span>
+                            </Button>
+                        )}
                     </div>
+                     {hintStates[rule.id]?.hint && (
+                        <p className="pl-8 text-xs italic text-yellow-400/80 animate-in fade-in">
+                            <strong>Hint:</strong> {hintStates[rule.id]?.hint}
+                        </p>
+                    )}
                      {rule.component && (
                         <div className="pl-8 pt-2 w-full">
                            <rule.component />

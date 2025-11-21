@@ -1,4 +1,3 @@
-
 // src/app/projects/page.tsx
 'use client';
 
@@ -51,6 +50,7 @@ const CharacterCounter = dynamic(() => import('@/components/projects/character-c
 const CollaborativeWhiteboard = dynamic(() => import('@/components/projects/collaborative-whiteboard'), { loading: () => <ProjectLoader /> });
 const KanbanBoard = dynamic(() => import('@/components/projects/kanban-board'), { loading: () => <ProjectLoader /> });
 const PixelEditor = dynamic(() => import('@/components/projects/pixel-editor'), { loading: () => <ProjectLoader /> });
+const AIPromptEnhancer = dynamic(() => import('@/components/projects/ai-prompt-enhancer'), { loading: () => <ProjectLoader /> });
 
 interface Technology {
   name: string;
@@ -133,6 +133,23 @@ const projectsData: Project[] = [
       { name: 'Genkit', iconSrc: '/icons/genkit.svg' },
       { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },
       { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss.svg' },
+    ],
+    renderImage: true,
+  },
+  {
+    id: 'ai-prompt-enhancer',
+    title: 'AI Prompt Enhancer',
+    imageUrls: ['/placeholder.png'],
+    imageAlt: 'AI prompt enhancer interface',
+    imageHint: 'ai prompt engineering tool',
+    description: 'An AI-powered tool to take your basic ideas and transform them into detailed, effective prompts for large language models.',
+    personalNote: 'Crafting good prompts is an art. This tool is designed to help with that process by leveraging an AI to think about the details you might miss. It was a fun meta-project—using AI to help users use AI better!',
+    difficulty: 'AI',
+    component: <AIPromptEnhancer />,
+    technologies: [
+        { name: 'React', iconSrc: '/icons/react.svg' },
+        { name: 'Next.js', iconSrc: '/icons/nextjs.svg' },
+        { name: 'Genkit', iconSrc: '/icons/genkit.svg' },
     ],
     renderImage: true,
   },

@@ -6,7 +6,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import Image from 'next/image';
 import PageTitle from '@/components/ui/page-title';
 import { Card, CardContent } from '@/components/ui/card';
-import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Maximize, ArrowLeft, ArrowRight, Laptop } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -362,6 +362,7 @@ export default function ArtworksPage() {
             className="p-0 bg-card border-border shadow-2xl rounded-lg flex flex-col items-center justify-center w-auto max-w-[95vw] sm:max-w-lg md:max-w-xl lg:max-w-3xl xl:max-w-4xl h-auto max-h-[95vh] overflow-hidden data-[state=open]:animate-fade-in-slow data-[state=closed]:animate-fade-out-slow"
           >
             <DialogTitle className="sr-only">{selectedArtwork.title}</DialogTitle>
+            <DialogDescription className="sr-only">{selectedArtwork.description}</DialogDescription>
             <div className="p-2 md:p-4 flex-grow overflow-hidden flex items-center justify-center w-full h-full">
               <Image
                 src={selectedArtwork.src}

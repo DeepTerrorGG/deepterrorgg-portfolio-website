@@ -1,3 +1,4 @@
+
 // src/app/projects/page.tsx
 'use client';
 
@@ -16,6 +17,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogDescription,
   DialogClose,
 } from "@/components/ui/dialog";
 
@@ -824,6 +826,7 @@ export default function ProjectsPage() {
                     </Button>
                   </DialogClose>
                   <DialogTitle className="flex-grow text-center pr-10">{mobileProject.title}</DialogTitle>
+                   <DialogDescription className="sr-only">{mobileProject.description}</DialogDescription>
               </DialogHeader>
               <ScrollArea className="flex-grow min-h-0">
                 <Suspense fallback={<ProjectLoader/>}>

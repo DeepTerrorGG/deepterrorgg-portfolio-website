@@ -119,7 +119,7 @@ export default function HomePage() {
   ];
 
   function onSplineLoad(spline: Spline) {
-    const obj = spline.findObjectByName('Game Stack');
+    const obj = spline.findObjectByName('Gameboy');
     if (obj) {
       // Start the animation by name
       spline.emitEvent('start', obj.name);

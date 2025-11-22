@@ -4,7 +4,7 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Swords, Shield, Heart, Zap, RotateCcw, Dna, Trash, Map, Star, ShieldAlert, ShieldOff, HeartCrack, BookOpen, Crown, Skull, Sparkles, ArrowUp, Bed, Hammer, X } from 'lucide-react';
+import { Swords, Shield, Heart, Zap, RotateCcw, Dna, Trash, Map, Star, ShieldAlert, ShieldOff, HeartCrack, BookOpen, Crown, Skull, Sparkles, ArrowUp, Bed, Hammer, X, Plus } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Progress } from '../ui/progress';
 import { motion, AnimatePresence } from 'framer-motion';

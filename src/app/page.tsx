@@ -7,13 +7,14 @@ import SectionContainer from '@/components/ui/section-container';
 import { motion } from 'framer-motion';
 import AnimateOnScroll from '@/components/ui/animate-on-scroll';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, Mail, User, ArrowUp, Compass } from 'lucide-react';
+import { ArrowRight, Mail, User, ArrowUp, Compass, Monitor } from 'lucide-react';
 import ProjectShowcase from '@/components/home/project-showcase';
 import FractalRenderer from '@/components/projects/fractal-renderer';
 import AIImageGenerator from '@/components/projects/ai-image-generator';
 import dynamic from 'next/dynamic';
 import SplineShowcase from '@/components/home/spline-showcase';
 import type { Spline } from '@splinetool/react-spline';
+import { Card, CardContent } from '@/components/ui/card';
 
 const SplineModel = dynamic(
   () => import('@/components/home/spline-model'),
@@ -119,10 +120,10 @@ export default function HomePage() {
   ];
 
   function onSplineLoad(spline: Spline) {
-    const obj = spline.findObjectByName('Game');
+    const obj = spline.findObjectByName('Gameboy');
     if (obj) {
       // Start the animation by name
-      spline.emitEvent('start', obj.name);
+      spline.emitEvent('mouseDown', obj.name);
     }
   }
   
@@ -247,7 +248,20 @@ export default function HomePage() {
             <h2 className="text-3xl md:text-4xl font-bold text-foreground">3D Model Showcase</h2>
             <p className="text-muted-foreground mt-3 max-w-2xl mx-auto">A collection of my 3D creations. Use the arrows to navigate.</p>
           </div>
-          <SplineShowcase models={splineModels} />
+          <div className="hidden md:block">
+            <SplineShowcase models={splineModels} />
+          </div>
+          <div className="block md:hidden">
+            <Card className="border-border bg-card">
+              <CardContent className="p-6 text-center">
+                <Monitor className="h-12 w-12 mx-auto text-primary mb-4" />
+                <h3 className="text-xl font-semibold text-foreground">3D Showcase Available on Desktop</h3>
+                <p className="text-muted-foreground mt-2">
+                  This interactive 3D model showcase is best experienced on a larger screen. Please view this page on a desktop or laptop to explore the models.
+                </p>
+              </CardContent>
+            </Card>
+          </div>
         </SectionContainer>
       </div>
       <footer className="py-16 bg-background">

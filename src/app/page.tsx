@@ -13,6 +13,7 @@ import FractalRenderer from '@/components/projects/fractal-renderer';
 import AIImageGenerator from '@/components/projects/ai-image-generator';
 import dynamic from 'next/dynamic';
 import SplineShowcase from '@/components/home/spline-showcase';
+import type { Spline } from '@splinetool/react-spline';
 
 const SplineModel = dynamic(
   () => import('@/components/home/spline-model'),
@@ -116,6 +117,14 @@ export default function HomePage() {
     { name: 'About', icon: <User className="h-5 w-5" />, href: '/about' },
     { name: 'Back to Top', icon: <ArrowUp className="h-5 w-5" />, action: () => window.scrollTo({ top: 0, behavior: 'smooth' }) },
   ];
+
+  function onSplineLoad(spline: Spline) {
+    const obj = spline.findObjectByName('Game Stack');
+    if (obj) {
+      // Start the animation by name
+      spline.emitEvent('start', obj.name);
+    }
+  }
   
   return (
     <>
@@ -205,7 +214,11 @@ export default function HomePage() {
               <p className="text-muted-foreground mt-3 max-w-2xl mx-auto">An interactive 3D model representing the games I enjoy.</p>
               </div>
               <div className="relative h-[500px] md:h-[700px] w-full mx-auto rounded-lg overflow-hidden bg-muted/20 min-h-[500px]">
-                  <SplineModel sceneUrl="https://prod.spline.design/wl4X9XbiCMDi6bUv/scene.splinecode" scrollable={false} />
+                  <SplineModel 
+                    sceneUrl="https://prod.spline.design/wl4X9XbiCMDi6bUv/scene.splinecode" 
+                    scrollable={false}
+                    onLoad={onSplineLoad}
+                  />
               </div>
         </SectionContainer>
 

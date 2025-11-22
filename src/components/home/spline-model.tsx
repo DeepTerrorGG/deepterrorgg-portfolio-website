@@ -5,19 +5,21 @@ import React, { useState, useEffect, useRef } from 'react';
 import Spline from '@splinetool/react-spline';
 import { Skeleton } from '../ui/skeleton';
 import { cn } from '@/lib/utils';
+import type { SplineProps, Application } from '@splinetool/react-spline';
 
-interface SplineModelProps {
+interface SplineModelProps extends Omit<SplineProps, 'onLoad'> {
     sceneUrl: string;
-    onLoad?: (spline: any) => void;
     className?: string;
     scrollable?: boolean;
+    onLoad?: (spline: Application) => void;
 }
 
-export default function SplineModel({ sceneUrl, onLoad, className, scrollable = true }: SplineModelProps) {
+
+export default function SplineModel({ sceneUrl, onLoad, className, scrollable = true, ...props }: SplineModelProps) {
   const [isLoading, setIsLoading] = useState(true);
   const wrapperRef = useRef<HTMLDivElement>(null);
 
-  const handleLoad = (spline: any) => {
+  const handleLoad = (spline: Application) => {
     setIsLoading(false);
     if (onLoad) {
       onLoad(spline);
@@ -67,6 +69,7 @@ export default function SplineModel({ sceneUrl, onLoad, className, scrollable = 
       <Spline 
           scene={sceneUrl} 
           onLoad={handleLoad}
+          {...props}
       />
     </div>
   );

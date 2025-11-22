@@ -18,7 +18,7 @@ export function TechBadge({ name, className, href, iconSrc }: TechBadgeProps) {
   const content = (
     <>
       <div className="flex-shrink-0 h-8 w-8 relative flex items-center justify-center">
-        <Image src={iconSrc} alt={`${name} icon`} fill className="object-contain" />
+        <Image src={iconSrc} alt={`${name} icon`} fill className="object-contain w-auto h-auto" />
       </div>
       <span className="font-semibold text-base text-foreground flex-grow transition-colors duration-300 group-hover:text-primary">{name}</span>
       {isLink && (

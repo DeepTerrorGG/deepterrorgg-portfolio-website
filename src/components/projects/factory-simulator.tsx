@@ -1,9 +1,10 @@
+
 'use client';
 
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { HardHat, Cog, Box, Play, Pause, RefreshCw, ZoomIn, ZoomOut, RotateCcw, Zap, Factory, HelpCircle, Warehouse, Hammer, ShoppingCart, DollarSign, X, Trash2, ArrowRight, SunMedium, Move, Minus } from 'lucide-react';
+import { HardHat, Cog, Box, Play, Pause, RefreshCw, ZoomIn, ZoomOut, RotateCcw, Zap, Factory, HelpCircle, Warehouse, Hammer, ShoppingCart, DollarSign, X, Trash2, ArrowRight, SunMedium, Move, Minus, Droplets } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import { Slider } from '../ui/slider';
@@ -12,8 +13,8 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '..
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
 
 // --- TYPE DEFINITIONS ---
-type BuildingType = 'miner' | 'belt' | 'assembler' | 'adv_assembler' | 'generator' | 'chest' | 'solar_panel' | 'inserter' | 'export_bus' | 'market_stall';
-type Resource = 'iron_ore' | 'copper_ore' | 'coal' | 'iron_plate' | 'copper_wire' | 'gear' | 'circuit' | 'steel_plate' | 'robot_arm' | 'belt' | 'miner' | 'assembler' | 'adv_assembler' | 'inserter' | 'market_stall';
+type BuildingType = 'miner' | 'belt' | 'assembler' | 'assembler_mk2' | 'generator' | 'chest' | 'solar_panel' | 'inserter' | 'export_bus' | 'market_stall' | 'oil_pump' | 'refinery' | 'oil_generator';
+type Resource = 'iron_ore' | 'copper_ore' | 'coal' | 'crude_oil' | 'iron_plate' | 'copper_wire' | 'gear' | 'circuit' | 'steel_plate' | 'plastic' | 'robot_arm' | 'advanced_circuit' | 'belt' | 'miner' | 'assembler' | 'assembler_mk2' | 'inserter' | 'market_stall' | 'oil_pump' | 'refinery';
 type Direction = 'up' | 'down' | 'left' | 'right';
 type Tool = 'build' | 'destroy';
 
@@ -51,38 +52,47 @@ const resourceColors: Partial<Record<Resource, string>> = {
   iron_ore: '#a1a1aa',
   copper_ore: '#f59e0b',
   coal: '#18181b',
+  crude_oil: '#3f3f46',
   iron_plate: '#d4d4d8',
   copper_wire: '#fbbf24',
   gear: '#71717a',
   circuit: '#22c55e',
   steel_plate: '#737373',
+  plastic: '#a78bfa',
   robot_arm: '#fb7185',
+  advanced_circuit: '#10b981',
 };
 
 const resourcePatches: Record<string, Resource> = {
     '5,5': 'iron_ore', '6,5': 'iron_ore', '5,6': 'iron_ore',
     '20,20': 'copper_ore', '21,20': 'copper_ore', '20,21': 'copper_ore',
     '10,25': 'coal', '11,25': 'coal', '10,26': 'coal',
+    '30,10': 'crude_oil', '31,10': 'crude_oil', '30,11': 'crude_oil',
 };
 
 type RecipeDefinition = { inputs: Partial<Record<Resource, number>>, time: number, output: number, building: BuildingType[] };
 
 const recipes: Partial<Record<Resource, RecipeDefinition>> = {
-    iron_plate: { inputs: { iron_ore: 1 }, time: 20, output: 1, building: ['assembler', 'adv_assembler'] },
-    copper_wire: { inputs: { copper_ore: 1 }, time: 10, output: 2, building: ['assembler', 'adv_assembler'] },
-    gear: { inputs: { iron_plate: 2 }, time: 50, output: 1, building: ['assembler', 'adv_assembler'] },
-    circuit: { inputs: { iron_plate: 1, copper_wire: 3}, time: 60, output: 1, building: ['adv_assembler']},
-    steel_plate: { inputs: { iron_plate: 2, coal: 1 }, time: 40, output: 1, building: ['adv_assembler'] },
-    robot_arm: { inputs: { steel_plate: 1, circuit: 1 }, time: 80, output: 1, building: ['adv_assembler'] },
+    iron_plate: { inputs: { iron_ore: 1 }, time: 20, output: 1, building: ['assembler', 'assembler_mk2'] },
+    copper_wire: { inputs: { copper_ore: 1 }, time: 10, output: 2, building: ['assembler', 'assembler_mk2'] },
+    gear: { inputs: { iron_plate: 2 }, time: 50, output: 1, building: ['assembler', 'assembler_mk2'] },
+    steel_plate: { inputs: { iron_plate: 2, coal: 1 }, time: 40, output: 1, building: ['assembler', 'assembler_mk2'] },
+    circuit: { inputs: { iron_plate: 1, copper_wire: 3}, time: 60, output: 1, building: ['assembler', 'assembler_mk2']},
+    plastic: { inputs: { crude_oil: 1 }, time: 30, output: 2, building: ['refinery'] },
+    robot_arm: { inputs: { steel_plate: 1, circuit: 1 }, time: 80, output: 1, building: ['assembler_mk2'] },
+    advanced_circuit: { inputs: { circuit: 2, plastic: 1 }, time: 100, output: 1, building: ['assembler_mk2'] },
 };
 
 const buildingCosts: Partial<Record<Resource, Partial<Record<Resource, number>>>> = {
     belt: { iron_plate: 1 },
     miner: { iron_plate: 3, gear: 2 },
+    oil_pump: { steel_plate: 5, gear: 5 },
+    refinery: { steel_plate: 10, gear: 10 },
     assembler: { gear: 4, circuit: 2 },
-    adv_assembler: { gear: 8, circuit: 8 },
+    assembler_mk2: { robot_arm: 2, circuit: 4 },
     chest: { iron_plate: 4 },
     generator: { iron_plate: 5, gear: 3 },
+    oil_generator: { steel_plate: 8, robot_arm: 1 },
     solar_panel: { steel_plate: 5, circuit: 5 },
     inserter: { robot_arm: 1, gear: 1 },
     export_bus: { circuit: 5, steel_plate: 5 },
@@ -93,38 +103,47 @@ const buildingPower: Record<BuildingType, number> = {
     miner: 10,
     belt: 1,
     assembler: 20,
-    adv_assembler: 40,
-    generator: -100, // negative means production
+    assembler_mk2: 50,
+    generator: -100,
     chest: 0,
     solar_panel: -25,
     inserter: 2,
     export_bus: 5,
     market_stall: 0,
+    oil_pump: 15,
+    refinery: 30,
+    oil_generator: -250,
 }
 
 const buildingSizes: Record<BuildingType, {w: number, h: number}> = {
     miner: {w: 1, h: 1},
     belt: {w: 1, h: 1},
     assembler: {w: 1, h: 1},
-    adv_assembler: {w: 2, h: 2},
+    assembler_mk2: {w: 2, h: 2},
     generator: {w: 1, h: 1},
     chest: {w: 1, h: 1},
     solar_panel: {w: 2, h: 2},
     inserter: {w: 1, h: 1},
     export_bus: {w: 1, h: 1},
     market_stall: {w: 2, h: 2},
+    oil_pump: {w: 1, h: 1},
+    refinery: {w: 2, h: 2},
+    oil_generator: {w: 2, h: 1},
 }
 
 const resourcePrices: Partial<Record<Resource, { buy: number; sell: number }>> = {
     iron_ore: { buy: 10, sell: 5 },
     copper_ore: { buy: 15, sell: 8 },
     coal: { buy: 20, sell: 12 },
+    crude_oil: { buy: 30, sell: 18},
     iron_plate: { buy: 25, sell: 15 },
     copper_wire: { buy: 30, sell: 18 },
     gear: { buy: 100, sell: 60 },
     circuit: { buy: 250, sell: 150 },
     steel_plate: { buy: 80, sell: 45 },
+    plastic: { buy: 70, sell: 40 },
     robot_arm: { buy: 500, sell: 300 },
+    advanced_circuit: { buy: 800, sell: 500 },
 };
 
 const FactorySimulator: React.FC = () => {
@@ -207,7 +226,7 @@ const FactorySimulator: React.FC = () => {
             overclock: 1,
             power: buildingPower[selectedBuildingType],
             inventory: {}, 
-            ...( (selectedBuildingType === 'assembler' || selectedBuildingType === 'adv_assembler') && { recipe: selectedRecipe, productionProgress: 0 }),
+            ...( (selectedBuildingType === 'assembler' || selectedBuildingType === 'assembler_mk2' || selectedBuildingType === 'refinery') && { recipe: selectedRecipe, productionProgress: 0 }),
         };
         setBuildings(prev => [...prev, newBuilding]);
     };
@@ -323,21 +342,21 @@ const FactorySimulator: React.FC = () => {
 
             setBuildings(currentBuildings => {
                 const updatedBuildings = currentBuildings.map(b => {
-                    const power = buildingPower[b.type] * Math.pow(b.overclock, 1.6);
-                    const isPowered = powerGridStatus || b.power! < 0;
+                    const power = buildingPower[b.type] * (b.type === 'assembler_mk2' ? Math.pow(b.overclock, 1.6) : 1);
+                    const isPowered = powerGridStatus || power < 0;
                     let newB = {...b, power};
                     if(!isPowered) return newB;
 
-                    if (b.type === 'miner' && Math.random() < (0.1 * b.overclock)) {
+                    if ((b.type === 'miner' || b.type === 'oil_pump') && Math.random() < (0.1 * b.overclock)) {
                         const resource = resourcePatches[`${b.x},${b.y}`];
-                        if (resource) {
+                        if (resource && (b.type === 'miner' ? resource !== 'crude_oil' : resource === 'crude_oil')) {
                             const [ox, oy] = getOutputCoords(b);
                             if (!nextItems.some(i => i.x === ox && i.y === oy && i.progress < BELT_SPEEDS[beltTier])) {
                                 nextItems.push({ id: nextId.current++, resource, x: ox, y: oy, progress: 0 });
                             }
                         }
                     }
-                    else if ((b.type === 'assembler' || b.type === 'adv_assembler') && b.recipe) {
+                    else if ((b.type === 'assembler' || b.type === 'assembler_mk2' || b.type === 'refinery') && b.recipe) {
                         const recipe = recipes[b.recipe];
                         if(!recipe) return newB;
                         let canCraft = true;
@@ -347,11 +366,13 @@ const FactorySimulator: React.FC = () => {
                             }
                         }
                         if (canCraft) {
-                            newB.productionProgress = (b.productionProgress || 0) + b.overclock;
+                            newB.productionProgress = (b.productionProgress || 0) + (b.type === 'assembler_mk2' ? b.overclock : 1);
                             if (newB.productionProgress >= recipe.time) {
                                 const [ox, oy] = getOutputCoords(b);
                                 if (!nextItems.some(i => i.x === ox && i.y === oy && i.progress < BELT_SPEEDS[beltTier])) {
-                                    nextItems.push({ id: nextId.current++, resource: b.recipe!, x: ox, y: oy, progress: 0 });
+                                    for(let i=0; i < recipe.output; i++) {
+                                        nextItems.push({ id: nextId.current++, resource: b.recipe!, x: ox, y: oy, progress: i * -0.2 });
+                                    }
                                     newB.inventory = {...b.inventory};
                                     for (const [res, amount] of Object.entries(recipe.inputs)) newB.inventory[res as Resource]! -= amount;
                                     newB.productionProgress = 0;
@@ -388,20 +409,29 @@ const FactorySimulator: React.FC = () => {
                                 }
                             }
                         }
+                    } else if (b.type === 'oil_generator') {
+                        if ((b.inventory?.crude_oil || 0) > 0) {
+                            newB.inventory!.crude_oil!--;
+                            newB.power = buildingPower.oil_generator;
+                        } else {
+                            newB.power = 0;
+                        }
                     }
                     return newB;
                 });
 
                 updatedBuildings.forEach(b => {
-                     if ((b.type === 'assembler' || b.type === 'adv_assembler') && b.recipe) {
-                         const recipe = recipes[b.recipe]; if(!recipe) return;
+                     if ((b.type === 'assembler' || b.type === 'assembler_mk2' || b.type === 'refinery' || b.type === 'oil_generator') && b.inventory) {
                          getAdjacentInputCoords(b).forEach(([ix, iy]) => {
                              const itemIndex = nextItems.findIndex(item => item.x === ix && item.y === iy && item.progress >= 1);
                              if(itemIndex > -1) {
                                 const ingredient = nextItems[itemIndex];
-                                if (Object.keys(recipe.inputs).includes(ingredient.resource)) {
+                                const recipe = b.recipe ? recipes[b.recipe] : null;
+                                const acceptedInputs = recipe ? Object.keys(recipe.inputs) : (b.type === 'oil_generator' ? ['crude_oil'] : []);
+
+                                if (acceptedInputs.includes(ingredient.resource)) {
                                     const currentAmount = b.inventory![ingredient.resource] || 0;
-                                    if (currentAmount < 20) {
+                                    if (currentAmount < 50) {
                                          b.inventory![ingredient.resource] = currentAmount + 1;
                                          nextItems.splice(itemIndex, 1);
                                     }
@@ -418,8 +448,8 @@ const FactorySimulator: React.FC = () => {
             const itemsToRemove = new Set<number>();
             
             nextItems.forEach(item => {
-                const currentTile = buildings.find(b => b.x === item.x && b.y === item.y);
-                if (!currentTile || itemsToRemove.has(item.id)) { movedItems.push(item); return; }
+                const currentTile = buildings.find(b => b.x <= item.x && item.x < b.x+b.width && b.y <= item.y && item.y < b.y+b.height);
+                if (!currentTile || itemsToRemove.has(item.id)) { if(item.progress >= 0) movedItems.push(item); return; }
 
                 if (currentTile.type === 'export_bus') {
                     const price = resourcePrices[item.resource]?.sell;
@@ -428,7 +458,11 @@ const FactorySimulator: React.FC = () => {
                     return;
                 }
                 
-                if (currentTile.type === 'chest' || ((currentTile.type === 'assembler' || currentTile.type === 'adv_assembler') && currentTile.recipe && recipes[currentTile.recipe]?.inputs[item.resource] )) {
+                const canAcceptItem = (currentTile.type === 'chest') || 
+                                     ((currentTile.type === 'assembler' || currentTile.type === 'assembler_mk2' || currentTile.type === 'refinery') && currentTile.recipe && recipes[currentTile.recipe]?.inputs[item.resource]) ||
+                                     (currentTile.type === 'oil_generator' && item.resource === 'crude_oil');
+
+                if (canAcceptItem) {
                     const inventory = currentTile.inventory!;
                     if (Object.values(inventory).reduce((s, a) => s+a, 0) < 50) {
                          inventory[item.resource] = (inventory[item.resource] || 0) + 1;
@@ -439,7 +473,7 @@ const FactorySimulator: React.FC = () => {
                     return;
                 }
 
-                if (!['belt', 'miner', 'assembler', 'adv_assembler', 'inserter'].includes(currentTile.type)) { movedItems.push(item); return; }
+                if (!['belt', 'miner', 'oil_pump', 'assembler', 'assembler_mk2', 'refinery', 'inserter'].includes(currentTile.type)) { movedItems.push(item); return; }
 
                 const [nextX, nextY] = getOutputCoords(currentTile);
                 let newProgress = item.progress + BELT_SPEEDS[beltTier];
@@ -478,7 +512,7 @@ const FactorySimulator: React.FC = () => {
         }
 
         buildings.forEach(b => {
-            ctx.fillStyle = b.type === 'miner' ? '#4f46e5' : b.type === 'belt' ? '#64748b' : b.type === 'generator' ? '#f59e0b' : b.type === 'solar_panel' ? '#3b82f6' : b.type === 'adv_assembler' ? '#0f766e' : b.type === 'chest' ? '#ca8a04' : b.type === 'inserter' ? '#94a3b8' : b.type === 'export_bus' ? '#16a34a' : b.type === 'market_stall' ? '#ec4899' : '#0d9488';
+            ctx.fillStyle = b.type === 'miner' ? '#4f46e5' : b.type === 'belt' ? '#64748b' : b.type === 'generator' ? '#f59e0b' : b.type === 'solar_panel' ? '#3b82f6' : b.type === 'assembler_mk2' ? '#0f766e' : b.type === 'chest' ? '#ca8a04' : b.type === 'inserter' ? '#94a3b8' : b.type === 'export_bus' ? '#16a34a' : b.type === 'market_stall' ? '#ec4899' : b.type === 'oil_pump' ? '#18181b' : b.type === 'refinery' ? '#0ea5e9' : b.type === 'oil_generator' ? '#78350f' : '#0d9488';
             if (b.id === selectedBuildingId) {
                 ctx.strokeStyle = '#facc15'; ctx.lineWidth = 4;
                 ctx.strokeRect(b.x*cellSize, b.y*cellSize, b.width*cellSize, b.height*cellSize);
@@ -595,12 +629,12 @@ const FactorySimulator: React.FC = () => {
                             {selectedBuilding ? (
                                 <Card>
                                     <CardHeader className='p-2 flex-row justify-between items-center'>
-                                        <CardTitle className='text-base capitalize'>{selectedBuilding.type.replace('_', ' ')}</CardTitle>
+                                        <CardTitle className='text-base capitalize'>{selectedBuilding.type.replace(/_/g, ' ')}</CardTitle>
                                         <Button size="icon" variant="ghost" className="h-6 w-6" onClick={() => setSelectedBuildingId(null)}><X className="h-4 w-4" /></Button>
                                     </CardHeader>
                                     <CardContent className="p-2 space-y-2">
                                         <p className="text-xs text-muted-foreground">ID: {selectedBuilding.id}</p>
-                                        {selectedBuilding.type !== 'chest' && selectedBuilding.type !== 'export_bus' && selectedBuilding.type !== 'market_stall' ? (
+                                        {selectedBuilding.type === 'assembler_mk2' ? (
                                             <div>
                                                 <Label>Overclock: {Math.round(selectedBuilding.overclock*100)}%</Label>
                                                 <Slider min={0.5} max={2} step={0.1} value={[selectedBuilding.overclock]} onValueChange={v => updateOverclock(selectedBuilding.id, v[0])}/>
@@ -612,7 +646,7 @@ const FactorySimulator: React.FC = () => {
                                                 <div className="space-y-1 text-xs max-h-48 overflow-y-auto border p-2 rounded-md">
                                                     {Object.entries(selectedBuilding.inventory || {}).map(([res, count]) => count > 0 && (
                                                         <div key={res} className="flex justify-between items-center">
-                                                            <span>{res}: {count}</span>
+                                                            <span className="capitalize">{res.replace(/_/g, ' ')}: {count}</span>
                                                             <Button size="xs" variant="outline" onClick={() => takeFromChest(selectedBuilding.id, res as Resource)}>Take</Button>
                                                         </div>
                                                     ))}
@@ -623,46 +657,52 @@ const FactorySimulator: React.FC = () => {
                                                      <Button size="sm" variant="destructive" className="flex-1" onClick={() => destroyBuilding(selectedBuilding)}>Destroy</Button>
                                                 </div>
                                             </div>
-                                        ) : null}
-                                    </CardContent>
-                                </Card>
-                            ) : (
-                                <>
-                                 <Card>
-                                    <CardHeader className='p-2'><CardTitle className='text-base'>Place Buildings</CardTitle></CardHeader>
-                                    <CardContent className="p-2 space-y-2">
-                                        <div className="flex items-center gap-2">
-                                            <Button variant={tool === 'destroy' ? 'destructive' : 'outline'} size="icon" onClick={() => setTool(t => t === 'destroy' ? 'build' : 'destroy')}><Trash2/></Button>
-                                            <Button size="icon" variant="outline" onClick={rotateBuilding}>
-                                                <RotateCcw className={cn( 'transition-transform', buildingDirection === 'down' && 'rotate-90', buildingDirection === 'left' && 'rotate-180', buildingDirection === 'up' && 'rotate-[-90deg]' )}/>
-                                            </Button>
-                                            <span className="text-sm">Rotate (R)</span>
-                                        </div>
-                                        <p className="text-xs font-bold pt-2">Logistics</p>
-                                        <Button variant={selectedBuildingType === 'belt' ? 'secondary' : 'outline'} onClick={() => setSelectedBuildingType('belt')} className="w-full justify-start gap-2"><Box/> Belt</Button>
-                                        <div className="pl-4"><Label>Tier: {beltTier}</Label><Slider min={1} max={3} step={1} value={[beltTier]} onValueChange={v => setBeltTier(v[0] as 1|2|3)}/></div>
-                                        <Button variant={selectedBuildingType === 'inserter' ? 'secondary' : 'outline'} onClick={() => setSelectedBuildingType('inserter')} className="w-full justify-start gap-2"><Move/> Inserter</Button>
-                                        <Button variant={selectedBuildingType === 'chest' ? 'secondary' : 'outline'} onClick={() => setSelectedBuildingType('chest')} className="w-full justify-start gap-2"><Warehouse/> Chest</Button>
-                                        <Button variant={selectedBuildingType === 'export_bus' ? 'secondary' : 'outline'} onClick={() => setSelectedBuildingType('export_bus')} className="w-full justify-start gap-2"><ArrowRight/> Export Bus</Button>
-                                        <Button variant={selectedBuildingType === 'market_stall' ? 'secondary' : 'outline'} onClick={() => setSelectedBuildingType('market_stall')} className="w-full justify-start gap-2"><ShoppingCart/> Market Stall (2x2)</Button>
-                                        <p className="text-xs font-bold pt-2">Production</p>
-                                        <Button variant={selectedBuildingType === 'miner' ? 'secondary' : 'outline'} onClick={() => setSelectedBuildingType('miner')} className="w-full justify-start gap-2"><HardHat/> Miner</Button>
-                                        <Button variant={selectedBuildingType === 'assembler' ? 'secondary' : 'outline'} onClick={() => setSelectedBuildingType('assembler')} className="w-full justify-start gap-2"><Cog/> Assembler</Button>
-                                        <Button variant={selectedBuildingType === 'adv_assembler' ? 'secondary' : 'outline'} onClick={() => setSelectedBuildingType('adv_assembler')} className="w-full justify-start gap-2"><Factory/> Adv. Assembler (2x2)</Button>
-                                        <p className="text-xs font-bold pt-2">Power</p>
-                                        <Button variant={selectedBuildingType === 'generator' ? 'secondary' : 'outline'} onClick={() => setSelectedBuildingType('generator')} className="w-full justify-start gap-2"><Zap/> Coal Generator</Button>
-                                        <Button variant={selectedBuildingType === 'solar_panel' ? 'secondary' : 'outline'} onClick={() => setSelectedBuildingType('solar_panel')} className="w-full justify-start gap-2"><SunMedium/> Solar Panel (2x2)</Button>
-                                        {(selectedBuildingType === 'assembler' || selectedBuildingType === 'adv_assembler') && (
-                                            <div className="pl-4 space-y-1">
-                                            <Label>Recipe</Label>
-                                            {Object.keys(recipes).filter(r => recipes[r as Resource]?.building.includes(selectedBuildingType)).map(recipe => (
-                                                <Button key={recipe} size="sm" variant={selectedRecipe === recipe ? 'secondary' : 'ghost'} onClick={() => setSelectedRecipe(recipe as Resource)} className="w-full justify-start text-xs capitalize">{recipe.replace('_', ' ')}</Button>
-                                            ))}
+                                        ) : <p className="text-xs text-muted-foreground">Power: {selectedBuilding.power?.toFixed(1)} MW</p>}
+                                        {(selectedBuilding.type === 'assembler' || selectedBuilding.type === 'assembler_mk2' || selectedBuilding.type === 'refinery') && (
+                                            <div className="pl-4 space-y-1 border-t pt-2 mt-2">
+                                                <Label>Recipe</Label>
+                                                {Object.keys(recipes).filter(r => recipes[r as Resource]?.building.includes(selectedBuilding.type)).map(recipe => (
+                                                    <Button key={recipe} size="sm" variant={selectedBuilding.recipe === recipe ? 'secondary' : 'ghost'} onClick={() => setBuildings(prev => prev.map(b => b.id === selectedBuilding.id ? {...b, recipe: recipe as Resource} : b))} className="w-full justify-start text-xs capitalize">{recipe.replace(/_/g, ' ')}</Button>
+                                                ))}
                                             </div>
                                         )}
                                     </CardContent>
                                 </Card>
-                                </>
+                            ) : (
+                                <Accordion type="multiple" defaultValue={['logistics', 'production', 'power']} className="w-full">
+                                <Card className="border-none"><CardContent className="p-1 space-y-2">
+                                    <div className="flex items-center gap-2">
+                                        <Button variant={tool === 'destroy' ? 'destructive' : 'outline'} size="icon" onClick={() => setTool(t => t === 'destroy' ? 'build' : 'destroy')}><Trash2/></Button>
+                                        <Button size="icon" variant="outline" onClick={rotateBuilding}>
+                                            <RotateCcw className={cn( 'transition-transform', buildingDirection === 'down' && 'rotate-90', buildingDirection === 'left' && 'rotate-180', buildingDirection === 'up' && 'rotate-[-90deg]' )}/>
+                                        </Button>
+                                        <span className="text-sm">Rotate (R)</span>
+                                    </div>
+                                    <AccordionItem value="logistics">
+                                        <AccordionTrigger>Logistics</AccordionTrigger>
+                                        <AccordionContent className="space-y-1"><Button variant={selectedBuildingType === 'belt' ? 'secondary' : 'outline'} onClick={() => setSelectedBuildingType('belt')} className="w-full justify-start gap-2 text-xs"><Box/> Belt</Button>
+                                        <div className="pl-4"><Label>Tier: {beltTier}</Label><Slider min={1} max={3} step={1} value={[beltTier]} onValueChange={v => setBeltTier(v[0] as 1|2|3)}/></div>
+                                        <Button variant={selectedBuildingType === 'inserter' ? 'secondary' : 'outline'} onClick={() => setSelectedBuildingType('inserter')} className="w-full justify-start gap-2 text-xs"><Move/> Inserter</Button>
+                                        <Button variant={selectedBuildingType === 'chest' ? 'secondary' : 'outline'} onClick={() => setSelectedBuildingType('chest')} className="w-full justify-start gap-2 text-xs"><Warehouse/> Chest</Button>
+                                        <Button variant={selectedBuildingType === 'export_bus' ? 'secondary' : 'outline'} onClick={() => setSelectedBuildingType('export_bus')} className="w-full justify-start gap-2 text-xs"><ArrowRight/> Export Bus</Button>
+                                        <Button variant={selectedBuildingType === 'market_stall' ? 'secondary' : 'outline'} onClick={() => setSelectedBuildingType('market_stall')} className="w-full justify-start gap-2 text-xs"><ShoppingCart/> Market Stall (2x2)</Button></AccordionContent>
+                                    </AccordionItem>
+                                    <AccordionItem value="production">
+                                        <AccordionTrigger>Production</AccordionTrigger>
+                                        <AccordionContent className="space-y-1"><Button variant={selectedBuildingType === 'miner' ? 'secondary' : 'outline'} onClick={() => setSelectedBuildingType('miner')} className="w-full justify-start gap-2 text-xs"><HardHat/> Miner</Button>
+                                        <Button variant={selectedBuildingType === 'oil_pump' ? 'secondary' : 'outline'} onClick={() => setSelectedBuildingType('oil_pump')} className="w-full justify-start gap-2 text-xs"><Droplets/> Oil Pump</Button>
+                                        <Button variant={selectedBuildingType === 'refinery' ? 'secondary' : 'outline'} onClick={() => setSelectedBuildingType('refinery')} className="w-full justify-start gap-2 text-xs"><Factory/> Refinery (2x2)</Button>
+                                        <Button variant={selectedBuildingType === 'assembler' ? 'secondary' : 'outline'} onClick={() => setSelectedBuildingType('assembler')} className="w-full justify-start gap-2 text-xs"><Cog/> Assembler Mk1</Button>
+                                        <Button variant={selectedBuildingType === 'assembler_mk2' ? 'secondary' : 'outline'} onClick={() => setSelectedBuildingType('assembler_mk2')} className="w-full justify-start gap-2 text-xs"><Factory/> Assembler Mk2 (2x2)</Button></AccordionContent>
+                                    </AccordionItem>
+                                    <AccordionItem value="power">
+                                        <AccordionTrigger>Power</AccordionTrigger>
+                                        <AccordionContent className="space-y-1"><Button variant={selectedBuildingType === 'generator' ? 'secondary' : 'outline'} onClick={() => setSelectedBuildingType('generator')} className="w-full justify-start gap-2 text-xs"><Zap/> Coal Generator</Button>
+                                        <Button variant={selectedBuildingType === 'oil_generator' ? 'secondary' : 'outline'} onClick={() => setSelectedBuildingType('oil_generator')} className="w-full justify-start gap-2 text-xs"><Zap/> Oil Generator (2x1)</Button>
+                                        <Button variant={selectedBuildingType === 'solar_panel' ? 'secondary' : 'outline'} onClick={() => setSelectedBuildingType('solar_panel')} className="w-full justify-start gap-2 text-xs"><SunMedium/> Solar Panel (2x2)</Button></AccordionContent>
+                                    </AccordionItem>
+                                </CardContent></Card>
+                                </Accordion>
                             )}
                         </TabsContent>
                          <TabsContent value="inventory" className="mt-2">
@@ -742,11 +782,11 @@ const FactorySimulator: React.FC = () => {
                                         </AccordionItem>
                                         <AccordionItem value="basics">
                                             <AccordionTrigger>Basics</AccordionTrigger>
-                                            <AccordionContent>Place Miners on resource patches. Use Belts to transport items. Use Assemblers to craft new items. Store items in Chests. Use Inserters to move items between buildings.</AccordionContent>
+                                            <AccordionContent>Place Miners/Pumps on resource patches. Use Belts to transport items. Use Assemblers to craft new items. Store items in Chests. Use Inserters to move items between buildings.</AccordionContent>
                                         </AccordionItem>
                                         <AccordionItem value="power">
                                             <AccordionTrigger>Power</AccordionTrigger>
-                                            <AccordionContent>All buildings require power. Build Generators or Solar Panels. Overclocking buildings increases speed but consumes much more power.</AccordionContent>
+                                            <AccordionContent>Most buildings require power. Build Generators or Solar Panels. Overclocking Assembler Mk2s increases speed but consumes much more power.</AccordionContent>
                                         </AccordionItem>
                                          <AccordionItem value="market">
                                             <AccordionTrigger>Market</AccordionTrigger>
@@ -767,3 +807,5 @@ const FactorySimulator: React.FC = () => {
     );
 };
 export default FactorySimulator;
+
+    

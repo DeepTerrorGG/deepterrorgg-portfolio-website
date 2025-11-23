@@ -63,7 +63,6 @@ const DownDetectorDetector = dynamic(() => import('@/components/projects/down-de
 const UselessUiPlayground = dynamic(() => import('@/components/projects/useless-ui-playground'), { loading: () => <ProjectLoader /> });
 const ScreenshotService = dynamic(() => import('@/components/projects/screenshot-service'), { loading: () => <ProjectLoader /> });
 const ThisDayInHistory = dynamic(() => import('@/components/projects/this-day-in-history'), { loading: () => <ProjectLoader /> });
-const FontIdentifier = dynamic(() => import('@/components/projects/font-identifier'), { loading: () => <ProjectLoader /> });
 const WebsiteStatusChecker = dynamic(() => import('@/components/projects/website-status-checker'), { loading: () => <ProjectLoader /> });
 
 
@@ -96,24 +95,6 @@ const ProjectLoader = () => (
 );
 
 const projectsData: Project[] = [
-    {
-        id: 'font-identifier',
-        title: 'Font Identifier',
-        imageUrls: ['/placeholder.png'],
-        imageAlt: 'AI Font Identifier interface',
-        imageHint: 'typography font analysis',
-        description: 'Upload an image of text, and an AI will describe the font\'s characteristics and suggest similar fonts.',
-        personalNote: 'This is a practical tool that combines computer vision with typography. It\'s a great example of using AI for a specific, real-world design problem.',
-        difficulty: 'AI',
-        component: <FontIdentifier />,
-        technologies: [
-            { name: 'React', iconSrc: '/icons/react.svg' },
-            { name: 'Next.js', iconSrc: '/icons/nextjs.svg' },
-            { name: 'Genkit', iconSrc: '/icons/genkit.svg' },
-            { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss.svg' },
-        ],
-        renderImage: true,
-    },
     {
         id: 'website-status-checker',
         title: 'Website Status Checker',

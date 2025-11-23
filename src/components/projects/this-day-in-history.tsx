@@ -10,6 +10,8 @@ import { ScrollArea } from '../ui/scroll-area';
 import { format } from 'date-fns';
 import { DayPicker } from 'react-day-picker';
 import 'react-day-picker/dist/style.css';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
 
 
 interface HistoryEvent {
@@ -69,61 +71,74 @@ const ThisDayInHistory: React.FC = () => {
     fetchHistoryData();
   }, [selectedDate, toast]);
 
-  const EventList = ({ title, events }: { title: string, events: HistoryEvent[] }) => (
-    <div>
-        <h3 className="font-bold text-lg mb-4 text-primary">{title}</h3>
-        <ul className="space-y-4">
-            {events.map((event, index) => (
-                <li key={index} className="flex gap-4 items-start">
-                    <span className="font-bold text-muted-foreground w-12 text-right">{event.year}</span>
-                    <p className="flex-1 text-sm border-l-2 border-border pl-4">{event.text}</p>
-                </li>
-            ))}
-        </ul>
-    </div>
+  const EventList = ({ events }: { events: HistoryEvent[] }) => (
+    <ul className="space-y-4">
+        {events.map((event, index) => (
+            <li key={index} className="flex gap-4 items-start">
+                <div className="flex-shrink-0 w-16 text-right">
+                    <span className="font-bold text-lg text-primary">{event.year}</span>
+                </div>
+                <div className="border-l-2 border-border pl-4 flex-1">
+                    <p className="text-sm text-muted-foreground">{event.text}</p>
+                </div>
+            </li>
+        ))}
+    </ul>
   );
 
   return (
     <div className="w-full h-full bg-card flex flex-col p-4 sm:p-6 lg:p-8">
       <Card className="w-full max-w-4xl mx-auto shadow-2xl flex-grow flex flex-col">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-primary text-2xl justify-center">
-            <BookOpen /> This Day in History
-          </CardTitle>
-           <CardDescription className="text-center">
-            Explore what happened on {format(selectedDate, 'MMMM do')}.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="flex-grow flex flex-col lg:flex-row gap-6 overflow-hidden">
-            <div className="w-full lg:w-auto flex flex-col items-center justify-center">
+          <div className="flex flex-col sm:flex-row justify-between items-center gap-2">
+            <CardTitle className="flex items-center gap-2 text-primary text-2xl">
+              <BookOpen /> This Day in History
+            </CardTitle>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button variant={"outline"}>
+                  <Calendar className="mr-2 h-4 w-4" />
+                  <span>{format(selectedDate, "MMMM do")}</span>
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0">
                 <DayPicker
-                    mode="single"
-                    selected={selectedDate}
-                    onSelect={(date) => date && setSelectedDate(date)}
-                    className="p-3 border rounded-md bg-muted/20"
+                  mode="single"
+                  selected={selectedDate}
+                  onSelect={(date) => date && setSelectedDate(date)}
+                  initialFocus
                 />
-            </div>
-            <div className="flex-grow lg:w-2/3 border-t lg:border-t-0 lg:border-l border-border pt-4 lg:pt-0 lg:pl-6">
-                 <ScrollArea className="h-[60vh] lg:h-full pr-4">
-                    {isLoading ? (
-                        <div className="flex items-center justify-center h-full">
-                            <Loader2 className="h-10 w-10 animate-spin text-primary" />
-                        </div>
-                    ) : error ? (
-                        <div className="text-destructive text-center p-4">
-                            <AlertTriangle className="mx-auto h-8 w-8 mb-2" />
-                            <p>{error}</p>
-                             <Button onClick={() => setSelectedDate(new Date())} className="mt-4">Retry</Button>
-                        </div>
-                    ) : data && (
-                        <div className="space-y-8">
-                            <EventList title="Events" events={data.events} />
-                            <EventList title="Births" events={data.births} />
-                            <EventList title="Deaths" events={data.deaths} />
-                        </div>
-                    )}
-                 </ScrollArea>
-            </div>
+              </PopoverContent>
+            </Popover>
+          </div>
+        </CardHeader>
+        <CardContent className="flex-grow flex flex-col overflow-hidden">
+            {isLoading ? (
+                <div className="flex items-center justify-center h-full">
+                    <Loader2 className="h-10 w-10 animate-spin text-primary" />
+                </div>
+            ) : error ? (
+                <div className="text-destructive text-center p-4">
+                    <AlertTriangle className="mx-auto h-8 w-8 mb-2" />
+                    <p>{error}</p>
+                    <Button onClick={() => setSelectedDate(new Date())} className="mt-4">Retry</Button>
+                </div>
+            ) : data && (
+                <Tabs defaultValue="events" className="w-full flex-grow flex flex-col">
+                    <TabsList className="grid w-full grid-cols-3">
+                        <TabsTrigger value="events">Events ({data.events.length})</TabsTrigger>
+                        <TabsTrigger value="births">Births ({data.births.length})</TabsTrigger>
+                        <TabsTrigger value="deaths">Deaths ({data.deaths.length})</TabsTrigger>
+                    </TabsList>
+                    <div className="flex-grow mt-4 overflow-hidden">
+                        <ScrollArea className="h-full pr-4">
+                            <TabsContent value="events"><EventList events={data.events} /></TabsContent>
+                            <TabsContent value="births"><EventList events={data.births} /></TabsContent>
+                            <TabsContent value="deaths"><EventList events={data.deaths} /></TabsContent>
+                        </ScrollArea>
+                    </div>
+                </Tabs>
+            )}
         </CardContent>
       </Card>
     </div>

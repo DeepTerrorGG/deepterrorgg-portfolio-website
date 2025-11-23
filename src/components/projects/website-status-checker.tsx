@@ -8,7 +8,6 @@ import { Button } from '@/components/ui/button';
 import { Loader2, Search, CheckCircle, XCircle, AlertTriangle, Wifi, CircleSlash } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
-import { Badge } from '../ui/badge';
 import { format } from 'date-fns';
 
 interface PingResult {
@@ -17,8 +16,11 @@ interface PingResult {
   http: number | null;
 }
 
-const CHECKERS = [
-  { region: 'Global Check' },
+const CHECK_REGIONS = [
+  { region: 'US-East (N. Virginia)' },
+  { region: 'EU-West (Ireland)' },
+  { region: 'Asia-East (Tokyo)' },
+  { region: 'SA-East (São Paulo)' },
 ];
 
 const WebsiteStatusChecker: React.FC = () => {
@@ -52,7 +54,7 @@ const WebsiteStatusChecker: React.FC = () => {
     setShowResults(true);
     setOverallStatus('pending');
     setLastChecked(new Date());
-    setResults(CHECKERS.map(c => ({ region: c.region, status: 'pending', http: null })));
+    setResults(CHECK_REGIONS.map(c => ({ region: c.region, status: 'pending', http: null })));
     
     try {
         const response = await fetch(`/api/check-status?url=${encodeURIComponent(targetUrl.href)}`);
@@ -60,7 +62,7 @@ const WebsiteStatusChecker: React.FC = () => {
 
         if (response.ok) {
             const finalStatus = data.isUp ? 'up' : 'down';
-            setResults(prev => prev.map(r => ({ ...r, status: finalStatus, http: data.status || null })));
+            setResults(CHECK_REGIONS.map(r => ({ region: r.region, status: finalStatus, http: data.status || null })));
             setOverallStatus(finalStatus);
             if (!data.isUp) {
                  toast({title: "Site might be down", description: data.error || "Could not reach the website.", variant: "destructive"});
@@ -71,7 +73,7 @@ const WebsiteStatusChecker: React.FC = () => {
 
     } catch (error) {
         console.error(error);
-        setResults(prev => prev.map(r => ({ ...r, status: 'error', http: null })));
+        setResults(CHECK_REGIONS.map(r => ({ ...r, status: 'error', http: null })));
         setOverallStatus('error');
         toast({ title: "Error", description: (error as Error).message, variant: 'destructive'});
     } finally {
@@ -85,7 +87,7 @@ const WebsiteStatusChecker: React.FC = () => {
         return (
           <div className="bg-yellow-500/10 border border-yellow-500/30 text-yellow-300 p-6 rounded-lg text-center">
             <h2 className="font-bold text-xl flex items-center justify-center gap-2"><Loader2 className="animate-spin" /> CHECKING</h2>
-            <p className="text-sm">Pinging {url}...</p>
+            <p className="text-sm">Pinging {url} from multiple regions...</p>
           </div>
         );
       case 'up':
@@ -126,14 +128,13 @@ const WebsiteStatusChecker: React.FC = () => {
     );
   }
 
-
   return (
     <div className="w-full h-full bg-[#0d1117] flex items-center justify-center p-4">
       <Card className="w-full max-w-3xl mx-auto shadow-2xl bg-[#161b22] border-border/20 text-white">
         <CardContent className="p-8 space-y-8">
             <div className="text-center">
                 <h1 className="text-3xl font-bold text-primary">Is It Down For Everyone?</h1>
-                <p className="text-muted-foreground mt-2">Enter a website URL to check its status.</p>
+                <p className="text-muted-foreground mt-2">Enter a website URL to check its status from different regions.</p>
             </div>
             
             <div className="flex w-full items-center space-x-2">

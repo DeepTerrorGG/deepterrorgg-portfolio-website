@@ -13,7 +13,6 @@ import 'react-day-picker/dist/style.css';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
 
-
 interface HistoryEvent {
   year: string;
   text: string;
@@ -62,7 +61,7 @@ const ThisDayInHistory: React.FC = () => {
 
       } catch (err) {
         setError((err as Error).message);
-        toast({ title: 'Error', description: 'Could not fetch historical data.', variant: 'destructive'});
+        toast({ title: 'Error', description: 'Could not fetch historical data. The API might be temporarily down.', variant: 'destructive'});
       } finally {
         setIsLoading(false);
       }
@@ -74,11 +73,11 @@ const ThisDayInHistory: React.FC = () => {
   const EventList = ({ events }: { events: HistoryEvent[] }) => (
     <ul className="space-y-4">
         {events.map((event, index) => (
-            <li key={index} className="flex gap-4 items-start">
-                <div className="flex-shrink-0 w-16 text-right">
+            <li key={index} className="grid grid-cols-1 md:grid-cols-[120px_1fr] gap-x-4 items-start">
+                <div className="flex-shrink-0 md:text-right">
                     <span className="font-bold text-lg text-primary">{event.year}</span>
                 </div>
-                <div className="border-l-2 border-border pl-4 flex-1">
+                <div className="flex-1">
                     <p className="text-sm text-muted-foreground">{event.text}</p>
                 </div>
             </li>
@@ -87,60 +86,61 @@ const ThisDayInHistory: React.FC = () => {
   );
 
   return (
-    <div className="w-full h-full bg-card flex flex-col p-4 sm:p-6 lg:p-8">
-      <Card className="w-full max-w-4xl mx-auto shadow-2xl flex-grow flex flex-col">
-        <CardHeader>
-          <div className="flex flex-col sm:flex-row justify-between items-center gap-2">
-            <CardTitle className="flex items-center gap-2 text-primary text-2xl">
-              <BookOpen /> This Day in History
-            </CardTitle>
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button variant={"outline"}>
-                  <Calendar className="mr-2 h-4 w-4" />
-                  <span>{format(selectedDate, "MMMM do")}</span>
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0">
-                <DayPicker
-                  mode="single"
-                  selected={selectedDate}
-                  onSelect={(date) => date && setSelectedDate(date)}
-                  initialFocus
-                />
-              </PopoverContent>
-            </Popover>
-          </div>
-        </CardHeader>
-        <CardContent className="flex-grow flex flex-col overflow-hidden">
-            {isLoading ? (
-                <div className="flex items-center justify-center h-full">
-                    <Loader2 className="h-10 w-10 animate-spin text-primary" />
-                </div>
-            ) : error ? (
-                <div className="text-destructive text-center p-4">
-                    <AlertTriangle className="mx-auto h-8 w-8 mb-2" />
-                    <p>{error}</p>
-                    <Button onClick={() => setSelectedDate(new Date())} className="mt-4">Retry</Button>
-                </div>
-            ) : data && (
-                <Tabs defaultValue="events" className="w-full flex-grow flex flex-col">
-                    <TabsList className="grid w-full grid-cols-3">
-                        <TabsTrigger value="events">Events ({data.events.length})</TabsTrigger>
-                        <TabsTrigger value="births">Births ({data.births.length})</TabsTrigger>
-                        <TabsTrigger value="deaths">Deaths ({data.deaths.length})</TabsTrigger>
-                    </TabsList>
-                    <div className="flex-grow mt-4 overflow-hidden">
-                        <ScrollArea className="h-full pr-4">
-                            <TabsContent value="events"><EventList events={data.events} /></TabsContent>
-                            <TabsContent value="births"><EventList events={data.births} /></TabsContent>
-                            <TabsContent value="deaths"><EventList events={data.deaths} /></TabsContent>
-                        </ScrollArea>
+    <div className="w-full h-full bg-background flex items-center justify-center p-4 sm:p-6 lg:p-8">
+        <div className="w-full max-w-4xl mx-auto h-full flex flex-col">
+            <header className="flex flex-col sm:flex-row justify-between items-center gap-4 mb-6">
+                <h1 className="flex items-center gap-2 text-primary text-3xl font-bold">
+                    <BookOpen /> This Day in History
+                </h1>
+                <Popover>
+                    <PopoverTrigger asChild>
+                        <Button variant={"outline"} className="bg-card border-border hover:bg-muted">
+                            <Calendar className="mr-2 h-4 w-4" />
+                            <span>{format(selectedDate, "MMMM do")}</span>
+                        </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0">
+                        <DayPicker
+                            mode="single"
+                            selected={selectedDate}
+                            onSelect={(date) => date && setSelectedDate(date)}
+                            initialFocus
+                        />
+                    </PopoverContent>
+                </Popover>
+            </header>
+
+            <main className="flex-grow flex flex-col overflow-hidden bg-card border border-border rounded-lg">
+                {isLoading ? (
+                    <div className="flex items-center justify-center h-full">
+                        <Loader2 className="h-10 w-10 animate-spin text-primary" />
                     </div>
-                </Tabs>
-            )}
-        </CardContent>
-      </Card>
+                ) : error ? (
+                    <div className="text-destructive text-center p-8 flex flex-col items-center justify-center h-full">
+                        <AlertTriangle className="mx-auto h-8 w-8 mb-2" />
+                        <p>{error}</p>
+                        <Button onClick={() => setSelectedDate(new Date())} className="mt-4">Retry</Button>
+                    </div>
+                ) : data && (
+                    <Tabs defaultValue="events" className="w-full h-full flex flex-col">
+                        <div className="p-2">
+                           <TabsList className="grid w-full grid-cols-3 bg-muted/50">
+                                <TabsTrigger value="events">Events ({data.events.length})</TabsTrigger>
+                                <TabsTrigger value="births">Births ({data.births.length})</TabsTrigger>
+                                <TabsTrigger value="deaths">Deaths ({data.deaths.length})</TabsTrigger>
+                            </TabsList>
+                        </div>
+                        <div className="flex-grow overflow-hidden">
+                            <ScrollArea className="h-full px-6">
+                                <TabsContent value="events"><EventList events={data.events} /></TabsContent>
+                                <TabsContent value="births"><EventList events={data.births} /></TabsContent>
+                                <TabsContent value="deaths"><EventList events={data.deaths} /></TabsContent>
+                            </ScrollArea>
+                        </div>
+                    </Tabs>
+                )}
+            </main>
+        </div>
     </div>
   );
 };

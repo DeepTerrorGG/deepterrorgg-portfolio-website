@@ -60,6 +60,7 @@ const DeckBuildingRoguelike = dynamic(() => import('@/components/projects/deck-b
 const IdleClickerGame = dynamic(() => import('@/components/projects/idle-clicker-game'), { loading: () => <ProjectLoader /> });
 const DoomEmulator = dynamic(() => import('@/components/projects/doom-emulator'), { loading: () => <ProjectLoader /> });
 const DownDetectorDetector = dynamic(() => import('@/components/projects/down-detector-detector'), { loading: () => <ProjectLoader /> });
+const UselessUiPlayground = dynamic(() => import('@/components/projects/useless-ui-playground'), { loading: () => <ProjectLoader /> });
 
 
 interface Technology {
@@ -92,11 +93,28 @@ const ProjectLoader = () => (
 
 const projectsData: Project[] = [
     {
+    id: 'useless-ui-playground',
+    title: 'Useless UI Playground',
+    imageUrls: ['/placeholder.png'],
+    imageAlt: 'A collection of intentionally bad user interface elements',
+    imageHint: 'bad UI UX design',
+    description: 'A satirical collection of intentionally terrible user interface elements. How many can you conquer?',
+    personalNote: 'This project is a fun way to explore the principles of good design by showcasing the absolute worst. It\'s a playground of UI anti-patterns that developers and designers will find painfully amusing.',
+    difficulty: 'Meme',
+    component: <UselessUiPlayground />,
+    technologies: [
+      { name: 'React', iconSrc: '/icons/react.svg' },
+      { name: 'Framer Motion', iconSrc: '/icons/framer.svg' },
+      { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss.svg' },
+    ],
+    renderImage: true,
+  },
+    {
     id: 'down-detector-detector',
     title: 'Down Detector Detector',
     imageUrls: ['/placeholder.png'],
-    imageAlt: 'A status page checking if a status page is down',
     imageHint: 'server status meta',
+    imageAlt: 'A status page checking if a status page is down',
     description: 'A meta-joke project that "checks" if the popular service Downdetector is itself down.',
     personalNote: 'This is a classic developer meme. It\'s a fun, simple project that pokes fun at the infinite layers of infrastructure we rely on. Who detects the detectors?',
     difficulty: 'Meme',

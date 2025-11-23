@@ -14,6 +14,7 @@ const ScreenshotService: React.FC = () => {
   const [url, setUrl] = useState('https://google.com');
   const [screenshotUrl, setScreenshotUrl] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [lastAttemptedUrl, setLastAttemptedUrl] = useState('');
 
   const takeScreenshot = () => {
     if (!url.trim()) {
@@ -27,23 +28,11 @@ const ScreenshotService: React.FC = () => {
     }
 
     setIsLoading(true);
-    setScreenshotUrl('');
-
-    // Using a simple, free screenshot service. No API key needed for basic use.
-    // For a real app, you might use a service that requires a key.
-    const serviceUrl = `https://image.thum.io/get/width/1200/crop/630/noanimate/${formattedUrl}`;
+    setScreenshotUrl(''); // Clear previous screenshot
     
-    // We create an Image object to detect loading state.
-    const img = new window.Image();
-    img.src = serviceUrl;
-    img.onload = () => {
-        setScreenshotUrl(serviceUrl);
-        setIsLoading(false);
-    };
-    img.onerror = () => {
-        toast({ title: "Screenshot Failed", description: "Could not capture a screenshot of the provided URL. Please check the URL and try again.", variant: "destructive"});
-        setIsLoading(false);
-    }
+    const serviceUrl = `https://image.thum.io/get/width/1200/crop/630/noanimate/${formattedUrl}`;
+    setLastAttemptedUrl(serviceUrl);
+    // We will let the Next.js Image component handle loading and errors directly.
   };
 
   return (
@@ -74,12 +63,27 @@ const ScreenshotService: React.FC = () => {
           
           <div className="flex-grow flex items-center justify-center bg-muted/30 rounded-lg border border-dashed p-4">
             {isLoading && <Loader2 className="h-10 w-10 text-primary animate-spin" />}
-            {screenshotUrl && !isLoading && (
+            
+            {lastAttemptedUrl && !isLoading && (
               <div className="relative w-full h-full">
-                <Image src={screenshotUrl} alt={`Screenshot of ${url}`} layout="fill" objectFit="contain" />
+                <Image 
+                    src={lastAttemptedUrl} 
+                    alt={`Screenshot of ${url}`} 
+                    layout="fill" 
+                    objectFit="contain" 
+                    onLoadingComplete={() => {
+                        setScreenshotUrl(lastAttemptedUrl);
+                        setIsLoading(false);
+                    }}
+                    onError={() => {
+                        toast({ title: "Screenshot Failed", description: "Could not capture a screenshot of the provided URL.", variant: "destructive"});
+                        setIsLoading(false);
+                        setLastAttemptedUrl('');
+                    }}
+                />
               </div>
             )}
-            {!screenshotUrl && !isLoading && (
+            {!lastAttemptedUrl && !isLoading && (
               <p className="text-muted-foreground">Screenshot will appear here</p>
             )}
           </div>

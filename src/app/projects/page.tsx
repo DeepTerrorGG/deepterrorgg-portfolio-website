@@ -1,4 +1,3 @@
-
 // src/app/projects/page.tsx
 'use client';
 
@@ -61,10 +60,8 @@ const IdleClickerGame = dynamic(() => import('@/components/projects/idle-clicker
 const DoomEmulator = dynamic(() => import('@/components/projects/doom-emulator'), { loading: () => <ProjectLoader /> });
 const DownDetectorDetector = dynamic(() => import('@/components/projects/down-detector-detector'), { loading: () => <ProjectLoader /> });
 const UselessUiPlayground = dynamic(() => import('@/components/projects/useless-ui-playground'), { loading: () => <ProjectLoader /> });
-const MovieRecommender = dynamic(() => import('@/components/projects/movie-recommender'), { loading: () => <ProjectLoader /> });
 const ScreenshotService = dynamic(() => import('@/components/projects/screenshot-service'), { loading: () => <ProjectLoader /> });
 const ThisDayInHistory = dynamic(() => import('@/components/projects/this-day-in-history'), { loading: () => <ProjectLoader /> });
-const BoardGameCompanion = dynamic(() => import('@/components/projects/board-game-companion'), { loading: () => <ProjectLoader /> });
 
 
 interface Technology {
@@ -762,23 +759,6 @@ const projectsData: Project[] = [
     renderImage: true,
   },
   {
-    id: 'movie-recommender',
-    title: 'Movie Recommender',
-    imageUrls: ['/placeholder.png'],
-    imageAlt: 'Movie recommender app interface',
-    imageHint: 'movie recommendations similar films',
-    description: 'Discover new movies and TV shows based on your favorites.',
-    personalNote: 'This project was a fun way to work with a rich media API. Displaying movie posters and creating a "discovery" experience is a great way to practice building engaging user interfaces.',
-    difficulty: 'Medium',
-    component: <MovieRecommender />,
-    technologies: [
-      { name: 'React', iconSrc: '/icons/react.svg' },
-      { name: 'Next.js', iconSrc: '/icons/nextjs.svg' },
-      { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss.svg' },
-    ],
-    renderImage: true,
-  },
-  {
     id: 'screenshot-service',
     title: 'Screenshot Service',
     imageUrls: ['/placeholder.png'],
@@ -805,23 +785,6 @@ const projectsData: Project[] = [
     personalNote: 'This was a nice change of pace from typical developer projects. It focused on clean data presentation and creating a calm, educational experience for the user.',
     difficulty: 'Easy',
     component: <ThisDayInHistory />,
-    technologies: [
-      { name: 'React', iconSrc: '/icons/react.svg' },
-      { name: 'Next.js', iconSrc: '/icons/nextjs.svg' },
-      { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss.svg' },
-    ],
-    renderImage: true,
-  },
-  {
-    id: 'board-game-companion',
-    title: 'Board Game Companion',
-    imageUrls: ['/placeholder.png'],
-    imageAlt: 'Board game companion app interface',
-    imageHint: 'board game search database',
-    description: 'Search for board games and view details like player count, playtime, and description.',
-    personalNote: 'As a board game fan, this was a passion project. It shows how you can build a useful tool for a specific hobby or community, which can make a portfolio feel more personal and unique.',
-    difficulty: 'Medium',
-    component: <BoardGameCompanion />,
     technologies: [
       { name: 'React', iconSrc: '/icons/react.svg' },
       { name: 'Next.js', iconSrc: '/icons/nextjs.svg' },

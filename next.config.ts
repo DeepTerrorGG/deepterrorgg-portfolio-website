@@ -37,12 +37,6 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: 'https',
-        hostname: 'image.tmdb.org',
-        port: '',
-        pathname: '/**',
-      },
-      {
-        protocol: 'https',
         hostname: 'image.thum.io',
         port: '',
         pathname: '/**',
@@ -65,8 +59,6 @@ const nextConfig: NextConfig = {
   },
   env: {
     NEXT_PUBLIC_OPENWEATHERMAP_API_KEY: process.env.NEXT_PUBLIC_OPENWEATHERMAP_API_KEY,
-    NEXT_PUBLIC_TMDB_API_KEY: process.env.NEXT_PUBLIC_TMDB_API_KEY,
-    NEXT_PUBLIC_BOARDGAMEATLAS_API_KEY: process.env.NEXT_PUBLIC_BOARDGAMEATLAS_API_KEY,
   }
 };
 

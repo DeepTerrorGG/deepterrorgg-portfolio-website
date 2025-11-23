@@ -1,8 +1,6 @@
-
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Loader2, Calendar, BookOpen, AlertTriangle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
@@ -73,7 +71,7 @@ const ThisDayInHistory: React.FC = () => {
   const EventList = ({ events }: { events: HistoryEvent[] }) => (
     <ul className="space-y-4">
         {events.map((event, index) => (
-            <li key={index} className="grid grid-cols-1 md:grid-cols-[120px_1fr] gap-x-4 items-start">
+            <li key={index} className="grid grid-cols-[80px_1fr] md:grid-cols-[120px_1fr] gap-x-4 items-start">
                 <div className="flex-shrink-0 md:text-right">
                     <span className="font-bold text-lg text-primary">{event.year}</span>
                 </div>

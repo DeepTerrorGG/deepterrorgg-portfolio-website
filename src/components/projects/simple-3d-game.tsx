@@ -1,131 +1,137 @@
 
 'use client';
 
-import React, { useState, useRef, useEffect, useMemo } from 'react';
-import { Canvas, useFrame, useThree } from '@react-three/fiber';
-import { Box, Sphere, Plane, Text, OrbitControls } from '@react-three/drei';
+import React, { useRef, useState, useEffect } from 'react';
+import { Canvas, useFrame } from '@react-three/fiber';
+import { Box, Sphere, OrbitControls, Text } from '@react-three/drei';
 import * as THREE from 'three';
 
+// --- Helper: Keyboard Controls ---
 const useKeyboardControls = () => {
-    const keys = useRef<{ [key: string]: boolean }>({});
-
-    useEffect(() => {
-        const onKeyDown = (e: KeyboardEvent) => keys.current[e.key.toLowerCase()] = true;
-        const onKeyUp = (e: KeyboardEvent) => keys.current[e.key.toLowerCase()] = false;
-        window.addEventListener('keydown', onKeyDown);
-        window.addEventListener('keyup', onKeyUp);
-        return () => {
-            window.removeEventListener('keydown', onKeyDown);
-            window.removeEventListener('keyup', onKeyUp);
-        };
-    }, []);
-
-    return keys;
+  const keys = useRef<{ [key: string]: boolean }>({});
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => (keys.current[e.key] = true);
+    const onKeyUp = (e: KeyboardEvent) => (keys.current[e.key] = false);
+    window.addEventListener('keydown', onKeyDown);
+    window.addEventListener('keyup', onKeyUp);
+    return () => {
+      window.removeEventListener('keydown', onKeyDown);
+      window.removeEventListener('keyup', onKeyUp);
+    };
+  }, []);
+  return keys;
 };
 
+// --- Game Components ---
+
 function Player() {
-    const playerRef = useRef<THREE.Mesh>(null!);
-    const keys = useKeyboardControls();
-    const speed = 0.1;
+  const ref = useRef<THREE.Mesh>(null!);
+  const keys = useKeyboardControls();
+  const speed = 0.1;
 
-    useFrame((state, delta) => {
-        const { w, a, s, d } = keys.current;
+  useFrame(() => {
+    if (!ref.current) return;
+    if (keys.current.w || keys.current.ArrowUp) ref.current.position.z -= speed;
+    if (keys.current.s || keys.current.ArrowDown) ref.current.position.z += speed;
+    if (keys.current.a || keys.current.ArrowLeft) ref.current.position.x -= speed;
+    if (keys.current.d || keys.current.ArrowRight) ref.current.position.x += speed;
+  });
 
-        if (w) playerRef.current.position.z -= speed;
-        if (s) playerRef.current.position.z += speed;
-        if (a) playerRef.current.position.x -= speed;
-        if (d) playerRef.current.position.x += speed;
-
-        // Make camera follow player
-        state.camera.lookAt(playerRef.current.position);
-    });
-
-    return (
-        <Sphere ref={playerRef} args={[0.5, 32, 32]} position={[0, 0.5, 0]}>
-            <meshStandardMaterial color="royalblue" />
-        </Sphere>
-    );
+  return (
+    <Sphere ref={ref} args={[0.5, 32, 32]}>
+      <meshStandardMaterial color="dodgerblue" />
+    </Sphere>
+  );
 }
 
 function Collectible({ position, onCollect }: { position: [number, number, number], onCollect: () => void }) {
-    const collectibleRef = useRef<THREE.Mesh>(null!);
-    const [collected, setCollected] = useState(false);
+  const ref = useRef<THREE.Mesh>(null!);
+  const [collected, setCollected] = useState(false);
 
-    useFrame(({ scene }) => {
-        const player = scene.getObjectByName('player-sphere');
-        if (player && !collected) {
-            const distance = player.position.distanceTo(collectibleRef.current.position);
-            if (distance < 1) {
-                setCollected(true);
-                onCollect();
-            }
-        }
-    });
+  useFrame(({ scene }) => {
+    if (collected || !ref.current) return;
+    ref.current.rotation.y += 0.02;
 
-    useFrame(() => {
-        collectibleRef.current.rotation.y += 0.01;
-        collectibleRef.current.rotation.x += 0.01;
-    });
+    const player = scene.getObjectByName('player');
+    if (player && ref.current.position.distanceTo(player.position) < 1) {
+      setCollected(true);
+      onCollect();
+    }
+  });
 
-    if (collected) return null;
+  if (collected) return null;
 
-    return (
-        <Box ref={collectibleRef} args={[0.5, 0.5, 0.5]} position={position}>
-            <meshStandardMaterial color="gold" />
-        </Box>
-    );
+  return (
+    <Box ref={ref} position={position} args={[0.6, 0.6, 0.6]}>
+      <meshStandardMaterial color="gold" />
+    </Box>
+  );
+}
+
+function Ground() {
+  return (
+    <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -1, 0]}>
+      <planeGeometry args={[20, 20]} />
+      <meshStandardMaterial color="#4a4a4a" />
+    </mesh>
+  );
 }
 
 
-function GameScene() {
-    const [score, setScore] = useState(0);
-    const initialCollectibles = useMemo(() => [
-        { id: 1, pos: [3, 0.25, 3] },
-        { id: 2, pos: [-3, 0.25, -3] },
-        { id: 3, pos: [5, 0.25, -2] },
-        { id: 4, pos: [-5, 0.25, 4] },
-        { id: 5, pos: [0, 0.25, -6] },
-    ] as const, []);
-    
-    const [collectibles, setCollectibles] = useState(initialCollectibles);
-
-    const handleCollect = (id: number) => {
-        setScore(s => s + 1);
-        setCollectibles(c => c.filter(item => item.id !== id));
-    };
-
-    return (
-        <>
-            <ambientLight intensity={0.6} />
-            <directionalLight position={[10, 10, 5]} intensity={1} castShadow />
-            <Player />
-            {collectibles.map(item => (
-                <Collectible key={item.id} position={item.pos} onCollect={() => handleCollect(item.id)} />
-            ))}
-            <Plane args={[20, 20]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
-                <meshStandardMaterial color="lightgreen" />
-            </Plane>
-            <Text position={[0, 5, -10]} fontSize={1} color="black">
-                Score: {score}
-            </Text>
-            {collectibles.length === 0 && (
-                <Text position={[0, 4, -10]} fontSize={1.5} color="hotpink">
-                    You Win!
-                </Text>
-            )}
-            <OrbitControls />
-        </>
-    );
-}
+// --- Main Game Component ---
 
 const Simple3DGame = () => {
-    return (
-        <div className="w-full h-full bg-sky-200">
-            <Canvas shadows camera={{ position: [0, 5, 10], fov: 60 }}>
-                <GameScene />
-            </Canvas>
-        </div>
-    );
+  const [score, setScore] = useState(0);
+  const collectibles = useMemo(() => [
+    { id: 1, position: [-5, -0.2, -5] },
+    { id: 2, position: [5, -0.2, -5] },
+    { id: 3, position: [5, -0.2, 5] },
+    { id: 4, position: [-5, -0.2, 5] },
+    { id: 5, position: [0, -0.2, 0] },
+  ], []);
+
+  const handleCollect = () => {
+    setScore(s => s + 1);
+  };
+  
+  const allCollected = score >= collectibles.length;
+
+  return (
+    <div className="w-full h-full relative bg-gray-800">
+      <div className="absolute top-4 left-4 z-10 text-white p-2 bg-black/50 rounded-lg">
+        <h2 className="font-bold">Score: {score}</h2>
+        <p className="text-xs">Use WASD or Arrow Keys to move.</p>
+      </div>
+      <Canvas camera={{ position: [0, 8, 12], fov: 60 }}>
+        <ambientLight intensity={0.6} />
+        <directionalLight position={[10, 10, 5]} intensity={1} />
+        
+        <group name="player">
+          <Player />
+        </group>
+        
+        <Ground />
+        
+        {!allCollected && collectibles.map(c => (
+          <Collectible key={c.id} position={c.position as [number, number, number]} onCollect={handleCollect} />
+        ))}
+        
+        {allCollected && (
+            <Text
+              position={[0, 1, 0]}
+              fontSize={1.5}
+              color="white"
+              anchorX="center"
+              anchorY="middle"
+            >
+              You Win!
+            </Text>
+        )}
+
+        <OrbitControls enablePan={true} enableZoom={true} enableRotate={true} />
+      </Canvas>
+    </div>
+  );
 };
 
 export default Simple3DGame;

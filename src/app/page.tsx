@@ -86,6 +86,10 @@ const splineModels = [
     { url: 'https://prod.spline.design/Oy8cFTtrLNL36Qll/scene.splinecode', title: 'Cozy Living Room', scrollable: true },
     { url: 'https://prod.spline.design/qC2WtYn7OhOcS8L0/scene.splinecode', title: 'Abstract Shapes', scrollable: true },
     { url: 'https://prod.spline.design/3SU82luCTBxFgmZk/scene.splinecode', title: 'Gaming Setup', scrollable: true },
+    { url: 'https://prod.spline.design/o9RKr9qFSINlT6QX/scene.splinecode', title: 'Floating Orb', scrollable: true },
+    { url: 'https://prod.spline.design/PpzeXZ2jGbRYbcYD/scene.splinecode', title: 'Magic Crystal', scrollable: true },
+    { url: 'https://prod.spline.design/aHUMGNLXv2zxvysr/scene.splinecode', title: 'Voxel World', scrollable: true },
+    { url: 'https://prod.spline.design/eAZWQJSADsfRaSlh/scene.splinecode', title: 'Retro Computer', scrollable: false },
 ];
 
 const ScrollingTechRow = ({ items, direction = 'left' }: { items: typeof technologies, direction?: 'left' | 'right' }) => (

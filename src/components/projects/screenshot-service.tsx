@@ -14,6 +14,7 @@ const ScreenshotService: React.FC = () => {
   const [url, setUrl] = useState('https://google.com');
   const [screenshotUrl, setScreenshotUrl] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [lastCheckedUrl, setLastCheckedUrl] = useState('');
 
   // This effect will run on the initial load to show a default screenshot
   useEffect(() => {
@@ -45,7 +46,7 @@ const ScreenshotService: React.FC = () => {
     }
     
     setIsLoading(true);
-    setScreenshotUrl('');
+    // Don't clear screenshotUrl here, to keep the old one visible while loading.
 
     const serviceUrl = `https://image.thum.io/get/width/1200/crop/630/noanimate/${urlObject.href}`;
     
@@ -54,6 +55,7 @@ const ScreenshotService: React.FC = () => {
     
     img.onload = () => {
       setScreenshotUrl(serviceUrl);
+      setLastCheckedUrl(urlObject.href);
       setIsLoading(false);
       if (!isInitialLoad) {
         toast({ title: "Screenshot Captured!", description: "The screenshot has been successfully generated." });
@@ -97,15 +99,20 @@ const ScreenshotService: React.FC = () => {
           </div>
           
           <div className="flex-grow flex items-center justify-center bg-muted/30 rounded-lg border border-dashed p-4">
-            {isLoading && (
+            {isLoading && !screenshotUrl && (
               <div className="flex flex-col items-center gap-2 text-muted-foreground">
                 <Loader2 className="h-10 w-10 text-primary animate-spin" />
                 <p>Capturing screenshot...</p>
               </div>
             )}
             
-            {!isLoading && screenshotUrl && (
+            {screenshotUrl && (
               <div className="relative w-full h-full">
+                {isLoading && (
+                  <div className="absolute inset-0 flex items-center justify-center bg-black/50 z-10">
+                    <Loader2 className="h-10 w-10 text-primary animate-spin" />
+                  </div>
+                )}
                 <Image 
                     src={screenshotUrl} 
                     alt={`Screenshot of ${url}`} 
@@ -122,7 +129,7 @@ const ScreenshotService: React.FC = () => {
           </div>
           {!isLoading && screenshotUrl && (
              <Button asChild className="mt-4 w-full">
-                <a href={screenshotUrl} download={`screenshot-${new URL(url).hostname}.png`}>
+                <a href={screenshotUrl} download={`screenshot-${new URL(lastCheckedUrl).hostname}.png`}>
                     <Download className="mr-2 h-4 w-4"/>
                     Download Screenshot
                 </a>

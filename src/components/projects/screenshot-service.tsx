@@ -46,9 +46,13 @@ const ScreenshotService: React.FC = () => {
     }
     
     setIsLoading(true);
-    // Don't clear screenshotUrl here, to keep the old one visible while loading.
+    if (!isInitialLoad) {
+        // Keep old image while new one loads, unless it's the first load
+    } else {
+        setScreenshotUrl('');
+    }
 
-    const serviceUrl = `https://image.thum.io/get/width/1200/crop/630/noanimate/${urlObject.href}`;
+    const serviceUrl = `https://image.thum.io/get/width/1280/noanimate/${urlObject.href}`;
     
     // Preload the image in memory to reliably catch onLoad and onError events
     const img = new window.Image();
@@ -80,7 +84,7 @@ const ScreenshotService: React.FC = () => {
             <ImageIcon /> Website Screenshot Service
           </CardTitle>
           <CardDescription className="text-center">
-            Enter a URL to capture a screenshot of a website.
+            Enter a URL to capture a full-page screenshot of a website.
           </CardDescription>
         </CardHeader>
         <CardContent className="flex-grow flex flex-col">
@@ -98,7 +102,7 @@ const ScreenshotService: React.FC = () => {
             </Button>
           </div>
           
-          <div className="flex-grow flex items-center justify-center bg-muted/30 rounded-lg border border-dashed p-4">
+          <div className="flex-grow flex items-center justify-center bg-muted/30 rounded-lg border border-dashed p-4 min-h-[300px]">
             {isLoading && !screenshotUrl && (
               <div className="flex flex-col items-center gap-2 text-muted-foreground">
                 <Loader2 className="h-10 w-10 text-primary animate-spin" />
@@ -118,7 +122,7 @@ const ScreenshotService: React.FC = () => {
                     alt={`Screenshot of ${url}`} 
                     layout="fill" 
                     objectFit="contain"
-                    key={screenshotUrl} // Add key to force re-render
+                    key={screenshotUrl} // Add key to force re-render on URL change
                 />
               </div>
             )}

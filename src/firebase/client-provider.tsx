@@ -4,6 +4,7 @@
 import { ReactNode, useMemo } from 'react';
 import { initializeFirebase } from '@/firebase';
 import { FirebaseProvider } from '@/firebase/provider';
+import { FirebaseErrorListener } from '@/components/FirebaseErrorListener';
 
 export function FirebaseClientProvider({ children }: { children: ReactNode }) {
   // Memoize the initialization to ensure it only runs once.
@@ -20,6 +21,7 @@ export function FirebaseClientProvider({ children }: { children: ReactNode }) {
       auth={firebaseServices.auth}
       firestore={firebaseServices.firestore}
     >
+      <FirebaseErrorListener />
       {children}
     </FirebaseProvider>
   );

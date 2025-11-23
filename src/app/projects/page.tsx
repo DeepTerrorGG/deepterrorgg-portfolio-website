@@ -62,8 +62,8 @@ const DoomEmulator = dynamic(() => import('@/components/projects/doom-emulator')
 const DownDetectorDetector = dynamic(() => import('@/components/projects/down-detector-detector'), { loading: () => <ProjectLoader /> });
 const UselessUiPlayground = dynamic(() => import('@/components/projects/useless-ui-playground'), { loading: () => <ProjectLoader /> });
 const ScreenshotService = dynamic(() => import('@/components/projects/screenshot-service'), { loading: () => <ProjectLoader /> });
-const ThisDayInHistory = dynamic(() => import('@/components/projects/this-day-in-history'), { loading: () => <ProjectLoader /> });
 const WebsiteStatusChecker = dynamic(() => import('@/components/projects/website-status-checker'), { loading: () => <ProjectLoader /> });
+const ThisDayInHistory = dynamic(() => import('@/components/projects/this-day-in-history'), { loading: () => <ProjectLoader /> });
 
 
 interface Technology {
@@ -707,6 +707,24 @@ const projectsData: Project[] = [
     renderImage: true,
   },
   {
+    id: 'this-day-in-history',
+    title: 'This Day in History',
+    imageUrls: ['/placeholder.png'],
+    imageAlt: 'This Day in History app',
+    imageHint: 'history events calendar',
+    description: 'Discover historical events, births, and deaths for any day of the year.',
+    personalNote:
+      "A fun project that uses a public API to fetch interesting historical facts. It's a great example of fetching and displaying data from an external source.",
+    difficulty: 'Medium',
+    component: <ThisDayInHistory />,
+    technologies: [
+      { name: 'React', iconSrc: '/icons/react.svg' },
+      { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },
+      { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss.svg' },
+    ],
+    renderImage: true,
+  },
+  {
     id: 'text-animator',
     title: 'Simple Text Animator',
     imageUrls: ['https://i.imgur.com/bPv5f6t.png'],
@@ -787,23 +805,6 @@ const projectsData: Project[] = [
     personalNote: 'A simple but very satisfying utility to build. It shows how a frontend application can interact with a backend service (even a third-party one) to perform a useful action.',
     difficulty: 'Easy',
     component: <ScreenshotService />,
-    technologies: [
-      { name: 'React', iconSrc: '/icons/react.svg' },
-      { name: 'Next.js', iconSrc: '/icons/nextjs.svg' },
-      { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss.svg' },
-    ],
-    renderImage: true,
-  },
-  {
-    id: 'day-in-history',
-    title: 'This Day in History',
-    imageUrls: ['/placeholder.png'],
-    imageAlt: 'This day in history app interface',
-    imageHint: 'history events today',
-    description: 'Explore significant historical events that happened on this day.',
-    personalNote: 'This was a nice change of pace from typical developer projects. It focused on clean data presentation and creating a calm, educational experience for the user.',
-    difficulty: 'Easy',
-    component: <ThisDayInHistory />,
     technologies: [
       { name: 'React', iconSrc: '/icons/react.svg' },
       { name: 'Next.js', iconSrc: '/icons/nextjs.svg' },

@@ -35,21 +35,16 @@ const ScreenshotService: React.FC = () => {
 
     const serviceUrl = `https://image.thum.io/get/width/1280/noanimate/${urlObject.href}`;
     
-    // We create a temporary link element to trigger the download.
     const link = document.createElement('a');
     link.href = serviceUrl;
-    // Suggest a filename for the download
     link.download = `screenshot-${urlObject.hostname}.png`;
     
-    // We can't easily detect failure here, so we'll provide feedback and reset state.
-    // The browser will handle the download.
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
 
     toast({ title: "Download Initiated", description: `Your screenshot for ${urlObject.hostname} is downloading.` });
     
-    // Reset loading state after a short delay
     setTimeout(() => {
         setIsLoading(false);
     }, 1500);
@@ -57,7 +52,7 @@ const ScreenshotService: React.FC = () => {
 
   return (
     <div className="w-full h-full bg-card flex flex-col p-4 sm:p-6 lg:p-8">
-      <Card className="w-full max-w-2xl mx-auto shadow-2xl flex-grow flex flex-col">
+      <Card className="w-full max-w-2xl mx-auto shadow-2xl flex-grow flex flex-col justify-center">
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-primary text-2xl justify-center">
             <LinkIcon /> Website Screenshot Service
@@ -76,13 +71,6 @@ const ScreenshotService: React.FC = () => {
               onKeyDown={(e) => e.key === 'Enter' && downloadScreenshot()}
               disabled={isLoading}
             />
-          </div>
-          
-          <div className="flex-grow flex items-center justify-center bg-muted/30 rounded-lg border border-dashed p-4 min-h-[300px]">
-            <div className="text-center text-muted-foreground">
-                <p>The screenshot will be downloaded directly.</p>
-                <p className="text-xs">No preview is available.</p>
-            </div>
           </div>
           
           <Button onClick={downloadScreenshot} disabled={isLoading} className="mt-4 w-full">

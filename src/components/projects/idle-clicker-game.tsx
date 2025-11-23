@@ -1,7 +1,7 @@
 
 'use client';
 
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -50,6 +50,13 @@ type GameStateForAchievement = {
     rebirthCount: number;
     prestigePoints: number;
 }
+
+type Booster = {
+  id: number;
+  x: string;
+  y: string;
+  type: 'click_frenzy';
+} | null;
 
 // --- INITIAL STATE ---
 
@@ -122,7 +129,7 @@ const achievementsList: Omit<Achievement, 'isUnlocked'>[] = [
     { id: 'prestige100', name: 'Power Overwhelming', description: 'Accumulate 100 Prestige Points.', condition: ({prestigePoints}) => prestigePoints >= 100, reward: 1e13 },
     { id: 'prestige500', name: 'Ascended', description: 'Accumulate 500 Prestige Points.', condition: ({prestigePoints}) => prestigePoints >= 500, reward: 1e16 },
     
-    // Combination / Special
+    // Combination / Hardcore
     { id: 'special1', name: 'Balanced Diet', description: 'Own at least one of every upgrade type (manual and automatic).', condition: ({cpsUpgrades, manualUpgrades}) => cpsUpgrades.every(u => u.level > 0) && manualUpgrades.every(u => u.level > 0), reward: 1e8 },
     { id: 'special2', name: 'The Hard Way', description: 'Reach 1 Million clicks with less than 10 CPS.', condition: ({clicks, clicksPerSecond}) => clicks >= 1e6 && clicksPerSecond < 10, reward: 1e7 },
     { id: 'special3', name: 'Look, No Hands!', description: 'Reach 1 Billion clicks with 0 manual upgrades purchased.', condition: ({clicks, manualUpgrades}) => clicks >= 1e9 && manualUpgrades.every(u => u.level === 0), reward: 5e8 },
@@ -145,10 +152,14 @@ const IdleClickerGame: React.FC = () => {
   const [manualUpgrades, setManualUpgrades] = useState<ManualUpgrade[]>(initialManualUpgrades);
   const [floatingNumbers, setFloatingNumbers] = useState<{ id: number; x: number; y: number; value: string }[]>([]);
   
-  // New State
   const [prestigePoints, setPrestigePoints] = useState(0);
   const [rebirthCount, setRebirthCount] = useState(0);
   const [achievements, setAchievements] = useState<Achievement[]>(() => achievementsList.map(ach => ({...ach, isUnlocked: false})));
+  
+  const [booster, setBooster] = useState<Booster>(null);
+  const [activeBooster, setActiveBooster] = useState<'click_frenzy' | null>(null);
+  const boosterTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
 
   // --- GAME LOOP & SAVING ---
 
@@ -160,7 +171,6 @@ const IdleClickerGame: React.FC = () => {
           const loaded = JSON.parse(savedState);
           setClicks(loaded.clicks || 0);
           
-          // Merge CPS upgrades
           const loadedCpsUpgrades = loaded.cpsUpgrades || [];
           const mergedCpsUpgrades = initialCpsUpgrades.map(iu => {
               const saved = loadedCpsUpgrades.find((su: CpsUpgrade) => su.id === iu.id);
@@ -168,7 +178,6 @@ const IdleClickerGame: React.FC = () => {
           });
           setCpsUpgrades(mergedCpsUpgrades);
 
-          // Merge Manual upgrades
           const loadedManualUpgrades = loaded.manualUpgrades || [];
           const mergedManualUpgrades = initialManualUpgrades.map(iu => {
               const saved = loadedManualUpgrades.find((su: ManualUpgrade) => su.id === iu.id);
@@ -211,8 +220,9 @@ const IdleClickerGame: React.FC = () => {
   const manualClickPower = useMemo(() => {
     const baseClickPower = 1 + manualUpgrades.reduce((total, upgrade) => total + (upgrade.level * upgrade.clickPower), 0);
     const prestigeBonus = 1 + (prestigePoints * 0.05);
-    return baseClickPower * prestigeBonus;
-  }, [manualUpgrades, prestigePoints]);
+    const frenzyMultiplier = activeBooster === 'click_frenzy' ? 777 : 1;
+    return baseClickPower * prestigeBonus * frenzyMultiplier;
+  }, [manualUpgrades, prestigePoints, activeBooster]);
 
   // Main game tick
   useEffect(() => {
@@ -222,6 +232,30 @@ const IdleClickerGame: React.FC = () => {
 
     return () => clearInterval(gameTick);
   }, [clicksPerSecond]);
+  
+  // Booster spawn logic
+  useEffect(() => {
+    const scheduleBooster = () => {
+      // Spawn between 30 to 60 minutes
+      const spawnTime = (Math.random() * 30 + 30) * 60 * 1000;
+      boosterTimeoutRef.current = setTimeout(() => {
+        setBooster({
+          id: Date.now(),
+          x: `${Math.random() * 70 + 15}%`, // 15% to 85% to stay within button
+          y: `${Math.random() * 70 + 15}%`,
+          type: 'click_frenzy'
+        });
+        // Despawn after 10 seconds
+        setTimeout(() => setBooster(null), 10000);
+      }, spawnTime);
+    };
+
+    scheduleBooster(); // Initial scheduling
+    return () => {
+      if (boosterTimeoutRef.current) clearTimeout(boosterTimeoutRef.current);
+    };
+  }, [rebirthCount]); // Reschedule on rebirth
+
 
    // Check for achievements
    useEffect(() => {
@@ -257,6 +291,16 @@ const IdleClickerGame: React.FC = () => {
   const handleMainClick = (e: React.MouseEvent) => {
     setClicks(prev => prev + manualClickPower);
     showFloatingNumber(e, `+${formatNumber(manualClickPower)}`);
+  };
+
+  const handleBoosterClick = () => {
+    if (!booster) return;
+    if (booster.type === 'click_frenzy') {
+      setActiveBooster('click_frenzy');
+      toast({ title: 'CLICK FRENZY!', description: 'All your clicks are 777x more powerful for 10 seconds!' });
+      setTimeout(() => setActiveBooster(null), 10000);
+    }
+    setBooster(null);
   };
 
   const buyCpsUpgrade = (upgradeId: string) => {
@@ -335,11 +379,30 @@ const IdleClickerGame: React.FC = () => {
               <motion.button
                 onClick={handleMainClick}
                 whileTap={{ scale: 0.9 }}
-                className="w-48 h-48 rounded-full bg-primary text-primary-foreground shadow-2xl flex flex-col items-center justify-center"
+                className={cn(
+                    "w-48 h-48 rounded-full bg-primary text-primary-foreground shadow-2xl flex flex-col items-center justify-center transition-all duration-300",
+                    activeBooster === 'click_frenzy' && "animate-pulse bg-yellow-400 shadow-yellow-400/50"
+                )}
               >
                 <MousePointerClick className="h-16 w-16" />
                 <span className="text-xl font-bold">Click!</span>
               </motion.button>
+
+              <AnimatePresence>
+                {booster && (
+                    <motion.button
+                      initial={{ scale: 0, opacity: 0}}
+                      animate={{ scale: 1, opacity: 1, transition: { type: 'spring', stiffness: 300, damping: 15 } }}
+                      exit={{ scale: 0, opacity: 0 }}
+                      onClick={handleBoosterClick}
+                      className="absolute w-12 h-12 rounded-full bg-yellow-400 text-black flex items-center justify-center z-10 shadow-lg shadow-yellow-400/50"
+                      style={{ left: booster.x, top: booster.y }}
+                    >
+                      <Zap />
+                    </motion.button>
+                )}
+              </AnimatePresence>
+              
               <AnimatePresence>
                 {floatingNumbers.map(({id, x, y, value}) => (
                     <motion.div
@@ -348,7 +411,7 @@ const IdleClickerGame: React.FC = () => {
                         animate={{ opacity: 0, y: -50 }}
                         exit={{ opacity: 0 }}
                         transition={{ duration: 1 }}
-                        className="absolute text-xl font-bold text-yellow-300 pointer-events-none"
+                        className="absolute text-xl font-bold text-yellow-300 pointer-events-none z-20"
                         style={{ left: x, top: y }}
                     >
                         {value}
@@ -366,7 +429,7 @@ const IdleClickerGame: React.FC = () => {
                     <TabsTrigger value="cps-upgrades"><ArrowUp className="mr-1 h-4 w-4"/>Auto</TabsTrigger>
                     <TabsTrigger value="manual-upgrades"><Hand className="mr-1 h-4 w-4"/>Manual</TabsTrigger>
                     <TabsTrigger value="achievements"><Star className="mr-1 h-4 w-4"/>Achieve</TabsTrigger>
-                    <TabsTrigger value="rebirth"><Repeat className="mr-1 h-4 w-4"/>Rebirth</TabsTrigger>
+                    <TabsTrigger value="rebirth"><Zap className="mr-1 h-4 w-4" />Rebirth</TabsTrigger>
                 </TabsList>
                 
                 <TabsContent value="cps-upgrades" className="flex-grow">
@@ -455,3 +518,5 @@ const IdleClickerGame: React.FC = () => {
 };
 
 export default IdleClickerGame;
+
+    

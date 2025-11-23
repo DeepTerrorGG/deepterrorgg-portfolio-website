@@ -71,8 +71,8 @@ const UselessUiPlayground: React.FC = () => {
     return () => clearInterval(timer);
   }, []);
 
-  const Exhibit = ({ title, children }: { title: string; children: React.ReactNode }) => (
-    <div className="bg-muted/20 border border-border/20 rounded-lg p-4 space-y-3">
+  const Exhibit = ({ title, children, className }: { title: string; children: React.ReactNode, className?: string }) => (
+    <div className={cn("bg-muted/20 border border-border/20 rounded-lg p-4 space-y-3", className)}>
       <h3 className="font-semibold text-center text-foreground">{title}</h3>
       <div className="flex items-center justify-center min-h-[12rem] relative overflow-hidden">
         {children}
@@ -174,8 +174,7 @@ const UselessUiPlayground: React.FC = () => {
               />
           </Exhibit>
 
-          <div className="md:col-span-2">
-            <Exhibit title="Infinitesimal Terms of Service">
+          <Exhibit title="Infinitesimal Terms of Service" className="md:col-span-2">
                 <div className="w-full px-4">
                   <ScrollArea className="h-24 w-full border rounded-md bg-background/50">
                       <div className="p-2" style={{ fontSize: '0.5rem', lineHeight: '0.6' }}>
@@ -183,8 +182,7 @@ const UselessUiPlayground: React.FC = () => {
                       </div>
                   </ScrollArea>
                 </div>
-            </Exhibit>
-          </div>
+          </Exhibit>
 
         </div>
       </div>
@@ -193,3 +191,5 @@ const UselessUiPlayground: React.FC = () => {
 };
 
 export default UselessUiPlayground;
+
+    

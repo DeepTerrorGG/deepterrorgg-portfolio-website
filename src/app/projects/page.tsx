@@ -19,6 +19,7 @@ import {
   DialogDescription,
   DialogClose,
 } from "@/components/ui/dialog";
+import { DoomIcon } from '@/components/icons/doom';
 
 // Dynamically import all project components
 const TodoList = dynamic(() => import('@/components/projects/todo-list'), { loading: () => <ProjectLoader /> });
@@ -56,6 +57,7 @@ const TurnBasedStrategy = dynamic(() => import('@/components/projects/turn-based
 const FactorySimulator = dynamic(() => import('@/components/projects/factory-simulator'), { loading: () => <ProjectLoader /> });
 const DeckBuildingRoguelike = dynamic(() => import('@/components/projects/deck-building-roguelike'), { loading: () => <ProjectLoader /> });
 const IdleClickerGame = dynamic(() => import('@/components/projects/idle-clicker-game'), { loading: () => <ProjectLoader /> });
+const DoomEmulator = dynamic(() => import('@/components/projects/doom-emulator'), { loading: () => <ProjectLoader /> });
 
 
 interface Technology {
@@ -73,7 +75,7 @@ interface Project {
   description: string;
   longDescription?: string;
   personalNote: string;
-  difficulty: 'Easy' | 'Medium' | 'Hard' | 'Advanced' | 'AI' | 'Community';
+  difficulty: 'Easy' | 'Medium' | 'Hard' | 'Advanced' | 'AI' | 'Community' | 'Meme';
   technologies: Technology[];
   component?: React.ReactNode;
   externalLink?: string;
@@ -87,6 +89,23 @@ const ProjectLoader = () => (
 );
 
 const projectsData: Project[] = [
+    {
+    id: 'doom-emulator',
+    title: 'DOOM (1993) Emulator',
+    imageUrls: ['/placeholder.png'],
+    imageAlt: 'DOOM (1993) gameplay screenshot',
+    imageHint: 'doom game retro',
+    description: 'A playable, embedded version of the original 1993 DOOM. Rip and tear, until it is done.',
+    personalNote: 'This is a classic programming meme for a reason. Getting legacy software like Doom to run in a modern web browser is a fun challenge. This version uses an embedded DOS emulator to prove that, yes, it can run on anything—even this portfolio.',
+    difficulty: 'Meme',
+    component: <DoomEmulator />,
+    technologies: [
+      { name: 'DOSBox', iconSrc: '/icons/dosbox.svg' },
+      { name: 'JavaScript', iconSrc: '/icons/javascript.svg' },
+      { name: 'React', iconSrc: '/icons/react.svg' },
+    ],
+    renderImage: true,
+  },
     {
     id: 'deck-building-roguelike',
     title: 'Deck-Builder Adventure',
@@ -743,7 +762,8 @@ const difficultyOrder = {
   'Hard': 3,
   'Advanced': 4,
   'AI': 5,
-  'Community': 6,
+  'Meme': 6,
+  'Community': 7,
 };
 
 const allProjects = [...projectsData, communityProject].sort((a, b) => {
@@ -802,6 +822,7 @@ export default function ProjectsPage() {
     'Advanced': 'text-red-400',
     'AI': 'text-purple-400',
     'Community': 'text-blue-400',
+    'Meme': 'text-pink-400',
   };
 
   const handleProjectSelect = (project: Project) => {

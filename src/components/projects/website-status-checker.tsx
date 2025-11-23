@@ -8,9 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Loader2, Search, CheckCircle, XCircle, AlertTriangle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/table';
-import { cn } from '@/lib/utils';
 import { Badge } from '../ui/badge';
-import Image from 'next/image';
 
 interface PingResult {
   region: string;
@@ -26,7 +24,6 @@ const WebsiteStatusChecker: React.FC = () => {
   const [url, setUrl] = useState('https://google.com');
   const [results, setResults] = useState<PingResult[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [checkUrl, setCheckUrl] = useState<string | null>(null);
 
   const checkStatus = async () => {
     if (!url.trim()) {
@@ -38,7 +35,7 @@ const WebsiteStatusChecker: React.FC = () => {
     try {
         let tempUrl = url.trim();
         if (!tempUrl.startsWith('http')) {
-            tempUrl = `https://${tempUrl}`;
+            tempUrl = `https://'${tempUrl}`;
         }
         targetUrl = new URL(tempUrl);
     } catch (e) {
@@ -49,23 +46,29 @@ const WebsiteStatusChecker: React.FC = () => {
     setIsLoading(true);
     setResults(CHECKERS.map(c => ({ region: c.region, status: 'pending' })));
     
-    // We use the screenshot service as a proxy for "is it up?"
-    // If thum.io can render it, it's up.
-    setCheckUrl(`https://image.thum.io/get/width/10/noanimate/${targetUrl.href}`);
+    try {
+        const response = await fetch(`/api/check-status?url=${encodeURIComponent(targetUrl.href)}`);
+        const data = await response.json();
+
+        if (response.ok) {
+            setResults(prev => prev.map(r => ({...r, status: data.isUp ? 'up' : 'down'})));
+            if (data.isUp) {
+                toast({title: "Site is Up!", description: "The website appears to be online."});
+            } else {
+                 toast({title: "Site might be down", description: "Could not reach the website.", variant: "destructive"});
+            }
+        } else {
+            throw new Error(data.error || 'Failed to check status.');
+        }
+
+    } catch (error) {
+        console.error(error);
+        setResults(prev => prev.map(r => ({...r, status: 'error'})));
+        toast({ title: "Error", description: (error as Error).message, variant: 'destructive'});
+    } finally {
+        setIsLoading(false);
+    }
   };
-  
-  const handleImageLoad = () => {
-    setIsLoading(false);
-    setResults(prev => prev.map(r => ({...r, status: 'up'})));
-    toast({title: "Site is Up!", description: "The website appears to be online."});
-  }
-
-  const handleImageError = () => {
-    setIsLoading(false);
-    setResults(prev => prev.map(r => ({...r, status: 'down'})));
-    toast({title: "Site might be down", description: "Could not reach the website.", variant: "destructive"});
-  }
-
 
   return (
     <div className="w-full h-full bg-card flex flex-col p-4 sm:p-6 lg:p-8">
@@ -88,8 +91,6 @@ const WebsiteStatusChecker: React.FC = () => {
               {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4" />}
             </Button>
           </div>
-
-           {checkUrl && <Image src={checkUrl} alt="Status check" width={1} height={1} className="hidden" onLoad={handleImageLoad} onError={handleImageError} />}
 
           {(isLoading || results.length > 0) && (
             <div className="mt-6 border rounded-lg overflow-hidden">

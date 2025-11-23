@@ -9,7 +9,7 @@ import { Loader2, Upload, Sparkles } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import Image from 'next/image';
 import { analyzeFont } from '@/ai/flows/font-identifier-flow';
-import type { FontAnalysis } from '@/ai/flows/font-identifier-flow';
+import type { FontAnalysis } from '@/ai/flows/font-identifier-flow-types';
 import ReactMarkdown from 'react-markdown';
 
 const FontIdentifier: React.FC = () => {
@@ -72,7 +72,7 @@ const FontIdentifier: React.FC = () => {
           </div>
           {image && (
             <div className="relative w-full h-48 border rounded-lg bg-muted/30">
-              <Image src={image} alt="Uploaded preview" layout="fill" objectFit="contain" />
+              <Image src={image} alt="Uploaded preview" fill objectFit="contain" />
             </div>
           )}
           <Button onClick={handleAnalyze} disabled={!image || isLoading} className="w-full max-w-md">

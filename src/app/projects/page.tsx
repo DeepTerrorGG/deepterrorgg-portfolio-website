@@ -1,3 +1,4 @@
+
 // src/app/projects/page.tsx
 'use client';
 
@@ -64,7 +65,6 @@ const ScreenshotService = dynamic(() => import('@/components/projects/screenshot
 const ThisDayInHistory = dynamic(() => import('@/components/projects/this-day-in-history'), { loading: () => <ProjectLoader /> });
 const FontIdentifier = dynamic(() => import('@/components/projects/font-identifier'), { loading: () => <ProjectLoader /> });
 const WebsiteStatusChecker = dynamic(() => import('@/components/projects/website-status-checker'), { loading: () => <ProjectLoader /> });
-const NutritionAnalyzer = dynamic(() => import('@/components/projects/nutrition-analyzer'), { loading: () => <ProjectLoader /> });
 
 
 interface Technology {
@@ -128,24 +128,6 @@ const projectsData: Project[] = [
             { name: 'React', iconSrc: '/icons/react.svg' },
             { name: 'Next.js', iconSrc: '/icons/nextjs.svg' },
             { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss.svg' },
-        ],
-        renderImage: true,
-    },
-    {
-        id: 'nutrition-analyzer',
-        title: 'Recipe Nutrition Analyzer',
-        imageUrls: ['/placeholder.png'],
-        imageAlt: 'Nutrition analyzer app interface',
-        imageHint: 'health nutrition food tracker',
-        description: 'Paste a list of ingredients to get an AI-powered breakdown of the estimated nutritional information.',
-        personalNote: 'This project combines a popular topic (health and food) with data processing. It shows how to parse unstructured text and use an external API to get structured data back.',
-        difficulty: 'AI',
-        component: <NutritionAnalyzer />,
-        technologies: [
-            { name: 'React', iconSrc: '/icons/react.svg' },
-            { name: 'Next.js', iconSrc: '/icons/nextjs.svg' },
-            { name: 'Genkit', iconSrc: '/icons/genkit.svg' },
-            { name: 'Edamam API', iconSrc: '/icons/api.svg' },
         ],
         renderImage: true,
     },

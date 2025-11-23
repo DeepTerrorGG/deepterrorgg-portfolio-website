@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
@@ -45,7 +46,9 @@ type GameStateForAchievement = {
     cpsUpgrades: CpsUpgrade[];
     manualUpgrades: ManualUpgrade[];
     clicksPerSecond: number;
+    manualClickPower: number;
     rebirthCount: number;
+    prestigePoints: number;
 }
 
 // --- INITIAL STATE ---
@@ -72,26 +75,66 @@ const initialManualUpgrades: ManualUpgrade[] = [
 
 
 const achievementsList: Omit<Achievement, 'isUnlocked'>[] = [
-    // Easy
-    { id: 'ach1', name: 'Getting Started', description: 'Reach 1,000 clicks.', condition: ({clicks}) => clicks >= 1000, reward: 1000 },
-    { id: 'ach_manual1', name: 'Manual Labor', description: 'Buy a Reinforced Mouse.', condition: ({manualUpgrades}) => (manualUpgrades.find(u => u.id === 'reinforced_mouse')?.level || 0) > 0, reward: 500 },
-    // Medium
-    { id: 'ach2', name: 'Millionaire', description: 'Reach 1,000,000 clicks.', condition: ({clicks}) => clicks >= 1e6, reward: 100000 },
-    { id: 'ach4', name: 'Automation Beginner', description: 'Get 100 CPS.', condition: ({clicksPerSecond}) => clicksPerSecond >= 100, reward: 10000 },
-    { id: 'ach6', name: 'Grandma\'s Army', description: 'Own 50 Grandmas.', condition: ({cpsUpgrades}) => (cpsUpgrades.find(u => u.id === 'grandma')?.level || 0) >= 50, reward: 250000 },
-    // Hard
-    { id: 'ach3', name: 'First Rebirth', description: 'Rebirth for the first time.', condition: ({rebirthCount}) => rebirthCount >= 1, reward: 1e6 },
-    { id: 'ach5', name: 'Automation Expert', description: 'Get 10,000 CPS.', condition: ({clicksPerSecond}) => clicksPerSecond >= 10000, reward: 500000 },
-    { id: 'ach7', name: 'To Infinity', description: 'Own an Antimatter Condenser.', condition: ({cpsUpgrades}) => (cpsUpgrades.find(u => u.id === 'antimatter')?.level || 0) >= 1, reward: 1e7 },
-    // Very Hard
-    { id: 'ach8', name: 'Billionaire', description: 'Reach 1,000,000,000 clicks.', condition: ({clicks}) => clicks >= 1e9, reward: 1e8 },
-    { id: 'ach9', name: 'Industrialist', description: 'Reach 1,000,000 CPS.', condition: ({clicksPerSecond}) => clicksPerSecond >= 1e6, reward: 5e7 },
-    { id: 'ach10', name: 'Reborn Again', description: 'Rebirth 5 times.', condition: ({rebirthCount}) => rebirthCount >= 5, reward: 1e9 },
-    // Challenge
-    { id: 'ach11', name: 'Trillionaire', description: 'Reach 1,000,000,000,000 clicks.', condition: ({clicks}) => clicks >= 1e12, reward: 1e11 },
-    { id: 'ach12', name: 'Collector', description: 'Own at least 100 of every automatic upgrade.', condition: ({cpsUpgrades}) => cpsUpgrades.every(u => u.level >= 100), reward: 1e10},
-    { id: 'ach13', name: 'Manual Master', description: 'Own at least 100 of every manual upgrade.', condition: ({manualUpgrades}) => manualUpgrades.every(u => u.level >= 100), reward: 1e10},
+    // Click Milestones
+    { id: 'clicks1k', name: 'Getting Started', description: 'Reach 1,000 clicks.', condition: ({clicks}) => clicks >= 1000, reward: 1000 },
+    { id: 'clicks1m', name: 'Millionaire', description: 'Reach 1,000,000 clicks.', condition: ({clicks}) => clicks >= 1e6, reward: 100000 },
+    { id: 'clicks1b', name: 'Billionaire', description: 'Reach 1,000,000,000 clicks.', condition: ({clicks}) => clicks >= 1e9, reward: 1e8 },
+    { id: 'clicks1t', name: 'Trillionaire', description: 'Reach 1 Trillion clicks.', condition: ({clicks}) => clicks >= 1e12, reward: 1e11 },
+    { id: 'clicks1q', name: 'Quadrillionaire', description: 'Reach 1 Quadrillion clicks.', condition: ({clicks}) => clicks >= 1e15, reward: 1e14 },
+    { id: 'clicks1qi', name: 'Quintillionaire', description: 'Reach 1 Quintillion clicks.', condition: ({clicks}) => clicks >= 1e18, reward: 1e17 },
+    { id: 'clicks1sx', name: 'Sextillionaire', description: 'Reach 1 Sextillion clicks.', condition: ({clicks}) => clicks >= 1e21, reward: 1e20 },
+    { id: 'clicks1sp', name: 'Septillionaire', description: 'Reach 1 Septillion clicks.', condition: ({clicks}) => clicks >= 1e24, reward: 1e23 },
+
+    // CPS Milestones
+    { id: 'cps100', name: 'Automation Beginner', description: 'Get 100 CPS.', condition: ({clicksPerSecond}) => clicksPerSecond >= 100, reward: 10000 },
+    { id: 'cps10k', name: 'Automation Expert', description: 'Get 10,000 CPS.', condition: ({clicksPerSecond}) => clicksPerSecond >= 10000, reward: 500000 },
+    { id: 'cps1m', name: 'Industrialist', description: 'Reach 1,000,000 CPS.', condition: ({clicksPerSecond}) => clicksPerSecond >= 1e6, reward: 5e7 },
+    { id: 'cps1b', name: 'Megafactory', description: 'Reach 1 Billion CPS.', condition: ({clicksPerSecond}) => clicksPerSecond >= 1e9, reward: 5e10 },
+    { id: 'cps1t', name: 'Planetary Engine', description: 'Reach 1 Trillion CPS.', condition: ({clicksPerSecond}) => clicksPerSecond >= 1e12, reward: 5e13 },
+
+    // Manual Click Milestones
+    { id: 'manual1k', name: 'Strong Index Finger', description: 'Reach 1,000 clicks per click.', condition: ({manualClickPower}) => manualClickPower >= 1000, reward: 5e6 },
+    { id: 'manual1m', name: 'Carpal Tunnel Syndrome', description: 'Reach 1 Million clicks per click.', condition: ({manualClickPower}) => manualClickPower >= 1e6, reward: 5e9 },
+    { id: 'manual1b', name: 'Singularity', description: 'Reach 1 Billion clicks per click.', condition: ({manualClickPower}) => manualClickPower >= 1e9, reward: 5e12 },
+
+    // Upgrade Count Milestones (Specific)
+    { id: 'up_manual1', name: 'Manual Labor', description: 'Buy a Reinforced Mouse.', condition: ({manualUpgrades}) => (manualUpgrades.find(u => u.id === 'reinforced_mouse')?.level || 0) > 0, reward: 500 },
+    { id: 'up_grandma50', name: 'Grandma\'s Army', description: 'Own 50 Grandmas.', condition: ({cpsUpgrades}) => (cpsUpgrades.find(u => u.id === 'grandma')?.level || 0) >= 50, reward: 250000 },
+    { id: 'up_antimatter1', name: 'To Infinity', description: 'Own an Antimatter Condenser.', condition: ({cpsUpgrades}) => (cpsUpgrades.find(u => u.id === 'antimatter')?.level || 0) >= 1, reward: 1e7 },
+    { id: 'up_all100', name: 'Collector', description: 'Own at least 100 of every automatic upgrade.', condition: ({cpsUpgrades}) => cpsUpgrades.every(u => u.level >= 100), reward: 1e10},
+    { id: 'up_manual_all100', name: 'Manual Master', description: 'Own at least 100 of every manual upgrade.', condition: ({manualUpgrades}) => manualUpgrades.every(u => u.level >= 100), reward: 1e10},
+    { id: 'up_factory150', name: 'Industrial Revolution', description: 'Own 150 Click Factories.', condition: ({cpsUpgrades}) => (cpsUpgrades.find(u => u.id === 'factory')?.level || 0) >= 150, reward: 1e8 },
+    { id: 'up_portal50', name: 'Gatekeeper', description: 'Own 50 Portals.', condition: ({cpsUpgrades}) => (cpsUpgrades.find(u => u.id === 'portal')?.level || 0) >= 50, reward: 1e9 },
+    { id: 'up_time_machine25', name: 'Time Lord', description: 'Own 25 Time Machines.', condition: ({cpsUpgrades}) => (cpsUpgrades.find(u => u.id === 'time_machine')?.level || 0) >= 25, reward: 5e9 },
+    { id: 'up_all250', name: 'Hoarder', description: 'Own at least 250 of every automatic upgrade.', condition: ({cpsUpgrades}) => cpsUpgrades.every(u => u.level >= 250), reward: 1e14},
+    { id: 'up_all500', name: 'Completionist', description: 'Own at least 500 of every automatic upgrade.', condition: ({cpsUpgrades}) => cpsUpgrades.every(u => u.level >= 500), reward: 1e18},
+    
+    // Upgrade Count Milestones (Total)
+    { id: 'total_up_auto_1k', name: 'Getting Serious', description: 'Buy a total of 1,000 automatic upgrades.', condition: ({cpsUpgrades}) => cpsUpgrades.reduce((sum, u) => sum + u.level, 0) >= 1000, reward: 1e7 },
+    { id: 'total_up_auto_5k', name: 'Grand Architect', description: 'Buy a total of 5,000 automatic upgrades.', condition: ({cpsUpgrades}) => cpsUpgrades.reduce((sum, u) => sum + u.level, 0) >= 5000, reward: 1e11 },
+    { id: 'total_up_manual_500', name: 'Ergonomics', description: 'Buy a total of 500 manual upgrades.', condition: ({manualUpgrades}) => manualUpgrades.reduce((sum, u) => sum + u.level, 0) >= 500, reward: 1e8 },
+
+    // Rebirth/Prestige Milestones
+    { id: 'rebirth1', name: 'First Rebirth', description: 'Rebirth for the first time.', condition: ({rebirthCount}) => rebirthCount >= 1, reward: 1e6 },
+    { id: 'rebirth5', name: 'Reborn Again', description: 'Rebirth 5 times.', condition: ({rebirthCount}) => rebirthCount >= 5, reward: 1e9 },
+    { id: 'rebirth10', name: 'Eternal Cycle', description: 'Rebirth 10 times.', condition: ({rebirthCount}) => rebirthCount >= 10, reward: 1e12 },
+    { id: 'rebirth25', name: 'Transcendent', description: 'Rebirth 25 times.', condition: ({rebirthCount}) => rebirthCount >= 25, reward: 1e15 },
+    { id: 'prestige100', name: 'Power Overwhelming', description: 'Accumulate 100 Prestige Points.', condition: ({prestigePoints}) => prestigePoints >= 100, reward: 1e13 },
+    { id: 'prestige500', name: 'Ascended', description: 'Accumulate 500 Prestige Points.', condition: ({prestigePoints}) => prestigePoints >= 500, reward: 1e16 },
+    
+    // Combination / Special
+    { id: 'special1', name: 'Balanced Diet', description: 'Own at least one of every upgrade type (manual and automatic).', condition: ({cpsUpgrades, manualUpgrades}) => cpsUpgrades.every(u => u.level > 0) && manualUpgrades.every(u => u.level > 0), reward: 1e8 },
+    { id: 'special2', name: 'The Hard Way', description: 'Reach 1 Million clicks with less than 10 CPS.', condition: ({clicks, clicksPerSecond}) => clicks >= 1e6 && clicksPerSecond < 10, reward: 1e7 },
+    { id: 'special3', name: 'Look, No Hands!', description: 'Reach 1 Billion clicks with 0 manual upgrades purchased.', condition: ({clicks, manualUpgrades}) => clicks >= 1e9 && manualUpgrades.every(u => u.level === 0), reward: 5e8 },
+    { id: 'special4', name: 'Speed Runner', description: 'Reach 1 Billion clicks within your first Rebirth.', condition: ({clicks, rebirthCount}) => clicks >= 1e9 && rebirthCount === 0, reward: 1e9 },
+    { id: 'special5', name: 'Zero to Hero', description: 'After a rebirth, buy one of every automatic upgrade before reaching 1 Trillion clicks.', condition: ({clicks, cpsUpgrades, rebirthCount}) => rebirthCount > 0 && clicks < 1e12 && cpsUpgrades.every(u => u.level > 0), reward: 1e12 },
+    { id: 'special6', name: 'OCD', description: 'Have the exact same number of all automatic upgrades (at least 10 each).', condition: ({cpsUpgrades}) => {
+        if(cpsUpgrades.some(u => u.level < 10)) return false;
+        const firstLevel = cpsUpgrades[0].level;
+        return cpsUpgrades.every(u => u.level === firstLevel);
+    }, reward: 1e11 },
 ];
+
 
 const IdleClickerGame: React.FC = () => {
   const { toast } = useToast();
@@ -182,7 +225,7 @@ const IdleClickerGame: React.FC = () => {
 
    // Check for achievements
    useEffect(() => {
-    const achievementState = { clicks, cpsUpgrades, manualUpgrades, clicksPerSecond, rebirthCount };
+    const achievementState = { clicks, cpsUpgrades, manualUpgrades, clicksPerSecond, manualClickPower, rebirthCount, prestigePoints };
     achievements.forEach(ach => {
         if (!ach.isUnlocked && ach.condition(achievementState)) {
             setAchievements(prev => prev.map(a => a.id === ach.id ? {...a, isUnlocked: true} : a));
@@ -193,7 +236,7 @@ const IdleClickerGame: React.FC = () => {
             });
         }
     });
-  }, [clicks, cpsUpgrades, manualUpgrades, clicksPerSecond, rebirthCount, achievements, toast]);
+  }, [clicks, cpsUpgrades, manualUpgrades, clicksPerSecond, manualClickPower, rebirthCount, prestigePoints, achievements, toast]);
 
   // --- HANDLERS ---
   const calculateCost = (upgrade: { baseCost: number; level: number }) => {

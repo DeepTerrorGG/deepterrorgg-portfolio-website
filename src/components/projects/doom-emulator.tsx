@@ -8,7 +8,7 @@ import { AlertTriangle } from 'lucide-react';
 const DoomEmulator: React.FC = () => {
   return (
     <div className="flex flex-col items-center justify-center w-full h-full bg-black text-white p-4">
-      <div className="w-full h-full aspect-video max-w-4xl max-h-[80vh] border-4 border-border shadow-2xl bg-black">
+      <div className="w-full aspect-video max-w-4xl border-4 border-border shadow-2xl bg-black">
         <iframe
           src="https://archive.org/embed/msdos_DOOM_1993"
           allowFullScreen

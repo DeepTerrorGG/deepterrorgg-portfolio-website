@@ -1,3 +1,4 @@
+
 // src/app/projects/page.tsx
 'use client';
 
@@ -58,6 +59,7 @@ const FactorySimulator = dynamic(() => import('@/components/projects/factory-sim
 const DeckBuildingRoguelike = dynamic(() => import('@/components/projects/deck-building-roguelike'), { loading: () => <ProjectLoader /> });
 const IdleClickerGame = dynamic(() => import('@/components/projects/idle-clicker-game'), { loading: () => <ProjectLoader /> });
 const DoomEmulator = dynamic(() => import('@/components/projects/doom-emulator'), { loading: () => <ProjectLoader /> });
+const DownDetectorDetector = dynamic(() => import('@/components/projects/down-detector-detector'), { loading: () => <ProjectLoader /> });
 
 
 interface Technology {
@@ -89,6 +91,23 @@ const ProjectLoader = () => (
 );
 
 const projectsData: Project[] = [
+    {
+    id: 'down-detector-detector',
+    title: 'Down Detector Detector',
+    imageUrls: ['/placeholder.png'],
+    imageAlt: 'A status page checking if a status page is down',
+    imageHint: 'server status meta',
+    description: 'A meta-joke project that "checks" if the popular service Downdetector is itself down.',
+    personalNote: 'This is a classic developer meme. It\'s a fun, simple project that pokes fun at the infinite layers of infrastructure we rely on. Who detects the detectors?',
+    difficulty: 'Meme',
+    component: <DownDetectorDetector />,
+    technologies: [
+      { name: 'React', iconSrc: '/icons/react.svg' },
+      { name: 'Next.js', iconSrc: '/icons/nextjs.svg' },
+      { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss.svg' },
+    ],
+    renderImage: true,
+  },
     {
     id: 'doom-emulator',
     title: 'DOOM (1993) Emulator',

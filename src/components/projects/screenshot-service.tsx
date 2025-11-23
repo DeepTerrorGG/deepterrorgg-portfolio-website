@@ -32,7 +32,6 @@ const ScreenshotService: React.FC = () => {
     
     const serviceUrl = `https://image.thum.io/get/width/1200/crop/630/noanimate/${formattedUrl}`;
     setLastAttemptedUrl(serviceUrl);
-    // We will let the Next.js Image component handle loading and errors directly.
   };
 
   return (
@@ -71,13 +70,11 @@ const ScreenshotService: React.FC = () => {
                     alt={`Screenshot of ${url}`} 
                     layout="fill" 
                     objectFit="contain" 
-                    onLoadingComplete={() => {
+                    onLoad={() => {
                         setScreenshotUrl(lastAttemptedUrl);
-                        setIsLoading(false);
                     }}
                     onError={() => {
                         toast({ title: "Screenshot Failed", description: "Could not capture a screenshot of the provided URL.", variant: "destructive"});
-                        setIsLoading(false);
                         setLastAttemptedUrl('');
                     }}
                 />

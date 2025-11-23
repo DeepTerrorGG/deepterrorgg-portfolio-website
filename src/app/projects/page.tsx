@@ -62,6 +62,9 @@ const DownDetectorDetector = dynamic(() => import('@/components/projects/down-de
 const UselessUiPlayground = dynamic(() => import('@/components/projects/useless-ui-playground'), { loading: () => <ProjectLoader /> });
 const ScreenshotService = dynamic(() => import('@/components/projects/screenshot-service'), { loading: () => <ProjectLoader /> });
 const ThisDayInHistory = dynamic(() => import('@/components/projects/this-day-in-history'), { loading: () => <ProjectLoader /> });
+const FontIdentifier = dynamic(() => import('@/components/projects/font-identifier'), { loading: () => <ProjectLoader /> });
+const WebsiteStatusChecker = dynamic(() => import('@/components/projects/website-status-checker'), { loading: () => <ProjectLoader /> });
+const NutritionAnalyzer = dynamic(() => import('@/components/projects/nutrition-analyzer'), { loading: () => <ProjectLoader /> });
 
 
 interface Technology {
@@ -93,6 +96,59 @@ const ProjectLoader = () => (
 );
 
 const projectsData: Project[] = [
+    {
+        id: 'font-identifier',
+        title: 'Font Identifier',
+        imageUrls: ['/placeholder.png'],
+        imageAlt: 'AI Font Identifier interface',
+        imageHint: 'typography font analysis',
+        description: 'Upload an image of text, and an AI will describe the font\'s characteristics and suggest similar fonts.',
+        personalNote: 'This is a practical tool that combines computer vision with typography. It\'s a great example of using AI for a specific, real-world design problem.',
+        difficulty: 'AI',
+        component: <FontIdentifier />,
+        technologies: [
+            { name: 'React', iconSrc: '/icons/react.svg' },
+            { name: 'Next.js', iconSrc: '/icons/nextjs.svg' },
+            { name: 'Genkit', iconSrc: '/icons/genkit.svg' },
+            { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss.svg' },
+        ],
+        renderImage: true,
+    },
+    {
+        id: 'website-status-checker',
+        title: 'Website Status Checker',
+        imageUrls: ['/placeholder.png'],
+        imageAlt: 'Website status checker interface',
+        imageHint: 'uptime monitor website status',
+        description: 'Enter a URL to check if a website is down for just you or for everyone, with pings from multiple global regions.',
+        personalNote: 'A classic developer utility. It\'s a practical project that demonstrates understanding of network requests and presenting status information clearly.',
+        difficulty: 'Medium',
+        component: <WebsiteStatusChecker />,
+        technologies: [
+            { name: 'React', iconSrc: '/icons/react.svg' },
+            { name: 'Next.js', iconSrc: '/icons/nextjs.svg' },
+            { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss.svg' },
+        ],
+        renderImage: true,
+    },
+    {
+        id: 'nutrition-analyzer',
+        title: 'Recipe Nutrition Analyzer',
+        imageUrls: ['/placeholder.png'],
+        imageAlt: 'Nutrition analyzer app interface',
+        imageHint: 'health nutrition food tracker',
+        description: 'Paste a list of ingredients to get an AI-powered breakdown of the estimated nutritional information.',
+        personalNote: 'This project combines a popular topic (health and food) with data processing. It shows how to parse unstructured text and use an external API to get structured data back.',
+        difficulty: 'AI',
+        component: <NutritionAnalyzer />,
+        technologies: [
+            { name: 'React', iconSrc: '/icons/react.svg' },
+            { name: 'Next.js', iconSrc: '/icons/nextjs.svg' },
+            { name: 'Genkit', iconSrc: '/icons/genkit.svg' },
+            { name: 'Edamam API', iconSrc: '/icons/api.svg' },
+        ],
+        renderImage: true,
+    },
     {
     id: 'useless-ui-playground',
     title: 'Useless UI Playground',

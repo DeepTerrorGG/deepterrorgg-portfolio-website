@@ -55,6 +55,7 @@ const AIPromptEnhancer = dynamic(() => import('@/components/projects/ai-prompt-e
 const TurnBasedStrategy = dynamic(() => import('@/components/projects/turn-based-strategy'), { loading: () => <ProjectLoader /> });
 const FactorySimulator = dynamic(() => import('@/components/projects/factory-simulator'), { loading: () => <ProjectLoader /> });
 const DeckBuildingRoguelike = dynamic(() => import('@/components/projects/deck-building-roguelike'), { loading: () => <ProjectLoader /> });
+const IdleClickerGame = dynamic(() => import('@/components/projects/idle-clicker-game'), { loading: () => <ProjectLoader /> });
 
 
 interface Technology {
@@ -364,6 +365,23 @@ const projectsData: Project[] = [
     personalNote: 'Building this project was a deep dive into complex state management and performance optimization in React. Implementing the formula parsing and cell dependency graph was a particularly rewarding challenge.',
     difficulty: 'Advanced',
     component: <Spreadsheet />,
+    technologies: [
+      { name: 'React', iconSrc: '/icons/react.svg' },
+      { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },
+      { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss.svg' },
+    ],
+    renderImage: true,
+  },
+  {
+    id: 'idle-clicker-game',
+    title: 'Idle Clicker Game',
+    imageUrls: ['/placeholder.png'],
+    imageAlt: 'Idle clicker game interface',
+    imageHint: 'clicker game interface upgrades',
+    description: 'A satisfying idle game where you click to earn points and buy upgrades to automate the process.',
+    personalNote: 'This was a fun exercise in managing state over time and using local storage to create a persistent experience. It\'s rewarding to watch the numbers go up!',
+    difficulty: 'Medium',
+    component: <IdleClickerGame />,
     technologies: [
       { name: 'React', iconSrc: '/icons/react.svg' },
       { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },
@@ -904,5 +922,3 @@ export default function ProjectsPage() {
     </div>
   );
 }
-
-    

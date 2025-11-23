@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
@@ -8,7 +9,8 @@ import { useToast } from '@/hooks/use-toast';
 import { ScrollArea } from '../ui/scroll-area';
 import { Badge } from '../ui/badge';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MousePointerClick, Zap, Plus, ArrowUp, RefreshCw } from 'lucide-react';
+import { MousePointerClick, Zap, Plus, ArrowUp, RefreshCw, Star, Award, Repeat, ShieldCheck } from 'lucide-react';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '../ui/tabs';
 
 // --- TYPE DEFINITIONS ---
 
@@ -21,6 +23,22 @@ type Upgrade = {
   level: number;
 };
 
+type Achievement = {
+    id: string;
+    name: string;
+    description: string;
+    isUnlocked: boolean;
+    condition: (state: GameStateForAchievement) => boolean;
+    reward: number; // One-time click bonus
+};
+
+type GameStateForAchievement = {
+    clicks: number;
+    upgrades: Upgrade[];
+    clicksPerSecond: number;
+    rebirthCount: number;
+}
+
 // --- INITIAL STATE ---
 
 const initialUpgrades: Upgrade[] = [
@@ -28,8 +46,21 @@ const initialUpgrades: Upgrade[] = [
   { id: 'grandma', name: 'Grandma', description: '+8 CPS', baseCost: 100, cps: 8, level: 0 },
   { id: 'factory', name: 'Click Factory', description: '+47 CPS', baseCost: 1100, cps: 47, level: 0 },
   { id: 'mine', name: 'Click Mine', description: '+260 CPS', baseCost: 12000, cps: 260, level: 0 },
-  { id: 'shipment', name: 'Click Shipment', description: '+1400 CPS', baseCost: 130000, cps: 1400, level: 0 },
-  { id: 'lab', name: 'Alchemy Lab', description: '+7800 CPS', baseCost: 1400000, cps: 7800, level: 0 },
+  { id: 'shipment', name: 'Click Shipment', description: '+1,400 CPS', baseCost: 130000, cps: 1400, level: 0 },
+  { id: 'lab', name: 'Alchemy Lab', description: '+7,800 CPS', baseCost: 1.4e6, cps: 7800, level: 0 },
+  { id: 'portal', name: 'Portal', description: '+44,000 CPS', baseCost: 2e7, cps: 44000, level: 0 },
+  { id: 'time_machine', name: 'Time Machine', description: '+260,000 CPS', baseCost: 3.3e8, cps: 260000, level: 0 },
+  { id: 'antimatter', name: 'Antimatter Condenser', description: '+1.6M CPS', baseCost: 5.1e9, cps: 1.6e6, level: 0 },
+];
+
+const achievementsList: Omit<Achievement, 'isUnlocked'>[] = [
+    { id: 'ach1', name: 'Getting Started', description: 'Reach 1,000 clicks.', condition: ({clicks}) => clicks >= 1000, reward: 1000 },
+    { id: 'ach2', name: 'Millionaire', description: 'Reach 1,000,000 clicks.', condition: ({clicks}) => clicks >= 1e6, reward: 100000 },
+    { id: 'ach3', name: 'First Rebirth', description: 'Rebirth for the first time.', condition: ({rebirthCount}) => rebirthCount >= 1, reward: 1e6 },
+    { id: 'ach4', name: 'Automation Beginner', description: 'Get 100 CPS.', condition: ({clicksPerSecond}) => clicksPerSecond >= 100, reward: 10000 },
+    { id: 'ach5', name: 'Automation Expert', description: 'Get 10,000 CPS.', condition: ({clicksPerSecond}) => clicksPerSecond >= 10000, reward: 500000 },
+    { id: 'ach6', name: 'Grandma\'s Army', description: 'Own 50 Grandmas.', condition: ({upgrades}) => (upgrades.find(u => u.id === 'grandma')?.level || 0) >= 50, reward: 250000 },
+    { id: 'ach7', name: 'To Infinity', description: 'Own an Antimatter Condenser.', condition: ({upgrades}) => (upgrades.find(u => u.id === 'antimatter')?.level || 0) >= 1, reward: 1e7 },
 ];
 
 const IdleClickerGame: React.FC = () => {
@@ -39,16 +70,37 @@ const IdleClickerGame: React.FC = () => {
   const [clicks, setClicks] = useState(0);
   const [upgrades, setUpgrades] = useState<Upgrade[]>(initialUpgrades);
   const [floatingNumbers, setFloatingNumbers] = useState<{ id: number; x: number; y: number; value: string }[]>([]);
+  
+  // New State
+  const [prestigePoints, setPrestigePoints] = useState(0);
+  const [rebirthCount, setRebirthCount] = useState(0);
+  const [achievements, setAchievements] = useState<Achievement[]>(() => achievementsList.map(ach => ({...ach, isUnlocked: false})));
 
   // --- GAME LOOP & SAVING ---
 
   // Load state from local storage
   useEffect(() => {
     try {
-      const savedClicks = localStorage.getItem('idleClicker_clicks');
-      const savedUpgrades = localStorage.getItem('idleClicker_upgrades');
-      if (savedClicks) setClicks(JSON.parse(savedClicks));
-      if (savedUpgrades) setUpgrades(JSON.parse(savedUpgrades));
+      const savedState = localStorage.getItem('idleClicker_gameState_v2');
+      if (savedState) {
+          const loaded = JSON.parse(savedState);
+          setClicks(loaded.clicks || 0);
+          // Merge saved upgrades with initial upgrades to handle new additions
+          const loadedUpgrades = loaded.upgrades || [];
+          const mergedUpgrades = initialUpgrades.map(iu => {
+              const saved = loadedUpgrades.find((su: Upgrade) => su.id === iu.id);
+              return saved ? { ...iu, level: saved.level } : iu;
+          });
+          setUpgrades(mergedUpgrades);
+          setPrestigePoints(loaded.prestigePoints || 0);
+          setRebirthCount(loaded.rebirthCount || 0);
+          const loadedAchievements = loaded.achievements || [];
+           const mergedAchievements = achievementsList.map(ach => {
+              const saved = loadedAchievements.find((sa: Achievement) => sa.id === ach.id);
+              return { ...ach, isUnlocked: saved ? saved.isUnlocked : false };
+            });
+          setAchievements(mergedAchievements);
+      }
     } catch (error) {
       console.error("Failed to load from local storage", error);
       toast({ title: 'Could not load saved data', variant: 'destructive'});
@@ -58,16 +110,18 @@ const IdleClickerGame: React.FC = () => {
   // Save state to local storage
   useEffect(() => {
     try {
-      localStorage.setItem('idleClicker_clicks', JSON.stringify(clicks));
-      localStorage.setItem('idleClicker_upgrades', JSON.stringify(upgrades));
+      const gameState = { clicks, upgrades, prestigePoints, rebirthCount, achievements };
+      localStorage.setItem('idleClicker_gameState_v2', JSON.stringify(gameState));
     } catch (error) {
        console.error("Failed to save to local storage", error);
     }
-  }, [clicks, upgrades]);
+  }, [clicks, upgrades, prestigePoints, rebirthCount, achievements]);
 
   const clicksPerSecond = useMemo(() => {
-    return upgrades.reduce((total, upgrade) => total + (upgrade.level * upgrade.cps), 0);
-  }, [upgrades]);
+    const baseCps = upgrades.reduce((total, upgrade) => total + (upgrade.level * upgrade.cps), 0);
+    const prestigeBonus = 1 + (prestigePoints * 0.05); // 5% bonus per prestige point
+    return baseCps * prestigeBonus;
+  }, [upgrades, prestigePoints]);
 
   // Main game tick
   useEffect(() => {
@@ -78,13 +132,28 @@ const IdleClickerGame: React.FC = () => {
     return () => clearInterval(gameTick);
   }, [clicksPerSecond]);
 
+   // Check for achievements
+   useEffect(() => {
+    const achievementState = { clicks, upgrades, clicksPerSecond, rebirthCount };
+    achievements.forEach(ach => {
+        if (!ach.isUnlocked && ach.condition(achievementState)) {
+            setAchievements(prev => prev.map(a => a.id === ach.id ? {...a, isUnlocked: true} : a));
+            setClicks(c => c + ach.reward);
+            toast({
+                title: <span className="flex items-center gap-2"><Award className="text-yellow-400"/>Achievement Unlocked!</span>,
+                description: `${ach.name} - You earned ${ach.reward.toLocaleString()} clicks!`,
+            });
+        }
+    });
+  }, [clicks, upgrades, clicksPerSecond, rebirthCount, achievements, toast]);
+
   // --- HANDLERS ---
   const calculateCost = (upgrade: Upgrade) => {
     return Math.ceil(upgrade.baseCost * Math.pow(1.15, upgrade.level));
   };
   
   const showFloatingNumber = (e: React.MouseEvent, value: string) => {
-    const id = Date.now();
+    const id = Date.now() + Math.random();
     const rect = e.currentTarget.getBoundingClientRect();
     const x = e.clientX - rect.left + (Math.random() * 40 - 20);
     const y = e.clientY - rect.top - 20; // Start slightly above the click
@@ -95,9 +164,10 @@ const IdleClickerGame: React.FC = () => {
   };
 
   const handleMainClick = (e: React.MouseEvent) => {
-    const clickValue = 1;
+    const prestigeBonus = 1 + (prestigePoints * 0.05);
+    const clickValue = 1 * prestigeBonus;
     setClicks(prev => prev + clickValue);
-    showFloatingNumber(e, `+${clickValue}`);
+    showFloatingNumber(e, `+${clickValue.toFixed(1)}`);
   };
 
   const buyUpgrade = (upgradeId: string) => {
@@ -116,15 +186,32 @@ const IdleClickerGame: React.FC = () => {
   const resetGame = () => {
     setClicks(0);
     setUpgrades(initialUpgrades);
+    setPrestigePoints(0);
+    setRebirthCount(0);
+    setAchievements(achievementsList.map(ach => ({...ach, isUnlocked: false})));
     toast({ title: "Game Reset", description: "Your progress has been wiped." });
   };
   
+  const handleRebirth = () => {
+    const rebirthRequirement = 1e9; // 1 Billion clicks
+    if (clicks < rebirthRequirement) {
+        toast({ title: "Not yet!", description: `You need at least ${rebirthRequirement.toLocaleString()} clicks to rebirth.`, variant: 'destructive'});
+        return;
+    }
+    const pointsToGain = Math.floor(Math.log10(clicks/1e8));
+    setPrestigePoints(p => p + pointsToGain);
+    setRebirthCount(c => c + 1);
+    setClicks(0);
+    setUpgrades(initialUpgrades.map(u => ({...u, level: 0})));
+    toast({ title: "Rebirth Successful!", description: `You gained ${pointsToGain} Prestige Points!`});
+  };
+
   const formatNumber = (num: number): string => {
-    if (num < 1e3) return num.toFixed(0);
-    if (num < 1e6) return `${(num / 1e3).toFixed(2)}K`;
+    if (num < 1e6) return num.toLocaleString(undefined, { maximumFractionDigits: 0 });
     if (num < 1e9) return `${(num / 1e6).toFixed(2)}M`;
     if (num < 1e12) return `${(num / 1e9).toFixed(2)}B`;
-    return `${(num / 1e12).toFixed(2)}T`;
+    if (num < 1e15) return `${(num / 1e12).toFixed(2)}T`;
+    return num.toExponential(2);
   };
 
   return (
@@ -135,8 +222,9 @@ const IdleClickerGame: React.FC = () => {
         <div className="md:col-span-1 flex flex-col items-center justify-center space-y-6">
             <Card className="w-full text-center">
                 <CardHeader>
-                    <CardTitle className="text-4xl font-bold">{formatNumber(Math.floor(clicks))}</CardTitle>
+                    <CardTitle className="text-3xl lg:text-4xl font-bold">{formatNumber(clicks)}</CardTitle>
                     <p className="text-sm text-muted-foreground">{formatNumber(clicksPerSecond)} clicks/sec</p>
+                    {prestigePoints > 0 && <p className="text-xs text-yellow-400 font-semibold">{(prestigePoints * 5).toFixed(0)}% Prestige Bonus</p>}
                 </CardHeader>
             </Card>
             <div className="relative">
@@ -164,36 +252,74 @@ const IdleClickerGame: React.FC = () => {
                 ))}
             </AnimatePresence>
           </div>
+           <Button variant="destructive" size="sm" onClick={resetGame}><RefreshCw className="h-4 w-4 mr-2"/>Full Reset</Button>
         </div>
 
-        {/* Right Panel: Upgrades */}
+        {/* Right Panel: Tabs */}
         <Card className="md:col-span-2 shadow-inner">
-          <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle className="text-2xl">Upgrades</CardTitle>
-            <Button variant="destructive" size="icon" onClick={resetGame}><RefreshCw className="h-4 w-4"/></Button>
-          </CardHeader>
-          <CardContent>
-            <ScrollArea className="h-[60vh]">
-              <div className="space-y-3 pr-4">
-                {upgrades.map(upgrade => {
-                  const cost = calculateCost(upgrade);
-                  const canAfford = clicks >= cost;
-                  return (
-                    <Card key={upgrade.id} className={cn("flex items-center p-3 transition-colors", !canAfford && "bg-muted/50")}>
-                      <div className="flex-grow">
-                        <h4 className="font-bold">{upgrade.name} <Badge variant="secondary">{upgrade.level}</Badge></h4>
-                        <p className="text-xs text-muted-foreground">{upgrade.description}</p>
-                        <p className="text-sm font-semibold text-yellow-400">Cost: {formatNumber(cost)}</p>
-                      </div>
-                      <Button onClick={() => buyUpgrade(upgrade.id)} disabled={!canAfford}>
-                        <Plus className="mr-2 h-4 w-4"/> Buy
-                      </Button>
-                    </Card>
-                  );
-                })}
-              </div>
-            </ScrollArea>
-          </CardContent>
+            <Tabs defaultValue="upgrades" className="w-full h-full flex flex-col">
+                <TabsList className="grid w-full grid-cols-3">
+                    <TabsTrigger value="upgrades"><ArrowUp className="mr-1 h-4 w-4"/>Upgrades</TabsTrigger>
+                    <TabsTrigger value="achievements"><Star className="mr-1 h-4 w-4"/>Achievements</TabsTrigger>
+                    <TabsTrigger value="rebirth"><Repeat className="mr-1 h-4 w-4"/>Rebirth</TabsTrigger>
+                </TabsList>
+                
+                <TabsContent value="upgrades" className="flex-grow">
+                    <ScrollArea className="h-[60vh]">
+                    <div className="space-y-3 p-4">
+                        {upgrades.map(upgrade => {
+                        const cost = calculateCost(upgrade);
+                        const canAfford = clicks >= cost;
+                        return (
+                            <Card key={upgrade.id} className={cn("flex items-center p-3 transition-colors", !canAfford && "bg-muted/50")}>
+                            <div className="flex-grow">
+                                <h4 className="font-bold">{upgrade.name} <Badge variant="secondary">{upgrade.level}</Badge></h4>
+                                <p className="text-xs text-muted-foreground">{upgrade.description}</p>
+                                <p className="text-sm font-semibold text-yellow-400">Cost: {formatNumber(cost)}</p>
+                            </div>
+                            <Button onClick={() => buyUpgrade(upgrade.id)} disabled={!canAfford}>
+                                <Plus className="mr-2 h-4 w-4"/> Buy
+                            </Button>
+                            </Card>
+                        );
+                        })}
+                    </div>
+                    </ScrollArea>
+                </TabsContent>
+
+                 <TabsContent value="achievements" className="flex-grow">
+                    <ScrollArea className="h-[60vh]">
+                    <div className="space-y-3 p-4">
+                        {achievements.map(ach => (
+                            <Card key={ach.id} className={cn("p-3 transition-colors flex items-center gap-4", ach.isUnlocked ? "bg-green-500/10 border-green-500/30" : "bg-muted/50")}>
+                               <ShieldCheck className={cn("h-8 w-8", ach.isUnlocked ? 'text-green-400' : 'text-muted-foreground')}/>
+                               <div className="flex-grow">
+                                   <h4 className="font-bold">{ach.name}</h4>
+                                   <p className="text-xs text-muted-foreground">{ach.description}</p>
+                                   {ach.isUnlocked && <p className="text-xs font-semibold text-yellow-400">Reward: +{ach.reward.toLocaleString()} clicks</p>}
+                               </div>
+                            </Card>
+                        ))}
+                    </div>
+                    </ScrollArea>
+                </TabsContent>
+
+                <TabsContent value="rebirth" className="flex-grow flex items-center justify-center">
+                    <div className="text-center space-y-4 p-4">
+                       <h3 className="text-2xl font-bold">Rebirth</h3>
+                       <p className="text-muted-foreground">Reset your progress to gain Prestige Points. Each point permanently boosts your CPS by 5%.</p>
+                       <Card className="p-4">
+                           <p className="font-bold text-lg">Current Prestige: {prestigePoints} points</p>
+                           <p className="text-sm text-yellow-400">{(prestigePoints * 5).toFixed(0)}% Bonus CPS</p>
+                           <p className="text-xs mt-2 text-muted-foreground">Rebirths: {rebirthCount}</p>
+                       </Card>
+                       <Button onClick={handleRebirth} disabled={clicks < 1e9} className="w-full">
+                           <Repeat className="mr-2 h-4 w-4"/>
+                           Rebirth (Req: 1B Clicks)
+                       </Button>
+                    </div>
+                </TabsContent>
+            </Tabs>
         </Card>
       </div>
     </div>

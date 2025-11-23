@@ -1,4 +1,3 @@
-
 // src/app/projects/page.tsx
 'use client';
 
@@ -56,7 +55,6 @@ const AIPromptEnhancer = dynamic(() => import('@/components/projects/ai-prompt-e
 const TurnBasedStrategy = dynamic(() => import('@/components/projects/turn-based-strategy'), { loading: () => <ProjectLoader /> });
 const FactorySimulator = dynamic(() => import('@/components/projects/factory-simulator'), { loading: () => <ProjectLoader /> });
 const DeckBuildingRoguelike = dynamic(() => import('@/components/projects/deck-building-roguelike'), { loading: () => <ProjectLoader /> });
-const Simple3DGame = dynamic(() => import('@/components/projects/simple-3d-game'), { loading: () => <ProjectLoader /> });
 
 
 interface Technology {
@@ -370,24 +368,6 @@ const projectsData: Project[] = [
       { name: 'React', iconSrc: '/icons/react.svg' },
       { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },
       { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss.svg' },
-    ],
-    renderImage: true,
-  },
-  {
-    id: 'simple-3d-game',
-    title: 'Simple 3D Game',
-    imageUrls: ['/placeholder.png'],
-    imageAlt: 'A simple 3D game scene',
-    imageHint: '3d game unity unreal',
-    description: 'A basic 3D game built with React Three Fiber, demonstrating rendering, controls, and interaction.',
-    personalNote: 'This was a fun introduction to the world of 3D development on the web. Using react-three-fiber makes integrating 3D scenes into a React app surprisingly straightforward. It\'s a great example of combining web tech with game development principles.',
-    difficulty: 'Hard',
-    component: <Simple3DGame />,
-    technologies: [
-      { name: 'React', iconSrc: '/icons/react.svg' },
-      { name: 'three.js', iconSrc: '/icons/threejs.svg' },
-      { name: 'R3F', iconSrc: '/icons/react-three-fiber.svg' },
-      { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },
     ],
     renderImage: true,
   },

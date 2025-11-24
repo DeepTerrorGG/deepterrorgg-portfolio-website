@@ -1,3 +1,4 @@
+
 // src/app/projects/page.tsx
 'use client';
 
@@ -68,6 +69,11 @@ const CodeBeautifier = dynamic(() => import('@/components/projects/code-beautifi
 const SpotifyPlaylistGenerator = dynamic(() => import('@/components/projects/spotify-playlist-generator'), { loading: () => <ProjectLoader /> });
 const SpeedTester = dynamic(() => import('@/components/projects/speed-tester'), { loading: () => <ProjectLoader /> });
 const PathfindingVisualizer = dynamic(() => import('@/components/projects/pathfinding-visualizer'), { loading: () => <ProjectLoader /> });
+const AsciiWebcam = dynamic(() => import('@/components/projects/ascii-webcam'), { loading: () => <ProjectLoader /> });
+const TierListMaker = dynamic(() => import('@/components/projects/tier-list/tier-list-maker'), { loading: () => <ProjectLoader /> });
+const MemeStockMarket = dynamic(() => import('@/components/projects/meme-stock-market'), { loading: () => <ProjectLoader /> });
+const CodeRacer = dynamic(() => import('@/components/projects/code-racer'), { loading: () => <ProjectLoader /> });
+const TimeCapsuleProject = dynamic(() => import('@/components/projects/time-capsule'), { loading: () => <ProjectLoader /> });
 
 
 interface Technology {
@@ -99,6 +105,100 @@ const ProjectLoader = () => (
 );
 
 const projectsData: Project[] = [
+    {
+      id: 'time-capsule',
+      title: 'Digital Time Capsule',
+      imageUrls: ['/placeholder.png'],
+      imageAlt: 'A digital time capsule interface',
+      imageHint: 'time capsule future message',
+      description: 'Leave an encrypted message for the future that can only be unlocked after a specific date.',
+      personalNote: 'This project is a fascinating blend of sentimentality and security. The challenge lies in creating a secure "gatekeeper" API that respects the unlock date while ensuring the client-side encryption is robust. It\'s a promise to the future, written in code.',
+      difficulty: 'Advanced',
+      component: <TimeCapsuleProject />,
+      technologies: [
+        { name: 'React', iconSrc: '/icons/react.svg' },
+        { name: 'Next.js', iconSrc: '/icons/nextjs.svg' },
+        { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },
+        { name: 'crypto-js', iconSrc: '/icons/lock.svg' },
+        { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss.svg' },
+        { name: 'Firebase', iconSrc: '/icons/firebase.svg' },
+      ],
+      renderImage: true,
+    },
+    {
+      id: 'code-racer',
+      title: 'Code Racer',
+      imageUrls: ['/placeholder.png'],
+      imageAlt: 'A code typing game interface',
+      imageHint: 'code typing game speed',
+      description: 'A competitive typing game where you race against others by typing actual code snippets as fast as you can.',
+      personalNote: 'This project is a fun way to practice typing accuracy and speed with real-world code. It uses the Monaco editor, the same engine that powers VS Code, to provide an authentic coding feel. The next step is to add real-time multiplayer ghosts!',
+      difficulty: 'Advanced',
+      component: <CodeRacer />,
+      technologies: [
+        { name: 'React', iconSrc: '/icons/react.svg' },
+        { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },
+        { name: 'Monaco Editor', iconSrc: '/icons/vscode.svg' },
+        { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss.svg' },
+        { name: 'Firebase', iconSrc: '/icons/firebase.svg' },
+      ],
+      renderImage: true,
+    },
+    {
+      id: 'meme-stock-market',
+      title: 'Meme Stock Market',
+      imageUrls: ['/placeholder.png'],
+      imageAlt: 'A meme stock market interface with charts',
+      imageHint: 'meme stock market chart',
+      description: 'A parody financial app where you invest fake money in meme templates. Prices fluctuate based on simulated demand.',
+      personalNote: 'This project is a fun take on stock trading, built with a real-time feel. It uses client-side logic to simulate a volatile market, making for an engaging and humorous experience. The next step is to connect it to a real database like Supabase for live, multiplayer trading.',
+      difficulty: 'Hard',
+      component: <MemeStockMarket />,
+      technologies: [
+        { name: 'React', iconSrc: '/icons/react.svg' },
+        { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },
+        { name: 'Recharts', iconSrc: '/icons/recharts.svg' },
+        { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss.svg' },
+      ],
+      renderImage: true,
+    },
+    {
+      id: 'tier-list-maker',
+      title: 'Community Tier List Maker',
+      imageUrls: ['/placeholder.png'],
+      imageAlt: 'A tier list maker interface for ranking items',
+      imageHint: 'tier list ranking chart',
+      description: 'Create and share your own tier lists. Drag and drop items into S, A, B, C, or D tiers.',
+      personalNote: 'This project was a fun challenge in creating a smooth and intuitive drag-and-drop interface with React. The next step is to add a database to save rankings and create a global community-voted master list.',
+      difficulty: 'Advanced',
+      component: <TierListMaker />,
+      technologies: [
+        { name: 'React', iconSrc: '/icons/react.svg' },
+        { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },
+        { name: '@dnd-kit', iconSrc: '/icons/dnd-kit.svg' },
+        { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss.svg' },
+        { name: 'Firebase', iconSrc: '/icons/firebase.svg' },
+      ],
+      renderImage: true,
+    },
+    {
+        id: 'ascii-webcam',
+        title: 'Retro ASCII Webcam',
+        imageUrls: ['/placeholder.png'],
+        imageAlt: 'A webcam feed rendered in ASCII characters',
+        imageHint: 'webcam ascii art matrix',
+        description: 'Renders your webcam feed in real-time using ASCII characters for a retro, hacker aesthetic.',
+        personalNote: 'This project is a fun intersection of modern browser APIs and old-school visuals. The main challenge is processing video frames efficiently to create a smooth, real-time effect without lagging the browser.',
+        difficulty: 'Hard',
+        component: <AsciiWebcam />,
+        technologies: [
+            { name: 'React', iconSrc: '/icons/react.svg' },
+            { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },
+            { name: 'HTML5 Canvas', iconSrc: '/icons/html5.svg' },
+            { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss.svg' },
+        ],
+        renderImage: true,
+    },
      {
         id: 'pathfinding-visualizer',
         title: 'Pathfinding Visualizer',
@@ -371,13 +471,12 @@ const projectsData: Project[] = [
     imageAlt: 'Code beautifier app for creating images of code',
     imageHint: 'code snippet image generator',
     description: 'Turn your code snippets into beautiful, shareable images.',
-    personalNote: 'I\'ve always admired tools like Carbon that make sharing code on social media look great. This was my take on it, using AI for syntax highlighting and a Next.js API route with @vercel/og to generate the final image. A very practical tool for any developer.',
+    personalNote: 'I\'ve always admired tools like Carbon that make sharing code on social media look great. This was my take on it, using a Next.js API route with @vercel/og to generate the final image from simple HTML.',
     difficulty: 'AI',
     component: <CodeBeautifier />,
     technologies: [
       { name: 'React', iconSrc: '/icons/react.svg' },
       { name: 'Next.js', iconSrc: '/icons/nextjs.svg' },
-      { name: 'Genkit', iconSrc: '/icons/genkit.svg' },
       { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },
       { name: '@vercel/og', iconSrc: '/icons/vercel.svg' },
     ],

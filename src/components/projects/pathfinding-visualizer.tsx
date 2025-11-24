@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
@@ -106,14 +107,14 @@ const PathfindingVisualizer: React.FC = () => {
   
   const animateAlgorithm = (visitedNodesInOrder: Node[], nodesInShortestPathOrder: Node[]) => {
     for (let i = 0; i <= visitedNodesInOrder.length; i++) {
-        if (!isVisualizingRef.current) return;
         if (i === visitedNodesInOrder.length) {
             setTimeout(() => {
-              animateShortestPath(nodesInShortestPathOrder);
+              if (isVisualizingRef.current) animateShortestPath(nodesInShortestPathOrder);
             }, speed * i);
             return;
         }
         setTimeout(() => {
+            if (!isVisualizingRef.current) return;
             const node = visitedNodesInOrder[i];
             const element = document.getElementById(`node-${node.row}-${node.col}`);
             if (element) {
@@ -125,8 +126,8 @@ const PathfindingVisualizer: React.FC = () => {
 
   const animateShortestPath = (nodesInShortestPathOrder: Node[]) => {
     for (let i = 0; i < nodesInShortestPathOrder.length; i++) {
-        if (!isVisualizingRef.current) return;
         setTimeout(() => {
+             if (!isVisualizingRef.current) return;
             const node = nodesInShortestPathOrder[i];
             const element = document.getElementById(`node-${node.row}-${node.col}`);
             if (element) {
@@ -134,23 +135,26 @@ const PathfindingVisualizer: React.FC = () => {
             }
         }, speed * 5 * i);
     }
-    setTimeout(() => setIsVisualizing(false), speed * 5 * nodesInShortestPathOrder.length);
+    setTimeout(() => {
+        if(isVisualizingRef.current) {
+            setIsVisualizing(false);
+        }
+    }, speed * 5 * nodesInShortestPathOrder.length);
   };
 
   const visualizeAlgorithm = () => {
     if (isVisualizing) return;
-    clearBoard(false); // Clear previous path but keep walls
+    clearBoard(false);
     
-    // Slight delay to allow state to clear visually before starting
+    setIsVisualizing(true);
     setTimeout(() => {
-      setIsVisualizing(true);
       const startNode = grid[START_NODE_ROW][START_NODE_COL];
       const finishNode = grid[FINISH_NODE_ROW][FINISH_NODE_COL];
       
       let visitedNodesInOrder;
       if (algorithm === 'dijkstra') {
           visitedNodesInOrder = dijkstra(grid, startNode, finishNode);
-      } else { // A*
+      } else {
           visitedNodesInOrder = aStar(grid, startNode, finishNode);
       }
 
@@ -160,72 +164,72 @@ const PathfindingVisualizer: React.FC = () => {
   };
   
   const clearBoard = (clearWalls: boolean) => {
-    if(isVisualizing) {
-        setIsVisualizing(false); // Stop any ongoing animations
-    }
+    setIsVisualizing(false); // Stop any ongoing visualization
 
-    const newGrid = grid.map(row => 
-        row.map(node => {
-            const newNode = {
-                ...createNode(node.col, node.row),
-                isWall: clearWalls ? false : node.isWall,
+    // Create a fresh grid
+    const newGrid = Array.from({ length: GRID_HEIGHT }, (_, row) =>
+        Array.from({ length: GRID_WIDTH }, (_, col) => {
+            const oldNode = grid[row]?.[col];
+            return {
+                ...createNode(col, row),
+                isWall: clearWalls ? false : oldNode?.isWall || false,
             };
-            // Manually reset class names for instant visual update
-            const element = document.getElementById(`node-${node.row}-${node.col}`);
-            if(element) {
-                element.className = cn(
-                    'w-full aspect-square transition-colors duration-300',
-                    newNode.isStart && 'node-start',
-                    newNode.isFinish && 'node-finish',
-                    newNode.isWall && 'node-wall',
-                    !newNode.isStart && !newNode.isFinish && !newNode.isWall && 'bg-white border border-slate-200'
-                );
-            }
-            return newNode;
         })
     );
     setGrid(newGrid);
-  }
+
+    // Manually reset the class names of all node elements
+    for (let row = 0; row < GRID_HEIGHT; row++) {
+        for (let col = 0; col < GRID_WIDTH; col++) {
+            const element = document.getElementById(`node-${row}-${col}`);
+            if (element) {
+                const node = newGrid[row][col];
+                element.className = cn(
+                    'w-full aspect-square transition-all duration-300',
+                    node.isStart && 'node-start',
+                    node.isFinish && 'node-finish',
+                    node.isWall && 'node-wall',
+                    !node.isStart && !node.isFinish && !node.isWall && 'bg-black border border-slate-700'
+                );
+            }
+        }
+    }
+  };
+
 
   const generateMaze = () => {
     if (isVisualizing) return;
-    const newGrid = grid.map(row => row.map(node => ({...node, isVisited: false, isWall: false})));
+    clearBoard(true); // Start with a clear board
     
-    // Fill with walls
-    for (let row = 0; row < GRID_HEIGHT; row++) {
-      for (let col = 0; col < GRID_WIDTH; col++) {
-        if (!newGrid[row][col].isStart && !newGrid[row][col].isFinish) {
-          newGrid[row][col].isWall = true;
-        }
-      }
-    }
+    const newGrid = grid.map(row => row.map(node => {
+      if(node.isStart || node.isFinish) return {...node, isWall: false};
+      return {...node, isWall: true};
+    }));
 
-    const recursiveDivision = (y: number, x: number, height: number, width: number, orientation: 'horizontal' | 'vertical') => {
-        if (height < 3 || width < 3) return;
+    const carvePassagesFrom = (cx: number, cy: number) => {
+      const directions = ['N', 'S', 'E', 'W'].sort(() => Math.random() - 0.5);
+      
+      directions.forEach(direction => {
+        const nx = cx + (direction === 'E' ? 2 : direction === 'W' ? -2 : 0);
+        const ny = cy + (direction === 'S' ? 2 : direction === 'N' ? -2 : 0);
 
-        if (orientation === 'horizontal') {
-            const wallY = y + Math.floor(Math.random() * (height - 2) / 2) * 2;
-            const passageX = x + Math.floor(Math.random() * width / 2) * 2 + 1;
-            for(let i = x; i < x + width; i++) {
-                if(i !== passageX) newGrid[wallY][i].isWall = false;
-            }
-            recursiveDivision(y, x, wallY - y, width, 'vertical');
-            recursiveDivision(wallY + 1, x, y + height - wallY - 1, width, 'vertical');
-        } else { // vertical
-            const wallX = x + Math.floor(Math.random() * (width - 2) / 2) * 2;
-            const passageY = y + Math.floor(Math.random() * height / 2) * 2 + 1;
-            for(let i = y; i < y + height; i++) {
-                if(i !== passageY) newGrid[i][wallX].isWall = false;
-            }
-            recursiveDivision(y, x, height, wallX - x, 'horizontal');
-            recursiveDivision(y, wallX + 1, height, x + width - wallX - 1, 'horizontal');
+        if (ny >= 0 && ny < GRID_HEIGHT && nx >= 0 && nx < GRID_WIDTH && newGrid[ny][nx].isWall) {
+          newGrid[ny - (direction === 'S' ? 1 : direction === 'N' ? -1 : 0)][nx - (direction === 'E' ? 1 : direction === 'W' ? -1 : 0)].isWall = false;
+          newGrid[ny][nx].isWall = false;
+          carvePassagesFrom(nx, ny);
         }
-    }
+      });
+    };
+
+    // Start carving from the start node
+    newGrid[START_NODE_ROW][START_NODE_COL].isWall = false;
+    carvePassagesFrom(START_NODE_ROW, START_NODE_COL);
     
-    recursiveDivision(0, 0, GRID_HEIGHT, GRID_WIDTH, 'horizontal');
+    // Ensure the finish node is accessible
+    newGrid[FINISH_NODE_ROW][FINISH_NODE_COL].isWall = false;
+    
     setGrid(newGrid);
-    clearBoard(false); // Clean up paths from previous runs
-  }
+  };
 
   return (
     <div className="flex flex-col items-center justify-center w-full min-h-full bg-card p-4 sm:p-6 lg:p-8">
@@ -276,11 +280,11 @@ const PathfindingVisualizer: React.FC = () => {
                         key={nodeIdx}
                         id={`node-${row}-${col}`}
                         className={cn(
-                            'w-full aspect-square transition-colors duration-300',
+                            'w-full aspect-square transition-all duration-300',
                             isStart && 'node-start',
                             isFinish && 'node-finish',
                             isWall && 'node-wall',
-                            !isStart && !isFinish && !isWall && 'bg-white border border-slate-200'
+                            !isStart && !isFinish && !isWall && 'bg-black border border-slate-700'
                         )}
                         onMouseDown={() => handleMouseDown(row, col)}
                         onMouseEnter={() => handleMouseEnter(row, col)}
@@ -295,11 +299,12 @@ const PathfindingVisualizer: React.FC = () => {
       <style jsx global>{`
         .node-start { background-color: hsl(var(--primary)); }
         .node-finish { background-color: hsl(var(--destructive)); }
-        .node-wall { background-color: #000; border-color: #333; }
+        .node-wall { background-color: #fff; border-color: #ccc; animation: wall-animation 0.3s ease-out; }
         .node-visited { animation: visited-animation 0.5s ease-out forwards; }
         .node-shortest-path { animation: path-animation 0.5s ease-out forwards; }
-        @keyframes visited-animation { 0% { background-color: #fff; border-radius: 50%; transform: scale(0.5); } 75% { background-color: #89CFF0; transform: scale(1.2); } 100% { background-color: #00BFFF; border-radius: 0; transform: scale(1); } }
-        @keyframes path-animation { 0% { background-color: #00BFFF; } 100% { background-color: #FFD700; } }
+        @keyframes wall-animation { 0% { transform: scale(0.5); } 100% { transform: scale(1); } }
+        @keyframes visited-animation { 0% { background-color: #000; border-radius: 50%; transform: scale(0.5); } 75% { background-color: #2563eb; transform: scale(1.2); } 100% { background-color: #3b82f6; border-radius: 0; transform: scale(1); } }
+        @keyframes path-animation { 0% { background-color: #3b82f6; } 100% { background-color: #facc15; } }
       `}</style>
     </div>
   );
@@ -366,7 +371,6 @@ function aStar(grid: Grid, startNode: Node, finishNode: Node): Node[] {
 }
 
 function heuristic(nodeA: Node, nodeB: Node): number {
-    // Manhattan distance
     return Math.abs(nodeA.col - nodeB.col) + Math.abs(nodeA.row - nodeB.row);
 }
 

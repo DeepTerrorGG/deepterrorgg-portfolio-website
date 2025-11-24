@@ -66,6 +66,7 @@ const WebsiteStatusChecker = dynamic(() => import('@/components/projects/website
 const SortingVisualizer = dynamic(() => import('@/components/projects/sorting-visualizer'), { loading: () => <ProjectLoader /> });
 const EcommerceDashboard = dynamic(() => import('@/app/dashboard/page'), { loading: () => <ProjectLoader /> });
 const CodeBeautifier = dynamic(() => import('@/components/projects/code-beautifier'), { loading: () => <ProjectLoader /> });
+const SpotifyPlaylistGenerator = dynamic(() => import('@/components/projects/spotify-playlist-generator'), { loading: () => <ProjectLoader /> });
 
 
 interface Technology {
@@ -97,6 +98,26 @@ const ProjectLoader = () => (
 );
 
 const projectsData: Project[] = [
+    {
+        id: 'spotify-playlist-generator',
+        title: 'Vibe-Based Spotify Playlist Generator',
+        imageUrls: ['/placeholder.png'],
+        imageAlt: 'Spotify playlist generator interface',
+        imageHint: 'spotify music playlist',
+        description: 'Generates playlists based on weather, location, or a specific color using the Spotify API.',
+        personalNote: 'This project combines several APIs to create a unique music discovery experience. It handles OAuth for Spotify, fetches external data for "vibes", and uses it all to curate a personalized playlist.',
+        difficulty: 'Advanced',
+        component: <SpotifyPlaylistGenerator />,
+        technologies: [
+            { name: 'React', iconSrc: '/icons/react.svg' },
+            { name: 'Next.js', iconSrc: '/icons/nextjs.svg' },
+            { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },
+            { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss.svg' },
+            { name: 'Spotify API', iconSrc: '/icons/spotify.svg' },
+            { name: 'Framer Motion', iconSrc: '/icons/framer.svg' },
+        ],
+        renderImage: true,
+    },
     {
         id: 'ecommerce-dashboard',
         title: 'E-commerce Dashboard',

@@ -61,14 +61,14 @@ const nextConfig: NextConfig = {
     SPOTIFY_CLIENT_SECRET: process.env.SPOTIFY_CLIENT_SECRET,
     NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET,
   },
-   webpack: (config, { isServer }) => {
-    // This is to fix a bug in alasql that tries to require react-native-fetch-blob
+  webpack: (config, { isServer }) => {
+    // This is the correct way to handle this.
+    // It tells webpack to treat the problematic module as an external dependency
+    // that shouldn't be bundled.
     if (!isServer) {
-      config.resolve.fallback = {
-        ...config.resolve.fallback,
-        'react-native-fetch-blob': false,
-      };
+        config.externals['react-native-fetch-blob'] = 'react-native-fetch-blob';
     }
+
     return config;
   },
 };

@@ -1,0 +1,76 @@
+diff --git a/node_modules/alasql/dist/alasql.js b/node_modules/alasql/dist/alasql.js
+index 035414f..b129b0a 100644
+--- a/node_modules/alasql/dist/alasql.js
++++ b/node_modules/alasql/dist/alasql.js
+@@ -3736,10 +3736,10 @@
+ 
+ 	if (utils.isReactNative) {
+ 		// If ReactNative
+-		//var RNFS = require('react-native-fs');
+-		var RNFetchBlob = require('react-native-fetch-blob').default;
+-		var dirs = RNFetchBlob.fs.dirs;
+-		//should use readStream instead if the file is large
+-		RNFetchBlob.fs
+-			.readFile(path, 'utf8')
+-			.then(function (data) {
+-				cb(data);
+-			})
+-			.catch(function (err) {
+-				throw err;
+-			});
++		// //var RNFS = require('react-native-fs');
++		// var RNFetchBlob = require('react-native-fetch-blob').default;
++		// var dirs = RNFetchBlob.fs.dirs;
++		// //should use readStream instead if the file is large
++		// RNFetchBlob.fs
++		// 	.readFile(path, 'utf8')
++		// 	.then(function (data) {
++		// 		cb(data);
++		// 	})
++		// 	.catch(function (err) {
++		// 		throw err;
++		// 	});
+ 	} else if (utils.isNativeScript) {
+ 		//If NativeScript
+ 		var fs = require('file-system');
+diff --git a/node_modules/alasql/dist/alasql.min.js b/node_modules/alasql/dist/alasql.min.js
+index 8e4544d..3070498 100644
+--- a/node_modules/alasql/dist/alasql.min.js
++++ b/node_modules/alasql/dist/alasql.min.js
+@@ -1,5 +1,5 @@
+-!/**
+- *  AlaSQL.js - a javascript SQL database
+- *  Version 4.1.2
+- *
+- *  (c) 2014-2022 Andrey Gershun & Mathias Rangel
+- *  AlaSQL.js is licensed under the MIT license.
+- *  https://github.com/AlaSQL/alasql
+- */
+ 'object' != typeof JSON && (JSON = {}),
+ 	(function () {
+ 		'use strict';
+@@ -3734,16 +3734,7 @@
+ 		}
+ 	}
+ 	function at(t, e, n) {
+-		if (Y.isReactNative) {
+-			require('react-native-fetch-blob').default.fs
+-				.readFile(t, 'utf8')
+-				.then(function (t) {
+-					e(t);
+-				})
+-				.catch(function (t) {
+-					throw t;
+-				});
+-		} else if (Y.isNativeScript) {
++		if (Y.isNativeScript) {
+ 			var o = require('file-system'),
+ 				r = o.knownFolders.currentApp().path,
+ 				i = o.path.join(r, t),
+@@ -4027,4 +4018,4 @@
+ 		return (t.yy = rt), t;
+ 	})();
+ 	'undefined' != typeof exports ? ('undefined' != typeof module && module.exports && (exports = module.exports = nt), (exports.alasql = nt)) : 'function' == typeof define && define.amd ? define([], function () {}) : (ot.alasql = nt);
+-}.call(this));
+\ No newline at end of file
++}.call(this));

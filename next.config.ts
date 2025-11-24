@@ -53,8 +53,8 @@ const nextConfig: NextConfig = {
     serverActions: {
       bodySizeLimit: '4.5mb',
     },
-    serverComponentsExternalPackages: ['shiki', '@vercel/og'],
   },
+  serverExternalPackages: ['shiki', '@vercel/og'],
   env: {
     NEXT_PUBLIC_OPENWEATHERMAP_API_KEY: process.env.NEXT_PUBLIC_OPENWEATHERMAP_API_KEY,
     SPOTIFY_CLIENT_ID: process.env.SPOTIFY_CLIENT_ID,

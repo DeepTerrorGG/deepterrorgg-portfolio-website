@@ -1,4 +1,3 @@
-
 // src/app/projects/page.tsx
 'use client';
 
@@ -67,6 +66,7 @@ const SortingVisualizer = dynamic(() => import('@/components/projects/sorting-vi
 const EcommerceDashboard = dynamic(() => import('@/app/dashboard/page'), { loading: () => <ProjectLoader /> });
 const CodeBeautifier = dynamic(() => import('@/components/projects/code-beautifier'), { loading: () => <ProjectLoader /> });
 const SpotifyPlaylistGenerator = dynamic(() => import('@/components/projects/spotify-playlist-generator'), { loading: () => <ProjectLoader /> });
+const SpeedTester = dynamic(() => import('@/components/projects/speed-tester'), { loading: () => <ProjectLoader /> });
 
 
 interface Technology {
@@ -98,6 +98,23 @@ const ProjectLoader = () => (
 );
 
 const projectsData: Project[] = [
+    {
+        id: 'speed-tester',
+        title: 'Speed Tester',
+        imageUrls: ['/placeholder.png'],
+        imageAlt: 'Speed tester for CPS and keyboard WPM',
+        imageHint: 'speed test keyboard mouse',
+        description: 'A simple app to test your clicks-per-second and typing speed (WPM).',
+        personalNote: 'This is a fun, classic project to measure and improve your input speed. It provides instant feedback and is a great way to warm up or compete with friends.',
+        difficulty: 'Easy',
+        component: <SpeedTester />,
+        technologies: [
+            { name: 'React', iconSrc: '/icons/react.svg' },
+            { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },
+            { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss.svg' },
+        ],
+        renderImage: true,
+    },
     {
         id: 'spotify-playlist-generator',
         title: 'Vibe-Based Spotify Playlist Generator',

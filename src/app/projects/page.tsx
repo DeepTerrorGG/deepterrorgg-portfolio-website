@@ -1,4 +1,3 @@
-
 // src/app/projects/page.tsx
 'use client';
 
@@ -75,6 +74,12 @@ const MemeStockMarket = dynamic(() => import('@/components/projects/meme-stock-m
 const CodeRacer = dynamic(() => import('@/components/projects/code-racer'), { loading: () => <ProjectLoader /> });
 const TimeCapsuleProject = dynamic(() => import('@/components/projects/time-capsule'), { loading: () => <ProjectLoader /> });
 const SqlMurderMystery = dynamic(() => import('@/components/projects/sql-murder-mystery'), { ssr: false, loading: () => <ProjectLoader /> });
+const InfiniteCanvas = dynamic(() => import('@/components/projects/infinite-canvas'), { ssr: false, loading: () => <ProjectLoader /> });
+const GitHistoryVisualizer = dynamic(() => import('@/components/projects/githistory-visualizer'), { loading: () => <ProjectLoader /> });
+const VoiceControlledTetris = dynamic(() => import('@/components/projects/voice-controlled-tetris'), { ssr: false, loading: () => <ProjectLoader /> });
+const FractalTree = dynamic(() => import('@/components/projects/fractal-tree'), { loading: () => <ProjectLoader /> });
+const BinaryVsLinearSearch = dynamic(() => import('@/components/projects/binary-vs-linear-search'), { loading: () => <ProjectLoader /> });
+const SudokuSolver = dynamic(() => import('@/components/projects/sudoku-solver'), { loading: () => <ProjectLoader /> });
 
 
 interface Technology {
@@ -106,6 +111,113 @@ const ProjectLoader = () => (
 );
 
 const projectsData: Project[] = [
+    {
+      id: 'sudoku-solver',
+      title: 'Sudoku Solver Visualization',
+      imageUrls: ['/placeholder.png'],
+      imageAlt: 'A Sudoku board being solved by an algorithm',
+      imageHint: 'sudoku board algorithm',
+      description: 'Watch a backtracking algorithm solve a Sudoku puzzle in real-time, visualizing its "thinking" process as it tries and retracts numbers.',
+      personalNote: 'This project is a great way to understand recursion and backtracking. Using a generator function to `yield` each step of the algorithm to React for rendering was a fun and powerful technique for visualizing complex logic.',
+      difficulty: 'Hard',
+      component: <SudokuSolver />,
+      technologies: [
+        { name: 'React', iconSrc: '/icons/react.svg' },
+        { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },
+        { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss.svg' },
+      ],
+      renderImage: true,
+    },
+    {
+      id: 'binary-vs-linear-search',
+      title: 'Binary vs. Linear Search Racer',
+      imageUrls: ['/placeholder.png'],
+      imageAlt: 'A race between two search algorithms',
+      imageHint: 'bar chart race algorithm',
+      description: 'A visual race to find a target value in a sorted array, comparing the speed of linear search (O(n)) against binary search (O(log n)).',
+      personalNote: 'This is a perfect, simple visualization of a core computer science concept. Watching the binary search "highlighter" jump around and find the target almost instantly while the linear search crawls along is incredibly satisfying and educational.',
+      difficulty: 'Easy',
+      component: <BinaryVsLinearSearch />,
+      technologies: [
+        { name: 'React', iconSrc: '/icons/react.svg' },
+        { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },
+        { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss.svg' },
+      ],
+      renderImage: true,
+    },
+    {
+      id: 'fractal-tree',
+      title: 'Fractal Tree Grower',
+      imageUrls: ['/placeholder.png'],
+      imageAlt: 'A recursively drawn fractal tree',
+      imageHint: 'fractal tree recursion',
+      description: 'An interactive visualization that grows a fractal tree based on recursive rules. Adjust the branch angle and shrink factor to create different tree species.',
+      personalNote: 'This project is a beautiful and simple demonstration of recursion. It\'s mesmerizing to watch how a few simple rules can create such complex and organic-looking patterns. It\'s a great example of the intersection of math, code, and nature.',
+      difficulty: 'Medium',
+      component: <FractalTree />,
+      technologies: [
+        { name: 'React', iconSrc: '/icons/react.svg' },
+        { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },
+        { name: 'HTML5 Canvas', iconSrc: '/icons/html5.svg' },
+        { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss.svg' },
+      ],
+      renderImage: true,
+    },
+    {
+      id: 'voice-controlled-tetris',
+      title: 'Voice-Controlled Tetris',
+      imageUrls: ['/placeholder.png'],
+      imageAlt: 'Voice-controlled Tetris game',
+      imageHint: 'tetris game voice control',
+      description: 'Classic Tetris, but you have to shout commands: "LEFT!", "RIGHT!", "ROTATE!", "DROP!".',
+      personalNote: 'This was a hilarious and frustrating experiment in using the Web Speech API. The challenge is handling the recognition delay and preventing accidental commands while still keeping the game playable. It\'s a great example of creative and slightly chaotic UI/UX design.',
+      difficulty: 'Hard',
+      component: <VoiceControlledTetris />,
+      technologies: [
+        { name: 'React', iconSrc: '/icons/react.svg' },
+        { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },
+        { name: 'Web Speech API', iconSrc: '/icons/mic.svg' },
+        { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss.svg' },
+      ],
+      renderImage: true,
+    },
+    {
+      id: 'githistory-visualizer',
+      title: 'GitHistory Visualizer',
+      imageUrls: ['/placeholder.png'],
+      imageAlt: 'A visualization of a Git repository\'s history',
+      imageHint: 'git history data visualization',
+      description: 'An animated visualization that plays back the commit history of a software project, showing files as an evolving, galaxy-like node graph.',
+      personalNote: 'This project was a deep dive into data visualization and animation. It uses the D3.js library for a force-directed graph layout, giving the file nodes a "zero-gravity" feel. Framer Motion then animates the nodes and "code particles" to bring the history to life. It\'s a beautiful way to see how a project grows and changes over time.',
+      difficulty: 'Advanced',
+      component: <GitHistoryVisualizer />,
+      technologies: [
+        { name: 'React', iconSrc: '/icons/react.svg' },
+        { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },
+        { name: 'D3.js', iconSrc: '/icons/d3.svg' },
+        { name: 'Framer Motion', iconSrc: '/icons/framer.svg' },
+        { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss.svg' },
+      ],
+      renderImage: true,
+    },
+    {
+      id: 'infinite-canvas',
+      title: 'Infinite ASCII Canvas',
+      imageUrls: ['/placeholder.png'],
+      imageAlt: 'An infinite canvas for placing ASCII characters',
+      imageHint: 'infinite grid canvas ascii',
+      description: 'An endless whiteboard where you can scroll forever and place text characters anywhere.',
+      personalNote: 'This project was a deep dive into virtualization. Instead of rendering millions of DOM elements, it only draws the cells currently visible in the viewport, allowing it to handle a seemingly infinite grid with high performance. It\'s a fun blend of old-school ASCII art and modern web tech.',
+      difficulty: 'Advanced',
+      component: <InfiniteCanvas />,
+      technologies: [
+        { name: 'React', iconSrc: '/icons/react.svg' },
+        { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },
+        { name: 'HTML5 Canvas', iconSrc: '/icons/html5.svg' },
+        { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss.svg' },
+      ],
+      renderImage: true,
+    },
     {
       id: 'sql-murder-mystery',
       title: 'SQL Murder Mystery',

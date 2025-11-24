@@ -67,6 +67,7 @@ const EcommerceDashboard = dynamic(() => import('@/app/dashboard/page'), { loadi
 const CodeBeautifier = dynamic(() => import('@/components/projects/code-beautifier'), { loading: () => <ProjectLoader /> });
 const SpotifyPlaylistGenerator = dynamic(() => import('@/components/projects/spotify-playlist-generator'), { loading: () => <ProjectLoader /> });
 const SpeedTester = dynamic(() => import('@/components/projects/speed-tester'), { loading: () => <ProjectLoader /> });
+const PathfindingVisualizer = dynamic(() => import('@/components/projects/pathfinding-visualizer'), { loading: () => <ProjectLoader /> });
 
 
 interface Technology {
@@ -98,6 +99,23 @@ const ProjectLoader = () => (
 );
 
 const projectsData: Project[] = [
+     {
+        id: 'pathfinding-visualizer',
+        title: 'Pathfinding Visualizer',
+        imageUrls: ['/placeholder.png'],
+        imageAlt: 'A grid with a visualized pathfinding algorithm',
+        imageHint: 'grid algorithm pathfinding',
+        description: 'Watch algorithms like Dijkstra\'s find the shortest path through a maze you create.',
+        personalNote: 'This is a classic computer science project that\'s incredibly satisfying to watch. It makes abstract graph traversal algorithms tangible and visual, which I find very cool.',
+        difficulty: 'Hard',
+        component: <PathfindingVisualizer />,
+        technologies: [
+            { name: 'React', iconSrc: '/icons/react.svg' },
+            { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },
+            { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss.svg' },
+        ],
+        renderImage: true,
+    },
     {
         id: 'speed-tester',
         title: 'Speed Tester',

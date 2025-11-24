@@ -61,16 +61,6 @@ const nextConfig: NextConfig = {
     SPOTIFY_CLIENT_SECRET: process.env.SPOTIFY_CLIENT_SECRET,
     NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET,
   },
-  webpack: (config, { isServer }) => {
-    // This is to fix a build issue with alasql trying to import a react-native module
-    if (!isServer) {
-        config.externals.push({
-            'react-native-fetch-blob': 'commonjs react-native-fetch-blob',
-        });
-    }
-
-    return config;
-  },
 };
 
 export default nextConfig;

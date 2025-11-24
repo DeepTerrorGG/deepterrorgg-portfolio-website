@@ -3,7 +3,7 @@
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import Editor, { useMonaco } from '@monaco-editor/react';
-import alasql from 'alasql';
+import type { editor } from 'monaco-editor';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Play, Book, StickyNote, AlertTriangle, Loader2 } from 'lucide-react';
@@ -20,6 +20,7 @@ const SqlMurderMystery: React.FC = () => {
     const [error, setError] = useState<string | null>(null);
     const [notebook, setNotebook] = useState('');
     const [isLoading, setIsLoading] = useState(true);
+    const [alasql, setAlasql] = useState<any>(null);
     
     const monaco = useMonaco();
     useEffect(() => {
@@ -35,15 +36,19 @@ const SqlMurderMystery: React.FC = () => {
     useEffect(() => {
         const initDb = async () => {
             try {
+                // Dynamically import alasql only on the client-side
+                const alasqlModule = await import('alasql');
+                setAlasql(alasqlModule.default);
+
                 // Clear existing tables to prevent duplication on re-render
                 Object.keys(crimeData).forEach(tableName => {
-                    alasql(`DROP TABLE IF EXISTS ${tableName}`);
+                    alasqlModule.default(`DROP TABLE IF EXISTS ${tableName}`);
                 });
 
                 for (const tableName in crimeData) {
                     const columns = crimeData[tableName].columns.join(', ');
-                    await alasql.promise(`CREATE TABLE ${tableName} (${columns})`);
-                    await alasql.promise(`SELECT * INTO ${tableName} FROM ?`, [crimeData[tableName].data]);
+                    await alasqlModule.default.promise(`CREATE TABLE ${tableName} (${columns})`);
+                    await alasqlModule.default.promise(`SELECT * INTO ${tableName} FROM ?`, [crimeData[tableName].data]);
                 }
                 setIsLoading(false);
             } catch (e) {
@@ -56,6 +61,10 @@ const SqlMurderMystery: React.FC = () => {
     }, []);
 
     const executeQuery = () => {
+        if (!alasql) {
+            setError("Database is not ready.");
+            return;
+        }
         setError(null);
         setResults(null);
         if(!query.trim()) {

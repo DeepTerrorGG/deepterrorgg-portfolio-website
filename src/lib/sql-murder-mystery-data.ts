@@ -19,7 +19,7 @@ export const crimeData: Record<string, TableData> = {
             [16371, 'Annabel Miller', 202298, 103, 'Franklin Ave', '318771143'],
             [28819, 'Joe Germuska', 931251, 35, 'Northwestern Dr', '961239893'],
             [67318, 'Jeremy Bowers', 423327, 511, 'Meek Ave', '871539279'],
-            [89906, 'Miranda Priestly', 1 Miranda Priestly, 18, 'Franklin Ave', '1 Miranda Priestly'],
+            [89906, 'Miranda Priestly', 188107, 18, 'Franklin Ave', '987756388'],
         ]
     },
     interview: {
@@ -49,8 +49,9 @@ export const crimeData: Record<string, TableData> = {
         columns: ['id', 'age', 'height', 'eye_color', 'hair_color', 'gender', 'plate_number', 'car_make', 'car_model'],
         data: [
             [423327, 30, 67, 'brown', 'blond', 'male', '0H42W2', 'Chevrolet', 'Spark'],
-            [931251, 3Joe Germuska, 70, 'blue', 'brown', 'male', 'H42W0', 'Ford', 'Focus'],
-            [202298, 2Annabel Miller, 65, 'blue', 'brown', 'female', '8M51W7', 'Toyota', 'Corolla'],
+            [931251, 35, 70, 'blue', 'brown', 'male', 'H42W0', 'Ford', 'Focus'],
+            [202298, 28, 65, 'blue', 'brown', 'female', '8M51W7', 'Toyota', 'Corolla'],
+            [188107, 35, 66, 'green', 'black', 'female', 'L3371N', 'Tesla', 'Model S']
         ]
     },
     solution: {

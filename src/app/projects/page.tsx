@@ -1,3 +1,4 @@
+
 // src/app/projects/page.tsx
 'use client';
 
@@ -80,6 +81,8 @@ const VoiceControlledTetris = dynamic(() => import('@/components/projects/voice-
 const FractalTree = dynamic(() => import('@/components/projects/fractal-tree'), { loading: () => <ProjectLoader /> });
 const BinaryVsLinearSearch = dynamic(() => import('@/components/projects/binary-vs-linear-search'), { loading: () => <ProjectLoader /> });
 const SudokuSolver = dynamic(() => import('@/components/projects/sudoku-solver'), { loading: () => <ProjectLoader /> });
+const ConnectFour = dynamic(() => import('@/components/projects/connect-four'), { loading: () => <ProjectLoader /> });
+const MemoryMatrix = dynamic(() => import('@/components/projects/memory-matrix'), { loading: () => <ProjectLoader /> });
 
 
 interface Technology {
@@ -111,6 +114,41 @@ const ProjectLoader = () => (
 );
 
 const projectsData: Project[] = [
+    {
+      id: 'memory-matrix',
+      title: 'Memory Matrix',
+      imageUrls: ['/placeholder.png'],
+      imageAlt: 'A memory matrix game grid',
+      imageHint: 'memory game grid pattern',
+      description: 'A pattern of tiles will flash. Test your memory by repeating the sequence. Each round gets longer!',
+      personalNote: 'This is a great exercise in managing game state and timed, asynchronous events in React. The challenge is handling the different phases (watching, repeating) and giving the user clear feedback.',
+      difficulty: 'Medium',
+      component: <MemoryMatrix />,
+      technologies: [
+        { name: 'React', iconSrc: '/icons/react.svg' },
+        { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },
+        { name: 'Framer Motion', iconSrc: '/icons/framer.svg' },
+        { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss.svg' },
+      ],
+      renderImage: true,
+    },
+    {
+      id: 'connect-four',
+      title: 'Connect 4',
+      imageUrls: ['/placeholder.png'],
+      imageAlt: 'Connect 4 game board',
+      imageHint: 'connect four board game',
+      description: 'The classic two-player game. Drop your pieces into the grid and try to get four in a row before your opponent does.',
+      personalNote: 'This was a great exercise in algorithm design. The "gravity" logic for dropping pieces and, especially, the win-detection logic for checking all possible four-in-a-row combinations, were fun challenges to solve efficiently.',
+      difficulty: 'Easy',
+      component: <ConnectFour />,
+      technologies: [
+        { name: 'React', iconSrc: '/icons/react.svg' },
+        { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },
+        { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss.svg' },
+      ],
+      renderImage: true,
+    },
     {
       id: 'sudoku-solver',
       title: 'Sudoku Solver Visualization',

@@ -59,14 +59,15 @@ const nextConfig: NextConfig = {
     NEXT_PUBLIC_OPENWEATHERMAP_API_KEY: process.env.NEXT_PUBLIC_OPENWEATHERMAP_API_KEY,
     SPOTIFY_CLIENT_ID: process.env.SPOTIFY_CLIENT_ID,
     SPOTIFY_CLIENT_SECRET: process.env.SPOTIFY_CLIENT_SECRET,
+    NEXTAUTH_URL: process.env.NEXTAUTH_URL,
     NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET,
+    RESEND_API_KEY: process.env.RESEND_API_KEY,
+    DESIGNATED_RECIPIENT_EMAIL: process.env.DESIGNATED_RECIPIENT_EMAIL,
+    RESEND_FROM_EMAIL: process.env.RESEND_FROM_EMAIL,
   },
   webpack: (config, { isServer }) => {
-    // This is the correct way to handle this.
-    // It tells webpack to treat the problematic module as an external dependency
-    // that shouldn't be bundled.
     if (!isServer) {
-        config.externals['react-native-fetch-blob'] = 'react-native-fetch-blob';
+        config.externals.push('react-native-fetch-blob');
     }
 
     return config;

@@ -220,7 +220,7 @@ export default function HomePage() {
               </div>
               <div className="relative h-[500px] md:h-[700px] w-full mx-auto rounded-lg overflow-hidden bg-muted/20 min-h-[500px]">
                   <SplineModel 
-                    sceneUrl="https://prod.spline.design/wl4X9XbiCMDi6bUv/scene.splinecode" 
+                    sceneUrl="https://prod.spline.design/JQAikTCRQCtrK0Pt/scene.splinecode" 
                     scrollable={false}
                     onLoad={onSplineLoad}
                   />

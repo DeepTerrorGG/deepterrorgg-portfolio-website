@@ -83,7 +83,7 @@ export default function SplineShowcase({ models }: SplineShowcaseProps) {
       </Button>
       
       {/* Progress Bar Indicators */}
-      <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-10 flex items-center justify-center gap-2 p-1 rounded-full bg-background/50 backdrop-blur-sm">
+      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-10 flex items-center justify-center gap-2 p-1 rounded-full bg-background/50 backdrop-blur-sm">
         {models.map((_, index) => (
           <button
             key={index}

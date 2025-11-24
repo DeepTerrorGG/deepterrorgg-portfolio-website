@@ -52,10 +52,8 @@ const nextConfig: NextConfig = {
    experimental: {
     serverActions: {
       bodySizeLimit: '4.5mb',
-      serverActions: {
-        bodySizeLimit: '20mb',
-      }
     },
+    serverComponentsExternalPackages: ['shiki', '@vercel/og'],
   },
   env: {
     NEXT_PUBLIC_OPENWEATHERMAP_API_KEY: process.env.NEXT_PUBLIC_OPENWEATHERMAP_API_KEY,
@@ -63,5 +61,3 @@ const nextConfig: NextConfig = {
 };
 
 export default nextConfig;
-
-

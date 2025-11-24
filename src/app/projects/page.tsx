@@ -63,7 +63,9 @@ const DownDetectorDetector = dynamic(() => import('@/components/projects/down-de
 const UselessUiPlayground = dynamic(() => import('@/components/projects/useless-ui-playground'), { loading: () => <ProjectLoader /> });
 const ScreenshotService = dynamic(() => import('@/components/projects/screenshot-service'), { loading: () => <ProjectLoader /> });
 const WebsiteStatusChecker = dynamic(() => import('@/components/projects/website-status-checker'), { loading: () => <ProjectLoader /> });
-const ThisDayInHistory = dynamic(() => import('@/components/projects/this-day-in-history'), { loading: () => <ProjectLoader /> });
+const SortingVisualizer = dynamic(() => import('@/components/projects/sorting-visualizer'), { loading: () => <ProjectLoader /> });
+const EcommerceDashboard = dynamic(() => import('@/app/dashboard/page'), { loading: () => <ProjectLoader /> });
+const CodeBeautifier = dynamic(() => import('@/components/projects/code-beautifier'), { loading: () => <ProjectLoader /> });
 
 
 interface Technology {
@@ -95,6 +97,43 @@ const ProjectLoader = () => (
 );
 
 const projectsData: Project[] = [
+    {
+        id: 'ecommerce-dashboard',
+        title: 'E-commerce Dashboard',
+        imageUrls: ['/placeholder.png'],
+        imageAlt: 'E-commerce dashboard with charts and tables',
+        imageHint: 'dashboard charts data',
+        description: 'A mock e-commerce admin dashboard with data tables, charts, and key metrics.',
+        personalNote: 'This project is a great demonstration of handling complex data, creating professional-looking UIs with charts and tables, and managing a more "enterprise-level" application state.',
+        difficulty: 'Advanced',
+        component: <EcommerceDashboard />,
+        technologies: [
+            { name: 'React', iconSrc: '/icons/react.svg' },
+            { name: 'Next.js', iconSrc: '/icons/nextjs.svg' },
+            { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },
+            { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss.svg' },
+            { name: 'Recharts', iconSrc: '/icons/recharts.svg' },
+            { name: '@tanstack/table', iconSrc: '/icons/react-query.svg' },
+        ],
+        renderImage: true,
+    },
+    {
+        id: 'sorting-visualizer',
+        title: 'Sorting Algorithm Visualizer',
+        imageUrls: ['/placeholder.png'],
+        imageAlt: 'Sorting algorithm visualizer with bars',
+        imageHint: 'bar chart data algorithm',
+        description: 'Watch sorting algorithms like Bubble Sort, Merge Sort, and Quick Sort in action with this interactive visualizer.',
+        personalNote: 'This project is a great way to understand computer science fundamentals. It makes abstract algorithms tangible and even a bit mesmerizing to watch, especially with the sound effects.',
+        difficulty: 'Hard',
+        component: <SortingVisualizer />,
+        technologies: [
+            { name: 'React', iconSrc: '/icons/react.svg' },
+            { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },
+            { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss.svg' },
+        ],
+        renderImage: true,
+    },
     {
         id: 'website-status-checker',
         title: 'Website Status Checker',
@@ -266,6 +305,25 @@ const projectsData: Project[] = [
       { name: 'Genkit', iconSrc: '/icons/genkit.svg' },
       { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },
       { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss.svg' },
+    ],
+    renderImage: true,
+  },
+  {
+    id: 'code-beautifier',
+    title: 'Code Beautifier',
+    imageUrls: ['/placeholder.png'],
+    imageAlt: 'Code beautifier app for creating images of code',
+    imageHint: 'code snippet image generator',
+    description: 'Turn your code snippets into beautiful, shareable images.',
+    personalNote: 'I\'ve always admired tools like Carbon that make sharing code on social media look great. This was my take on it, using AI for syntax highlighting and a Next.js API route with @vercel/og to generate the final image. A very practical tool for any developer.',
+    difficulty: 'AI',
+    component: <CodeBeautifier />,
+    technologies: [
+      { name: 'React', iconSrc: '/icons/react.svg' },
+      { name: 'Next.js', iconSrc: '/icons/nextjs.svg' },
+      { name: 'Genkit', iconSrc: '/icons/genkit.svg' },
+      { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },
+      { name: '@vercel/og', iconSrc: '/icons/vercel.svg' },
     ],
     renderImage: true,
   },
@@ -703,24 +761,6 @@ const projectsData: Project[] = [
       { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },
       { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss.svg' },
       { name: 'React Markdown', iconSrc: '/icons/react-markdown.svg' },
-    ],
-    renderImage: true,
-  },
-  {
-    id: 'this-day-in-history',
-    title: 'This Day in History',
-    imageUrls: ['/placeholder.png'],
-    imageAlt: 'This Day in History app',
-    imageHint: 'history events calendar',
-    description: 'Discover historical events, births, and deaths for any day of the year.',
-    personalNote:
-      "A fun project that uses a public API to fetch interesting historical facts. It's a great example of fetching and displaying data from an external source.",
-    difficulty: 'Medium',
-    component: <ThisDayInHistory />,
-    technologies: [
-      { name: 'React', iconSrc: '/icons/react.svg' },
-      { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },
-      { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss.svg' },
     ],
     renderImage: true,
   },

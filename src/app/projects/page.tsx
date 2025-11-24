@@ -74,7 +74,7 @@ const TierListMaker = dynamic(() => import('@/components/projects/tier-list/tier
 const MemeStockMarket = dynamic(() => import('@/components/projects/meme-stock-market'), { loading: () => <ProjectLoader /> });
 const CodeRacer = dynamic(() => import('@/components/projects/code-racer'), { loading: () => <ProjectLoader /> });
 const TimeCapsuleProject = dynamic(() => import('@/components/projects/time-capsule'), { loading: () => <ProjectLoader /> });
-const SqlMurderMystery = dynamic(() => import('@/components/projects/sql-murder-mystery'), { loading: () => <ProjectLoader /> });
+const SqlMurderMystery = dynamic(() => import('@/components/projects/sql-murder-mystery'), { ssr: false, loading: () => <ProjectLoader /> });
 
 
 interface Technology {

@@ -61,6 +61,16 @@ const nextConfig: NextConfig = {
     SPOTIFY_CLIENT_SECRET: process.env.SPOTIFY_CLIENT_SECRET,
     NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET,
   },
+   webpack: (config, { isServer }) => {
+    // This is to fix a bug in alasql that tries to require react-native-fetch-blob
+    if (!isServer) {
+      config.resolve.fallback = {
+        ...config.resolve.fallback,
+        'react-native-fetch-blob': false,
+      };
+    }
+    return config;
+  },
 };
 
 export default nextConfig;

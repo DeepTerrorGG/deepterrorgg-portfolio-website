@@ -35,13 +35,3 @@ service cloud.firestore {
     }
   }
 }
-
-service firebase.storage {
-  match /b/{bucket}/o {
-    // Allow public read and write access to all files.
-    // In a real app, this would be restricted to authenticated users.
-    match /{allPaths=**} {
-      allow read, write: if true;
-    }
-  }
-}

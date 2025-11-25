@@ -1,0 +1,351 @@
+
+{
+  "entities": {
+    "UserProfile": {
+      "title": "User Profile",
+      "description": "Represents a user's profile information.",
+      "type": "object",
+      "properties": {
+        "uid": {
+          "type": "string",
+          "description": "The user's unique ID."
+        },
+        "email": {
+          "type": "string",
+          "format": "email",
+          "description": "The user's email address."
+        },
+        "displayName": {
+          "type": "string",
+          "description": "The user's display name."
+        }
+      },
+      "required": [
+        "uid"
+      ]
+    },
+    "ChatSession": {
+      "title": "Chat Session",
+      "description": "Represents a single chat conversation.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "personality": {
+          "type": "string",
+          "enum": [
+            "Default",
+            "Helpful Assistant",
+            "Snarky",
+            "Pirate",
+            "Poet",
+            "Shakespearean",
+            "Tech Bro",
+            "Philosopher",
+            "Flirty"
+          ]
+        },
+        "messages": {
+          "type": "array",
+          "items": {
+            "$ref": "#/entities/ChatMessage"
+          }
+        }
+      },
+      "required": [
+        "id",
+        "title",
+        "createdAt",
+        "messages",
+        "personality"
+      ]
+    },
+    "ChatMessage": {
+      "title": "Chat Message",
+      "description": "Represents a single message within a chat session.",
+      "type": "object",
+      "properties": {
+        "role": {
+          "type": "string",
+          "enum": [
+            "user",
+            "model"
+          ]
+        },
+        "content": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "role",
+        "content"
+      ]
+    },
+    "Artwork": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Artwork",
+      "type": "object",
+      "description": "Represents an artwork displayed on the portfolio.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Artwork entity."
+        },
+        "title": {
+          "type": "string",
+          "description": "Title of the artwork."
+        },
+        "imageUrl": {
+          "type": "string",
+          "description": "URL of the artwork image.",
+          "format": "uri"
+        },
+        "description": {
+          "type": "string",
+          "description": "Description of the artwork."
+        },
+        "displayOrder": {
+          "type": "number",
+          "description": "The order in which the artwork is displayed."
+        }
+      },
+      "required": [
+        "id",
+        "title",
+        "imageUrl",
+        "description",
+        "displayOrder"
+      ]
+    },
+    "AboutMe": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "AboutMe",
+      "type": "object",
+      "description": "Stores information for the 'About Me' section of the portfolio.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the AboutMe entity."
+        },
+        "content": {
+          "type": "string",
+          "description": "The main text content for the 'About Me' section. HTML or plain text."
+        }
+      },
+      "required": [
+        "id",
+        "content"
+      ]
+    },
+    "ContactInfo": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "ContactInfo",
+      "type": "object",
+      "description": "Stores contact information displayed on the 'Contact' section.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the ContactInfo entity."
+        },
+        "email": {
+          "type": "string",
+          "description": "Email address for contact.",
+          "format": "email"
+        },
+        "linkedInUrl": {
+          "type": "string",
+          "description": "URL of the LinkedIn profile.",
+          "format": "uri"
+        },
+        "githubUrl": {
+          "type": "string",
+          "description": "URL of the Github profile.",
+          "format": "uri"
+        }
+      },
+      "required": [
+        "id",
+        "email",
+        "linkedInUrl",
+        "githubUrl"
+      ]
+    },
+    "KanbanColumn": {
+      "title": "Kanban Column",
+      "description": "Represents a single column in the Kanban board.",
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string",
+          "description": "The title of the column."
+        },
+        "order": {
+          "type": "number",
+          "description": "The display order of the column."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "title",
+        "order",
+        "createdAt"
+      ]
+    },
+    "KanbanTask": {
+      "title": "Kanban Task",
+      "description": "Represents a single task card within a Kanban column.",
+      "type": "object",
+      "properties": {
+        "content": {
+          "type": "string",
+          "description": "The main text content of the task."
+        },
+        "order": {
+          "type": "number",
+          "description": "The display order of the task within its column."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "assignedTo": {
+          "type": "string",
+          "description": "The UID of the user this task is assigned to."
+        },
+        "dueDate": {
+          "type": "string",
+          "format": "date-time",
+          "description": "The due date for the task."
+        },
+        "timeEstimate": {
+          "type": "number",
+          "description": "Estimated time in hours or story points."
+        },
+        "category": {
+          "type": "string",
+          "description": "The ID of the category this task belongs to."
+        }
+      },
+      "required": [
+        "content",
+        "order",
+        "createdAt"
+      ]
+    },
+     "KanbanCategory": {
+      "title": "Kanban Category",
+      "description": "Represents a category tag for Kanban tasks.",
+      "type": "object",
+      "properties": {
+        "label": {
+          "type": "string",
+          "description": "The display name of the category."
+        },
+        "color": {
+          "type": "string",
+          "description": "The hex color code for the category badge."
+        }
+      },
+      "required": ["label", "color"]
+    },
+    "Recipe": {
+      "title": "Crafting Recipe",
+      "description": "Represents a discovered crafting recipe in the AI Infinity Craft game.",
+      "type": "object",
+      "properties": {
+        "key": {
+          "type": "string",
+          "description": "A unique, sorted key for the recipe combination, e.g., 'earth+fire'."
+        },
+        "item1": {
+          "type": "string",
+          "description": "The first item in the combination."
+        },
+        "item2": {
+          "type": "string",
+          "description": "The second item in the combination."
+        },
+        "result": {
+          "type": "string",
+          "description": "The resulting item."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Timestamp of when the recipe was first discovered."
+        }
+      },
+      "required": ["key", "item1", "item2", "result", "createdAt"]
+    }
+  },
+  "auth": {
+    "providers": []
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": {
+        "$ref": "#/entities/UserProfile"
+      },
+      "description": "Stores user profile information."
+    },
+    "/users/{userId}/chats/{chatId}": {
+      "schema": {
+        "$ref": "#/entities/ChatSession"
+      },
+      "description": "Stores individual chat sessions for each user."
+    },
+    "/artworks/{artworkId}": {
+      "schema": {
+        "$ref": "#/entities/Artwork"
+      },
+      "description": "Stores artwork information. Only accessible to authenticated users."
+    },
+    "/about_me/{aboutMeId}": {
+      "schema": {
+        "$ref": "#/entities/AboutMe"
+      },
+      "description": "Stores 'About Me' information. Only accessible to authenticated users."
+    },
+    "/contact_info/{contactInfoId}": {
+      "schema": {
+        "$ref": "#/entities/ContactInfo"
+      },
+      "description": "Stores contact information. Only accessible to authenticated users."
+    },
+    "/kanban-columns/{columnId}": {
+      "schema": {
+        "$ref": "#/entities/KanbanColumn"
+      },
+      "description": "Stores the columns for the Kanban board."
+    },
+    "/kanban-columns/{columnId}/tasks/{taskId}": {
+      "schema": {
+        "$ref": "#/entities/KanbanTask"
+      },
+      "description": "Stores the tasks for each Kanban column as a subcollection."
+    },
+    "/kanban-categories/{categoryId}": {
+      "schema": {
+        "$ref": "#/entities/KanbanCategory"
+      },
+      "description": "Stores the user-definable categories for Kanban tasks."
+    },
+    "/recipes/{recipeId}": {
+      "schema": {
+        "$ref": "#/entities/Recipe"
+      },
+      "description": "Stores discovered crafting recipes for the AI Infinity Craft game."
+    }
+  }
+}

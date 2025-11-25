@@ -146,8 +146,8 @@ const ScrollingTechRow = ({ items, direction = 'left' }: { items: typeof technol
         <ul className={`flex items-center justify-center md:justify-start [&_li]:mx-8 [&_img]:max-w-none animate-scrolling-${direction}`}>
             {items.map((tech) => (
             <li key={tech.name} className="flex-shrink-0">
-                <Link href={tech.href} target="_blank" rel="noopener noreferrer">
-                    <Image src={tech.iconSrc} alt={tech.name} width={48} height={48} className="h-12 w-auto filter grayscale hover:grayscale-0 transition-all duration-300" />
+                <Link href={tech.href} target="_blank" rel="noopener noreferrer" className="relative block h-12 w-12">
+                    <Image src={tech.iconSrc} alt={tech.name} fill sizes="48px" className="object-contain filter grayscale hover:grayscale-0 transition-all duration-300" />
                 </Link>
             </li>
             ))}
@@ -155,8 +155,8 @@ const ScrollingTechRow = ({ items, direction = 'left' }: { items: typeof technol
         <ul className={`flex items-center justify-center md:justify-start [&_li]:mx-8 [&_img]:max-w-none animate-scrolling-${direction}`} aria-hidden="true">
             {items.map((tech) => (
             <li key={tech.name + '-clone'} className="flex-shrink-0">
-                 <Link href={tech.href} target="_blank" rel="noopener noreferrer">
-                    <Image src={tech.iconSrc} alt={tech.name} width={48} height={48} className="h-12 w-auto filter grayscale hover:grayscale-0 transition-all duration-300" />
+                 <Link href={tech.href} target="_blank" rel="noopener noreferrer" className="relative block h-12 w-12">
+                    <Image src={tech.iconSrc} alt={tech.name} fill sizes="48px" className="object-contain filter grayscale hover:grayscale-0 transition-all duration-300" />
                 </Link>
             </li>
             ))}

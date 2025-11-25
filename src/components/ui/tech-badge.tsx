@@ -1,3 +1,4 @@
+
 // src/components/ui/tech-badge.tsx
 import * as React from 'react';
 import Link from 'next/link';
@@ -18,7 +19,7 @@ export function TechBadge({ name, className, href, iconSrc }: TechBadgeProps) {
   const content = (
     <>
       <div className="flex-shrink-0 h-8 w-8 relative flex items-center justify-center">
-        <Image src={iconSrc} alt={`${name} icon`} fill className="object-contain w-auto h-auto" />
+        <Image src={iconSrc} alt={`${name} icon`} fill sizes="32px" className="object-contain" />
       </div>
       <span className="font-semibold text-base text-foreground flex-grow transition-colors duration-300 group-hover:text-primary">{name}</span>
       {isLink && (

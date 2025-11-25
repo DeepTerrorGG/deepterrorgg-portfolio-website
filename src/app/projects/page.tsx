@@ -1267,12 +1267,13 @@ const ProjectDetailContent = ({ project }: { project: Project }) => {
             <h2 className="text-3xl font-bold text-foreground mb-2">{project.title}</h2>
             <p className="text-muted-foreground text-lg mb-6">{project.description}</p>
             
-            <blockquote className="border-l-4 border-primary pl-4 py-2 my-6">
-                <p className="text-muted-foreground italic">{project.personalNote}</p>
-            </blockquote>
+            <div className="space-y-4 my-8">
+              <h3 className="font-semibold text-xl text-primary">How It's Made</h3>
+              <p className="text-muted-foreground leading-relaxed">{project.personalNote}</p>
+            </div>
 
             <div className="mb-8">
-                <h4 className="font-semibold text-foreground mb-3">Technologies Used</h4>
+                <h4 className="font-semibold text-xl text-primary mb-3">Technologies Used</h4>
                 <TechStack technologies={project.technologies} />
             </div>
 
@@ -1347,7 +1348,7 @@ export default function ProjectsPage() {
                     </Button>
                   </DialogClose>
                   <DialogTitle className="flex-grow text-center pr-10">{mobileProject.title}</DialogTitle>
-                   <DialogDescription className="sr-only">{mobileProject.description}</DialogDescription>
+                  <DialogDescription className="sr-only">{mobileProject.description}</DialogDescription>
               </DialogHeader>
               <ScrollArea className="flex-grow min-h-0">
                 <Suspense fallback={<ProjectLoader/>}>
@@ -1360,7 +1361,7 @@ export default function ProjectsPage() {
       </div>
 
       {/* Desktop View: Two-column layout */}
-      <div className="hidden md:flex flex-row flex-grow h-full overflow-hidden">
+       <div className="hidden md:flex flex-row flex-grow h-[calc(100vh-80px)]">
         {/* Left Column: Project List */}
         <div className="w-1/3 max-w-sm border-r border-border flex flex-col h-full">
           <div className="p-6 border-b shrink-0">
@@ -1391,26 +1392,17 @@ export default function ProjectsPage() {
         </div>
 
         {/* Right Column: Project Details & Component */}
-        <ScrollArea className="flex-1 w-2/3 h-full bg-background">
-          <div className="animate-fade-in">
-              <div className="min-h-[60vh] max-h-[80vh] flex items-center justify-center relative bg-muted/20 border-b border-border">
+        <ScrollArea className="flex-1 w-2/3 h-full">
+           <div className="animate-fade-in flex flex-col min-h-full">
+              {/* Project Component Area */}
+              <div className="flex-shrink-0 flex items-center justify-center relative bg-muted/20 border-b border-border min-h-[50vh]">
                   <Suspense fallback={<ProjectLoader />}>
-                      {selectedProject.component ? selectedProject.component : (
-                          <div className="relative w-full aspect-video rounded-lg overflow-hidden bg-card">
-                              <Image
-                                  src={selectedProject.imageUrls[0]}
-                                  alt={selectedProject.imageAlt}
-                                  fill
-                                  sizes="(max-width: 767px) 100vw, 60vw"
-                                  className="object-cover"
-                                  data-ai-hint={selectedProject.imageHint}
-                                  priority
-                              />
-                          </div>
-                      )}
+                      {selectedProject.component}
                   </Suspense>
               </div>
-              <div className="bg-card">
+
+              {/* Project Details Area */}
+              <div className="flex-shrink-0 bg-card">
                   <ProjectDetailContent project={selectedProject} />
               </div>
           </div>

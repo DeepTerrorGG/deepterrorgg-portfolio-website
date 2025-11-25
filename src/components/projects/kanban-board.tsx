@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
@@ -299,8 +300,11 @@ const KanbanBoard: React.FC = () => {
   const handleDeleteColumn = (columnId: string) => {
     const colDocRef = doc(firestore, 'kanban-columns', columnId);
     deleteDocumentNonBlocking(colDocRef);
-    toast({ title: "Column Deleted", variant: "destructive" });
-  }
+    toast({
+        title: "Column Deleted",
+        variant: "destructive"
+    });
+  };
 
   const handleAddCategory = () => {
     if(!newCategoryLabel.trim()){ toast({ title: "Category label cannot be empty", variant: "destructive" }); return; }

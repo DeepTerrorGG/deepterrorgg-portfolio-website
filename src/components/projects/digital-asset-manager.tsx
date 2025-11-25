@@ -185,7 +185,11 @@ const DigitalAssetManager: React.FC = () => {
           </div>
         </CardHeader>
         <CardContent className="flex-grow p-4 relative overflow-y-auto">
-          {isLoading ? <Loader2 className="h-8 w-8 animate-spin text-primary absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"/> : (
+          {isLoading ? (
+             <div className="absolute inset-0 flex items-center justify-center">
+              <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            </div>
+          ) : (
             items.length > 0 || Object.keys(uploadProgress).length > 0 ? (
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
                   {items.map(item => (

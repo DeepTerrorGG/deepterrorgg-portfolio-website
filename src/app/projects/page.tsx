@@ -1,3 +1,4 @@
+
 // src/app/projects/page.tsx
 'use client';
 
@@ -81,6 +82,7 @@ const BinaryVsLinearSearch = dynamic(() => import('@/components/projects/binary-
 const SudokuSolver = dynamic(() => import('@/components/projects/sudoku-solver'), { loading: () => <ProjectLoader /> });
 const ConnectFour = dynamic(() => import('@/components/projects/connect-four'), { loading: () => <ProjectLoader /> });
 const MemoryMatrix = dynamic(() => import('@/components/projects/memory-matrix'), { loading: () => <ProjectLoader /> });
+const BookingCalendar = dynamic(() => import('@/components/projects/booking-calendar'), { loading: () => <ProjectLoader /> });
 
 
 interface Technology {
@@ -112,6 +114,24 @@ const ProjectLoader = () => (
 );
 
 const projectsData: Project[] = [
+    {
+      id: 'booking-calendar',
+      title: 'Booking & Scheduling App',
+      imageUrls: ['/placeholder.png'],
+      imageAlt: 'A booking calendar interface',
+      imageHint: 'booking calendar schedule',
+      description: 'A Calendly-like app to manage availability and let others book 30-minute slots.',
+      personalNote: 'Handling timezones, overlapping slots, and generating availability is a notoriously difficult part of web development. This project demonstrates how to manage those complexities using a date library and a simulated backend.',
+      difficulty: 'Hard',
+      component: <BookingCalendar />,
+      technologies: [
+        { name: 'React', iconSrc: '/icons/react.svg' },
+        { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },
+        { name: 'date-fns', iconSrc: '/icons/date-fns.svg' },
+        { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss.svg' },
+      ],
+      renderImage: true,
+    },
     {
       id: 'memory-matrix',
       title: 'Memory Matrix',

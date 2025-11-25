@@ -65,14 +65,15 @@ const FractalTree: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col md:flex-row w-full h-full bg-card text-card-foreground rounded-lg overflow-hidden">
+     <div className="flex items-center justify-center w-full h-full bg-card p-4 sm:p-6 lg:p-8">
+      <Card className="w-full max-w-4xl mx-auto shadow-2xl flex flex-col md:flex-row">
         {/* Left Column: Canvas */}
-        <div className="w-full md:w-2/3 h-64 md:h-full bg-muted/30">
+        <div className="w-full md:w-2/3 h-96 md:h-auto bg-muted/30">
             <canvas ref={canvasRef} className="w-full h-full" />
         </div>
 
         {/* Right Column: Controls */}
-        <div className="w-full md:w-1/3 p-4 space-y-6 overflow-y-auto">
+        <div className="w-full md:w-1/3 p-6 space-y-6">
              <CardHeader className="p-0">
                 <CardTitle className="text-xl">Fractal Tree Grower</CardTitle>
             </CardHeader>
@@ -108,6 +109,7 @@ const FractalTree: React.FC = () => {
                 <Button onClick={randomize} className="w-full">Randomize Tree</Button>
             </CardContent>
         </div>
+      </Card>
     </div>
   );
 };

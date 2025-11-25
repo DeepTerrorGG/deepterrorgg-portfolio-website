@@ -26,29 +26,27 @@ const TETROMINO_COLORS: { [key: string]: string } = {
     red: 'bg-red-500',
 };
 
-const GameBoard = ({ board, player }: { board: Board; player: Player }) => {
+const GameBoard = ({ board, player }: { board: Board, player: Player }) => {
   const displayBoard = board.map(row => [...row]);
 
-  if (player.tetromino.length > 0) {
-    player.tetromino.forEach((row, y) => {
-      row.forEach((value, x) => {
-        if (value !== 0) {
-          const boardY = y + player.pos.y;
-          const boardX = x + player.pos.x;
-          if (boardY >= 0 && boardY < BOARD_HEIGHT && boardX >= 0 && boardX < BOARD_WIDTH) {
-            displayBoard[boardY][boardX] = player.color;
-          }
+  player.tetromino.forEach((row, y) => {
+    row.forEach((value, x) => {
+      if (value !== 0) {
+        const boardY = y + player.pos.y;
+        const boardX = x + player.pos.x;
+        if (boardY >= 0 && boardY < BOARD_HEIGHT && boardX >= 0 && boardX < BOARD_WIDTH) {
+          displayBoard[boardY][boardX] = player.color;
         }
-      });
+      }
     });
-  }
+  });
 
   return (
     <div className="grid border-2 border-border bg-black" style={{ gridTemplateColumns: `repeat(${BOARD_WIDTH}, 1fr)` }}>
       {displayBoard.map((row, y) =>
         row.map((cell, x) => {
           const colorClass = cell && cell !== 0 ? TETROMINO_COLORS[cell as string] : 'bg-gray-900/50';
-          return <div key={`${y}-${x}`} className={cn('aspect-square', colorClass)} />;
+          return <div key={`${y}-${x}`} className={cn('w-8 h-8', colorClass)} />;
         })
       )}
     </div>
@@ -77,7 +75,7 @@ const NextPieceDisplay = ({ piece }: { piece: { shape: number[][]; color: string
 
 const VoiceControlledTetris: React.FC = () => {
   const [board, setBoard] = useState<Board>(createEmptyBoard());
-  const [player, setPlayer] = useState<Player>({ pos: { x: 0, y: 0 }, tetromino: [], color: '', collided: false });
+  const [player, setPlayer] = useState<Player>({ pos: { x: 0, y: 0 }, tetromino: [], color: '' });
   const [nextPiece, setNextPiece] = useState<{shape: number[][], color: string} | null>(null);
 
   const [score, setScore] = useState(0);
@@ -85,12 +83,42 @@ const VoiceControlledTetris: React.FC = () => {
   const [lines, setLines] = useState(0);
   const [isGameOver, setIsGameOver] = useState(false);
   const [isPaused, setIsPaused] = useState(true);
-
+  
   const gameAreaRef = useRef<HTMLDivElement>(null);
-  const dropTime = useRef(1000);
+  const dropTimeRef = useRef(1000);
   const previousTimeRef = useRef(0);
   const dropCounter = useRef(0);
+  
+  // Refs to hold the current state for the game loop
+  const playerRef = useRef(player);
+  const boardRef = useRef(board);
+  const isGameOverRef = useRef(isGameOver);
 
+  useEffect(() => { playerRef.current = player }, [player]);
+  useEffect(() => { boardRef.current = board }, [board]);
+  useEffect(() => { isGameOverRef.current = isGameOver }, [isGameOver]);
+
+  
+  const checkCollision = (p: Player, b: Board, move: { x: number; y: number }): boolean => {
+    for (let y = 0; y < p.tetromino.length; y++) {
+      for (let x = 0; x < p.tetromino[0].length; x++) {
+        if (p.tetromino[y][x] !== 0) {
+          const newY = y + p.pos.y + move.y;
+          const newX = x + p.pos.x + move.x;
+
+          if (
+            newY >= BOARD_HEIGHT ||
+            newX < 0 || newX >= BOARD_WIDTH ||
+            (newY >= 0 && b[newY][newX] !== 0)
+          ) {
+            return true;
+          }
+        }
+      }
+    }
+    return false;
+  };
+  
   const resetPlayer = useCallback(() => {
     const newPiece = nextPiece || randomTetromino();
     const nextNextPiece = randomTetromino();
@@ -102,13 +130,13 @@ const VoiceControlledTetris: React.FC = () => {
       color: newPiece.color,
     };
 
-    if (checkCollision(newPlayer, board, {x: 0, y: 0})) {
+    if (checkCollision(newPlayer, boardRef.current, {x: 0, y: 0})) {
       setIsGameOver(true);
       setIsPaused(true);
     } else {
       setPlayer(newPlayer);
     }
-  }, [nextPiece, board]);
+  }, [nextPiece]);
   
   const startGame = useCallback(() => {
     const newBoard = createEmptyBoard();
@@ -117,8 +145,6 @@ const VoiceControlledTetris: React.FC = () => {
     setLevel(0);
     setLines(0);
     setIsGameOver(false);
-    setIsPaused(false);
-    dropTime.current = 1000;
     
     const firstPiece = randomTetromino();
     const secondPiece = randomTetromino();
@@ -128,88 +154,76 @@ const VoiceControlledTetris: React.FC = () => {
         tetromino: firstPiece.shape,
         color: firstPiece.color,
     });
+    setIsPaused(false);
   }, []);
 
   useEffect(() => {
     startGame();
   }, [startGame]);
 
-  const checkCollision = (p: Player, b: Board, move: { x: number; y: number }): boolean => {
-    for (let y = 0; y < p.tetromino.length; y++) {
-      for (let x = 0; x < p.tetromino[0].length; x++) {
-        if (p.tetromino[y][x] !== 0) {
-          const newY = y + p.pos.y + move.y;
-          const newX = x + p.pos.x + move.x;
-          if (newX < 0 || newX >= BOARD_WIDTH || newY >= BOARD_HEIGHT || (newY >= 0 && b[newY][newX] !== 0)) {
-            return true;
-          }
-        }
-      }
-    }
-    return false;
-  };
 
   const updateBoard = useCallback(() => {
-    const newBoard = board.map(row => [...row]);
-    player.tetromino.forEach((row, y) => {
+    setBoard(prevBoard => {
+      const newBoard = prevBoard.map(row => [...row]);
+      playerRef.current.tetromino.forEach((row, y) => {
         row.forEach((value, x) => {
-            if (value !== 0) {
-                const boardY = y + player.pos.y;
-                const boardX = x + player.pos.x;
-                if (boardY >= 0 && boardY < BOARD_HEIGHT && boardX >= 0 && boardX < BOARD_WIDTH) {
-                    newBoard[boardY][boardX] = player.color;
-                }
+          if (value !== 0) {
+            const boardY = y + playerRef.current.pos.y;
+            const boardX = x + playerRef.current.pos.x;
+            if (boardY >= 0 && boardY < BOARD_HEIGHT && boardX >= 0 && boardX < BOARD_WIDTH) {
+              newBoard[boardY][boardX] = playerRef.current.color;
             }
+          }
         });
-    });
-
-    let linesCleared = 0;
-    const clearedBoard = newBoard.filter(row => !row.every(cell => cell !== 0));
-    linesCleared = BOARD_HEIGHT - clearedBoard.length;
-
-    if (linesCleared > 0) {
+      });
+  
+      let linesCleared = 0;
+      const clearedBoard = newBoard.filter(row => !row.every(cell => cell !== 0));
+      linesCleared = BOARD_HEIGHT - clearedBoard.length;
+  
+      if (linesCleared > 0) {
         const newRows = Array.from({ length: linesCleared }, () => Array(BOARD_WIDTH).fill(0));
         setLines(prev => prev + linesCleared);
         setScore(prev => prev + [0, 40, 100, 300, 1200][linesCleared] * (level + 1));
-        setBoard([...newRows, ...clearedBoard]);
-    } else {
-        setBoard(newBoard);
-    }
+        return [...newRows, ...clearedBoard];
+      }
+      return newBoard;
+    });
     resetPlayer();
-  }, [player, board, level, resetPlayer]);
-
-
-  const playerDrop = useCallback(() => {
-     if (checkCollision(player, board, { x: 0, y: 1 })) {
-        if (player.pos.y < 1) {
-            setIsGameOver(true);
-            setIsPaused(true);
-            return;
-        }
-        updateBoard();
-     } else {
-        setPlayer(prev => ({ ...prev, pos: { ...prev.pos, y: prev.pos.y + 1 } }));
-     }
-    dropCounter.current = 0;
-  }, [player, board, updateBoard]);
+  }, [level, resetPlayer]);
   
+  const playerDrop = useCallback(() => {
+    if (checkCollision(playerRef.current, boardRef.current, { x: 0, y: 1 })) {
+       if (playerRef.current.pos.y < 1) {
+           setIsGameOver(true);
+           setIsPaused(true);
+           return;
+       }
+       updateBoard();
+    } else {
+       setPlayer(prev => ({ ...prev, pos: { ...prev.pos, y: prev.pos.y + 1 } }));
+    }
+    dropCounter.current = 0;
+  }, [updateBoard]);
+
   const update = useCallback((time = 0) => {
-    if (isPaused || isGameOver) return;
+    if (isPaused || isGameOverRef.current) return;
     const deltaTime = time - previousTimeRef.current;
     previousTimeRef.current = time;
     dropCounter.current += deltaTime;
 
-    if (dropCounter.current > dropTime.current) {
+    if (dropCounter.current > dropTimeRef.current) {
         playerDrop();
     }
     requestAnimationFrame(update);
-  }, [isPaused, isGameOver, playerDrop]);
+  }, [isPaused, playerDrop]);
 
   useEffect(() => {
     if (!isPaused && !isGameOver) {
       previousTimeRef.current = 0;
       dropCounter.current = 0;
-      requestAnimationFrame(update);
+      const animationFrameId = requestAnimationFrame(update);
+      return () => cancelAnimationFrame(animationFrameId);
     }
   }, [update, isPaused, isGameOver]);
   
@@ -235,14 +249,18 @@ const VoiceControlledTetris: React.FC = () => {
     setPlayer(newPlayer);
   }
 
-  const hardDrop = useCallback(() => {
-    let tempPlayer = { ...player };
-    while (!checkCollision(tempPlayer, board, { x: 0, y: 1 })) {
+  const hardDrop = () => {
+    let tempPlayer = { ...playerRef.current };
+    while (!checkCollision(tempPlayer, boardRef.current, { x: 0, y: 1 })) {
         tempPlayer.pos.y += 1;
     }
+    // Directly update state before triggering board update
     setPlayer(tempPlayer);
-    updateBoard();
-  }, [player, board, updateBoard]);
+    
+    // Defer the board update to the next render cycle to use the new player state
+    setTimeout(() => updateBoard(), 0);
+  };
+
 
   const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
     if (isGameOver) return;

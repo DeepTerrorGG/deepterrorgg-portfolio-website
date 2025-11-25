@@ -1,4 +1,3 @@
-
 // src/app/projects/page.tsx
 'use client';
 
@@ -74,7 +73,6 @@ const TierListMaker = dynamic(() => import('@/components/projects/tier-list/tier
 const MemeStockMarket = dynamic(() => import('@/components/projects/meme-stock-market'), { loading: () => <ProjectLoader /> });
 const CodeRacer = dynamic(() => import('@/components/projects/code-racer'), { loading: () => <ProjectLoader /> });
 const TimeCapsuleProject = dynamic(() => import('@/components/projects/time-capsule'), { loading: () => <ProjectLoader /> });
-const SqlMurderMystery = dynamic(() => import('@/components/projects/sql-murder-mystery'), { ssr: false, loading: () => <ProjectLoader /> });
 const InfiniteCanvas = dynamic(() => import('@/components/projects/infinite-canvas'), { ssr: false, loading: () => <ProjectLoader /> });
 const GitHistoryVisualizer = dynamic(() => import('@/components/projects/githistory-visualizer'), { loading: () => <ProjectLoader /> });
 const VoiceControlledTetris = dynamic(() => import('@/components/projects/voice-controlled-tetris'), { ssr: false, loading: () => <ProjectLoader /> });
@@ -252,25 +250,6 @@ const projectsData: Project[] = [
         { name: 'React', iconSrc: '/icons/react.svg' },
         { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },
         { name: 'HTML5 Canvas', iconSrc: '/icons/html5.svg' },
-        { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss.svg' },
-      ],
-      renderImage: true,
-    },
-    {
-      id: 'sql-murder-mystery',
-      title: 'SQL Murder Mystery',
-      imageUrls: ['/placeholder.png'],
-      imageAlt: 'A SQL terminal interface for a murder mystery game',
-      imageHint: 'sql database terminal game',
-      description: 'A detective game where you solve a murder by writing real SQL queries to investigate clues.',
-      personalNote: 'This project is a fun, interactive way to practice SQL. It uses an in-browser database (AlaSQL) and the same editor engine as VS Code (Monaco) to create a realistic terminal experience. Finding the murderer by piecing together clues from different tables is a surprisingly engaging challenge.',
-      difficulty: 'Hard',
-      component: <SqlMurderMystery />,
-      technologies: [
-        { name: 'React', iconSrc: '/icons/react.svg' },
-        { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },
-        { name: 'AlaSQL', iconSrc: '/icons/database.svg' },
-        { name: 'Monaco Editor', iconSrc: '/icons/vscode.svg' },
         { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss.svg' },
       ],
       renderImage: true,

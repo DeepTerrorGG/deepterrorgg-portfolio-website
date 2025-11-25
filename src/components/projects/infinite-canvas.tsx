@@ -1,9 +1,10 @@
+
 'use client';
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ZoomIn, ZoomOut, Hand, Plus, Minus, Type, Eraser } from 'lucide-react';
+import { ZoomIn, ZoomOut, Hand, Type, Eraser } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 
@@ -24,7 +25,7 @@ const InfiniteCanvas: React.FC = () => {
   const [editingCell, setEditingCell] = useState<{ x: number, y: number } | null>(null);
   const [editValue, setEditValue] = useState('');
   const [currentColor, setCurrentColor] = useState('#FFFFFF');
-  const [tool, setTool] = useState<'type' | 'eraser'>('type');
+  const [tool, setTool] = useState<'type' | 'eraser' | 'hand'>('type');
   
   const { toast } = useToast();
 
@@ -163,6 +164,21 @@ const InfiniteCanvas: React.FC = () => {
 
     setViewport({ zoom: clampedZoom, x: newX, y: newY });
   };
+
+  const handleZoom = (direction: 'in' | 'out') => {
+    const scaleFactor = 1.2;
+    const newZoom = direction === 'in' ? viewport.zoom * scaleFactor : viewport.zoom / scaleFactor;
+    const clampedZoom = Math.max(0.1, Math.min(newZoom, 10));
+    
+    const canvas = canvasRef.current!;
+    const centerX = canvas.width / 2;
+    const centerY = canvas.height / 2;
+
+    const newX = centerX - (centerX - viewport.x) * (clampedZoom / viewport.zoom);
+    const newY = centerY - (centerY - viewport.y) * (clampedZoom / viewport.zoom);
+
+    setViewport({ zoom: clampedZoom, x: newX, y: newY });
+  }
   
   const handleEditChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -198,8 +214,8 @@ const InfiniteCanvas: React.FC = () => {
             <Button variant={tool==='type' ? 'secondary' : 'outline'} size="icon" onClick={() => setTool('type')}><Type /></Button>
             <Button variant={tool==='eraser' ? 'secondary' : 'outline'} size="icon" onClick={() => setTool('eraser')}><Eraser /></Button>
             <input type="color" value={currentColor} onChange={e => setCurrentColor(e.target.value)} className="w-8 h-8 p-1 bg-transparent border rounded-md cursor-pointer"/>
-            <Button variant="outline" size="icon" onClick={() => handleWheel({ deltaY: -100 } as any)}><ZoomIn /></Button>
-            <Button variant="outline" size="icon" onClick={() => handleWheel({ deltaY: 100 } as any)}><ZoomOut /></Button>
+            <Button variant="outline" size="icon" onClick={() => handleZoom('in')}><ZoomIn /></Button>
+            <Button variant="outline" size="icon" onClick={() => handleZoom('out')}><ZoomOut /></Button>
           </div>
         </CardHeader>
         <CardContent className="flex-grow p-0 relative bg-muted/30 overflow-hidden">

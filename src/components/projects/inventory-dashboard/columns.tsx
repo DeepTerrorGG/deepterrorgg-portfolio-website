@@ -1,10 +1,68 @@
 "use client"
 
+import { useEffect, useState } from "react"
 import { ColumnDef } from "@tanstack/react-table"
-import { Product } from "@/lib/inventory-mock-data"
+import { Product, mockCategories, mockSuppliers } from "@/lib/inventory-mock-data"
 import { Badge } from "@/components/ui/badge"
 import { ArrowUpDown } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+
+const EditableCell = ({ getValue, row, column, table }: any) => {
+  const initialValue = getValue();
+  const [value, setValue] = useState(initialValue);
+  const { updateProduct } = table.options.meta;
+
+  useEffect(() => {
+    setValue(initialValue)
+  }, [initialValue])
+
+  const onBlur = () => {
+    // For numeric fields, parse to float
+    const isNumeric = column.id === 'price' || column.id === 'stock';
+    const finalValue = isNumeric ? parseFloat(value) : value;
+    if (isNumeric && isNaN(finalValue)) {
+      // Revert if not a valid number
+      setValue(initialValue);
+    } else {
+      updateProduct(row.original.sku, { [column.id]: finalValue });
+    }
+  }
+
+  return (
+     <Input
+      value={value}
+      onChange={e => setValue(e.target.value)}
+      onBlur={onBlur}
+      className="w-full h-8 px-2 py-1"
+      type={column.id === 'price' || column.id === 'stock' ? 'number' : 'text'}
+    />
+  )
+}
+
+const SelectCell = ({ getValue, row, column, table, options }: any) => {
+  const initialValue = getValue();
+  const { updateProduct } = table.options.meta;
+
+  const onSelectChange = (newValue: string) => {
+    updateProduct(row.original.sku, { [column.id]: newValue });
+  }
+
+  return (
+    <Select value={initialValue} onValueChange={onSelectChange}>
+        <SelectTrigger className="w-[150px] focus:ring-transparent border-none h-8">
+            <SelectValue/>
+        </SelectTrigger>
+        <SelectContent>
+            {options.map((option: string) => (
+                <SelectItem key={option} value={option}>{option}</SelectItem>
+            ))}
+        </SelectContent>
+    </Select>
+  );
+}
+
 
 export const columns: ColumnDef<Product>[] = [
   {
@@ -15,17 +73,17 @@ export const columns: ColumnDef<Product>[] = [
         <ArrowUpDown className="ml-2 h-4 w-4" />
       </Button>
     ),
-    cell: ({ row }) => (
-      <div className="font-medium">{row.original.name}</div>
-    )
+    cell: EditableCell,
   },
   {
     accessorKey: "sku",
     header: "SKU",
+    cell: EditableCell,
   },
   {
     accessorKey: "category",
     header: "Category",
+    cell: (props) => <SelectCell {...props} options={mockCategories} />,
   },
   {
     accessorKey: "stock",
@@ -37,9 +95,7 @@ export const columns: ColumnDef<Product>[] = [
         </Button>
       </div>
     ),
-    cell: ({ row }) => (
-      <div className="text-center">{row.original.stock}</div>
-    ),
+    cell: EditableCell,
   },
   {
     accessorKey: "price",
@@ -51,11 +107,7 @@ export const columns: ColumnDef<Product>[] = [
         </Button>
       </div>
     ),
-    cell: ({ row }) => (
-      <div className="text-right font-medium">
-        {`$${row.original.price.toFixed(2)}`}
-      </div>
-    ),
+    cell: EditableCell,
   },
   {
     accessorKey: "status",
@@ -78,5 +130,6 @@ export const columns: ColumnDef<Product>[] = [
   {
     accessorKey: "supplier",
     header: "Supplier",
+    cell: (props) => <SelectCell {...props} options={mockSuppliers} />,
   },
 ]

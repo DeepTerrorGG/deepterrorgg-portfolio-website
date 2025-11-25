@@ -1,5 +1,6 @@
 'use client';
 
+import { useState, useMemo } from 'react';
 import {
   Package,
   AlertTriangle,
@@ -20,14 +21,23 @@ import { InventoryChart } from '@/components/projects/inventory-dashboard/invent
 import { RecentActivity } from '@/components/projects/inventory-dashboard/recent-activity';
 import { InventoryDataTable } from '@/components/projects/inventory-dashboard/data-table';
 import { columns } from '@/components/projects/inventory-dashboard/columns';
-import { mockProducts } from '@/lib/inventory-mock-data';
+import { mockProducts as initialMockProducts, Product } from '@/lib/inventory-mock-data';
 
 export default function InventoryDashboard() {
+  const [products, setProducts] = useState<Product[]>(initialMockProducts);
+
+  const updateProduct = (sku: string, updatedData: Partial<Product>) => {
+    setProducts(currentProducts =>
+      currentProducts.map(product =>
+        product.sku === sku ? { ...product, ...updatedData } : product
+      )
+    );
+  };
   
-  const totalProducts = mockProducts.length;
-  const lowStockItems = mockProducts.filter(p => p.stock < 20).length;
-  const totalValue = mockProducts.reduce((sum, p) => sum + (p.price * p.stock), 0);
-  const categories = new Set(mockProducts.map(p => p.category)).size;
+  const totalProducts = products.length;
+  const lowStockItems = useMemo(() => products.filter(p => p.stock < 20).length, [products]);
+  const totalValue = useMemo(() => products.reduce((sum, p) => sum + (p.price * p.stock), 0), [products]);
+  const categories = useMemo(() => new Set(products.map(p => p.category)).size, [products]);
 
   return (
     <div className="flex min-h-screen w-full flex-col bg-card">
@@ -75,10 +85,10 @@ export default function InventoryDashboard() {
         <Card>
             <CardHeader>
               <CardTitle>Products</CardTitle>
-              <CardDescription>A list of all products in the inventory.</CardDescription>
+              <CardDescription>A list of all products in the inventory. Click on a cell to edit.</CardDescription>
             </CardHeader>
             <CardContent>
-               <InventoryDataTable columns={columns} data={mockProducts} />
+               <InventoryDataTable columns={columns} data={products} updateProduct={updateProduct} />
             </CardContent>
         </Card>
       </main>

@@ -11,6 +11,8 @@ import {
   getSortedRowModel,
   ColumnFiltersState,
   getFilteredRowModel,
+  Row,
+  TableMeta,
 } from "@tanstack/react-table"
 
 import {
@@ -23,15 +25,24 @@ import {
 } from "@/components/ui/table"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { Product } from "@/lib/inventory-mock-data"
 
-interface DataTableProps<TData, TValue> {
+interface DataTableProps<TData extends Product, TValue> {
   columns: ColumnDef<TData, TValue>[]
   data: TData[]
+  updateProduct: (sku: string, updatedData: Partial<Product>) => void;
 }
 
-export function InventoryDataTable<TData, TValue>({
+declare module '@tanstack/react-table' {
+  interface TableMeta<TData extends Row<Product>> {
+    updateProduct: (sku: string, updatedData: Partial<Product>) => void;
+  }
+}
+
+export function InventoryDataTable<TData extends Product, TValue>({
   columns,
   data,
+  updateProduct,
 }: DataTableProps<TData, TValue>) {
     const [sorting, setSorting] = useState<SortingState>([])
     const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
@@ -48,6 +59,9 @@ export function InventoryDataTable<TData, TValue>({
     state: {
       sorting,
       columnFilters,
+    },
+    meta: {
+      updateProduct,
     },
   })
 

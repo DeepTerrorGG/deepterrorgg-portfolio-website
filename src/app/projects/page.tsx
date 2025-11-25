@@ -84,6 +84,7 @@ const ConnectFour = dynamic(() => import('@/components/projects/connect-four'), 
 const MemoryMatrix = dynamic(() => import('@/components/projects/memory-matrix'), { loading: () => <ProjectLoader /> });
 const BookingCalendar = dynamic(() => import('@/components/projects/booking-calendar'), { loading: () => <ProjectLoader /> });
 const ThisDayInHistory = dynamic(() => import('@/components/projects/this-day-in-history'), { loading: () => <ProjectLoader /> });
+const DigitalAssetManager = dynamic(() => import('@/components/projects/digital-asset-manager'), { loading: () => <ProjectLoader /> });
 
 
 interface Technology {
@@ -115,6 +116,25 @@ const ProjectLoader = () => (
 );
 
 const projectsData: Project[] = [
+    {
+      id: 'digital-asset-manager',
+      title: 'Digital Asset Manager',
+      imageUrls: ['/placeholder.png'],
+      imageAlt: 'A file management system with folders and files',
+      imageHint: 'file manager cloud storage',
+      description: 'A Google Drive clone where you can upload files, create folders, and share links.',
+      personalNote: 'This project was a deep dive into handling file uploads and asynchronous operations. Building the recursive folder structure was a fun challenge that really tested my understanding of React components. It also demonstrates key skills in working with cloud storage and managing binary data.',
+      difficulty: 'Advanced',
+      component: <DigitalAssetManager />,
+      technologies: [
+        { name: 'React', iconSrc: '/icons/react.svg' },
+        { name: 'Next.js', iconSrc: '/icons/nextjs.svg' },
+        { name: 'Firebase', iconSrc: '/icons/firebase.svg' },
+        { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },
+        { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss.svg' },
+      ],
+      renderImage: true,
+    },
     {
       id: 'inventory-dashboard',
       title: 'Inventory Management Dashboard',

@@ -13,9 +13,10 @@ import {
   CarouselPrevious,
 } from '@/components/ui/carousel';
 import { Button } from '@/components/ui/button';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, Compass } from 'lucide-react';
 import { TechStack } from '@/components/ui/tech-stack';
 import Autoplay from 'embla-carousel-autoplay';
+import { cn } from '@/lib/utils';
 
 interface Project {
   id: string;
@@ -50,20 +51,15 @@ const ProjectShowcase: React.FC<ProjectShowcaseProps> = ({ projects }) => {
             <div className="p-1">
               <Card className="flex flex-col md:flex-row overflow-hidden h-full min-h-[480px] transform-style-3d transition-transform duration-500 ease-in-out">
                 <div className="relative w-full md:w-1/2 h-64 md:h-auto bg-card">
-                  {project.component ? (
-                    <div className="w-full h-full min-h-[300px] md:min-h-full">
-                      {project.component}
+                  <div className="w-full h-full min-h-[300px] md:min-h-full flex items-center justify-center bg-muted/30 p-8">
+                     <div className="text-center">
+                        <Compass className="h-16 w-16 text-primary mx-auto mb-4"/>
+                        <h3 className="text-xl font-bold">Explore this Project</h3>
+                        <p className="text-muted-foreground mt-2">
+                            This is an interactive demo. Click the button to explore it on the projects page.
+                        </p>
                     </div>
-                  ) : project.imageUrl && (
-                    <Image
-                      src={project.imageUrl}
-                      alt={project.title}
-                      fill
-                      sizes="(max-width: 768px) 100vw, 50vw"
-                      className="object-cover"
-                      data-ai-hint={project.imageHint}
-                    />
-                  )}
+                  </div>
                 </div>
                 <div className="w-full md:w-1/2 flex flex-col p-6 sm:p-8 justify-center">
                   <CardHeader className="p-0 mb-4">

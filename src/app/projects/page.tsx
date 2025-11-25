@@ -109,7 +109,7 @@ interface Project {
 }
 
 const ProjectLoader = () => (
-    <div className="flex h-full w-full items-center justify-center bg-card">
+    <div className="flex h-96 w-full items-center justify-center bg-card">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
     </div>
 );
@@ -1221,7 +1221,7 @@ const ProjectDetailContent = ({ project }: { project: Project }) => {
     };
 
     return (
-        <div className="max-w-4xl mx-auto py-8">
+        <div className="p-4 sm:p-8 md:p-12">
             <h2 className="text-3xl font-bold text-foreground mb-2">{project.title}</h2>
             <p className="text-muted-foreground text-lg mb-6">{project.description}</p>
             
@@ -1348,38 +1348,31 @@ export default function ProjectsPage() {
           </ScrollArea>
         </div>
 
-        {/* Right Column: Project Details */}
-        <div className="flex-1 flex flex-col h-full">
-          <ScrollArea className="flex-1 w-full h-full">
-            <div className="flex flex-col h-full animate-fade-in">
-              {selectedProject.component ? (
-                <div className="flex-grow flex flex-col h-full">
+        {/* Right Column: Project Details & Component */}
+        <ScrollArea className="flex-1 w-full h-full">
+            <div className="animate-fade-in">
+              <div className="min-h-[50vh] flex items-center justify-center bg-background">
                   <Suspense fallback={<ProjectLoader />}>
-                    <div className="flex-grow">{selectedProject.component}</div>
+                      {selectedProject.component ? selectedProject.component : (
+                          <div className="relative w-full max-w-4xl aspect-video rounded-lg overflow-hidden m-8 bg-card">
+                              <Image
+                                  src={selectedProject.imageUrls[0]}
+                                  alt={selectedProject.imageAlt}
+                                  fill
+                                  sizes="(max-width: 767px) 100vw, 60vw"
+                                  className="object-cover"
+                                  data-ai-hint={selectedProject.imageHint}
+                                  priority
+                              />
+                          </div>
+                      )}
                   </Suspense>
-                  <div className="p-4 sm:p-8 md:p-12 border-t bg-background shrink-0">
-                    <ProjectDetailContent project={selectedProject} />
-                  </div>
-                </div>
-              ) : (
-                <div className="p-4 sm:p-8 md:p-12">
-                  <div className="relative w-full aspect-video rounded-lg overflow-hidden mb-8 bg-card">
-                    <Image
-                      src={selectedProject.imageUrls[0]}
-                      alt={selectedProject.imageAlt}
-                      fill
-                      sizes="(max-width: 767px) 100vw, 60vw"
-                      className="object-cover"
-                      data-ai-hint={selectedProject.imageHint}
-                      priority
-                    />
-                  </div>
+              </div>
+              <div className="bg-card border-t">
                   <ProjectDetailContent project={selectedProject} />
-                </div>
-              )}
+              </div>
             </div>
-          </ScrollArea>
-        </div>
+        </ScrollArea>
       </div>
     </div>
   );

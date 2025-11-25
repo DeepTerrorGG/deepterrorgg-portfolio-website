@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useMemo, useCallback } from 'react';
@@ -10,6 +9,7 @@ import { cn } from '@/lib/utils';
 import { add, format, startOfDay, getDay, isBefore, isEqual, set } from 'date-fns';
 import { Clock, User, Check, Loader2 } from 'lucide-react';
 import { ScrollArea } from '../ui/scroll-area';
+import { Input } from '@/components/ui/input';
 
 // --- CONFIGURATION ---
 const SLOT_DURATION_MINUTES = 30;

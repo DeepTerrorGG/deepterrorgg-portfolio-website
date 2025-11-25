@@ -125,9 +125,18 @@ const VoiceControlledTetris: React.FC = () => {
     setIsGameOver(false);
     setIsPaused(false);
     dropTime.current = 1000;
-    setNextPiece(randomTetromino());
-    resetPlayer();
-  }, [resetPlayer]);
+    
+    const firstPiece = randomTetromino();
+    const secondPiece = randomTetromino();
+    setNextPiece(secondPiece);
+    setPlayer({
+        pos: { x: Math.floor(BOARD_WIDTH / 2) - 1, y: 0 },
+        tetromino: firstPiece.shape,
+        color: firstPiece.color,
+        collided: false,
+    });
+
+  }, []);
 
   useEffect(() => {
     startGame();
@@ -219,9 +228,13 @@ const VoiceControlledTetris: React.FC = () => {
   }, [isPaused, isGameOver, playerDrop]);
 
   useEffect(() => {
-    const animationFrame = requestAnimationFrame(update);
-    return () => cancelAnimationFrame(animationFrame);
-  }, [update]);
+    if(!isPaused && !isGameOver) {
+      previousTimeRef.current = 0;
+      dropCounter.current = 0;
+      const animationFrame = requestAnimationFrame(update);
+      return () => cancelAnimationFrame(animationFrame);
+    }
+  }, [update, isPaused, isGameOver]);
 
   const movePlayer = (dir: -1 | 1) => {
     if (!checkCollision(player, board, { x: dir, y: 0 })) {
@@ -253,28 +266,38 @@ const VoiceControlledTetris: React.FC = () => {
     while (!checkCollision(tempPlayer, board, { x: 0, y: 1 })) {
         tempPlayer.pos.y += 1;
     }
-    setPlayer(tempPlayer);
     
-    // We need to use a timeout to let the state update before locking the piece
-    setTimeout(() => {
-       setBoard(prevBoard => {
-            const newBoard = prevBoard.map(row => [...row]);
-            tempPlayer.tetromino.forEach((row, y) => {
-                row.forEach((value, x) => {
-                    if (value !== 0) {
-                        const boardY = y + tempPlayer.pos.y;
-                        const boardX = x + tempPlayer.pos.x;
-                        if (boardY >= 0 && boardY < BOARD_HEIGHT && boardX >= 0 && boardX < BOARD_WIDTH) {
-                            newBoard[boardY][boardX] = tempPlayer.color;
-                        }
-                    }
-                });
-            });
-            // check for cleared lines here as well
-            return newBoard;
-        });
-        resetPlayer();
-    }, 0)
+    setBoard(prevBoard => {
+      const newBoard = prevBoard.map(row => [...row]);
+      tempPlayer.tetromino.forEach((row, y) => {
+          row.forEach((value, x) => {
+              if (value !== 0) {
+                  const boardY = y + tempPlayer.pos.y;
+                  const boardX = x + tempPlayer.pos.x;
+                  if (boardY >= 0 && boardY < BOARD_HEIGHT && boardX >= 0 && boardX < BOARD_WIDTH) {
+                      newBoard[boardY][boardX] = tempPlayer.color;
+                  }
+              }
+          });
+      });
+      // check for cleared lines here as well - simplified for now
+      let linesCleared = 0;
+      const clearedBoard = newBoard.filter(row => {
+          const isFull = row.every(cell => cell !== 0);
+          if (isFull) linesCleared++;
+          return !isFull;
+      });
+
+      if (linesCleared > 0) {
+          const newLines = Array.from({ length: linesCleared }, () => Array(BOARD_WIDTH).fill(0));
+          setLines(l => l + linesCleared);
+          return [...newLines, ...clearedBoard];
+      }
+
+      return newBoard;
+    });
+
+    resetPlayer();
 
   }, [player, board, resetPlayer]);
 
@@ -292,12 +315,16 @@ const VoiceControlledTetris: React.FC = () => {
     else if (e.key === 'ArrowDown') playerDrop();
     else if (e.key === 'ArrowUp' || e.key.toLowerCase() === 'x') rotatePlayer();
     else if (e.key === ' ') { e.preventDefault(); hardDrop(); }
-  }, [isGameOver, isPaused, playerDrop, hardDrop]); // Dependencies
+  }, [isGameOver, isPaused, playerDrop, hardDrop]);
   
   useEffect(() => {
-    window.addEventListener('keydown', handleKeyDown);
-    return () => {
-        window.removeEventListener('keydown', handleKeyDown);
+    const gameArea = gameAreaRef.current;
+    if (gameArea) {
+        gameArea.focus();
+        gameArea.addEventListener('keydown', handleKeyDown);
+        return () => {
+            gameArea.removeEventListener('keydown', handleKeyDown);
+        }
     }
   }, [handleKeyDown]);
 

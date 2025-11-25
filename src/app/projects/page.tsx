@@ -1,3 +1,4 @@
+
 // src/app/projects/page.tsx
 'use client';
 
@@ -1390,12 +1391,12 @@ export default function ProjectsPage() {
         </div>
 
         {/* Right Column: Project Details & Component */}
-        <ScrollArea className="flex-1 w-full h-full">
-            <div className="animate-fade-in">
-              <div className="min-h-[50vh] flex items-center justify-center bg-background">
+        <ScrollArea className="flex-1 w-2/3 h-full bg-background">
+          <div className="animate-fade-in">
+              <div className="min-h-[60vh] max-h-[80vh] flex items-center justify-center relative bg-muted/20 border-b border-border">
                   <Suspense fallback={<ProjectLoader />}>
                       {selectedProject.component ? selectedProject.component : (
-                          <div className="relative w-full max-w-4xl aspect-video rounded-lg overflow-hidden m-8 bg-card">
+                          <div className="relative w-full aspect-video rounded-lg overflow-hidden bg-card">
                               <Image
                                   src={selectedProject.imageUrls[0]}
                                   alt={selectedProject.imageAlt}
@@ -1409,10 +1410,10 @@ export default function ProjectsPage() {
                       )}
                   </Suspense>
               </div>
-              <div className="bg-card border-t">
+              <div className="bg-card">
                   <ProjectDetailContent project={selectedProject} />
               </div>
-            </div>
+          </div>
         </ScrollArea>
       </div>
     </div>

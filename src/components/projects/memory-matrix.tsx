@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
@@ -111,9 +110,9 @@ const MemoryMatrix: React.FC = () => {
                                 disabled={gameState !== 'repeating'}
                                 className={cn(
                                     "w-20 h-20 sm:w-24 sm:h-24 rounded-lg transition-colors duration-200",
-                                    "bg-muted/50 border border-border",
-                                    gameState === 'repeating' && "cursor-pointer hover:bg-muted",
-                                    activeTile === index && "!bg-primary !border-primary-foreground"
+                                    "bg-muted",
+                                    gameState === 'repeating' && "cursor-pointer hover:bg-muted/80",
+                                    activeTile === index && "!bg-primary"
                                 )}
                                 whileTap={gameState === 'repeating' ? { scale: 0.95, backgroundColor: '#4f46e5' } : {}}
                             />

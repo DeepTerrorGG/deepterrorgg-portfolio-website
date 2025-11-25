@@ -1,4 +1,3 @@
-
 // src/app/projects/page.tsx
 'use client';
 
@@ -65,6 +64,7 @@ const ScreenshotService = dynamic(() => import('@/components/projects/screenshot
 const WebsiteStatusChecker = dynamic(() => import('@/components/projects/website-status-checker'), { loading: () => <ProjectLoader /> });
 const SortingVisualizer = dynamic(() => import('@/components/projects/sorting-visualizer'), { loading: () => <ProjectLoader /> });
 const EcommerceDashboard = dynamic(() => import('@/app/dashboard/page'), { loading: () => <ProjectLoader /> });
+const InventoryDashboard = dynamic(() => import('@/components/projects/inventory-dashboard/inventory-dashboard'), { loading: () => <ProjectLoader /> });
 const CodeBeautifier = dynamic(() => import('@/components/projects/code-beautifier'), { loading: () => <ProjectLoader /> });
 const SpotifyPlaylistGenerator = dynamic(() => import('@/components/projects/spotify-playlist-generator'), { loading: () => <ProjectLoader /> });
 const SpeedTester = dynamic(() => import('@/components/projects/speed-tester'), { loading: () => <ProjectLoader /> });
@@ -115,6 +115,27 @@ const ProjectLoader = () => (
 );
 
 const projectsData: Project[] = [
+    {
+      id: 'inventory-dashboard',
+      title: 'Inventory Management Dashboard',
+      imageUrls: ['/placeholder.png'],
+      imageAlt: 'Inventory dashboard with charts and product tables',
+      imageHint: 'dashboard inventory management',
+      description: 'A data-heavy dashboard for managing warehouse inventory, products, and suppliers.',
+      personalNote: 'This project is a powerful demonstration of handling complex, real-world data scenarios. It uses TanStack Table for a fully-featured data grid (sorting, filtering, pagination) and Recharts for data visualization, which are essential skills for most web development jobs.',
+      difficulty: 'Advanced',
+      component: <InventoryDashboard />,
+      technologies: [
+            { name: 'React', iconSrc: '/icons/react.svg' },
+            { name: 'Next.js', iconSrc: '/icons/nextjs.svg' },
+            { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },
+            { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss.svg' },
+            { name: 'Recharts', iconSrc: '/icons/recharts.svg' },
+            { name: '@tanstack/table', iconSrc: '/icons/react-query.svg' },
+            { name: 'Faker.js', iconSrc: '/icons/faker.svg' },
+      ],
+      renderImage: true,
+    },
     {
       id: 'booking-calendar',
       title: 'Booking & Scheduling App',

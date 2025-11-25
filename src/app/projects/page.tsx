@@ -83,6 +83,7 @@ const SudokuSolver = dynamic(() => import('@/components/projects/sudoku-solver')
 const ConnectFour = dynamic(() => import('@/components/projects/connect-four'), { loading: () => <ProjectLoader /> });
 const MemoryMatrix = dynamic(() => import('@/components/projects/memory-matrix'), { loading: () => <ProjectLoader /> });
 const BookingCalendar = dynamic(() => import('@/components/projects/booking-calendar'), { loading: () => <ProjectLoader /> });
+const ThisDayInHistory = dynamic(() => import('@/components/projects/this-day-in-history'), { loading: () => <ProjectLoader /> });
 
 
 interface Technology {
@@ -1176,53 +1177,37 @@ const projectsData: Project[] = [
     ],
     renderImage: true,
   },
+  {
+    id: 'this-day-in-history',
+    title: 'This Day in History',
+    imageUrls: ['/placeholder.png'],
+    imageAlt: 'This Day in History app interface',
+    imageHint: 'history facts timeline',
+    description: 'Discover historical events, births, and deaths that happened on a selected day.',
+    personalNote: 'This project was a fun way to work with a public API (from Wikipedia) and display a feed of interesting data. It also includes date picking and tabbed navigation to filter the content.',
+    difficulty: 'Medium',
+    component: <ThisDayInHistory />,
+    technologies: [
+        { name: 'React', iconSrc: '/icons/react.svg' },
+        { name: 'Next.js', iconSrc: '/icons/nextjs.svg' },
+        { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },
+        { name: 'date-fns', iconSrc: '/icons/date-fns.svg' },
+    ],
+    renderImage: true,
+},
 ];
 
-const communityProject: Project = {
-  id: 'silent-horizon',
-  title: 'Silent Horizon Community Project',
-  imageUrls: [
-    '/sh1.jpg',
-    '/sh2.jpg',
-    '/sh3.jpg',
-    '/sh4.jpg',
-    '/sh5.jpg',
-    '/sh6.jpg',
-    '/sh7.jpg',
-    '/sh8.jpg',
-    '/sh9.jpg',
-  ],
-  imageAlt: 'Silent Horizon Minecraft Server',
-  imageHint: 'minecraft landscape castle',
-  description: 'A Balkan Minecraft server community project with Survival, Skyblock, and Prison modes. Open for everyone to join and play.',
-  difficulty: 'Community',
-  externalLink: 'https://silent-horizon.com/',
-  personalNote: "This project challenged me in ways I didn’t expect, as it was mostly done for friends. While it's a cool project that has a lot to offer, it can also be incredibly draining. Managing a team of 10 staff members, keeping the community engaged, and rolling out regular events and updates is a huge undertaking. It was a massive learning experience in community management, but it's not where my personal passion lies.",
-  technologies: [
-      { name: 'Java', iconSrc: '/icons/java.svg' },
-      { name: 'Pterodactyl', iconSrc: '/icons/pterodactyl.svg' },
-      { name: 'MySQL', iconSrc: '/icons/mysql.svg' },
-      { name: 'Docker', iconSrc: '/icons/docker.svg' },
-      { name: 'Firebase', iconSrc: '/icons/firebase.svg' },
-      { name: 'React', iconSrc: '/icons/react.svg' },
-      { name: 'Next.js', iconSrc: '/icons/nextjs.svg' },
-      { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },
-      { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss.svg' },
-  ],
-  renderImage: true,
-};
-
 const difficultyOrder = {
-  'Easy': 1,
-  'Medium': 2,
+  'AI': 1,
+  'Advanced': 2,
   'Hard': 3,
-  'Advanced': 4,
-  'AI': 5,
-  'Meme': 6,
-  'Community': 7,
+  'Medium': 4,
+  'Easy': 5,
+  'Community': 6,
+  'Meme': 7,
 };
 
-const allProjects = [...projectsData, communityProject].sort((a, b) => {
+const allProjects = [...projectsData].sort((a, b) => {
   const diff = difficultyOrder[a.difficulty] - difficultyOrder[b.difficulty];
   if (diff !== 0) return diff;
   return a.title.localeCompare(b.title);

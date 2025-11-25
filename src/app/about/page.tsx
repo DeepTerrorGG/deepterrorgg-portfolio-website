@@ -1,4 +1,3 @@
-
 // src/app/about/page.tsx
 'use client';
 import Image from 'next/image';
@@ -17,44 +16,47 @@ interface Technology {
 
 const techCategories = [
   {
-    title: 'Frontend',
+    title: 'Core Stack',
     technologies: [
-      { name: 'React', href: 'https://react.dev/', iconSrc: '/icons/react.svg' },
       { name: 'Next.js', href: 'https://nextjs.org/', iconSrc: '/icons/nextjs.svg' },
-      { name: 'Tailwind CSS', href: 'https://tailwindcss.com/', iconSrc: '/icons/tailwindcss.svg' },
-      { name: 'Webflow', href: 'https://webflow.com/', iconSrc: '/icons/webflow.svg' },
-      { name: 'Framer', href: 'https://www.framer.com/', iconSrc: '/icons/framer.svg' },
-    ],
-  },
-  {
-    title: 'Backend & Languages',
-    technologies: [
-      { name: 'Node.js', href: 'https://nodejs.org/', iconSrc: '/icons/nodejs.svg' },
-      { name: 'JavaScript', href: 'https://developer.mozilla.org/en-US/docs/Web/JavaScript', iconSrc: '/icons/javascript.svg' },
+      { name: 'React', href: 'https://react.dev/', iconSrc: '/icons/react.svg' },
       { name: 'TypeScript', href: 'https://www.typescriptlang.org/', iconSrc: '/icons/typescript.svg' },
-      { name: 'C#', href: 'https://docs.microsoft.com/en-us/dotnet/csharp/', iconSrc: '/icons/csharp.svg' },
-      { name: 'C++', href: 'https://isocpp.org/', iconSrc: '/icons/cplusplus.svg' },
-      { name: 'Python', href: 'https://www.python.org/', iconSrc: '/icons/python.svg' },
-      { name: 'Java', href: 'https://www.java.com/', iconSrc: '/icons/java.svg' },
+      { name: 'Node.js', href: 'https://nodejs.org/', iconSrc: '/icons/nodejs.svg' },
     ],
   },
   {
-    title: 'Databases & DevOps',
+    title: 'Styling & UI',
     technologies: [
-      { name: 'MySQL', href: 'https://www.mysql.com/', iconSrc: '/icons/mysql.svg' },
-      { name: 'Docker', href: 'https://www.docker.com/', iconSrc: '/icons/docker.svg' },
-      { name: 'Vercel', href: 'https://vercel.com/', iconSrc: '/icons/vercel.svg' },
-      { name: 'Pterodactyl', href: 'https://pterodactyl.io/', iconSrc: '/icons/pterodactyl.svg' },
+      { name: 'Tailwind CSS', href: 'https://tailwindcss.com/', iconSrc: '/icons/tailwindcss.svg' },
+      { name: 'shadcn/ui', href: 'https://ui.shadcn.com/', iconSrc: '/icons/shadcn.svg' },
+      { name: 'Framer Motion', href: 'https://www.framer.com/motion/', iconSrc: '/icons/framer.svg' },
+      { name: 'Lucide Icons', href: 'https://lucide.dev/', iconSrc: '/icons/lucide.svg' },
+      { name: 'Spline', href: 'https://spline.design/', iconSrc: '/icons/spline.svg' },
+    ],
+  },
+   {
+    title: 'Data & UI Libraries',
+    technologies: [
+      { name: 'React Hook Form', href: 'https://react-hook-form.com/', iconSrc: '/icons/react-hook-form.svg' },
+      { name: 'Zod', href: 'https://zod.dev/', iconSrc: '/icons/zod.svg' },
+      { name: 'dnd-kit', href: 'https://dndkit.com/', iconSrc: '/icons/dnd-kit.svg' },
+      { name: 'Recharts', href: 'https://recharts.org/', iconSrc: '/icons/recharts.svg' },
+      { name: 'D3.js', href: 'https://d3js.org/', iconSrc: '/icons/d3.svg' },
+      { name: 'date-fns', href: 'https://date-fns.org/', iconSrc: '/icons/date-fns.svg' },
+      { name: 'TanStack Table', href: 'https://tanstack.com/table/v8', iconSrc: '/icons/react-query.svg' },
+      { name: 'Monaco Editor', href: 'https://microsoft.github.io/monaco-editor/', iconSrc: '/icons/vscode.svg' },
     ],
   },
   {
-    title: 'Libraries & Services',
+    title: 'AI & Backend Services',
     technologies: [
+      { name: 'Genkit', href: 'https://firebase.google.com/docs/genkit', iconSrc: '/icons/genkit.svg' },
+      { name: 'Google Gemini', href: 'https://deepmind.google.com/technologies/gemini/', iconSrc: '/icons/gemini.svg' },
       { name: 'Firebase', href: 'https://firebase.google.com/', iconSrc: '/icons/firebase.svg' },
-      { name: 'Firebase Auth', href: 'https://firebase.google.com/docs/auth', iconSrc: '/icons/firebase.svg' },
-      { name: 'Firebase Database', href: 'https://firebase.google.com/docs/database', iconSrc: '/icons/firebase.svg' },
-      { name: 'Gemini', href: 'https://deepmind.google/technologies/gemini/', iconSrc: '/icons/gemini.svg' },
-      { name: 'Discord.js', href: 'https://discord.js.org/', iconSrc: '/icons/discord.svg' },
+      { name: 'NextAuth.js', href: 'https://next-auth.js.org/', iconSrc: '/icons/nextauth.svg' },
+      { name: 'Resend', href: 'https://resend.com/', iconSrc: '/icons/resend.svg' },
+      { name: 'Vercel', href: 'https://vercel.com/', iconSrc: '/icons/vercel.svg' },
+      { name: '@vercel/og', href: 'https://vercel.com/docs/functions/edge-functions/og-image-generation', iconSrc: '/icons/vercel.svg' },
     ],
   },
 ];
@@ -143,7 +145,7 @@ export default function AboutPage() {
         <div className="text-center mb-12">
             <h2 className="flex items-center justify-center gap-2 text-3xl font-bold text-foreground">
                 <Code aria-hidden="true" className="text-primary h-8 w-8" />
-                My Technology Stack
+                This Project's Technology Stack
             </h2>
         </div>
         <div className="space-y-12">

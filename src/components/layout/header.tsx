@@ -14,18 +14,11 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger, SheetClose 
 const navLinks = [
   { href: '/', label: 'Home' },
   { href: '/artworks', label: 'Artworks' },
+  { href: '/startup', label: 'Startup' },
   { href: '/projects', label: 'Projects' },
   { href: '/about', label: 'About Me' },
   { href: '/contact', label: 'Contact' },
 ];
-
-const LogoIcon = () => (
-  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path d="M4 8C4 5.79086 5.79086 4 8 4" stroke="hsl(var(--primary))" strokeWidth="2" strokeLinecap="round"/>
-    <path d="M4 12C4 9.79086 5.79086 8 8 8" stroke="hsl(var(--primary))" strokeWidth="2" strokeLinecap="round"/>
-    <path d="M4 16C4 13.7909 5.79086 12 8 12" stroke="hsl(var(--primary))" strokeWidth="2" strokeLinecap="round"/>
-  </svg>
-);
 
 
 export default function Header() {
@@ -44,7 +37,7 @@ export default function Header() {
           
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2 group transition-transform hover:scale-105">
-            <LogoIcon />
+            
             <span className="text-lg font-bold text-foreground group-hover:text-primary transition-colors">
               DeepTerrorGG
             </span>

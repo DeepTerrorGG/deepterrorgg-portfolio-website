@@ -48,37 +48,33 @@ const featuredProjects = [
         { name: 'Genkit', iconSrc: '/icons/genkit.svg' },
       ],
     },
-    {
-      id: 'silent-horizon',
-      title: 'Silent Horizon Community Project',
-      description: 'A large-scale Balkan Minecraft server community project with custom plugins, multiple game modes, and a dedicated staff team.',
-      imageUrl: '/sh1.jpg',
-      imageHint: 'minecraft landscape castle',
-      technologies: [
-          { name: 'Java', iconSrc: '/icons/java.svg' },
-          { name: 'Pterodactyl', iconSrc: '/icons/pterodactyl.svg' },
-          { name: 'MySQL', iconSrc: '/icons/mysql.svg' },
-          { name: 'Docker', iconSrc: '/icons/docker.svg' },
-          { name: 'Firebase', iconSrc: '/icons/firebase.svg' },
-          { name: 'React', iconSrc: '/icons/react.svg' },
-      ],
-    },
 ];
 
 const technologies = [
+  { name: 'Next.js', href: 'https://nextjs.org/', iconSrc: '/icons/nextjs.svg' },
   { name: 'React', href: 'https://react.dev/', iconSrc: '/icons/react.svg' },
-  { name: 'C++', href: 'https://isocpp.org/', iconSrc: '/icons/cplusplus.svg' },
-  { name: 'Tailwind CSS', href: 'https://tailwindcss.com/', iconSrc: '/icons/tailwindcss.svg' },
-  { name: 'Node.js', href: 'https://nodejs.org/', iconSrc: '/icons/nodejs.svg' },
   { name: 'TypeScript', href: 'https://www.typescriptlang.org/', iconSrc: '/icons/typescript.svg' },
-  { name: 'Firebase', href: 'https://firebase.google.com/', iconSrc: '/icons/firebase.svg' },
+  { name: 'Node.js', href: 'https://nodejs.org/', iconSrc: '/icons/nodejs.svg' },
+  { name: 'Tailwind CSS', href: 'https://tailwindcss.com/', iconSrc: '/icons/tailwindcss.svg' },
+  { name: 'shadcn/ui', href: 'https://ui.shadcn.com/', iconSrc: '/icons/shadcn.svg' },
+  { name: 'Framer Motion', href: 'https://www.framer.com/motion/', iconSrc: '/icons/framer.svg' },
+  { name: 'Lucide Icons', href: 'https://lucide.dev/', iconSrc: '/icons/lucide.svg' },
+  { name: 'React Hook Form', href: 'https://react-hook-form.com/', iconSrc: '/icons/react-hook-form.svg' },
+  { name: 'Zod', href: 'https://zod.dev/', iconSrc: '/icons/zod.svg' },
+  { name: 'dnd-kit', href: 'https://dndkit.com/', iconSrc: '/icons/dnd-kit.svg' },
+  { name: 'Recharts', href: 'https://recharts.org/', iconSrc: '/icons/recharts.svg' },
+  { name: 'D3.js', href: 'https://d3js.org/', iconSrc: '/icons/d3.svg' },
   { name: 'Genkit', href: 'https://firebase.google.com/docs/genkit', iconSrc: '/icons/genkit.svg' },
-  { name: 'Java', href: 'https://www.java.com/', iconSrc: '/icons/java.svg' },
-  { name: 'C#', href: 'https://docs.microsoft.com/en-us/dotnet/csharp/', iconSrc: '/icons/csharp.svg' },
-  { name: 'Python', href: 'https://www.python.org/', iconSrc: '/icons/python.svg' },
-  { name: 'JavaScript', href: 'https://developer.mozilla.org/en-US/docs/Web/JavaScript', iconSrc: '/icons/javascript.svg' },
-  { name: 'Docker', href: 'https://www.docker.com/', iconSrc: '/icons/docker.svg'},
-  { name: 'Webflow', href: 'https://webflow.com/', iconSrc: '/icons/webflow.svg' },
+  { name: 'Google Gemini', href: 'https://deepmind.google.com/technologies/gemini/', iconSrc: '/icons/gemini.svg' },
+  { name: 'Firebase', href: 'https://firebase.google.com/', iconSrc: '/icons/firebase.svg' },
+  { name: 'NextAuth.js', href: 'https://next-auth.js.org/', iconSrc: '/icons/nextauth.svg' },
+  { name: 'Resend', href: 'https://resend.com/', iconSrc: '/icons/resend.svg' },
+  { name: 'Vercel', href: 'https://vercel.com/', iconSrc: '/icons/vercel.svg' },
+  { name: '@vercel/og', href: 'https://vercel.com/docs/functions/edge-functions/og-image-generation', iconSrc: '/icons/vercel.svg' },
+  { name: 'date-fns', href: 'https://date-fns.org/', iconSrc: '/icons/date-fns.svg' },
+  { name: 'Spline', href: 'https://spline.design/', iconSrc: '/icons/spline.svg' },
+  { name: 'Monaco Editor', href: 'https://microsoft.github.io/monaco-editor/', iconSrc: '/icons/vscode.svg' },
+  { name: 'TanStack Table', href: 'https://tanstack.com/table/v8', iconSrc: '/icons/react-query.svg' },
 ];
 
 const splineModels = [
@@ -294,3 +290,4 @@ export default function HomePage() {
     
 
     
+

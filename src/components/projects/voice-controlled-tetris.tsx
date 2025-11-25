@@ -1,9 +1,10 @@
+
 'use client';
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Play, Pause, RefreshCw, Mic, MicOff, Volume2 } from 'lucide-react';
+import { Play, Pause, RefreshCw, MicOff } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { BOARD_WIDTH, BOARD_HEIGHT, createEmptyBoard, randomTetromino } from '@/lib/tetris';
 
@@ -11,7 +12,6 @@ type Player = {
   pos: { x: number; y: number };
   tetromino: number[][];
   color: string;
-  collided: boolean;
 };
 
 type Board = (string | number)[][];
@@ -26,38 +26,36 @@ const TETROMINO_COLORS: { [key: string]: string } = {
     red: 'bg-red-500',
 };
 
+const GameBoard = ({ board, player }: { board: Board; player: Player }) => {
+  const displayBoard = board.map(row => [...row]);
 
-const GameBoard = ({ board, player }: { board: Board, player: Player }) => {
-    // Create a new board that includes the player's piece
-    const displayBoard = board.map(row => [...row]);
+  if (player.tetromino.length > 0) {
+    player.tetromino.forEach((row, y) => {
+      row.forEach((value, x) => {
+        if (value !== 0) {
+          const boardY = y + player.pos.y;
+          const boardX = x + player.pos.x;
+          if (boardY >= 0 && boardY < BOARD_HEIGHT && boardX >= 0 && boardX < BOARD_WIDTH) {
+            displayBoard[boardY][boardX] = player.color;
+          }
+        }
+      });
+    });
+  }
 
-    if (player.tetromino.length > 0) {
-        player.tetromino.forEach((row, y) => {
-            row.forEach((value, x) => {
-                if (value !== 0) {
-                    const boardY = y + player.pos.y;
-                    const boardX = x + player.pos.x;
-                    if (boardY >= 0 && boardY < BOARD_HEIGHT && boardX >= 0 && boardX < BOARD_WIDTH) {
-                        displayBoard[boardY][boardX] = player.color;
-                    }
-                }
-            });
-        });
-    }
-
-    return (
-        <div className="grid border-2 border-border bg-black" style={{ gridTemplateColumns: `repeat(${BOARD_WIDTH}, 1fr)` }}>
-            {displayBoard.map((row, y) =>
-                row.map((cell, x) => {
-                    const colorClass = cell && cell !== 0 ? TETROMINO_COLORS[cell as string] : 'bg-gray-900/50';
-                    return <div key={`${y}-${x}`} className={cn("aspect-square", colorClass)} />;
-                })
-            )}
-        </div>
-    );
+  return (
+    <div className="grid border-2 border-border bg-black" style={{ gridTemplateColumns: `repeat(${BOARD_WIDTH}, 1fr)` }}>
+      {displayBoard.map((row, y) =>
+        row.map((cell, x) => {
+          const colorClass = cell && cell !== 0 ? TETROMINO_COLORS[cell as string] : 'bg-gray-900/50';
+          return <div key={`${y}-${x}`} className={cn('aspect-square', colorClass)} />;
+        })
+      )}
+    </div>
+  );
 };
 
-const NextPieceDisplay = ({ piece }: { piece: { shape: number[][], color: string } | null }) => {
+const NextPieceDisplay = ({ piece }: { piece: { shape: number[][]; color: string } | null }) => {
     const grid = Array.from({ length: 4 }, () => Array(4).fill(0));
     if(piece) {
         const shapeHeight = piece.shape.length;
@@ -71,7 +69,7 @@ const NextPieceDisplay = ({ piece }: { piece: { shape: number[][], color: string
     return (
         <div className="grid gap-1 bg-black/50 p-2 rounded-md" style={{ gridTemplateColumns: 'repeat(4, 1fr)' }}>
             {grid.flat().map((cell, i) => (
-                <div key={i} className={cn('w-6 h-6 rounded-sm', cell && cell !== 0 ? TETROMINO_COLORS[cell] : 'bg-gray-800')} />
+                <div key={i} className={cn('w-6 h-6 rounded-sm', cell && cell !== 0 ? TETROMINO_COLORS[cell as any] : 'bg-gray-800')} />
             ))}
         </div>
     )
@@ -79,25 +77,15 @@ const NextPieceDisplay = ({ piece }: { piece: { shape: number[][], color: string
 
 const VoiceControlledTetris: React.FC = () => {
   const [board, setBoard] = useState<Board>(createEmptyBoard());
-  const [player, setPlayer] = useState<Player>({
-    pos: { x: 0, y: 0 },
-    tetromino: [],
-    color: '',
-    collided: false,
-  });
+  const [player, setPlayer] = useState<Player>({ pos: { x: 0, y: 0 }, tetromino: [], color: '', collided: false });
+  const [nextPiece, setNextPiece] = useState<{shape: number[][], color: string} | null>(null);
 
   const [score, setScore] = useState(0);
   const [level, setLevel] = useState(0);
   const [lines, setLines] = useState(0);
   const [isGameOver, setIsGameOver] = useState(false);
   const [isPaused, setIsPaused] = useState(true);
-  
-  const [nextPiece, setNextPiece] = useState<{shape: number[][], color: string} | null>(null);
 
-  // Voice Control State
-  const [isListening, setIsListening] = useState(false);
-  const [transcript, setTranscript] = useState('');
-  
   const gameAreaRef = useRef<HTMLDivElement>(null);
   const dropTime = useRef(1000);
   const previousTimeRef = useRef(0);
@@ -106,19 +94,25 @@ const VoiceControlledTetris: React.FC = () => {
   const resetPlayer = useCallback(() => {
     const newPiece = nextPiece || randomTetromino();
     const nextNextPiece = randomTetromino();
-    
     setNextPiece(nextNextPiece);
-    
-    setPlayer({
+
+    const newPlayer = {
       pos: { x: Math.floor(BOARD_WIDTH / 2) - 1, y: 0 },
       tetromino: newPiece.shape,
       color: newPiece.color,
-      collided: false,
-    });
-  }, [nextPiece]);
+    };
+
+    if (checkCollision(newPlayer, board, {x: 0, y: 0})) {
+      setIsGameOver(true);
+      setIsPaused(true);
+    } else {
+      setPlayer(newPlayer);
+    }
+  }, [nextPiece, board]);
   
   const startGame = useCallback(() => {
-    setBoard(createEmptyBoard());
+    const newBoard = createEmptyBoard();
+    setBoard(newBoard);
     setScore(0);
     setLevel(0);
     setLines(0);
@@ -133,25 +127,20 @@ const VoiceControlledTetris: React.FC = () => {
         pos: { x: Math.floor(BOARD_WIDTH / 2) - 1, y: 0 },
         tetromino: firstPiece.shape,
         color: firstPiece.color,
-        collided: false,
     });
-
   }, []);
 
   useEffect(() => {
     startGame();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-  
+  }, [startGame]);
+
   const checkCollision = (p: Player, b: Board, move: { x: number; y: number }): boolean => {
     for (let y = 0; y < p.tetromino.length; y++) {
       for (let x = 0; x < p.tetromino[0].length; x++) {
         if (p.tetromino[y][x] !== 0) {
           const newY = y + p.pos.y + move.y;
           const newX = x + p.pos.x + move.x;
-          if (
-            newX < 0 || newX >= BOARD_WIDTH || newY >= BOARD_HEIGHT || (newY >= 0 && b[newY][newX] !== 0)
-          ) {
+          if (newX < 0 || newX >= BOARD_WIDTH || newY >= BOARD_HEIGHT || (newY >= 0 && b[newY][newX] !== 0)) {
             return true;
           }
         }
@@ -161,49 +150,40 @@ const VoiceControlledTetris: React.FC = () => {
   };
 
   const updateBoard = useCallback(() => {
-    setBoard(prevBoard => {
-        const newBoard = prevBoard.map(row => [...row]);
-        player.tetromino.forEach((row, y) => {
-            row.forEach((value, x) => {
-                if (value !== 0) {
-                    const boardY = y + player.pos.y;
-                    const boardX = x + player.pos.x;
-                    if (boardY >= 0 && boardY < BOARD_HEIGHT && boardX >= 0 && boardX < BOARD_WIDTH) {
-                        newBoard[boardY][boardX] = player.color;
-                    }
+    const newBoard = board.map(row => [...row]);
+    player.tetromino.forEach((row, y) => {
+        row.forEach((value, x) => {
+            if (value !== 0) {
+                const boardY = y + player.pos.y;
+                const boardX = x + player.pos.x;
+                if (boardY >= 0 && boardY < BOARD_HEIGHT && boardX >= 0 && boardX < BOARD_WIDTH) {
+                    newBoard[boardY][boardX] = player.color;
                 }
-            });
-        });
-
-        let linesCleared = 0;
-        const clearedBoard = newBoard.filter(row => !row.every(cell => cell !== 0));
-        linesCleared = BOARD_HEIGHT - clearedBoard.length;
-
-        if (linesCleared > 0) {
-            const newLines = Array.from({ length: linesCleared }, () => Array(BOARD_WIDTH).fill(0));
-            
-            const totalLines = lines + linesCleared;
-            setLines(totalLines);
-            setScore(prev => prev + [0, 40, 100, 300, 1200][linesCleared] * (level + 1));
-            const newLevel = Math.floor(totalLines / 10);
-            if (newLevel > level) {
-                setLevel(newLevel);
-                dropTime.current = 1000 / (newLevel + 1) * 0.8;
             }
-
-            return [...newLines, ...clearedBoard];
-        }
-
-        return newBoard;
+        });
     });
 
+    let linesCleared = 0;
+    const clearedBoard = newBoard.filter(row => !row.every(cell => cell !== 0));
+    linesCleared = BOARD_HEIGHT - clearedBoard.length;
+
+    if (linesCleared > 0) {
+        const newRows = Array.from({ length: linesCleared }, () => Array(BOARD_WIDTH).fill(0));
+        setLines(prev => prev + linesCleared);
+        setScore(prev => prev + [0, 40, 100, 300, 1200][linesCleared] * (level + 1));
+        setBoard([...newRows, ...clearedBoard]);
+    } else {
+        setBoard(newBoard);
+    }
     resetPlayer();
-  }, [player, lines, level, resetPlayer]);
+  }, [player, board, level, resetPlayer]);
+
 
   const playerDrop = useCallback(() => {
      if (checkCollision(player, board, { x: 0, y: 1 })) {
         if (player.pos.y < 1) {
             setIsGameOver(true);
+            setIsPaused(true);
             return;
         }
         updateBoard();
@@ -213,10 +193,8 @@ const VoiceControlledTetris: React.FC = () => {
     dropCounter.current = 0;
   }, [player, board, updateBoard]);
   
-  // Game Loop
   const update = useCallback((time = 0) => {
     if (isPaused || isGameOver) return;
-
     const deltaTime = time - previousTimeRef.current;
     previousTimeRef.current = time;
     dropCounter.current += deltaTime;
@@ -228,14 +206,13 @@ const VoiceControlledTetris: React.FC = () => {
   }, [isPaused, isGameOver, playerDrop]);
 
   useEffect(() => {
-    if(!isPaused && !isGameOver) {
+    if (!isPaused && !isGameOver) {
       previousTimeRef.current = 0;
       dropCounter.current = 0;
-      const animationFrame = requestAnimationFrame(update);
-      return () => cancelAnimationFrame(animationFrame);
+      requestAnimationFrame(update);
     }
   }, [update, isPaused, isGameOver]);
-
+  
   const movePlayer = (dir: -1 | 1) => {
     if (!checkCollision(player, board, { x: dir, y: 0 })) {
       setPlayer(prev => ({ ...prev, pos: { ...prev.pos, x: prev.pos.x + dir } }));
@@ -249,14 +226,11 @@ const VoiceControlledTetris: React.FC = () => {
     );
     
     let newPlayer = {...player, tetromino: rotated };
-
     let offset = 1;
     while(checkCollision(newPlayer, board, {x:0, y:0})) {
         newPlayer.pos.x += offset;
         offset = -(offset + (offset > 0 ? 1 : -1));
-        if (offset > newPlayer.tetromino[0].length + 1) { // Wall kick limit
-            return; // Cannot rotate
-        }
+        if (offset > newPlayer.tetromino[0].length + 1) return;
     }
     setPlayer(newPlayer);
   }
@@ -266,76 +240,24 @@ const VoiceControlledTetris: React.FC = () => {
     while (!checkCollision(tempPlayer, board, { x: 0, y: 1 })) {
         tempPlayer.pos.y += 1;
     }
-    
-    setBoard(prevBoard => {
-      const newBoard = prevBoard.map(row => [...row]);
-      tempPlayer.tetromino.forEach((row, y) => {
-          row.forEach((value, x) => {
-              if (value !== 0) {
-                  const boardY = y + tempPlayer.pos.y;
-                  const boardX = x + tempPlayer.pos.x;
-                  if (boardY >= 0 && boardY < BOARD_HEIGHT && boardX >= 0 && boardX < BOARD_WIDTH) {
-                      newBoard[boardY][boardX] = tempPlayer.color;
-                  }
-              }
-          });
-      });
-      // check for cleared lines here as well - simplified for now
-      let linesCleared = 0;
-      const clearedBoard = newBoard.filter(row => {
-          const isFull = row.every(cell => cell !== 0);
-          if (isFull) linesCleared++;
-          return !isFull;
-      });
+    setPlayer(tempPlayer);
+    updateBoard();
+  }, [player, board, updateBoard]);
 
-      if (linesCleared > 0) {
-          const newLines = Array.from({ length: linesCleared }, () => Array(BOARD_WIDTH).fill(0));
-          setLines(l => l + linesCleared);
-          return [...newLines, ...clearedBoard];
-      }
-
-      return newBoard;
-    });
-
-    resetPlayer();
-
-  }, [player, board, resetPlayer]);
-
-  // Keyboard controls
-  const handleKeyDown = useCallback((e: KeyboardEvent) => {
+  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
     if (isGameOver) return;
-    if (e.key === 'p' || e.key === 'P') {
-        setIsPaused(p => !p);
-        return;
-    }
+    if (e.key === 'p' || e.key === 'P') { setIsPaused(p => !p); return; }
     if(isPaused) return;
-
     if (e.key === 'ArrowLeft') movePlayer(-1);
     else if (e.key === 'ArrowRight') movePlayer(1);
     else if (e.key === 'ArrowDown') playerDrop();
     else if (e.key === 'ArrowUp' || e.key.toLowerCase() === 'x') rotatePlayer();
     else if (e.key === ' ') { e.preventDefault(); hardDrop(); }
   }, [isGameOver, isPaused, playerDrop, hardDrop]);
-  
-  useEffect(() => {
-    const gameArea = gameAreaRef.current;
-    if (gameArea) {
-        gameArea.focus();
-        gameArea.addEventListener('keydown', handleKeyDown);
-        return () => {
-            gameArea.removeEventListener('keydown', handleKeyDown);
-        }
-    }
-  }, [handleKeyDown]);
 
   return (
-    <div className="w-full h-full bg-card flex items-center justify-center p-4">
-      <div 
-        ref={gameAreaRef}
-        tabIndex={0}
-        className="flex flex-col lg:flex-row gap-8 items-start outline-none"
-      >
-        {/* Game Info Panel */}
+    <div className="w-full h-full bg-card flex items-center justify-center p-4" onKeyDown={handleKeyDown} tabIndex={0} ref={gameAreaRef}>
+      <div className="flex flex-col lg:flex-row gap-8 items-start">
         <Card className="w-full lg:w-56 bg-muted/30 border-border order-last lg:order-first">
           <CardHeader><CardTitle>Stats</CardTitle></CardHeader>
           <CardContent className="space-y-4">
@@ -346,9 +268,8 @@ const VoiceControlledTetris: React.FC = () => {
           </CardContent>
         </Card>
 
-        {/* Main Game Area */}
         <div className="relative shadow-2xl">
-          <GameBoard board={board} player={player}/>
+          <GameBoard board={board} player={player} />
           {(isGameOver || isPaused) && (
              <div className="absolute inset-0 bg-black/70 flex flex-col items-center justify-center gap-4 z-10">
                <h2 className="text-3xl font-bold text-white">{isGameOver ? "Game Over" : "Paused"}</h2>
@@ -358,7 +279,6 @@ const VoiceControlledTetris: React.FC = () => {
           )}
         </div>
         
-        {/* Controls and Voice Panel */}
         <Card className="w-full lg:w-56 bg-muted/30 border-border">
             <CardHeader><CardTitle>Controls</CardTitle></CardHeader>
             <CardContent className="space-y-2 text-sm text-muted-foreground">

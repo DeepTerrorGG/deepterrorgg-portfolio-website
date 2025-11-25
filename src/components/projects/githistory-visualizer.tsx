@@ -10,7 +10,6 @@ import { Input } from '@/components/ui/input';
 import { Play, Pause, RefreshCw, Github, GitCommit, File, Wind } from 'lucide-react';
 import { mockCommits } from '@/lib/githistory-mock-data';
 import { cn } from '@/lib/utils';
-import { DoomIcon } from '../icons/doom';
 
 interface GitNode extends d3.SimulationNodeDatum {
   id: string; // file path
@@ -112,10 +111,10 @@ const GitHistoryVisualizer: React.FC = () => {
 
         if (!simulationRef.current) {
             simulationRef.current = d3.forceSimulation<GitNode, GitLink>()
-                .force('link', d3.forceLink<GitNode, GitLink>().id(d => d.id).distance(40).strength(0.6))
-                .force('charge', d3.forceManyBody().strength(-100))
+                .force('link', d3.forceLink<GitNode, GitLink>().id(d => d.id).distance(50).strength(0.5))
+                .force('charge', d3.forceManyBody().strength(-150))
                 .force('center', d3.forceCenter(width / 2, height / 2))
-                .force('collide', d3.forceCollide().radius(d => Math.sqrt(d.size) + 12).strength(1));
+                .force('collide', d3.forceCollide().radius(d => Math.sqrt(d.size) + 15).strength(1));
         }
 
         simulationRef.current.nodes(nodes);
@@ -154,6 +153,14 @@ const GitHistoryVisualizer: React.FC = () => {
         }
     }, [isPlaying, processCommit]);
 
+    const handleReset = useCallback(() => {
+        setIsPlaying(false);
+        setCurrentCommitIndex(0);
+        setNodes([]);
+        setLinks([]);
+        processCommit(0);
+    }, [processCommit]);
+
     const handlePlayPause = () => {
         if(currentCommitIndex >= mockCommits.length - 1) {
             handleReset();
@@ -163,14 +170,6 @@ const GitHistoryVisualizer: React.FC = () => {
         }
     };
     
-    const handleReset = useCallback(() => {
-        setIsPlaying(false);
-        setCurrentCommitIndex(0);
-        setNodes([]);
-        setLinks([]);
-        processCommit(0);
-    }, [processCommit]);
-
     useEffect(() => {
         handleReset();
     }, [handleReset]);

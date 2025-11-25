@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
@@ -9,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Play, Pause, RefreshCw, Github, GitCommit, File, Wind } from 'lucide-react';
 import { mockCommits } from '@/lib/githistory-mock-data';
+import { cn } from '@/lib/utils';
 
 interface GitNode extends d3.SimulationNodeDatum {
   id: string; // file path
@@ -44,7 +44,6 @@ const GitHistoryVisualizer: React.FC = () => {
             const newDirs = new Set<string>();
 
             commit.files.forEach(file => {
-                // Add file node
                 const existingFile = newNodesMap.get(file.path);
                 newNodesMap.set(file.path, {
                     id: file.path,
@@ -55,7 +54,6 @@ const GitHistoryVisualizer: React.FC = () => {
                     y: existingFile?.y || Math.random() * 600,
                 });
 
-                // Add directory nodes
                 const pathParts = file.path.split('/');
                 let currentPath = '';
                 for (let i = 0; i < pathParts.length - 1; i++) {
@@ -76,27 +74,28 @@ const GitHistoryVisualizer: React.FC = () => {
                     y: Math.random() * 600,
                 });
             });
-
-            return Array.from(newNodesMap.values());
-        });
-
-        setLinks(prevLinks => {
-            const newLinksMap = new Map<string, GitLink>();
-            const nodesArr = Array.from(new Map(nodes.map(n => [n.id, n])).values());
             
-            nodesArr.forEach(node => {
+            const updatedNodes = Array.from(newNodesMap.values());
+            
+            // Also update links based on the new nodes structure
+            const newLinksMap = new Map<string, GitLink>();
+            updatedNodes.forEach(node => {
                 if (node.type === 'file') {
                     const parts = node.id.split('/');
                     if (parts.length > 1) {
                         const parentPath = parts.slice(0, -1).join('/');
-                        newLinksMap.set(`${parentPath}->${node.id}`, { source: parentPath, target: node.id });
+                        if (newNodesMap.has(parentPath)) { // Ensure parent directory exists
+                           newLinksMap.set(`${parentPath}->${node.id}`, { source: parentPath, target: node.id });
+                        }
                     }
                 }
             });
-            return Array.from(newLinksMap.values());
+            setLinks(Array.from(newLinksMap.values()));
+
+            return updatedNodes;
         });
 
-    }, [nodes]);
+    }, []);
 
     useEffect(() => {
         if (!svgRef.current) return;
@@ -167,7 +166,7 @@ const GitHistoryVisualizer: React.FC = () => {
 
     useEffect(() => {
         processCommit(0);
-    }, []);
+    }, [processCommit]);
 
   return (
     <div className="w-full h-full bg-gray-900 flex flex-col p-4 text-white font-mono">

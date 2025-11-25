@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
@@ -9,6 +10,7 @@ import { Input } from '@/components/ui/input';
 import { Play, Pause, RefreshCw, Github, GitCommit, File, Wind } from 'lucide-react';
 import { mockCommits } from '@/lib/githistory-mock-data';
 import { cn } from '@/lib/utils';
+import { DoomIcon } from '../icons/doom';
 
 interface GitNode extends d3.SimulationNodeDatum {
   id: string; // file path
@@ -65,17 +67,19 @@ const GitHistoryVisualizer: React.FC = () => {
             });
 
             newDirs.forEach(dirPath => {
+                const parentDir = dirPath.split('/').slice(0, -1).join('/');
+                const existingDir = newNodesMap.get(dirPath);
                 newNodesMap.set(dirPath, {
                     id: dirPath,
                     size: 10,
                     type: 'dir',
                     lastModified: commitIndex,
-                    x: Math.random() * 800,
-                    y: Math.random() * 600,
+                    x: existingDir?.x || newNodesMap.get(parentDir)?.x || Math.random() * 800,
+                    y: existingDir?.y || newNodesMap.get(parentDir)?.y || Math.random() * 600,
                 });
             });
             
-            const updatedNodes = Array.from(newNodesMap.values());
+            const updatedNodes = Array.from(newNodesMap.values()).filter(n => n.size > 0);
             
             // Also update links based on the new nodes structure
             const newLinksMap = new Map<string, GitLink>();
@@ -108,17 +112,20 @@ const GitHistoryVisualizer: React.FC = () => {
 
         if (!simulationRef.current) {
             simulationRef.current = d3.forceSimulation<GitNode, GitLink>()
-                .force('link', d3.forceLink<GitNode, GitLink>().id(d => d.id).distance(10).strength(0.5))
-                .force('charge', d3.forceManyBody().strength(-30))
+                .force('link', d3.forceLink<GitNode, GitLink>().id(d => d.id).distance(40).strength(0.6))
+                .force('charge', d3.forceManyBody().strength(-100))
                 .force('center', d3.forceCenter(width / 2, height / 2))
-                .force('collide', d3.forceCollide().radius(d => Math.sqrt(d.size) + 5));
+                .force('collide', d3.forceCollide().radius(d => Math.sqrt(d.size) + 12).strength(1));
         }
 
         simulationRef.current.nodes(nodes);
         simulationRef.current.force<d3.ForceLink<GitNode, GitLink>>('link')?.links(links);
 
         simulationRef.current.on('tick', () => {
-            nodeElements.attr('cx', d => d.x!).attr('cy', d => d.y!);
+            nodeElements
+              .attr('cx', d => d.x = Math.max(10, Math.min(width - 10, d.x!)))
+              .attr('cy', d => d.y = Math.max(10, Math.min(height - 10, d.y!)));
+              
             linkElements
                 .attr('x1', d => (d.source as GitNode).x!)
                 .attr('y1', d => (d.source as GitNode).y!)
@@ -156,17 +163,17 @@ const GitHistoryVisualizer: React.FC = () => {
         }
     };
     
-    const handleReset = () => {
+    const handleReset = useCallback(() => {
         setIsPlaying(false);
         setCurrentCommitIndex(0);
         setNodes([]);
         setLinks([]);
         processCommit(0);
-    };
+    }, [processCommit]);
 
     useEffect(() => {
-        processCommit(0);
-    }, [processCommit]);
+        handleReset();
+    }, [handleReset]);
 
   return (
     <div className="w-full h-full bg-gray-900 flex flex-col p-4 text-white font-mono">

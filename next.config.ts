@@ -72,6 +72,7 @@ const nextConfig: NextConfig = {
 
     return config;
   },
+  // Adding a comment to invalidate the cache
 };
 
 export default nextConfig;

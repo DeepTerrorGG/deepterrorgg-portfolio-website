@@ -149,7 +149,7 @@ const FactorySimulator: React.FC = () => {
         const cost = buildingCosts[selectedBuildingType];
         if (cost) {
             for (const [resource, amount] of Object.entries(cost)) {
-                if (!removeItem(resource as ItemId, amount)) {
+                if (!removeItem(resource as ItemId, amount as number)) {
                     sonnerToast.error(`Not enough ${ITEMS[resource as ItemId].name} to build.`);
                     return;
                 }
@@ -242,7 +242,10 @@ const FactorySimulator: React.FC = () => {
 
     const getOutputCoords = (b: Building): [number, number] => { /* ... (same as before) ... */ return [0,0]};
     
-    useEffect(() => { const anim = requestAnimationFrame(draw); return () => cancelAnimationFrame(anim); }, [draw]);
+    useEffect(() => { 
+        const anim = requestAnimationFrame(draw); 
+        return () => cancelAnimationFrame(anim);
+    }, [draw]);
     
     // --- Pan and Zoom Handlers ---
     const handleMouseDown = (e: React.MouseEvent) => {
@@ -303,7 +306,7 @@ const FactorySimulator: React.FC = () => {
     return (
         <div className="flex flex-col w-full h-full bg-card text-foreground">
             <Toaster richColors />
-            <div className="flex items-center justify-between p-2 border-b border-border bg-background">
+            <div className="flex items-center justify-between p-2 border-b border-border bg-background flex-shrink-0">
                  <h3 className="text-lg font-bold text-primary">Automation Simulator</h3>
                  <div className={cn("text-sm font-bold flex items-center gap-2", powerGridStatus ? "text-green-400" : "text-red-500")}>
                     <Zap/> {totalPowerConsumption} / {totalPowerProduction} MW
@@ -315,36 +318,32 @@ const FactorySimulator: React.FC = () => {
                     <Button variant="outline" onClick={() => handleWheel({deltaY: 100, clientX: 0, clientY: 0, preventDefault:()=>{}} as any)} size="sm"><ZoomOut/></Button>
                 </div>
             </div>
-            <div className="flex-grow flex">
-                <AnimatePresence>
-                <motion.div 
-                    initial={{ width: 256 }}
-                    animate={{ width: 256 }}
-                    className="p-4 border-r border-border bg-background space-y-4 overflow-y-auto"
-                >
-                    <Tabs defaultValue="build">
-                      <TabsList className="grid w-full grid-cols-2">
+            <div className="flex-grow flex flex-row overflow-hidden">
+                <div className="w-64 flex-shrink-0 border-r border-border bg-background flex flex-col">
+                    <Tabs defaultValue="build" className="flex-grow flex flex-col">
+                      <TabsList className="grid w-full grid-cols-2 flex-shrink-0">
                           <TabsTrigger value="build"><Wrench /></TabsTrigger>
                           <TabsTrigger value="inventory"><Package /></TabsTrigger>
                       </TabsList>
-                       <TabsContent value="build">
+                       <TabsContent value="build" className="flex-grow overflow-y-auto p-4 space-y-4">
                          {/* Build controls UI */}
                        </TabsContent>
-                       <TabsContent value="inventory">
-                         <Card><CardHeader className='p-2'><CardTitle className='text-base'>Inventory</CardTitle></CardHeader>
-                            <CardContent className='p-2 text-xs space-y-1 h-[20vh] overflow-y-auto'>
+                       <TabsContent value="inventory" className="flex-grow overflow-y-auto p-2">
+                         <Card className="mb-2">
+                            <CardHeader className='p-2'><CardTitle className='text-base'>Inventory</CardTitle></CardHeader>
+                            <CardContent className='p-2 text-xs space-y-1 max-h-48 overflow-y-auto'>
                                 {Object.entries(inventory).map(([id, count]) => count > 0 && <p key={id} className="capitalize flex justify-between"><span>{ITEMS[id as ItemId].name}</span> <span>x{count}</span></p>)}
                             </CardContent>
                           </Card>
-                          <Card className="mt-2"><CardHeader className='p-2'><CardTitle className='text-base'>Hand Crafting</CardTitle></CardHeader>
-                            <CardContent className='p-2 text-xs space-y-2 h-[40vh] overflow-y-auto'>
+                          <Card>
+                            <CardHeader className='p-2'><CardTitle className='text-base'>Hand Crafting</CardTitle></CardHeader>
+                            <CardContent className='p-2 text-xs space-y-2 max-h-96 overflow-y-auto'>
                                 {RECIPES.map(recipe => <CraftingButton key={recipe.id} recipe={recipe} />)}
                             </CardContent>
                           </Card>
                        </TabsContent>
                     </Tabs>
-                </motion.div>
-                </AnimatePresence>
+                </div>
                 <div className="flex-grow relative bg-background overflow-hidden" 
                     onMouseDown={handleMouseDown}
                     onMouseMove={handleMouseMove}
@@ -352,10 +351,12 @@ const FactorySimulator: React.FC = () => {
                     onMouseLeave={handleMouseUp}
                     onWheel={handleWheel}
                 >
-                    <canvas ref={canvasRef} className={cn("absolute top-0 left-0 w-full h-full", isPanning ? 'cursor-grabbing' : 'cursor-crosshair')} />
+                    <canvas ref={canvasRef} className="absolute top-0 left-0 w-full h-full" />
                 </div>
             </div>
         </div>
     );
 };
 export default FactorySimulator;
+
+    

@@ -15,7 +15,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogC
 import { Input } from '../ui/input';
 import * as XLSX from 'xlsx';
 import { ScrollArea } from '../ui/scroll-area';
-import { SimplexNoise } from 'simplex-noise';
+import { createNoise2D } from 'simplex-noise';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Toaster, toast as sonnerToast } from 'sonner';
 import { useInventoryStore } from '@/lib/factory-simulator/inventory-store';
@@ -82,17 +82,20 @@ const TICK_RATE = 100;
 const BELT_SPEED = 0.1;
 const NOISE_SCALE = 0.05;
 
-const simplex = new SimplexNoise('seed');
+const simplexBase = createNoise2D();
+const simplexOres = createNoise2D();
+const simplexCoal = createNoise2D();
+
 
 const getTerrainType = (x: number, y: number): Terrain => {
-  const noiseValue = simplex.noise2D(x * NOISE_SCALE, y * NOISE_SCALE);
-  const oreNoise = simplex.noise2D(x * 0.2, y * 0.2);
+  const noiseValue = simplexBase(x * NOISE_SCALE, y * NOISE_SCALE);
+  const oreNoise = simplexOres(x * 0.2, y * 0.2);
 
   if (noiseValue > 0.6) return 'mountain';
   if (noiseValue < -0.4) return 'water';
   if (oreNoise > 0.8) return 'iron_patch';
   if (oreNoise < -0.8) return 'copper_patch';
-  if (simplex.noise2D(x * 0.1, y * 0.1) > 0.7) return 'coal_patch';
+  if (simplexCoal(x * 0.1, y * 0.1) > 0.7) return 'coal_patch';
   return 'grass';
 }
 
@@ -190,7 +193,7 @@ const FactorySimulator: React.FC = () => {
     useEffect(() => {
         if (!isPlaying) return;
         const gameTick = setInterval(() => {
-            // ... (game logic remains largely the same)
+            // ... (game logic remains largely the same) ...
         }, TICK_RATE);
         return () => clearInterval(gameTick);
     }, [isPlaying, buildings, items, powerGridStatus]);

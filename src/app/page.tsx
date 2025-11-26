@@ -119,14 +119,14 @@ const technologies = [
 ];
 
 const splineModels = [
-    { url: 'https://prod.spline.design/FfjWOhoEErL5Sia2/scene.splinecode', title: 'Cyberpunk Room', scrollable: true },
-    { url: 'https://prod.spline.design/Oy8cFTtrLNL36Qll/scene.splinecode', title: 'Cozy Living Room', scrollable: true },
-    { url: 'https://prod.spline.design/qC2WtYn7OhOcS8L0/scene.splinecode', title: 'Abstract Shapes', scrollable: true },
-    { url: 'https://prod.spline.design/3SU82luCTBxFgmZk/scene.splinecode', title: 'Gaming Setup', scrollable: true },
-    { url: 'https://prod.spline.design/o9RKr9qFSINlT6QX/scene.splinecode', title: 'Floating Orb', scrollable: true },
-    { url: 'https://prod.spline.design/PpzeXZ2jGbRYbcYD/scene.splinecode', title: 'Magic Crystal', scrollable: true },
-    { url: 'https://prod.spline.design/aHUMGNLXv2zxvysr/scene.splinecode', title: 'Voxel World', scrollable: true },
-    { url: 'https://prod.spline.design/eAZWQJSADsfRaSlh/scene.splinecode', title: 'Retro Computer', scrollable: false },
+    { url: 'https://prod.spline.design/FfjWOhoEErL5Sia2/scene.splinecode', title: 'Cyberpunk Room' },
+    { url: 'https://prod.spline.design/Oy8cFTtrLNL36Qll/scene.splinecode', title: 'Cozy Living Room' },
+    { url: 'https://prod.spline.design/qC2WtYn7OhOcS8L0/scene.splinecode', title: 'Abstract Shapes' },
+    { url: 'https://prod.spline.design/3SU82luCTBxFgmZk/scene.splinecode', title: 'Gaming Setup' },
+    { url: 'https://prod.spline.design/o9RKr9qFSINlT6QX/scene.splinecode', title: 'Floating Orb' },
+    { url: 'https://prod.spline.design/PpzeXZ2jGbRYbcYD/scene.splinecode', title: 'Magic Crystal' },
+    { url: 'https://prod.spline.design/aHUMGNLXv2zxvysr/scene.splinecode', title: 'Voxel World' },
+    { url: 'https://prod.spline.design/eAZWQJSADsfRaSlh/scene.splinecode', title: 'Retro Computer' },
 ];
 
 const ScrollingTechRow = ({ items, direction = 'left' }: { items: typeof technologies, direction?: 'left' | 'right' }) => (
@@ -258,7 +258,6 @@ export default function HomePage() {
               <div className="relative h-[500px] md:h-[700px] w-full mx-auto rounded-lg overflow-hidden bg-muted/20 min-h-[500px]">
                   <SplineModel 
                     sceneUrl="https://prod.spline.design/JQAikTCRQCtrK0Pt/scene.splinecode" 
-                    scrollable={false}
                     onLoad={onSplineLoad}
                   />
               </div>

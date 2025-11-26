@@ -22,7 +22,6 @@ interface SplineShowcaseProps {
   models: {
     url: string;
     title: string;
-    scrollable?: boolean;
   }[];
 }
 
@@ -56,7 +55,7 @@ export default function SplineShowcase({ models }: SplineShowcaseProps) {
                 pointerEvents: index === currentIndex ? 'auto' : 'none'
               }}
             >
-              <SplineModel sceneUrl={model.url} scrollable={model.scrollable ?? true} />
+              <SplineModel sceneUrl={model.url} />
             </div>
           ))}
         </CardContent>

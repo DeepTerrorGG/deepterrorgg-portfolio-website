@@ -64,6 +64,7 @@ const nextConfig: NextConfig = {
     RESEND_API_KEY: process.env.RESEND_API_KEY,
     DESIGNATED_RECIPIENT_EMAIL: process.env.DESIGNATED_RECIPIENT_EMAIL,
     RESEND_FROM_EMAIL: process.env.RESEND_FROM_EMAIL,
+    NEXT_PUBLIC_SITE_URL: process.env.NEXT_PUBLIC_SITE_URL || 'https://deepterrorgg-portfolio.web.app'
   },
   webpack: (config, { isServer }) => {
     if (!isServer) {

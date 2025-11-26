@@ -16,7 +16,6 @@ import dynamic from 'next/dynamic';
 
 
 const CodeEditor = dynamic(() => import('@/components/projects/code-editor'), { ssr: false });
-const FactorySimulator = dynamic(() => import('@/components/projects/factory-simulator'), { ssr: false });
 const CollaborativeWhiteboard = dynamic(() => import('@/components/projects/collaborative-whiteboard'), { ssr: false });
 const DeckBuildingRoguelike = dynamic(() => import('@/components/projects/deck-building-roguelike'), { ssr: false });
 const GitHistoryVisualizer = dynamic(() => import('@/components/projects/githistory-visualizer'), { ssr: false });
@@ -43,17 +42,6 @@ const featuredProjects = [
         { name: 'Next.js', iconSrc: '/icons/nextjs.svg' },
         { name: 'Genkit', iconSrc: '/icons/genkit.svg' },
         { name: 'Monaco Editor', iconSrc: '/icons/vscode.svg' },
-      ],
-    },
-    {
-      id: 'factory-simulator',
-      title: 'Automation Simulator',
-      description: 'A game about building and optimizing automated factories. Manages thousands of items and complex production chains, showcasing advanced state management.',
-      component: <FactorySimulator />,
-      technologies: [
-        { name: 'React', iconSrc: '/icons/react.svg' },
-        { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },
-        { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss.svg' },
       ],
     },
     {

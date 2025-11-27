@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
@@ -37,7 +36,6 @@ const GitHistoryVisualizer: React.FC = () => {
     const simulationRef = useRef<d3.Simulation<GitNode, GitLink> | null>(null);
     const svgRef = useRef<SVGSVGElement | null>(null);
 
-    // Memoize the data processing to avoid re-running it unnecessarily
     const processedCommits = useMemo(() => {
         if (commits.length === 0) return [];
         let allNodes = new Map<string, GitNode>();
@@ -45,16 +43,22 @@ const GitHistoryVisualizer: React.FC = () => {
         
         return commits.map(commit => {
             if (!commit.files) return { nodes: [], links: [] };
+            
+            const fileChanges = new Map<string, number>();
             commit.files.forEach(file => {
-                const existingFile = allNodes.get(file.path);
-                allNodes.set(file.path, {
+                fileChanges.set(file.path, (fileChanges.get(file.path) || 0) + (file.changes || 1));
+            });
+
+            fileChanges.forEach((changes, path) => {
+                const existingFile = allNodes.get(path);
+                allNodes.set(path, {
                     ...existingFile,
-                    id: file.path,
-                    size: (existingFile?.size || 5) + (file.changes || 1),
+                    id: path,
+                    size: (existingFile?.size || 5) + changes,
                     type: 'file',
                 });
                 
-                const pathParts = file.path.split('/');
+                const pathParts = path.split('/');
                 let currentPath = '';
                 pathParts.slice(0, -1).forEach(part => {
                     const parentPath = currentPath;
@@ -62,24 +66,26 @@ const GitHistoryVisualizer: React.FC = () => {
                     if (!allNodes.has(currentPath)) {
                         allNodes.set(currentPath, { id: currentPath, size: 10, type: 'dir' });
                     }
-                     if (parentPath && allNodes.has(parentPath)) {
+                     if (parentPath) {
                        const linkId = `${parentPath}->${currentPath}`;
                         if (!allLinks.has(linkId)) {
                             allLinks.set(linkId, { source: parentPath, target: currentPath });
                         }
                     }
                 });
+
                 const parentDir = pathParts.slice(0, -1).join('/');
-                 if (parentDir && allNodes.has(parentDir)) {
-                    const linkId = `${parentDir}->${file.path}`;
+                 if (parentDir) {
+                    const linkId = `${parentDir}->${path}`;
                     if(!allLinks.has(linkId)) {
-                      allLinks.set(linkId, { source: parentDir, target: file.path });
+                      allLinks.set(linkId, { source: parentDir, target: path });
                     }
                  }
             });
             return { nodes: Array.from(allNodes.values()), links: Array.from(allLinks.values())};
         });
     }, [commits]);
+
 
     const updateSimulation = useCallback((data: { nodes: GitNode[], links: GitLink[] }) => {
         if (!simulationRef.current || !svgRef.current) return;
@@ -104,9 +110,9 @@ const GitHistoryVisualizer: React.FC = () => {
         
         const nodeEnter = node.enter().append('circle')
           .attr('r', 0)
-          .attr('class', d => d.type === 'dir' ? 'fill-blue-500/50 stroke-blue-400' : 'fill-primary/50 stroke-primary');
+          .attr('class', (d: GitNode) => d.type === 'dir' ? 'fill-blue-500/50 stroke-blue-400' : 'fill-primary/50 stroke-primary');
 
-        nodeEnter.append('title').text((d: any) => d.id);
+        nodeEnter.append('title').text((d: GitNode) => d.id);
           
         nodeEnter.call(d3.drag<SVGCircleElement, GitNode>()
                 .on("start", (event, d) => {
@@ -132,12 +138,15 @@ const GitHistoryVisualizer: React.FC = () => {
         simulationRef.current.alpha(1).restart();
     }, []);
 
-    const initializeChart = useCallback((svgElement: SVGSVGElement) => {
-        const svg = d3.select(svgElement);
+    const measuredRef = useCallback((node: SVGSVGElement | null) => {
+        if (!node) return;
+        svgRef.current = node;
+
+        const svg = d3.select(node);
         svg.selectAll('*').remove();
     
-        const width = svgElement.getBoundingClientRect().width;
-        const height = svgElement.getBoundingClientRect().height;
+        const width = node.getBoundingClientRect().width;
+        const height = node.getBoundingClientRect().height;
     
         svg.append('g').attr('class', 'links');
         svg.append('g').attr('class', 'nodes');
@@ -154,31 +163,24 @@ const GitHistoryVisualizer: React.FC = () => {
             .attr('cy', d => (d as GitNode).y ?? 0);
     
           svg.select<SVGGElement>('g.links').selectAll('line')
-            .attr('x1', d => (d.source as GitNode).x ?? 0)
-            .attr('y1', d => (d.source as GitNode).y ?? 0)
-            .attr('x2', d => (d.target as GitNode).x ?? 0)
-            .attr('y2', d => (d.target as GitNode).y ?? 0);
+            .attr('x1', d => ((d as any).source as GitNode).x ?? 0)
+            .attr('y1', d => ((d as any).source as GitNode).y ?? 0)
+            .attr('x2', d => ((d as any).target as GitNode).x ?? 0)
+            .attr('y2', d => ((d as any).target as GitNode).y ?? 0);
         });
     
         simulationRef.current = simulation;
         if(processedCommits.length > 0) {
-            updateSimulation(processedCommits[commitIndex]);
+            updateSimulation(processedCommits[0]);
         }
     
-    }, [commitIndex, processedCommits, updateSimulation]);
-
-    const measuredRef = useCallback((node: SVGSVGElement | null) => {
-        if (node) {
-            svgRef.current = node;
-            initializeChart(node);
-        }
-    }, [initializeChart]);
+    }, [processedCommits, updateSimulation]);
 
     useEffect(() => {
         if (isPlaying && commitIndex < commits.length - 1) {
             const timer = setTimeout(() => {
                 setCommitIndex(prev => prev + 1);
-            }, 300);
+            }, 500); // Slowed down playback speed
             return () => clearTimeout(timer);
         } else if (commitIndex >= commits.length - 1 && isPlaying) {
             setIsPlaying(false);
@@ -186,7 +188,7 @@ const GitHistoryVisualizer: React.FC = () => {
     }, [isPlaying, commitIndex, commits]);
     
     useEffect(() => {
-        if (simulationRef.current && processedCommits.length > 0) {
+        if (processedCommits.length > 0 && commitIndex < processedCommits.length) {
             updateSimulation(processedCommits[commitIndex]);
         }
     }, [commitIndex, processedCommits, updateSimulation]);
@@ -200,8 +202,10 @@ const GitHistoryVisualizer: React.FC = () => {
             const history = await fetchRepoHistory({ repoUrl });
             if(history.length === 0) {
               toast({ title: "No commits found", description: "This repository might be empty or inaccessible.", variant: "destructive" });
+            } else {
+              setCommits(history);
+              setIsPlaying(true);
             }
-            setCommits(history);
         } catch (error) {
             console.error("Failed to fetch repo history:", error);
             toast({ title: "Error fetching history", description: (error as Error).message, variant: "destructive" });
@@ -260,30 +264,32 @@ const GitHistoryVisualizer: React.FC = () => {
                 )}
             </div>
 
-            <Card className="bg-gray-800/50 border-gray-700 flex-shrink-0 min-h-[120px]">
-                <CardHeader className="flex flex-row justify-between items-center">
-                     <div className="flex-grow">
-                        {currentCommit ? (
-                            <>
-                                <div className="flex items-center gap-2">
-                                <GitCommit className="h-4 w-4 text-primary flex-shrink-0"/>
-                                <p className="font-semibold">{currentCommit.message}</p>
-                                </div>
-                                <p className="text-xs text-gray-400 mt-1">by {currentCommit.author} ({commitIndex + 1}/{commits.length})</p>
-                                <Progress value={((commitIndex + 1) / commits.length) * 100} className="w-full mt-2 h-2"/>
-                            </>
-                        ) : (
-                            <p className="text-gray-500">Waiting for data...</p>
-                        )}
+            <Card className="bg-gray-800/50 border-gray-700 flex-shrink-0">
+                <CardContent className="p-4">
+                    <div className="flex justify-between items-center gap-4">
+                        <div className="flex-grow min-w-0">
+                            {currentCommit ? (
+                                <>
+                                    <div className="flex items-center gap-2">
+                                        <GitCommit className="h-4 w-4 text-primary flex-shrink-0"/>
+                                        <p className="font-semibold truncate" title={currentCommit.message}>{currentCommit.message}</p>
+                                    </div>
+                                    <p className="text-xs text-gray-400 mt-1">by {currentCommit.author} ({commitIndex + 1}/{commits.length})</p>
+                                    <Progress value={((commitIndex + 1) / commits.length) * 100} className="w-full mt-2 h-2"/>
+                                </>
+                            ) : (
+                                <p className="text-gray-500 h-[52px] flex items-center">Waiting for data...</p>
+                            )}
+                        </div>
+                        <div className="flex gap-2 ml-4 flex-shrink-0">
+                            <Button onClick={handlePlayPause} className="w-28" disabled={commits.length === 0 || isLoading}>
+                                {isPlaying ? <Pause className="mr-2 h-4 w-4"/> : <Play className="mr-2 h-4 w-4"/>}
+                                {commitIndex >= commits.length - 1 && commits.length > 0 ? "Replay" : isPlaying ? "Pause" : "Play"}
+                            </Button>
+                            <Button onClick={reset} variant="outline" disabled={commits.length === 0 || isLoading}><RefreshCw className="h-4 w-4"/></Button>
+                        </div>
                     </div>
-                    <div className="flex gap-2 ml-4">
-                        <Button onClick={handlePlayPause} className="w-28" disabled={commits.length === 0 || isLoading}>
-                            {isPlaying ? <Pause className="mr-2 h-4 w-4"/> : <Play className="mr-2 h-4 w-4"/>}
-                            {commitIndex >= commits.length - 1 && commits.length > 0 ? "Replay" : isPlaying ? "Pause" : "Play"}
-                        </Button>
-                        <Button onClick={reset} variant="outline" disabled={commits.length === 0 || isLoading}><RefreshCw className="h-4 w-4"/></Button>
-                    </div>
-                </CardHeader>
+                </CardContent>
             </Card>
         </div>
     );

@@ -1,9 +1,8 @@
-
 'use client';
 
 import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
+import Editor, { useMonaco } from '@monaco-editor/react';
 import {
   Select,
   SelectContent,
@@ -354,15 +353,24 @@ export default function CodeEditor() {
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState('ai-output');
   
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const preRef = useRef<HTMLPreElement>(null);
-  
-  const handleScroll = () => {
-    if (textareaRef.current && preRef.current) {
-        preRef.current.scrollTop = textareaRef.current.scrollTop;
-        preRef.current.scrollLeft = textareaRef.current.scrollLeft;
-    }
-  };
+  const monaco = useMonaco();
+  const editorRef = useRef<any>(null);
+
+  useEffect(() => {
+    // Define a custom theme for Monaco that makes the text and background transparent
+    monaco?.editor.defineTheme('transparent-theme', {
+      base: 'vs-dark',
+      inherit: true,
+      rules: [{ token: '', foreground: 'ffffff00', background: 'ffffff00' }], // Transparent text
+      colors: {
+        'editor.background': '#00000000', // Transparent background
+        'editor.foreground': '#E0E0E0', // Fallback text color (should be transparent)
+        'editorCursor.foreground': '#FFFFFF', // White cursor
+        'editor.selectionBackground': '#FFFFFF20', // Barely visible selection
+      },
+    });
+    monaco?.editor.setTheme('transparent-theme');
+  }, [monaco]);
 
 
   useEffect(() => {
@@ -465,24 +473,52 @@ export default function CodeEditor() {
       setLoading(false);
     }
   };
+  
+  const editorStyle = {
+    lineHeight: '1.5',
+    letterSpacing: '0.025em',
+  };
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full h-full p-4 bg-card">
         {/* Editor Panel */}
         <div className="flex flex-col gap-4">
-             <div className="flex-grow flex flex-col border border-border rounded-md shadow-inner relative bg-muted">
-                <div className="relative flex-grow font-mono text-sm">
-                    <pre ref={preRef} aria-hidden="true" className="absolute inset-0 p-4 m-0 rounded-md pointer-events-none overflow-auto indent-guides">
-                        <code className="language-js" dangerouslySetInnerHTML={{ __html: code + '\n' }}></code>
-                    </pre>
-                    <Textarea
-                        ref={textareaRef}
+             <div className="relative flex-grow font-mono text-lg p-4 rounded-lg bg-black/30 border border-gray-700 overflow-hidden">
+                <pre
+                    aria-hidden="true"
+                    className="whitespace-pre-wrap select-none w-full h-full overflow-auto"
+                    style={editorStyle}
+                    dangerouslySetInnerHTML={{ __html: code + '\n' }}
+                />
+                <div
+                    className="absolute top-4 left-4 w-[calc(100%-2rem)] h-[calc(100%-2rem)]"
+                >
+                    <Editor
                         value={code}
-                        onChange={(e) => setCode(e.target.value)}
-                        onScroll={handleScroll}
-                        placeholder="Enter your code here..."
-                        className="absolute inset-0 p-4 resize-none border-0 focus-visible:ring-0 focus-visible:ring-offset-0 bg-transparent text-transparent caret-white"
-                        style={{ tabSize: 2 }}
+                        onChange={(value) => setCode(value || '')}
+                        onMount={(editor) => { editorRef.current = editor; editor.focus(); }}
+                        language={language.toLowerCase()}
+                        theme="transparent-theme"
+                        options={{
+                            minimap: { enabled: false },
+                            fontSize: 18,
+                            lineHeight: 27, // 18 * 1.5
+                            letterSpacing: 0.45,
+                            lineNumbers: 'off',
+                            glyphMargin: false,
+                            folding: false,
+                            lineDecorationsWidth: 0,
+                            lineNumbersMinChars: 0,
+                            wordWrap: 'on',
+                            scrollbar: { vertical: 'hidden', horizontal: 'hidden' },
+                            overviewRulerLanes: 0,
+                            hideCursorInOverviewRuler: true,
+                            cursorBlinking: 'smooth',
+                            cursorStyle: 'line',
+                            renderLineHighlight: 'none',
+                            overviewRulerBorder: false,
+                            padding: { top: 0, bottom: 0 },
+                        }}
                     />
                 </div>
             </div>
@@ -588,21 +624,6 @@ export default function CodeEditor() {
                 background-color: hsl(var(--muted) / 0.5);
                 border: 1px solid hsl(var(--border));
             }
-            .indent-guides {
-                --guide-color: hsla(var(--border), 0.2);
-                --indent-size: 2ch;
-                background-color: hsl(var(--muted));
-                background-image: repeating-linear-gradient(to right, var(--guide-color) 0, var(--guide-color) 1px, transparent 1px, transparent var(--indent-size));
-                background-position: 0 0;
-            }
-            .language-js .token.string { color: #A5FF90; }
-            .language-js .token.keyword { color: #FF92AE; }
-            .language-js .token.function { color: #82AAFF; }
-            .language-js .token.number { color: #FFC78B; }
-            .language-js .token.comment { color: #637777; font-style: italic; }
-            .language-js .token.operator { color: #C39AC9; }
-            .language-js .token.punctuation { color: #89DDFF; }
-            .language-js .token.parameter { color: #FF92AE; font-style: italic; }
         `}</style>
     </div>
   );

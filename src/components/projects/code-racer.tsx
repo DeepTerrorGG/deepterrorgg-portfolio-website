@@ -35,6 +35,7 @@ const CodeRacer: React.FC = () => {
                 'editor.background': '#00000000', // Transparent background
                 'editorCursor.foreground': '#FFFFFF', // Visible cursor
                 'editor.foreground': '#FFFFFF00', // Make selection transparent
+                'editor.selectionBackground': '#FFFFFF20', // Barely visible selection
             },
         });
         monaco?.editor.setTheme('code-racer-theme');
@@ -101,6 +102,11 @@ const CodeRacer: React.FC = () => {
         }).join('');
     };
     
+    const editorStyle = {
+      lineHeight: '1.5',
+      letterSpacing: '0.025em',
+    };
+
     return (
         <div className="flex flex-col items-center justify-center w-full h-full bg-card p-4 sm:p-6 lg:p-8">
             <Card className="w-full max-w-4xl mx-auto shadow-2xl bg-[#0D1117] border-gray-800">
@@ -111,6 +117,7 @@ const CodeRacer: React.FC = () => {
                     <div className="relative font-mono text-lg p-4 rounded-lg bg-black/30 border border-gray-700 h-64 overflow-y-auto">
                         <pre
                             className="whitespace-pre-wrap select-none"
+                            style={editorStyle}
                             dangerouslySetInnerHTML={{ __html: getHighlightedText() }}
                         />
                          <div
@@ -125,6 +132,8 @@ const CodeRacer: React.FC = () => {
                                 options={{
                                     minimap: { enabled: false },
                                     fontSize: 18,
+                                    lineHeight: 27, // 18 * 1.5
+                                    letterSpacing: 0.45,
                                     lineNumbers: 'off',
                                     glyphMargin: false,
                                     folding: false,
@@ -138,6 +147,7 @@ const CodeRacer: React.FC = () => {
                                     cursorStyle: 'line',
                                     renderLineHighlight: 'none',
                                     overviewRulerBorder: false,
+                                    padding: { top: 0, bottom: 0 },
                                 }}
                             />
                         </div>

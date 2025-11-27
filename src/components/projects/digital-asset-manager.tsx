@@ -19,6 +19,8 @@ import { Progress } from '../ui/progress';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '../ui/dropdown-menu';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '../ui/dialog';
 import { AnimatePresence, motion } from 'framer-motion';
+import { useAuth } from '@/firebase';
+import { signInAnonymously } from 'firebase/auth';
 
 interface FileItem {
   name: string;
@@ -39,6 +41,8 @@ type AssetItem = FileItem | FolderItem;
 const DigitalAssetManager: React.FC = () => {
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const auth = useAuth();
+  const user = auth.currentUser;
   
   const [currentPath, setCurrentPath] = useState<string>('');
   const [items, setItems] = useState<AssetItem[]>([]);
@@ -48,49 +52,78 @@ const DigitalAssetManager: React.FC = () => {
   const [isNewFolderOpen, setIsNewFolderOpen] = useState(false);
   const [newFolderName, setNewFolderName] = useState('');
 
+  // Sign in anonymously if not logged in
+  useEffect(() => {
+    if (auth && !user) {
+      signInAnonymously(auth).catch((error) => {
+        console.error("Anonymous sign-in failed:", error);
+        toast({ title: 'Authentication Failed', description: 'Could not sign in anonymously.', variant: 'destructive' });
+      });
+    }
+  }, [auth, user, toast]);
+
+  const rootPath = useMemo(() => {
+    return user ? `user_files/${user.uid}` : '';
+  }, [user]);
+  
+  const fullCurrentPath = useMemo(() => {
+    if (!rootPath) return '';
+    return currentPath ? `${rootPath}/${currentPath}` : rootPath;
+  }, [rootPath, currentPath]);
+
   const fetchItems = useCallback(async () => {
+    if (!fullCurrentPath) {
+      setIsLoading(false);
+      return;
+    };
     setIsLoading(true);
     try {
       const storage = getStorage();
-      const listRef = ref(storage, currentPath);
+      const listRef = ref(storage, fullCurrentPath);
       const res = await listAll(listRef);
 
       const folders: FolderItem[] = res.prefixes.map(folderRef => ({
         name: folderRef.name,
         type: 'folder',
-        path: folderRef.fullPath,
+        path: folderRef.fullPath.substring(rootPath.length + 1), // Store relative path
       }));
       
       const files: FileItem[] = await Promise.all(res.items.map(async itemRef => {
+        if(itemRef.name === '.placeholder') return null; // Skip placeholder
         const metadata = await itemRef.getMetadata();
         const url = await getDownloadURL(itemRef);
         return {
           name: itemRef.name,
           type: 'file' as const,
-          path: itemRef.fullPath,
+          path: itemRef.fullPath.substring(rootPath.length + 1), // Store relative path
           url,
           size: metadata.size,
         };
       }));
 
-      setItems([...folders, ...files]);
+      setItems([...folders, ...files.filter(f => f !== null) as FileItem[]]);
     } catch (error) {
       console.error(error);
       toast({ title: 'Error fetching files', variant: 'destructive' });
     }
     setIsLoading(false);
-  }, [currentPath, toast]);
+  }, [fullCurrentPath, rootPath, toast]);
 
   useEffect(() => {
-    fetchItems();
-  }, [fetchItems]);
+    if (user) {
+        fetchItems();
+    } else {
+        setIsLoading(true);
+        setItems([]);
+    }
+  }, [user, fetchItems]);
 
   const handleUpload = (files: FileList) => {
-    if (!files) return;
+    if (!files || !fullCurrentPath) return;
     const storage = getStorage();
 
     Array.from(files).forEach(file => {
-      const filePath = currentPath ? `${currentPath}/${file.name}` : file.name;
+      const filePath = `${fullCurrentPath}/${file.name}`;
       const storageRef = ref(storage, filePath);
       const uploadTask = uploadBytesResumable(storageRef, file);
 
@@ -125,10 +158,9 @@ const DigitalAssetManager: React.FC = () => {
   
   const createFolder = async () => {
     if (!newFolderName.trim()) { toast({ title: 'Folder name is required', variant: 'destructive'}); return; }
+    if (!fullCurrentPath) return;
     
-    // In Firebase Storage, folders are created by uploading a "placeholder" file.
-    // A zero-byte file is a common approach.
-    const folderPath = currentPath ? `${currentPath}/${newFolderName}/` : `${newFolderName}/`;
+    const folderPath = `${fullCurrentPath}/${newFolderName}/`;
     const placeholderPath = `${folderPath}.placeholder`;
 
     const storage = getStorage();
@@ -147,10 +179,12 @@ const DigitalAssetManager: React.FC = () => {
 
   const deleteItem = async (item: AssetItem) => {
     const storage = getStorage();
+    const fullItemPath = `${rootPath}/${item.path}`;
+
     if(item.type === 'file') {
-        await deleteObject(ref(storage, item.path));
+        await deleteObject(ref(storage, fullItemPath));
     } else { // Folder
-        const listRef = ref(storage, item.path);
+        const listRef = ref(storage, fullItemPath);
         const res = await listAll(listRef);
         await Promise.all(res.items.map(itemRef => deleteObject(itemRef)));
         // Also need to delete subfolders recursively, simplified for this demo
@@ -179,8 +213,8 @@ const DigitalAssetManager: React.FC = () => {
             <h2 className="text-sm text-muted-foreground">/{currentPath}</h2>
           </div>
           <div className="flex items-center gap-2">
-            <Button onClick={() => setIsNewFolderOpen(true)}><Plus className="mr-2 h-4 w-4"/>New Folder</Button>
-            <Button variant="outline" onClick={() => fileInputRef.current?.click()}><Upload className="mr-2 h-4 w-4"/>Upload</Button>
+            <Button onClick={() => setIsNewFolderOpen(true)} disabled={!user}><Plus className="mr-2 h-4 w-4"/>New Folder</Button>
+            <Button variant="outline" onClick={() => fileInputRef.current?.click()} disabled={!user}><Upload className="mr-2 h-4 w-4"/>Upload</Button>
             <input type="file" ref={fileInputRef} onChange={e => handleUpload(e.target.files!)} multiple className="hidden"/>
           </div>
         </CardHeader>
@@ -188,6 +222,10 @@ const DigitalAssetManager: React.FC = () => {
           {isLoading ? (
              <div className="absolute inset-0 flex items-center justify-center">
               <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            </div>
+          ) : !user ? (
+            <div className="flex items-center justify-center h-full text-muted-foreground">
+                <p>Signing in to create your file storage...</p>
             </div>
           ) : (
             items.length > 0 || Object.keys(uploadProgress).length > 0 ? (

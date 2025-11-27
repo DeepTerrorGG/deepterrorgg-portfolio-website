@@ -1,4 +1,3 @@
-
 // src/app/projects/page.tsx
 'use client';
 
@@ -75,7 +74,7 @@ const MemoryMatrix = dynamic(() => import('@/components/projects/memory-matrix')
 const BookingCalendar = dynamic(() => import('@/components/projects/booking-calendar'), { loading: () => <ProjectLoader /> });
 const ThisDayInHistory = dynamic(() => import('@/components/projects/this-day-in-history'), { loading: () => <ProjectLoader /> });
 const DigitalAssetManager = dynamic(() => import('@/components/projects/digital-asset-manager'), { loading: () => <ProjectLoader /> });
-
+const PaymentLedger = dynamic(() => import('@/components/projects/payment-ledger'), { loading: () => <ProjectLoader /> });
 
 interface Technology {
   name: string;
@@ -106,6 +105,23 @@ const ProjectLoader = () => (
 );
 
 const projectsData: Project[] = [
+    {
+      id: 'payment-ledger',
+      title: 'Payment Ledger Simulation',
+      imageUrls: ['/placeholder.png'],
+      imageAlt: 'A payment ledger showing double-entry bookkeeping',
+      imageHint: 'payment ledger bank backend',
+      description: 'A simulation of a banking backend using double-entry bookkeeping to ensure transactional integrity.',
+      personalNote: 'This project demonstrates a critical backend concept: how to handle financial transactions safely. It simulates ACID-compliant operations using client-side state, preventing issues like "double-spending" through idempotency checks. It is a vital showcase of understanding the logic required for reliable and robust systems.',
+      difficulty: 'Advanced',
+      component: <PaymentLedger />,
+      technologies: [
+        { name: 'React', iconSrc: '/icons/react.svg' },
+        { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },
+        { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss.svg' },
+      ],
+      renderImage: true,
+    },
     {
       id: 'digital-asset-manager',
       title: 'Digital Asset Manager',
@@ -1195,11 +1211,4 @@ export default function ProjectsPage() {
 
               {/* Project Details Area */}
               <div className="flex-shrink-0 bg-card">
-                  <ProjectDetailContent project={selectedProject} />
-              </div>
-          </div>
-        </ScrollArea>
-      </div>
-    </div>
-  );
-}
+                  <ProjectDetail

@@ -38,8 +38,7 @@ export default function AIImageGenerator() {
   const [uploadedImages, setUploadedImages] = useState<string[]>([]);
 
   const [isPaymentDialogOpen, setIsPaymentDialogOpen] = useState(false);
-  const [hasPaid, setHasPaid] = useState(false);
-  const pendingGenerationData = useRef<any>(null);
+  const [paymentConfirmed, setPaymentConfirmed] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -96,34 +95,34 @@ export default function AIImageGenerator() {
       setImageUrl(url);
     } catch (error: any) {
       console.error(error);
-      toast({
-        title: 'Generation Failed',
-        description: error.message || 'An unexpected error occurred.',
-        variant: 'destructive',
-      });
+      if (error.message.includes('402')) { // Check for our custom 402 error
+        setIsPaymentDialogOpen(true);
+      } else {
+        toast({
+          title: 'Generation Failed',
+          description: error.message || 'An unexpected error occurred.',
+          variant: 'destructive',
+        });
+      }
+    } finally {
+      setLoading(false);
+      setPaymentConfirmed(false); // Reset for next generation
     }
-
-    setLoading(false);
   };
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    if (!hasPaid) {
-      setIsPaymentDialogOpen(true);
-      return;
-    }
-    performGeneration();
+    setIsPaymentDialogOpen(true); // Always open the dialog first
   };
   
   const handlePaymentConfirm = () => {
-    setHasPaid(true);
-    toast({ title: 'Credits Purchased!', description: 'You can now generate images.' });
-    // If there was a pending generation, trigger it now.
+    // This is called by the dialog on successful payment.
+    setPaymentConfirmed(true);
+    // Use a timeout to ensure the state updates before we call performGeneration
     setTimeout(() => {
         performGeneration();
-    }, 100)
+    }, 100);
   };
-
 
   return (
     <div className="p-4 md:p-8 flex items-center justify-center bg-card h-full">
@@ -246,7 +245,8 @@ export default function AIImageGenerator() {
         isOpen={isPaymentDialogOpen}
         onClose={() => setIsPaymentDialogOpen(false)}
         onConfirm={handlePaymentConfirm}
-        featureName="AI Image Generator"
+        featureName="AI Image Generation"
+        amount={1.00}
       />
     </div>
   );

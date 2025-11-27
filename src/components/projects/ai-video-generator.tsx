@@ -29,7 +29,7 @@ export default function AIVideoGenerator() {
   const [negativePrompt, setNegativePrompt] = useState('');
 
   const [isPaymentDialogOpen, setIsPaymentDialogOpen] = useState(false);
-  const [hasPaid, setHasPaid] = useState(false);
+  const [paymentConfirmed, setPaymentConfirmed] = useState(false);
   const pendingGenerationData = useRef<any>(null);
 
   const performGeneration = async () => {
@@ -67,29 +67,35 @@ export default function AIVideoGenerator() {
       }
     } catch (error: any) {
       clearInterval(progressInterval);
-      setStatus('error');
-      setProgress(0);
-      console.error(error);
-      toast({
-        title: 'Generation Failed',
-        description: error.message || 'An unexpected error occurred.',
-        variant: 'destructive',
-      });
+      
+      if (error.message.includes('402')) {
+        setIsPaymentDialogOpen(true);
+        setStatus('idle');
+        setProgress(0);
+      } else {
+        setStatus('error');
+        setProgress(0);
+        console.error(error);
+        toast({
+          title: 'Generation Failed',
+          description: error.message || 'An unexpected error occurred.',
+          variant: 'destructive',
+        });
+      }
+    } finally {
+        if (!error.message.includes('402')) {
+            setPaymentConfirmed(false);
+        }
     }
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!hasPaid) {
-      setIsPaymentDialogOpen(true);
-      return;
-    }
-    performGeneration();
+    setIsPaymentDialogOpen(true);
   };
   
   const handlePaymentConfirm = () => {
-    setHasPaid(true);
-    toast({ title: 'Credits Purchased!', description: 'You can now generate videos.' });
+    setPaymentConfirmed(true);
     setTimeout(() => {
         performGeneration();
     }, 100);
@@ -171,7 +177,8 @@ export default function AIVideoGenerator() {
         isOpen={isPaymentDialogOpen}
         onClose={() => setIsPaymentDialogOpen(false)}
         onConfirm={handlePaymentConfirm}
-        featureName="AI Video Generator"
+        featureName="AI Video Generation"
+        amount={5.00}
       />
     </div>
   );

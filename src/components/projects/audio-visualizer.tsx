@@ -135,6 +135,7 @@ const AudioVisualizer: React.FC = () => {
       if (canvas && canvas.parentElement) {
         canvas.width = canvas.parentElement.clientWidth;
         canvas.height = canvas.parentElement.clientHeight;
+        draw();
       }
     });
 
@@ -151,7 +152,7 @@ const AudioVisualizer: React.FC = () => {
             resizeObserver.unobserve(canvas.parentElement);
         }
     };
-  }, []);
+  }, [draw]);
 
   return (
     <div className="flex flex-col items-center justify-center w-full h-full bg-card p-4 sm:p-6 lg:p-8">

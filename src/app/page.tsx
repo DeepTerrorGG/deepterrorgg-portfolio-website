@@ -12,23 +12,11 @@ import ProjectShowcase from '@/components/home/project-showcase';
 import SplineShowcase from '@/components/home/spline-showcase';
 import type { Spline } from '@splinetool/react-spline';
 import { Card, CardContent } from '@/components/ui/card';
-import dynamic from 'next/dynamic';
 import React, { useState, useEffect } from 'react';
 
 
-const CodeEditor = dynamic(() => import('@/components/projects/code-editor'), { ssr: false });
-const CollaborativeWhiteboard = dynamic(() => import('@/components/projects/collaborative-whiteboard'), { ssr: false });
-const DeckBuildingRoguelike = dynamic(() => import('@/components/projects/deck-building-roguelike'), { ssr: false });
-const GitHistoryVisualizer = dynamic(() => import('@/components/projects/githistory-visualizer'), { ssr: false });
-const KanbanBoard = dynamic(() => import('@/components/projects/kanban-board'), { ssr: false });
-
-
-const SplineModel = dynamic(
-  () => import('@/components/home/spline-model'),
-  { 
-    ssr: false,
-    loading: () => <div className="bg-muted/20 w-full h-full min-h-[500px]" />,
-  }
+const SplineModel = React.lazy(
+  () => import('@/components/home/spline-model')
 );
 
 
@@ -37,7 +25,6 @@ const featuredProjects = [
       id: 'code-editor',
       title: 'AI Coding Assistant',
       description: 'A code editor with an integrated AI assistant that can explain, refactor, and add comments to your code. A powerful tool demonstrating the future of software development.',
-      component: <CodeEditor />,
       technologies: [
         { name: 'React', iconSrc: '/icons/react.svg' },
         { name: 'Next.js', iconSrc: '/icons/nextjs.svg' },
@@ -49,7 +36,6 @@ const featuredProjects = [
       id: 'collaborative-whiteboard',
       title: 'Real-Time Collaborative Whiteboard',
       description: 'A shared digital canvas where users can draw in real-time. A complex project combining data synchronization with a custom HTML canvas rendering engine.',
-      component: <CollaborativeWhiteboard />,
       technologies: [
         { name: 'React', iconSrc: '/icons/react.svg' },
         { name: 'Next.js', iconSrc: '/icons/nextjs.svg' },
@@ -61,7 +47,6 @@ const featuredProjects = [
       id: 'deck-building-roguelike',
       title: 'Deck-Builder Adventure',
       description: 'A single-player card game where you build a powerful deck to battle through a procedurally generated map. A huge challenge in system and game design.',
-      component: <DeckBuildingRoguelike />,
        technologies: [
         { name: 'React', iconSrc: '/icons/react.svg' },
         { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },
@@ -72,7 +57,6 @@ const featuredProjects = [
       id: 'githistory-visualizer',
       title: 'Git History Visualizer',
       description: 'An animated visualization that plays back a project\'s commit history, showing files as an evolving, galaxy-like node graph using D3.js.',
-      component: <GitHistoryVisualizer />,
       technologies: [
         { name: 'React', iconSrc: '/icons/react.svg' },
         { name: 'D3.js', iconSrc: '/icons/d3.svg' },
@@ -83,7 +67,6 @@ const featuredProjects = [
       id: 'kanban-board',
       title: 'Project Management Board',
       description: 'A Trello-like board with draggable cards to manage tasks. A fantastic exercise in complex state management, real-time updates, and user interaction.',
-      component: <KanbanBoard />,
       technologies: [
         { name: 'React', iconSrc: '/icons/react.svg' },
         { name: 'Firebase', iconSrc: '/icons/firebase.svg' },
@@ -282,9 +265,11 @@ export default function HomePage() {
             <p className="text-muted-foreground mt-3 max-w-2xl mx-auto">A collection of my 3D creations. Use the arrows to navigate.</p>
           </div>
           {isMounted && (
-            <div className="hidden md:block">
-              <SplineShowcase models={splineModels} />
-            </div>
+            <React.Suspense fallback={<div className="bg-muted/20 w-full h-full min-h-[500px]" />}>
+              <div className="hidden md:block">
+                <SplineShowcase models={splineModels} />
+              </div>
+            </React.Suspense>
           )}
           <div className="block md:hidden">
             <Card className="border-border bg-card">
@@ -328,5 +313,7 @@ export default function HomePage() {
 
 
 
+
+    
 
     

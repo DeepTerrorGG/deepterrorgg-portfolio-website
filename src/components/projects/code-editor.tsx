@@ -327,27 +327,6 @@ ctx.fillRect(10, 10, 150, 80);`,
 };
 
 
-// Simplified execution for non-JS languages
-const consoleOutputs: Record<string, Partial<Record<CodeLanguage, string[]>>> = {
-  "Hello World": {
-    'Python': ["Hello, World!"],
-    'Java': ["Hello, World!"],
-    'C#': ["Hello, World!"],
-  },
-  "Bubble Sort": {
-    'Python': ["Sorted array is: [11, 12, 22, 25, 34, 64, 90]"],
-    'Java': ["Sorted array: [11, 12, 22, 25, 34, 64, 90]"],
-  },
-  "Factorial": {
-    'Python': ["120"],
-    'Java': ["Factorial of 5 is 120"],
-  },
-  "FizzBuzz": {
-    'Python': ["1", "2", "Fizz", "4", "Buzz", /* ... */ "FizzBuzz"],
-  },
-};
-
-
 export default function CodeEditor() {
   const { toast } = useToast();
   const [example, setExample] = useState<string>(exampleTypes[0]);
@@ -358,6 +337,7 @@ export default function CodeEditor() {
   const [aiOutput, setAiOutput] = useState<string>('');
   const [consoleOutput, setConsoleOutput] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
+  const [isExecuting, setIsExecuting] = useState(false);
   const [activeTab, setActiveTab] = useState('ai-output');
   
   const editorRef = useRef<any>(null);
@@ -378,46 +358,43 @@ export default function CodeEditor() {
     setCode(newCode);
   }, [language, example]);
 
-  const handleRunCode = () => {
+  const handleRunCode = async () => {
     setConsoleOutput([]);
     setActiveTab('console-output');
+    setIsExecuting(true);
 
-    const expectedCode = codeExamples[example]?.[language];
-    const isUnmodifiedExample = expectedCode ? code.trim() === expectedCode.trim() : false;
+    try {
+        const response = await fetch('/api/execute-code', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                language: language.toLowerCase(),
+                code: code,
+            }),
+        });
 
-    if (isUnmodifiedExample && consoleOutputs[example]?.[language]) {
-      setConsoleOutput(consoleOutputs[example]?.[language] || []);
-      return;
-    }
-    
-    if (language === 'JavaScript') {
-        const originalLog = console.log;
-        const newLogs: string[] = [];
-        console.log = (...args) => {
-            const formattedArgs = args.map(arg => {
-                if (typeof arg === 'object' && arg !== null) {
-                    try { return JSON.stringify(arg, null, 2); } catch { return '[Circular Object]'; }
-                }
-                return String(arg);
-            }).join(' ');
-            newLogs.push(formattedArgs);
-        };
-        try {
-            // eslint-disable-next-line no-eval
-            eval(code);
-        } catch (error: any) {
-            newLogs.push(`Error: ${error.message}`);
-        } finally {
-            console.log = originalLog;
-            setConsoleOutput(newLogs.length > 0 ? newLogs : ['Code executed successfully with no console output.']);
+        if (!response.ok) {
+            const errorResult = await response.json();
+            throw new Error(errorResult.error || 'Failed to execute code.');
         }
-    } else {
-        setConsoleOutput([
-            `Custom code execution is only available for JavaScript.`,
-            `For ${language}, you can run the original, unmodified examples to see their simulated output.`
-        ]);
+
+        const result = await response.json();
+        const output = result.output || 'Code executed successfully with no console output.';
+        setConsoleOutput(output.split('\n'));
+
+    } catch (error: any) {
+        setConsoleOutput([`Error: ${error.message}`]);
+        toast({
+            title: 'Execution Error',
+            description: error.message,
+            variant: 'destructive',
+        });
+    } finally {
+        setIsExecuting(false);
     }
-};
+  };
 
 
   const handleSubmit = async () => {
@@ -515,10 +492,10 @@ export default function CodeEditor() {
                 </div>
             </div>
              <div className="flex gap-2">
-                <Button onClick={handleRunCode} variant="secondary" className="w-full">
-                    <Play className="mr-2 h-4 w-4" /> Run Code
+                <Button onClick={handleRunCode} variant="secondary" className="w-full" disabled={isExecuting || loading}>
+                    {isExecuting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Play className="mr-2 h-4 w-4" />} Run Code
                 </Button>
-                <Button onClick={handleSubmit} disabled={loading} className="w-full">
+                <Button onClick={handleSubmit} disabled={loading || isExecuting} className="w-full">
                     {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Wand2 className="mr-2 h-4 w-4" />}
                     Run AI Task
                 </Button>
@@ -559,7 +536,12 @@ export default function CodeEditor() {
             <TabsContent value="console-output" className="flex-grow overflow-auto mt-0">
                <ScrollArea className="h-full">
                  <div className="p-4 h-full font-mono text-xs text-foreground">
-                    {consoleOutput.length > 0 ? (
+                    {isExecuting ? (
+                       <div className="flex items-center justify-center h-full flex-col gap-4 text-muted-foreground">
+                          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                          <p>Executing code...</p>
+                        </div>
+                    ) : consoleOutput.length > 0 ? (
                         consoleOutput.map((line, index) => (
                             <div key={index} className="border-b border-border/20 p-1 whitespace-pre-wrap">{line}</div>
                         ))

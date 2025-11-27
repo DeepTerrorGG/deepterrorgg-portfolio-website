@@ -17,6 +17,11 @@ import { ArrowRight, Compass } from 'lucide-react';
 import { TechStack } from '@/components/ui/tech-stack';
 import Autoplay from 'embla-carousel-autoplay';
 import { cn } from '@/lib/utils';
+import CodeEditor from '@/components/projects/code-editor';
+import CollaborativeWhiteboard from '@/components/projects/collaborative-whiteboard';
+import DeckBuildingRoguelike from '@/components/projects/deck-building-roguelike';
+import GitHistoryVisualizer from '@/components/projects/githistory-visualizer';
+import KanbanBoard from '@/components/projects/kanban-board';
 
 interface Project {
   id: string;
@@ -24,13 +29,20 @@ interface Project {
   description: string;
   imageUrl?: string;
   imageHint?: string;
-  component?: React.ReactNode;
   technologies: { name: string; iconSrc: string }[];
 }
 
 interface ProjectShowcaseProps {
   projects: Project[];
 }
+
+const ProjectComponentMap: Record<string, React.ReactNode> = {
+  'code-editor': <CodeEditor />,
+  'collaborative-whiteboard': <CollaborativeWhiteboard />,
+  'deck-building-roguelike': <DeckBuildingRoguelike />,
+  'githistory-visualizer': <GitHistoryVisualizer />,
+  'kanban-board': <KanbanBoard />,
+};
 
 const ProjectShowcase: React.FC<ProjectShowcaseProps> = ({ projects }) => {
   const plugin = React.useRef(
@@ -52,13 +64,15 @@ const ProjectShowcase: React.FC<ProjectShowcaseProps> = ({ projects }) => {
               <Card className="flex flex-col md:flex-row overflow-hidden h-full min-h-[480px] transform-style-3d transition-transform duration-500 ease-in-out">
                 <div className="relative w-full md:w-1/2 h-64 md:h-auto bg-card">
                   <div className="w-full h-full min-h-[300px] md:min-h-full flex items-center justify-center bg-muted/30 p-8">
-                     <div className="text-center">
-                        <Compass className="h-16 w-16 text-primary mx-auto mb-4"/>
-                        <h3 className="text-xl font-bold">Explore this Project</h3>
-                        <p className="text-muted-foreground mt-2">
-                            This is an interactive demo. Click the button to explore it on the projects page.
-                        </p>
-                    </div>
+                     {ProjectComponentMap[project.id] || (
+                       <div className="text-center">
+                          <Compass className="h-16 w-16 text-primary mx-auto mb-4"/>
+                          <h3 className="text-xl font-bold">Explore this Project</h3>
+                          <p className="text-muted-foreground mt-2">
+                              This is an interactive demo. Click the button to explore it on the projects page.
+                          </p>
+                      </div>
+                     )}
                   </div>
                 </div>
                 <div className="w-full md:w-1/2 flex flex-col p-6 sm:p-8 justify-center">
@@ -89,3 +103,5 @@ const ProjectShowcase: React.FC<ProjectShowcaseProps> = ({ projects }) => {
 };
 
 export default ProjectShowcase;
+
+    

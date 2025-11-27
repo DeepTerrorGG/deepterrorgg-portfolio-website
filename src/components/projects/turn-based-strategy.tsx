@@ -212,11 +212,12 @@ const TurnBasedStrategy: React.FC = () => {
   };
   
    useEffect(() => {
+    if (gamePhase === 'game-over') return;
     const playerUnitsLeft = units.some(u => u.owner === 'player');
     const enemyUnitsLeft = units.some(u => u.owner === 'enemy');
     if (!playerUnitsLeft) { setWinner('enemy'); setGamePhase('game-over'); }
     else if (!enemyUnitsLeft) { setWinner('player'); setGamePhase('game-over'); }
-  }, [units]);
+  }, [units, gamePhase]);
 
   const restartGame = () => {
     setUnits(JSON.parse(JSON.stringify(initialUnits)));

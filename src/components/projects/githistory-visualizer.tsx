@@ -1,7 +1,7 @@
 
 'use client';
 
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import * as d3 from 'd3';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -24,16 +24,9 @@ interface GitLink extends d3.SimulationLinkDatum<GitNode> {
 const GitHistoryVisualizer: React.FC = () => {
     const [commitIndex, setCommitIndex] = useState(0);
     const [isPlaying, setIsPlaying] = useState(false);
-    const svgRef = useRef<SVGSVGElement>(null);
+    const svgRef = useRef<SVGSVGElement | null>(null);
     const simulationRef = useRef<d3.Simulation<GitNode, GitLink> | null>(null);
 
-    // D3 elements are stored in refs to be managed outside of React's render cycle
-    const linkGroupRef = useRef<d3.Selection<SVGGElement, unknown, null, undefined> | null>(null);
-    const nodeGroupRef = useRef<d3.Selection<SVGGElement, unknown, null, undefined> | null>(null);
-
-    const [nodes, setNodes] = useState<GitNode[]>([]);
-    const [links, setLinks] = useState<GitLink[]>([]);
-    
     // Memoize the data processing to avoid re-running it unnecessarily
     const processedCommits = useMemo(() => {
         let allNodes = new Map<string, GitNode>();
@@ -76,91 +69,91 @@ const GitHistoryVisualizer: React.FC = () => {
         });
     }, []);
 
-    // Effect for initializing and updating D3 simulation
-    useEffect(() => {
-        const svgElement = d3.select(svgRef.current);
-        const width = svgElement.node()?.getBoundingClientRect().width || 600;
-        const height = svgElement.node()?.getBoundingClientRect().height || 400;
-
-        if (!simulationRef.current) {
-            simulationRef.current = d3.forceSimulation<GitNode>()
-                .force('link', d3.forceLink<GitNode, GitLink>().id(d => d.id).distance(20).strength(0.5))
-                .force('charge', d3.forceManyBody().strength(-30))
-                .force('center', d3.forceCenter(width / 2, height / 2))
-                .force('collide', d3.forceCollide(d => Math.sqrt(d.size) + 3));
-
-            linkGroupRef.current = svgElement.append('g').attr('class', 'links');
-            nodeGroupRef.current = svgElement.append('g').attr('class', 'nodes');
-
-            simulationRef.current.on('tick', () => {
-                nodeGroupRef.current?.selectAll<SVGCircleElement, GitNode>('circle')
-                    .attr('cx', d => d.x!)
-                    .attr('cy', d => d.y!);
-
-                linkGroupRef.current?.selectAll<SVGLineElement, GitLink>('line')
-                    .attr('x1', d => (d.source as GitNode).x!)
-                    .attr('y1', d => (d.source as GitNode).y!)
-                    .attr('x2', d => (d.target as GitNode).x!)
-                    .attr('y2', d => (d.target as GitNode).y!);
-            });
-        }
-        
-        const data = processedCommits[commitIndex];
-        setNodes(data.nodes);
-        setLinks(data.links);
-
-    }, [commitIndex, processedCommits]);
-
-    // This effect updates the D3 elements when React state changes
-    useEffect(() => {
-        if (!simulationRef.current || !nodeGroupRef.current || !linkGroupRef.current) return;
-        
-        simulationRef.current.nodes(nodes);
-        simulationRef.current.force<d3.ForceLink<GitNode, GitLink>>('link')?.links(links);
-        
-        // Update nodes
-        const nodeSelection = nodeGroupRef.current.selectAll<SVGCircleElement, GitNode>('circle')
-            .data(nodes, d => d.id);
-            
-        nodeSelection.enter()
-            .append('circle')
-            .attr('r', 0)
-            .attr('class', d => d.type === 'dir' ? 'fill-blue-500/50 stroke-blue-400' : 'fill-primary/50 stroke-primary')
-            .transition().duration(500)
-            .attr('r', d => Math.sqrt(d.size) + 3);
-
-        nodeSelection.transition().duration(500)
-            .attr('r', d => Math.sqrt(d.size) + 3);
-            
-        nodeSelection.exit()
-            .transition().duration(500)
-            .attr('r', 0)
-            .remove();
-
+    const updateSimulation = useCallback((data: { nodes: GitNode[], links: GitLink[] }) => {
+        if (!simulationRef.current || !svgRef.current) return;
+    
+        const svg = d3.select(svgRef.current);
+    
+        // Update simulation data
+        simulationRef.current.nodes(data.nodes);
+        simulationRef.current.force<d3.ForceLink<GitNode, GitLink>>('link')?.links(data.links);
+    
         // Update links
-        const linkSelection = linkGroupRef.current.selectAll<SVGLineElement, GitLink>('line')
-            .data(links, d => `${(d.source as GitNode).id}-${(d.target as GitNode).id}`);
-            
-        linkSelection.enter()
-            .append('line')
-            .attr('class', 'stroke-gray-600')
-            .attr('stroke-width', 0.5)
-            .attr('stroke-opacity', 0);
-            
-        linkSelection.transition().duration(500).attr('stroke-opacity', 1);
-
-        linkSelection.exit().remove();
+        const link = svg.select('g.links').selectAll('line')
+          .data(data.links, d => `${(d.source as GitNode).id}-${(d.target as GitNode).id}`);
         
-        simulationRef.current.alpha(0.8).restart();
-
-    }, [nodes, links]);
-
-
-    const reset = useCallback(() => {
-        setIsPlaying(false);
-        setCommitIndex(0);
+        link.exit().transition().duration(300).attr('stroke-opacity', 0).remove();
+        link.enter().append('line')
+          .attr('stroke', '#4A5568')
+          .attr('stroke-width', 0.5)
+          .attr('stroke-opacity', 0)
+          .transition().duration(300)
+          .attr('stroke-opacity', 1);
+    
+        // Update nodes
+        const node = svg.select('g.nodes').selectAll('circle')
+          .data(data.nodes, d => d.id);
+          
+        node.exit().transition().duration(300).attr('r', 0).remove();
+        node.enter().append('circle')
+          .attr('r', 0)
+          .attr('class', d => d.type === 'dir' ? 'fill-blue-500/50 stroke-blue-400' : 'fill-primary/50 stroke-primary')
+          .call(d3.drag<SVGCircleElement, GitNode>()
+                .on("start", (event, d) => {
+                    if (!event.active) simulationRef.current?.alphaTarget(0.3).restart();
+                    d.fx = d.x; d.fy = d.y;
+                })
+                .on("drag", (event, d) => {
+                    d.fx = event.x; d.fy = event.y;
+                })
+                .on("end", (event, d) => {
+                    if (!event.active) simulationRef.current?.alphaTarget(0);
+                    d.fx = null; d.fy = null;
+                })
+            )
+          .transition().duration(300)
+          .attr('r', d => Math.sqrt(d.size) + 3);
+          
+        node.transition().duration(300)
+          .attr('r', d => Math.sqrt(d.size) + 3);
+    
+        simulationRef.current.alpha(1).restart();
     }, []);
+    
 
+    const initSimulation = useCallback(() => {
+        if (!svgRef.current) return;
+        const svg = d3.select(svgRef.current);
+        svg.selectAll('*').remove(); // Clear previous elements
+        
+        const width = svg.node()!.getBoundingClientRect().width;
+        const height = svg.node()!.getBoundingClientRect().height;
+
+        const linkGroup = svg.append('g').attr('class', 'links');
+        const nodeGroup = svg.append('g').attr('class', 'nodes');
+
+        const simulation = d3.forceSimulation<GitNode>()
+            .force('link', d3.forceLink<GitNode, GitLink>().id(d => d.id).distance(30).strength(0.5))
+            .force('charge', d3.forceManyBody().strength(-40))
+            .force('center', d3.forceCenter(width / 2, height / 2))
+            .force('collide', d3.forceCollide(d => Math.sqrt(d.size) + 4));
+
+        simulation.on('tick', () => {
+            nodeGroup.selectAll('circle')
+                .attr('cx', d => (d as any).x)
+                .attr('cy', d => (d as any).y);
+
+            linkGroup.selectAll('line')
+                .attr('x1', d => (d as any).source.x)
+                .attr('y1', d => (d as any).source.y)
+                .attr('x2', d => (d as any).target.x)
+                .attr('y2', d => (d as any).target.y);
+        });
+
+        simulationRef.current = simulation;
+        updateSimulation(processedCommits[0]);
+    }, [processedCommits, updateSimulation]);
+    
     // Auto-play interval
     useEffect(() => {
         if (isPlaying && commitIndex < mockCommits.length - 1) {
@@ -168,10 +161,24 @@ const GitHistoryVisualizer: React.FC = () => {
                 setCommitIndex(prev => prev + 1);
             }, 500);
             return () => clearTimeout(timer);
-        } else if (commitIndex >= mockCommits.length - 1) {
+        } else if (commitIndex >= mockCommits.length - 1 && isPlaying) {
             setIsPlaying(false);
         }
     }, [isPlaying, commitIndex]);
+
+    useEffect(() => {
+        initSimulation();
+    }, [initSimulation]);
+    
+    useEffect(() => {
+        updateSimulation(processedCommits[commitIndex]);
+    }, [commitIndex, processedCommits, updateSimulation]);
+    
+    const reset = useCallback(() => {
+        setIsPlaying(false);
+        setCommitIndex(0);
+        updateSimulation(processedCommits[0]);
+    }, [processedCommits, updateSimulation]);
 
     const handlePlayPause = () => {
         if (commitIndex >= mockCommits.length - 1) {

@@ -404,7 +404,7 @@ export default function CodeEditor() {
     setIsExecuting(true);
 
     try {
-        const response = await fetch('/api/execute-code/route.ts', {
+        const response = await fetch('/api/execute-code', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

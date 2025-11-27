@@ -1,4 +1,7 @@
 
+// This file is no longer used by the component but is kept for reference.
+// The component now fetches live data from the GitHub API.
+
 export interface MockCommit {
   sha: string;
   author: string;

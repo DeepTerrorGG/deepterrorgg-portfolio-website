@@ -45,7 +45,9 @@ export async function fetchRepoHistory(input: z.infer<typeof GithubHistoryInputS
                 throw new Error(`Repository not found at ${owner}/${repo}. Please check the URL.`);
             }
             if (response.status === 403) {
-                 throw new Error(`API rate limit exceeded. Please wait a moment and try again.`);
+                 const rateLimitData = await response.json();
+                 const resetTime = rateLimitData.rate?.reset ? new Date(rateLimitData.rate.reset * 1000).toLocaleTimeString() : 'later';
+                 throw new Error(`GitHub API rate limit exceeded. Please wait a moment and try again after ${resetTime}.`);
             }
             throw new Error(`Failed to fetch commits from GitHub API: ${response.statusText}`);
         }

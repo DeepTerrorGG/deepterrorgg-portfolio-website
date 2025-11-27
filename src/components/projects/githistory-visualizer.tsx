@@ -1,7 +1,7 @@
 
 'use client';
 
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import * as d3 from 'd3';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -140,12 +140,10 @@ const GitHistoryVisualizer: React.FC = () => {
     }, []);
 
     const measuredRef = useCallback((node: SVGSVGElement | null) => {
-        if (!node) return;
+        if (!node || simulationRef.current) return; // Only init once
         svgRef.current = node;
 
         const svg = d3.select(node);
-        svg.selectAll('*').remove();
-    
         const width = node.getBoundingClientRect().width;
         const height = node.getBoundingClientRect().height;
     
@@ -172,10 +170,10 @@ const GitHistoryVisualizer: React.FC = () => {
     
         simulationRef.current = simulation;
         if(processedCommits.length > 0) {
-            updateSimulation(processedCommits[0]);
+            updateSimulation(processedCommits[commitIndex]);
         }
     
-    }, [processedCommits, updateSimulation]);
+    }, [processedCommits, updateSimulation, commitIndex]);
 
     useEffect(() => {
         if (isPlaying && commitIndex < commits.length - 1) {
@@ -183,7 +181,7 @@ const GitHistoryVisualizer: React.FC = () => {
                 setCommitIndex(prev => prev + 1);
             }, 500); // Slowed down playback speed
             return () => clearTimeout(timer);
-        } else if (commitIndex >= commits.length - 1 && isPlaying) {
+        } else if (commitIndex >= commits.length - 1 && isPlaying && commits.length > 0) {
             setIsPlaying(false);
         }
     }, [isPlaying, commitIndex, commits]);
@@ -218,6 +216,9 @@ const GitHistoryVisualizer: React.FC = () => {
     const reset = () => {
         setIsPlaying(false);
         setCommitIndex(0);
+        if (processedCommits.length > 0) {
+          updateSimulation(processedCommits[0]);
+        }
     };
 
     const handlePlayPause = () => {
@@ -238,7 +239,9 @@ const GitHistoryVisualizer: React.FC = () => {
                 <CardHeader>
                     <CardTitle className="text-primary">Git History Visualizer</CardTitle>
                     <CardDescription>Enter a public GitHub repo URL to visualize its commit history.</CardDescription>
-                     <div className="flex w-full items-center space-x-2 pt-2">
+                </CardHeader>
+                <CardContent>
+                     <div className="flex w-full items-center space-x-2">
                         <Input
                             type="text"
                             placeholder="https://github.com/owner/repo"
@@ -253,7 +256,7 @@ const GitHistoryVisualizer: React.FC = () => {
                             Fetch History
                         </Button>
                     </div>
-                </CardHeader>
+                </CardContent>
             </Card>
             
             <div className="flex-grow relative border border-gray-700 rounded-lg bg-black/30 overflow-hidden min-h-[400px]">
@@ -276,10 +279,10 @@ const GitHistoryVisualizer: React.FC = () => {
                                         <p className="font-semibold truncate" title={currentCommit.message}>{currentCommit.message}</p>
                                     </div>
                                     <p className="text-xs text-gray-400 mt-1">by {currentCommit.author} ({commitIndex + 1}/{commits.length})</p>
-                                    <Progress value={((commitIndex + 1) / commits.length) * 100} className="w-full mt-2 h-2"/>
+                                    
                                 </>
                             ) : (
-                                <p className="text-gray-500 h-[52px] flex items-center">Waiting for data...</p>
+                                <p className="text-gray-500 h-[40px] flex items-center">Waiting for data...</p>
                             )}
                         </div>
                         <div className="flex gap-2 ml-4 flex-shrink-0">
@@ -290,6 +293,7 @@ const GitHistoryVisualizer: React.FC = () => {
                             <Button onClick={reset} variant="outline" disabled={commits.length === 0 || isLoading}><RefreshCw className="h-4 w-4"/></Button>
                         </div>
                     </div>
+                    {commits.length > 0 && <Progress value={((commitIndex + 1) / commits.length) * 100} className="w-full mt-2 h-2"/>}
                 </CardContent>
             </Card>
         </div>

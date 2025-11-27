@@ -2,7 +2,7 @@
 'use client';
 
 import { generateVideo } from '@/ai/flows/generate-video-flow';
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
@@ -12,6 +12,7 @@ import { Progress } from '../ui/progress';
 import { Label } from '../ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { Input } from '../ui/input';
+import { PaymentDialog } from '@/components/PaymentDialog';
 
 type GenerationStatus = 'idle' | 'generating' | 'done' | 'error';
 type AspectRatio = '16:9' | '9:16' | '4:3' | '1:1';
@@ -27,9 +28,12 @@ export default function AIVideoGenerator() {
   const [aspectRatio, setAspectRatio] = useState<AspectRatio>('16:9');
   const [negativePrompt, setNegativePrompt] = useState('');
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!prompt.trim()) {
+  const [isPaymentDialogOpen, setIsPaymentDialogOpen] = useState(false);
+  const [hasPaid, setHasPaid] = useState(false);
+  const pendingGenerationData = useRef<any>(null);
+
+  const performGeneration = async () => {
+     if (!prompt.trim()) {
       toast({ title: 'Prompt is required', description: 'Please enter a description for the video.', variant: 'destructive' });
       return;
     }
@@ -72,6 +76,23 @@ export default function AIVideoGenerator() {
         variant: 'destructive',
       });
     }
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!hasPaid) {
+      setIsPaymentDialogOpen(true);
+      return;
+    }
+    performGeneration();
+  };
+  
+  const handlePaymentConfirm = () => {
+    setHasPaid(true);
+    toast({ title: 'Credits Purchased!', description: 'You can now generate videos.' });
+    setTimeout(() => {
+        performGeneration();
+    }, 100);
   };
 
   const isLoading = status === 'generating';
@@ -146,6 +167,12 @@ export default function AIVideoGenerator() {
           )}
         </CardContent>
       </Card>
+      <PaymentDialog
+        isOpen={isPaymentDialogOpen}
+        onClose={() => setIsPaymentDialogOpen(false)}
+        onConfirm={handlePaymentConfirm}
+        featureName="AI Video Generator"
+      />
     </div>
   );
 }

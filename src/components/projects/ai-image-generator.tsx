@@ -20,6 +20,7 @@ import { Label } from '../ui/label';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import { ScrollArea } from '../ui/scroll-area';
+import { PaymentDialog } from '@/components/PaymentDialog';
 
 const imageStyles: ImageStyle[] = [
     'Default', 'Photorealistic', 'Cartoon', 'Watercolor', 'Cyberpunk', 'Minimalist', 'Fantasy Art', 'Pixel Art', 'Cinematic', '3D Model', 'Vintage Photo'
@@ -35,6 +36,10 @@ export default function AIImageGenerator() {
   const [style, setStyle] = useState<ImageStyle>('Default');
   const [aspectRatio, setAspectRatio] = useState<AspectRatio>('1:1');
   const [uploadedImages, setUploadedImages] = useState<string[]>([]);
+
+  const [isPaymentDialogOpen, setIsPaymentDialogOpen] = useState(false);
+  const [hasPaid, setHasPaid] = useState(false);
+  const pendingGenerationData = useRef<any>(null);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -72,8 +77,7 @@ export default function AIImageGenerator() {
     setUploadedImages(prev => prev.filter((_, i) => i !== index));
   }
 
-  const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault();
+  const performGeneration = async () => {
     if (!description.trim()) {
       toast({ title: 'Prompt is required', description: 'Please enter a description.', variant: 'destructive'});
       return;
@@ -101,6 +105,25 @@ export default function AIImageGenerator() {
 
     setLoading(false);
   };
+
+  const handleSubmit = async (e: FormEvent) => {
+    e.preventDefault();
+    if (!hasPaid) {
+      setIsPaymentDialogOpen(true);
+      return;
+    }
+    performGeneration();
+  };
+  
+  const handlePaymentConfirm = () => {
+    setHasPaid(true);
+    toast({ title: 'Credits Purchased!', description: 'You can now generate images.' });
+    // If there was a pending generation, trigger it now.
+    setTimeout(() => {
+        performGeneration();
+    }, 100)
+  };
+
 
   return (
     <div className="p-4 md:p-8 flex items-center justify-center bg-card h-full">
@@ -218,8 +241,13 @@ export default function AIImageGenerator() {
           )}
         </CardContent>
       </Card>
+
+      <PaymentDialog
+        isOpen={isPaymentDialogOpen}
+        onClose={() => setIsPaymentDialogOpen(false)}
+        onConfirm={handlePaymentConfirm}
+        featureName="AI Image Generator"
+      />
     </div>
   );
 }
-
-    

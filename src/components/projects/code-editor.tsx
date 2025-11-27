@@ -105,74 +105,25 @@ const codeExamples: Record<string, Partial<Record<CodeLanguage, string>>> = {
     'Fortran': 'PROGRAM FizzBuzz\n  IMPLICIT NONE\n  INTEGER :: i\n\n  DO i = 1, 100\n    IF (MOD(i, 15) == 0) THEN\n      PRINT *, "FizzBuzz"\n    ELSE IF (MOD(i, 3) == 0) THEN\n      PRINT *, "Fizz"\n    ELSE IF (MOD(i, 5) == 0) THEN\n      PRINT *, "Buzz"\n    ELSE\n      PRINT *, i\n    END IF\n  END DO\n\nEND PROGRAM FizzBuzz',
     'COBOL': 'IDENTIFICATION DIVISION.\nPROGRAM-ID. FizzBuzz.\nDATA DIVISION.\nWORKING-STORAGE SECTION.\n01 I        PIC 999.\n01 MOD-15   PIC 99.\n01 MOD-5    PIC 99.\n01 MOD-3    PIC 99.\n01 DUMMY    PIC 99.\n\nPROCEDURE DIVISION.\n    PERFORM VARYING I FROM 1 BY 1 UNTIL I > 100\n        DIVIDE I BY 15 GIVING DUMMY REMAINDER MOD-15.\n        DIVIDE I BY 5 GIVING DUMMY REMAINDER MOD-5.\n        DIVIDE I BY 3 GIVING DUMMY REMAINDER MOD-3.\n\n        IF MOD-15 = 0 THEN\n            DISPLAY "FizzBuzz"\n        ELSE IF MOD-5 = 0 THEN\n            DISPLAY "Buzz"\n        ELSE IF MOD-3 = 0 THEN\n            DISPLAY "Fizz"\n        ELSE\n            DISPLAY I\n        END-IF\n    END-PERFORM.\n    STOP RUN.',
   },
-  "Prime Number Check": {
-      'JavaScript': ['true', 'false'],
-      'Python': ['True', 'False'],
-      'TypeScript': ['true', 'false'],
-      'Java': ['Is 29 prime? true', 'Is 10 prime? false'],
-      'C#': ['Is 29 prime? True', 'Is 10 prime? False'],
-      'C++': ['Is 29 prime? true', 'Is 10 prime? false'],
-      'Go': ['Is 29 prime? true', 'Is 10 prime? false'],
-      'Rust': ['Is 29 prime? true', 'Is 10 prime? false'],
-      'C': ['29 is prime: true', '10 is prime: false'],
-      'Swift': ['Is 29 prime? true', 'Is 10 prime? false'],
-      'Perl': ['Is 29 prime? 1\\n', 'Is 10 prime? 0\\n'],
+};
+
+// Simplified execution for non-JS languages
+const consoleOutputs: Record<string, Partial<Record<CodeLanguage, string[]>>> = {
+  "Hello World": {
+    'Python': ["Hello, World!"],
+    'Java': ["Hello, World!"],
+    'C#': ["Hello, World!"],
   },
-  "Palindrome Check": {
-      'JavaScript': ['true'],
-      'Python': ['True'],
-      'TypeScript': ['true'],
-      'Java': ['true'],
-      'C#': ['True'],
-      'C++': ['true'],
-      'Go': ['true'],
-      'Rust': ['true'],
-      'C': ['Is a palindrome.'],
-      'Swift': ['true'],
+  "Bubble Sort": {
+    'Python': ["Sorted array is: [11, 12, 22, 25, 34, 64, 90]"],
+    'Java': ["Sorted array: [11, 12, 22, 25, 34, 64, 90]"],
   },
-  "Fibonacci Sequence": {
-      'JavaScript': ['55'],
-      'Python': ['55'],
-      'Go': ['55'],
-      'C': ['55'],
-      'Rust': ['55'],
-      'Java': ['55'],
-      'C#': ['55'],
+  "Factorial": {
+    'Python': ["120"],
+    'Java': ["Factorial of 5 is 120"],
   },
-  "Tower of Hanoi": {
-      'JavaScript': ['Move disk 1 from rod A to rod C', 'Move disk 2 from rod A to rod B', 'Move disk 1 from rod C to rod B', 'Move disk 3 from rod A to rod C', 'Move disk 1 from rod B to rod A', 'Move disk 2 from rod B to rod C', 'Move disk 1 from rod A to rod C'],
-      'Python': ['Move disk 1 from A to C', 'Move disk 2 from A to B', 'Move disk 1 from C to B', 'Move disk 3 from A to C', 'Move disk 1 from B to A', 'Move disk 2 from B to C', 'Move disk 1 from A to C'],
-      'C': ['Move disk 1 from rod A to rod C', 'Move disk 2 from rod A to rod B', 'Move disk 1 from rod C to rod B', 'Move disk 3 from rod A to rod C', 'Move disk 1 from rod B to rod A', 'Move disk 2 from rod B to rod C', 'Move disk 1 from rod A to rod C'],
-      'Go': ['Move disk 1 from A to C', 'Move disk 2 from A to B', 'Move disk 1 from C to B', 'Move disk 3 from A to C', 'Move disk 1 from B to A', 'Move disk 2 from B to C', 'Move disk 1 from A to C'],
-      'Java': ['Move disk 1 from A to C', 'Move disk 2 from A to B', 'Move disk 1 from C to B', 'Move disk 3 from A to C', 'Move disk 1 from B to A', 'Move disk 2 from B to C', 'Move disk 1 from A to C'],
-      'C++': ['Move disk 1 from A to C', 'Move disk 2 from A to B', 'Move disk 1 from C to B', 'Move disk 3 from A to C', 'Move disk 1 from B to A', 'Move disk 2 from B to C', 'Move disk 1 from A to C'],
-  },
-  "Binary Search": {
-      'JavaScript': ['3'],
-      'Python': ['3'],
-      'C': ['Element found at index 3'],
-      'Java': ['Element found at index 3'],
-      'Go': ['Found at index: 3'],
-      'Rust': ['Found at index: Some(3)'],
-  },
-  "99 Bottles of Beer": {
-      'JavaScript': ["... (99 verses) ..."],
-      'Python': ["... (99 verses) ..."],
-      'C': ["... (99 verses) ..."],
-      'Go': ["... (99 verses) ..."],
-      'Java': ["... (99 verses) ..."],
-  },
-  "Simple Class": {
-      'JavaScript': ['Rex says Woof!'],
-      'Python': ['Rex says Woof!'],
-      'TypeScript': ['Rex says Woof!'],
-      'Java': ['Rex says Woof!'],
-      'C#': ['Rex says Woof!'],
-      'C++': ['Rex says Woof!'],
-      'Go': ['Rex says Woof!'],
-      'Rust': ['Rex says Woof!'],
-      'Swift': ['Rex says Woof!'],
-      'Perl': ['Rex says Woof!\\n'],
+  "FizzBuzz": {
+    'Python': ["1", "2", "Fizz", "4", "Buzz", /* ... */ "FizzBuzz"],
   },
 };
 
@@ -181,7 +132,7 @@ export default function CodeEditor() {
   const { toast } = useToast();
   const [example, setExample] = useState<string>(exampleTypes[0]);
   const [availableExamples, setAvailableExamples] = useState<string[]>([]);
-  const [code, setCode] = useState<string>('');
+  const [code, setCode] = useState<string>(codeExamples["Hello World"]["JavaScript"] || '');
   const [task, setTask] = useState<CodeTask>('explain');
   const [language, setLanguage] = useState<CodeLanguage>('JavaScript');
   const [aiOutput, setAiOutput] = useState<string>('');
@@ -189,42 +140,20 @@ export default function CodeEditor() {
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState('ai-output');
   
-  const monaco = useMonaco();
   const editorRef = useRef<any>(null);
 
   useEffect(() => {
-    // Define a custom theme for Monaco that makes the text and background transparent
-    monaco?.editor.defineTheme('transparent-theme', {
-      base: 'vs-dark',
-      inherit: true,
-      rules: [],
-      colors: {
-        'editor.background': '#00000000', // Transparent background
-        'editor.foreground': '#00000000', // Fully transparent text
-        'editorCursor.foreground': '#FFFFFF', // White cursor
-        'editor.selectionBackground': '#FFFFFF20', // Barely visible selection
-      },
-    });
-    monaco?.editor.setTheme('transparent-theme');
-  }, [monaco]);
-
-
-  useEffect(() => {
-    // Filter available example types based on the selected language
     const examplesForLang = exampleTypes.filter(exType => codeExamples[exType]?.[language] !== undefined);
     setAvailableExamples(examplesForLang);
 
-    // If the current example is not available for the new language, switch to the first available one
+    let currentExample = example;
     if (!examplesForLang.includes(example)) {
-      const newExample = examplesForLang[0] || '';
-      setExample(newExample);
-      const newCode = newExample ? (codeExamples[newExample]?.[language] || `// No '${newExample}' example available for ${language}.`) : `// No examples available for ${language}.`;
-      setCode(newCode);
-    } else {
-      // Otherwise, just update the code for the current example and new language
-      const newCode = codeExamples[example]?.[language] || `// No '${example}' example available for ${language}.`;
-      setCode(newCode);
+      currentExample = examplesForLang[0] || '';
+      setExample(currentExample);
     }
+    
+    const newCode = currentExample ? (codeExamples[currentExample]?.[language] || `// No example for ${language}.`) : `// No examples for ${language}.`;
+    setCode(newCode);
   }, [language, example]);
 
   const handleRunCode = () => {
@@ -234,12 +163,9 @@ export default function CodeEditor() {
     const expectedCode = codeExamples[example]?.[language];
     const isUnmodifiedExample = expectedCode ? code.trim() === expectedCode.trim() : false;
 
-    if (isUnmodifiedExample) {
-        const output = consoleOutputs[example]?.[language];
-        if (output) {
-            setConsoleOutput(output);
-            return;
-        }
+    if (isUnmodifiedExample && consoleOutputs[example]?.[language]) {
+      setConsoleOutput(consoleOutputs[example]?.[language] || []);
+      return;
     }
     
     if (language === 'JavaScript') {
@@ -310,54 +236,25 @@ export default function CodeEditor() {
     }
   };
   
-  const editorStyle = {
-    lineHeight: '1.5',
-    letterSpacing: '0.025em',
-    fontSize: '18px',
-  };
-
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full h-full p-4 bg-card">
         {/* Editor Panel */}
         <div className="flex flex-col gap-4">
              <div className="relative flex-grow font-mono text-lg p-4 rounded-lg bg-black/30 border border-gray-700 overflow-hidden">
-                <pre
-                    aria-hidden="true"
-                    className="whitespace-pre-wrap select-none w-full h-full overflow-auto"
-                    style={editorStyle}
-                    dangerouslySetInnerHTML={{ __html: code + '\n' }}
+                 <Editor
+                    value={code}
+                    onChange={(value) => setCode(value || '')}
+                    onMount={(editor) => { editorRef.current = editor; editor.focus(); }}
+                    language={language.toLowerCase()}
+                    theme="vs-dark"
+                    options={{
+                        minimap: { enabled: false },
+                        fontSize: 14,
+                        wordWrap: 'on',
+                        scrollBeyondLastLine: false,
+                        padding: { top: 16, bottom: 16 }
+                    }}
                 />
-                <div
-                    className="absolute top-4 left-4 w-[calc(100%-2rem)] h-[calc(100%-2rem)]"
-                >
-                    <Editor
-                        value={code}
-                        onChange={(value) => setCode(value || '')}
-                        onMount={(editor) => { editorRef.current = editor; editor.focus(); }}
-                        language={language.toLowerCase()}
-                        theme="transparent-theme"
-                        options={{
-                            minimap: { enabled: false },
-                            fontSize: 18,
-                            lineHeight: 27, // 18 * 1.5
-                            letterSpacing: 0.45,
-                            lineNumbers: 'off',
-                            glyphMargin: false,
-                            folding: false,
-                            lineDecorationsWidth: 0,
-                            lineNumbersMinChars: 0,
-                            wordWrap: 'on',
-                            scrollbar: { vertical: 'hidden', horizontal: 'hidden' },
-                            overviewRulerLanes: 0,
-                            hideCursorInOverviewRuler: true,
-                            cursorBlinking: 'smooth',
-                            cursorStyle: 'line',
-                            renderLineHighlight: 'none',
-                            overviewRulerBorder: false,
-                            padding: { top: 0, bottom: 0 },
-                        }}
-                    />
-                </div>
             </div>
             <div className="flex flex-col sm:flex-row gap-2">
                 <div className='flex-grow'>

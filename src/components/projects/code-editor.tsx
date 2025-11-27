@@ -1,7 +1,7 @@
 
 'use client';
 
-import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import Editor, { useMonaco } from '@monaco-editor/react';
 import {
@@ -105,7 +105,227 @@ const codeExamples: Record<string, Partial<Record<CodeLanguage, string>>> = {
     'Fortran': 'PROGRAM FizzBuzz\n  IMPLICIT NONE\n  INTEGER :: i\n\n  DO i = 1, 100\n    IF (MOD(i, 15) == 0) THEN\n      PRINT *, "FizzBuzz"\n    ELSE IF (MOD(i, 3) == 0) THEN\n      PRINT *, "Fizz"\n    ELSE IF (MOD(i, 5) == 0) THEN\n      PRINT *, "Buzz"\n    ELSE\n      PRINT *, i\n    END IF\n  END DO\n\nEND PROGRAM FizzBuzz',
     'COBOL': 'IDENTIFICATION DIVISION.\nPROGRAM-ID. FizzBuzz.\nDATA DIVISION.\nWORKING-STORAGE SECTION.\n01 I        PIC 999.\n01 MOD-15   PIC 99.\n01 MOD-5    PIC 99.\n01 MOD-3    PIC 99.\n01 DUMMY    PIC 99.\n\nPROCEDURE DIVISION.\n    PERFORM VARYING I FROM 1 BY 1 UNTIL I > 100\n        DIVIDE I BY 15 GIVING DUMMY REMAINDER MOD-15.\n        DIVIDE I BY 5 GIVING DUMMY REMAINDER MOD-5.\n        DIVIDE I BY 3 GIVING DUMMY REMAINDER MOD-3.\n\n        IF MOD-15 = 0 THEN\n            DISPLAY "FizzBuzz"\n        ELSE IF MOD-5 = 0 THEN\n            DISPLAY "Buzz"\n        ELSE IF MOD-3 = 0 THEN\n            DISPLAY "Fizz"\n        ELSE\n            DISPLAY I\n        END-IF\n    END-PERFORM.\n    STOP RUN.',
   },
+  "Prime Number Check": {
+    'JavaScript': `function isPrime(num) {
+  if (num <= 1) return false;
+  for (let i = 2; i * i <= num; i++) {
+    if (num % i === 0) return false;
+  }
+  return true;
+}
+
+console.log(isPrime(29)); // true
+console.log(isPrime(15)); // false`,
+    'Python': `def is_prime(n):
+    if n <= 1:
+        return False
+    for i in range(2, int(n**0.5) + 1):
+        if n % i == 0:
+            return False
+    return True
+
+print(is_prime(29))
+print(is_prime(15))`,
+  },
+  "Palindrome Check": {
+    'JavaScript': `function isPalindrome(str) {
+  const cleanStr = str.toLowerCase().replace(/[^a-zA-Z0-9]/g, '');
+  const reversedStr = cleanStr.split('').reverse().join('');
+  return cleanStr === reversedStr;
+}
+
+console.log(isPalindrome("A man, a plan, a canal: Panama")); // true
+console.log(isPalindrome("hello world")); // false`,
+    'Python': `def is_palindrome(s):
+    s = ''.join(filter(str.isalnum, s)).lower()
+    return s == s[::-1]
+
+print(is_palindrome("A man, a plan, a canal: Panama"))
+print(is_palindrome("hello world"))`,
+  },
+  "Fibonacci Sequence": {
+    'JavaScript': `function fibonacci(n) {
+  if (n <= 1) return n;
+  return fibonacci(n - 1) + fibonacci(n - 2);
+}
+
+// Get the first 10 numbers in the sequence
+for (let i = 0; i < 10; i++) {
+  console.log(fibonacci(i));
+}`,
+    'Python': `def fibonacci(n):
+    if n <= 1:
+        return n
+    else:
+        return fibonacci(n-1) + fibonacci(n-2)
+
+for i in range(10):
+    print(fibonacci(i))`,
+  },
+  "Tower of Hanoi": {
+    'JavaScript': `function towerOfHanoi(n, fromRod, toRod, auxRod) {
+  if (n === 1) {
+    console.log(\`Move disk 1 from rod \${fromRod} to rod \${toRod}\`);
+    return;
+  }
+  towerOfHanoi(n - 1, fromRod, auxRod, toRod);
+  console.log(\`Move disk \${n} from rod \${fromRod} to rod \${toRod}\`);
+  towerOfHanoi(n - 1, auxRod, toRod, fromRod);
+}
+
+towerOfHanoi(3, 'A', 'C', 'B');`,
+    'Python': `def tower_of_hanoi(n, source, destination, auxiliary):
+    if n == 1:
+        print(f"Move disk 1 from {source} to {destination}")
+        return
+    tower_of_hanoi(n-1, source, auxiliary, destination)
+    print(f"Move disk {n} from {source} to {destination}")
+    tower_of_hanoi(n-1, auxiliary, destination, source)
+
+tower_of_hanoi(3, 'A', 'C', 'B')`,
+  },
+  "Binary Search": {
+    'JavaScript': `function binarySearch(arr, x) {
+    let low = 0;
+    let high = arr.length - 1;
+    while (high >= low) {
+        let mid = low + Math.floor((high - low) / 2);
+        if (arr[mid] === x) return mid;
+        if (arr[mid] > x) high = mid - 1;
+        else low = mid + 1;
+    }
+    return -1;
+}
+
+const arr = [2, 3, 4, 10, 40];
+console.log(binarySearch(arr, 10)); // 3`,
+    'Python': `def binary_search(arr, x):
+    low = 0
+    high = len(arr) - 1
+    while low <= high:
+        mid = (high + low) // 2
+        if arr[mid] < x:
+            low = mid + 1
+        elif arr[mid] > x:
+            high = mid - 1
+        else:
+            return mid
+    return -1
+
+arr = [2, 3, 4, 10, 40]
+print(binary_search(arr, 10))`,
+  },
+  "99 Bottles of Beer": {
+    'JavaScript': `for (let i = 99; i > 0; i--) {
+  console.log(\`\${i} bottle\${i > 1 ? 's' : ''} of beer on the wall, \${i} bottle\${i > 1 ? 's' : ''} of beer.\`);
+  console.log(\`Take one down and pass it around, \${i - 1 === 0 ? 'no more' : i - 1} bottle\${i - 1 !== 1 ? 's' : ''} of beer on the wall.\\n\`);
+}`,
+    'Python': `for i in range(99, 0, -1):
+    print(f"{i} bottle{'s' if i > 1 else ''} of beer on the wall, {i} bottle{'s' if i > 1 else ''} of beer.")
+    print(f"Take one down and pass it around, {'no more' if i - 1 == 0 else i - 1} bottle{'s' if i - 1 != 1 else ''} of beer on the wall.\\n")`,
+  },
+  "Cat Program": {
+    'JavaScript': `// A simple 'cat' program using Node.js 'fs' module
+const fs = require('fs');
+
+if (process.argv.length < 3) {
+  console.log('Usage: node cat.js <file>');
+  process.exit(1);
+}
+
+const filename = process.argv[2];
+
+fs.readFile(filename, 'utf8', (err, data) => {
+  if (err) {
+    console.error(\`Error reading file: \${err.message}\`);
+    process.exit(1);
+  }
+  console.log(data);
+});`,
+    'Python': `import sys
+
+if len(sys.argv) < 2:
+    print("Usage: python cat.py <file>")
+    sys.exit(1)
+
+try:
+    with open(sys.argv[1], 'r') as f:
+        print(f.read())
+except FileNotFoundError:
+    print(f"Error: File '{sys.argv[1]}' not found.")
+    sys.exit(1)`,
+  },
+  "Quine": {
+    'JavaScript': `const s = 'const s = %s; console.log(s, \`'\` + s + \`'\`);';
+console.log(s, \`'\` + s + \`'\`);`,
+    'Python': `s = 's = %r; print(s %% s)'; print(s % s)`,
+  },
+  "Simple Web Server": {
+    'JavaScript': `// Node.js example
+const http = require('http');
+const port = 3000;
+
+const server = http.createServer((req, res) => {
+  res.statusCode = 200;
+  res.setHeader('Content-Type', 'text/plain');
+  res.end('Hello, World!');
+});
+
+server.listen(port, () => {
+  console.log(\`Server running at http://localhost:\${port}/\`);
+});`,
+    'Python': `# Python 3 example
+from http.server import BaseHTTPRequestHandler, HTTPServer
+
+class SimpleServer(BaseHTTPRequestHandler):
+    def do_GET(self):
+        self.send_response(200)
+        self.send_header('Content-type', 'text/html')
+        self.end_headers()
+        self.wfile.write(b"Hello, World!")
+
+def run(server_class=HTTPServer, handler_class=SimpleServer, port=8000):
+    server_address = ('', port)
+    httpd = server_class(server_address, handler_class)
+    print(f"Starting httpd server on port {port}")
+    httpd.serve_forever()
+
+if __name__ == "__main__":
+    run()`,
+  },
+  "Simple Class": {
+    'JavaScript': `class Dog {
+  constructor(name) {
+    this.name = name;
+  }
+
+  bark() {
+    console.log('Woof!');
+  }
+}
+
+const myDog = new Dog('Rex');
+myDog.bark();`,
+    'Python': `class Dog:
+    def __init__(self, name):
+        self.name = name
+
+    def bark(self):
+        print("Woof!")
+
+my_dog = Dog("Rex")
+my_dog.bark()`,
+  },
+  "Canvas Drawing": {
+    'HTML': `<canvas id="myCanvas" width="200" height="100" style="border:1px solid #000000;"></canvas>`,
+    'JavaScript': `const canvas = document.getElementById('myCanvas');
+const ctx = canvas.getContext('2d');
+
+ctx.fillStyle = 'red';
+ctx.fillRect(10, 10, 150, 80);`,
+  },
 };
+
 
 // Simplified execution for non-JS languages
 const consoleOutputs: Record<string, Partial<Record<CodeLanguage, string[]>>> = {
@@ -141,6 +361,8 @@ export default function CodeEditor() {
   const [activeTab, setActiveTab] = useState('ai-output');
   
   const editorRef = useRef<any>(null);
+  const monaco = useMonaco();
+  
 
   useEffect(() => {
     const examplesForLang = exampleTypes.filter(exType => codeExamples[exType]?.[language] !== undefined);
@@ -239,9 +461,10 @@ export default function CodeEditor() {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full h-full p-4 bg-card">
         {/* Editor Panel */}
-        <div className="flex flex-col gap-4">
-             <div className="relative flex-grow font-mono text-lg p-4 rounded-lg bg-black/30 border border-gray-700 overflow-hidden">
+        <div className="flex flex-col gap-4 h-full">
+            <div className="relative flex-grow font-mono text-lg rounded-lg bg-black/30 border border-gray-700 overflow-hidden min-h-[400px]">
                  <Editor
+                    height="100%"
                     value={code}
                     onChange={(value) => setCode(value || '')}
                     onMount={(editor) => { editorRef.current = editor; editor.focus(); }}
@@ -303,9 +526,9 @@ export default function CodeEditor() {
         </div>
 
         {/* Output Panel */}
-        <div className="flex flex-col border border-border rounded-md shadow-inner">
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-grow flex flex-col">
-            <TabsList className="m-2">
+        <div className="flex flex-col border border-border rounded-md shadow-inner overflow-hidden h-full">
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-grow flex flex-col h-full bg-black/30">
+            <TabsList className="m-2 shrink-0 grid w-full grid-cols-2 bg-muted/30">
               <TabsTrigger value="ai-output">
                 <Wand2 className="mr-2 h-4 w-4" /> AI Output
               </TabsTrigger>
@@ -313,9 +536,9 @@ export default function CodeEditor() {
                 <Terminal className="mr-2 h-4 w-4" /> Console
               </TabsTrigger>
             </TabsList>
-            <TabsContent value="ai-output" className="flex-grow overflow-hidden mt-0">
+            <TabsContent value="ai-output" className="flex-grow overflow-auto mt-0">
               <ScrollArea className="h-full">
-                <div className="p-4">
+                <div className="p-4 h-full">
                   {loading ? (
                     <div className="flex items-center justify-center h-full flex-col gap-4 text-muted-foreground">
                       <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -333,9 +556,9 @@ export default function CodeEditor() {
                 </div>
               </ScrollArea>
             </TabsContent>
-            <TabsContent value="console-output" className="flex-grow overflow-hidden mt-0">
+            <TabsContent value="console-output" className="flex-grow overflow-auto mt-0">
                <ScrollArea className="h-full">
-                 <div className="p-4 font-mono text-xs text-foreground">
+                 <div className="p-4 h-full font-mono text-xs text-foreground">
                     {consoleOutput.length > 0 ? (
                         consoleOutput.map((line, index) => (
                             <div key={index} className="border-b border-border/20 p-1 whitespace-pre-wrap">{line}</div>

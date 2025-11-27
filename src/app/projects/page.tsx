@@ -75,6 +75,7 @@ const BookingCalendar = dynamic(() => import('@/components/projects/booking-cale
 const ThisDayInHistory = dynamic(() => import('@/components/projects/this-day-in-history'), { loading: () => <ProjectLoader /> });
 const DigitalAssetManager = dynamic(() => import('@/components/projects/digital-asset-manager'), { loading: () => <ProjectLoader /> });
 const PaymentLedger = dynamic(() => import('@/components/projects/payment-ledger'), { loading: () => <ProjectLoader /> });
+const LogIngestor = dynamic(() => import('@/components/projects/log-ingestor'), { loading: () => <ProjectLoader /> });
 
 interface Technology {
   name: string;
@@ -105,6 +106,24 @@ const ProjectLoader = () => (
 );
 
 const projectsData: Project[] = [
+    {
+      id: 'log-ingestor',
+      title: 'Real-Time Log Ingestor',
+      imageUrls: ['/placeholder.png'],
+      imageAlt: 'A real-time log ingestion pipeline dashboard',
+      imageHint: 'log pipeline dashboard',
+      description: 'A simulation of a high-throughput logging pipeline, like Datadog or Sentry, complete with a mock SDK, in-memory queue, and a live dashboard.',
+      personalNote: 'This project showcases a complex, scalable architecture. It simulates a client-side SDK sending logs to an in-memory queue, which is then processed by a background worker in batches. The dashboard visualizes the queue size and processed logs in real-time, demonstrating an understanding of asynchronous data flow and system design.',
+      difficulty: 'Advanced',
+      component: <LogIngestor />,
+      technologies: [
+        { name: 'React', iconSrc: '/icons/react.svg' },
+        { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },
+        { name: 'Recharts', iconSrc: '/icons/recharts.svg' },
+        { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss.svg' },
+      ],
+      renderImage: true,
+    },
     {
       id: 'payment-ledger',
       title: 'Payment Ledger Simulation',

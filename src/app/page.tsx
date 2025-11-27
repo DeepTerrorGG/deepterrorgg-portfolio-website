@@ -1,4 +1,3 @@
-
 'use client';
 
 import Link from 'next/link';
@@ -256,10 +255,10 @@ export default function HomePage() {
               <p className="text-muted-foreground mt-3 max-w-2xl mx-auto">An interactive 3D model representing the games I enjoy.</p>
               </div>
               <div className="relative h-[500px] md:h-[700px] w-full mx-auto rounded-lg overflow-hidden bg-muted/20 min-h-[500px]">
-                  <SplineModel 
+                  {/* <SplineModel 
                     sceneUrl="https://prod.spline.design/JQAikTCRQCtrK0Pt/scene.splinecode" 
                     onLoad={onSplineLoad}
-                  />
+                  /> */}
               </div>
         </SectionContainer>
 
@@ -330,3 +329,4 @@ export default function HomePage() {
     
 
     
+

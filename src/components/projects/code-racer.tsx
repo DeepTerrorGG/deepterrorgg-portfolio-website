@@ -28,9 +28,13 @@ const CodeRacer: React.FC = () => {
         monaco?.editor.defineTheme('code-racer-theme', {
             base: 'vs-dark',
             inherit: true,
-            rules: [],
+            rules: [
+                 { token: '', foreground: 'ffffff00', background: 'ffffff00' } // Make text transparent
+            ],
             colors: {
-                'editor.background': '#0D1117', // A very dark background
+                'editor.background': '#00000000', // Transparent background
+                'editorCursor.foreground': '#FFFFFF', // Visible cursor
+                'editor.foreground': '#FFFFFF00', // Make selection transparent
             },
         });
         monaco?.editor.setTheme('code-racer-theme');
@@ -44,7 +48,9 @@ const CodeRacer: React.FC = () => {
         setWpm(0);
         setAccuracy(100);
         setIsFinished(false);
-        editorRef.current?.focus();
+        if (editorRef.current) {
+            editorRef.current.focus();
+        }
     }, [language]);
 
     useEffect(() => {
@@ -73,11 +79,13 @@ const CodeRacer: React.FC = () => {
         
         if (startTime) {
             const timeElapsed = (Date.now() - startTime) / 1000 / 60; // in minutes
-            const wordsTyped = correctChars / 5; // Standard WPM calculation
-            setWpm(timeElapsed > 0 ? Math.round(wordsTyped / timeElapsed) : 0);
+            if (timeElapsed > 0) {
+                const wordsTyped = correctChars / 5; // Standard WPM calculation
+                setWpm(Math.round(wordsTyped / timeElapsed));
+            }
         }
 
-        if (currentInput.length === snippet.length) {
+        if (currentInput === snippet) {
             setIsFinished(true);
         }
     };
@@ -88,7 +96,8 @@ const CodeRacer: React.FC = () => {
             if (index < userInput.length) {
                 className = char === userInput[index] ? 'text-green-400' : 'text-red-500 bg-red-900/50';
             }
-            return `<span class="${className}">${char === '\n' ? '&#9166;\n' : char}</span>`;
+            // Use a span for newline characters to ensure they occupy space
+            return `<span class="${className}">${char === '\n' ? '&#9166;\n' : char.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</span>`;
         }).join('');
     };
     
@@ -101,7 +110,7 @@ const CodeRacer: React.FC = () => {
                 <CardContent className="space-y-6">
                     <div className="relative font-mono text-lg p-4 rounded-lg bg-black/30 border border-gray-700 h-64 overflow-y-auto">
                         <pre
-                            className="whitespace-pre-wrap"
+                            className="whitespace-pre-wrap select-none"
                             dangerouslySetInnerHTML={{ __html: getHighlightedText() }}
                         />
                          <div
@@ -129,7 +138,6 @@ const CodeRacer: React.FC = () => {
                                     cursorStyle: 'line',
                                     renderLineHighlight: 'none',
                                     overviewRulerBorder: false,
-                                    
                                 }}
                             />
                         </div>

@@ -33,5 +33,11 @@ service cloud.firestore {
       allow read: if true;
       allow write: if request.auth != null; 
     }
+    
+    // Allow public read for logs, but only authenticated writes.
+    match /system_logs/{logId} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
   }
 }

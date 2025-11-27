@@ -2,230 +2,218 @@
 'use client';
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import * as d3 from 'd3';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Play, Pause, RefreshCw, Github, GitCommit, File, Wind } from 'lucide-react';
+import { Play, Pause, RefreshCw, GitCommit } from 'lucide-react';
 import { mockCommits } from '@/lib/githistory-mock-data';
 import { cn } from '@/lib/utils';
 
 interface GitNode extends d3.SimulationNodeDatum {
-  id: string; // file path
+  id: string;
   size: number;
   type: 'file' | 'dir';
-  lastModified: number;
 }
 
 interface GitLink extends d3.SimulationLinkDatum<GitNode> {
-    source: string;
-    target: string;
+  source: string;
+  target: string;
 }
 
 const GitHistoryVisualizer: React.FC = () => {
+    const [commitIndex, setCommitIndex] = useState(0);
+    const [isPlaying, setIsPlaying] = useState(false);
     const svgRef = useRef<SVGSVGElement>(null);
+    const simulationRef = useRef<d3.Simulation<GitNode, GitLink> | null>(null);
+
+    // D3 elements are stored in refs to be managed outside of React's render cycle
+    const linkGroupRef = useRef<d3.Selection<SVGGElement, unknown, null, undefined> | null>(null);
+    const nodeGroupRef = useRef<d3.Selection<SVGGElement, unknown, null, undefined> | null>(null);
+
     const [nodes, setNodes] = useState<GitNode[]>([]);
     const [links, setLinks] = useState<GitLink[]>([]);
-    const [currentCommitIndex, setCurrentCommitIndex] = useState(0);
-    const [isPlaying, setIsPlaying] = useState(false);
-    const [repoUrl, setRepoUrl] = useState('https://github.com/facebook/react');
-    const simulationRef = useRef<d3.Simulation<GitNode, GitLink>>();
-
-    const processCommit = useCallback((commitIndex: number) => {
-        if (commitIndex >= mockCommits.length) {
-            setIsPlaying(false);
-            return;
-        }
-
-        const commit = mockCommits[commitIndex];
+    
+    // Memoize the data processing to avoid re-running it unnecessarily
+    const processedCommits = useMemo(() => {
+        let allNodes = new Map<string, GitNode>();
+        let allLinks = new Map<string, GitLink>();
         
-        setNodes(prevNodes => {
-            const newNodesMap = new Map(prevNodes.map(n => [n.id, n]));
-            const newDirs = new Set<string>();
-
+        return mockCommits.map(commit => {
             commit.files.forEach(file => {
-                const existingFile = newNodesMap.get(file.path);
-                newNodesMap.set(file.path, {
+                const existingFile = allNodes.get(file.path);
+                allNodes.set(file.path, {
+                    ...existingFile,
                     id: file.path,
-                    size: (existingFile?.size || 0) + file.changes,
+                    size: (existingFile?.size || 10) + file.changes,
                     type: 'file',
-                    lastModified: commitIndex,
-                    x: existingFile?.x || Math.random() * 800,
-                    y: existingFile?.y || Math.random() * 600,
                 });
-
+                
                 const pathParts = file.path.split('/');
                 let currentPath = '';
-                for (let i = 0; i < pathParts.length - 1; i++) {
-                    currentPath += (currentPath ? '/' : '') + pathParts[i];
-                    if (!newNodesMap.has(currentPath)) {
-                        newDirs.add(currentPath);
+                pathParts.slice(0, -1).forEach(part => {
+                    const parentPath = currentPath;
+                    currentPath += (currentPath ? '/' : '') + part;
+                    if (!allNodes.has(currentPath)) {
+                        allNodes.set(currentPath, { id: currentPath, size: 10, type: 'dir' });
                     }
-                }
-            });
-
-            newDirs.forEach(dirPath => {
-                const parentDir = dirPath.split('/').slice(0, -1).join('/');
-                const existingDir = newNodesMap.get(dirPath);
-                newNodesMap.set(dirPath, {
-                    id: dirPath,
-                    size: 10,
-                    type: 'dir',
-                    lastModified: commitIndex,
-                    x: existingDir?.x || newNodesMap.get(parentDir)?.x || Math.random() * 800,
-                    y: existingDir?.y || newNodesMap.get(parentDir)?.y || Math.random() * 600,
-                });
-            });
-            
-            const updatedNodes = Array.from(newNodesMap.values()).filter(n => n.size > 0);
-            
-            // Also update links based on the new nodes structure
-            const newLinksMap = new Map<string, GitLink>();
-            updatedNodes.forEach(node => {
-                if (node.type === 'file') {
-                    const parts = node.id.split('/');
-                    if (parts.length > 1) {
-                        const parentPath = parts.slice(0, -1).join('/');
-                        if (newNodesMap.has(parentPath)) { // Ensure parent directory exists
-                           newLinksMap.set(`${parentPath}->${node.id}`, { source: parentPath, target: node.id });
+                     if (parentPath && allNodes.has(parentPath)) {
+                       const linkId = `${parentPath}->${currentPath}`;
+                        if (!allLinks.has(linkId)) {
+                            allLinks.set(linkId, { source: parentPath, target: currentPath });
                         }
                     }
-                }
+                });
+                const parentDir = pathParts.slice(0, -1).join('/');
+                 if (parentDir && allNodes.has(parentDir)) {
+                    const linkId = `${parentDir}->${file.path}`;
+                    if(!allLinks.has(linkId)) {
+                      allLinks.set(linkId, { source: parentDir, target: file.path });
+                    }
+                 }
             });
-            setLinks(Array.from(newLinksMap.values()));
-
-            return updatedNodes;
+            return { nodes: Array.from(allNodes.values()), links: Array.from(allLinks.values())};
         });
-
     }, []);
 
+    // Effect for initializing and updating D3 simulation
     useEffect(() => {
-        if (!svgRef.current) return;
-
-        const width = svgRef.current.parentElement!.clientWidth;
-        const height = svgRef.current.parentElement!.clientHeight;
-
-        const nodeElements = d3.select(svgRef.current).selectAll<SVGCircleElement, GitNode>('.node');
-        const linkElements = d3.select(svgRef.current).selectAll<SVGLineElement, GitLink>('.link');
+        const svgElement = d3.select(svgRef.current);
+        const width = svgElement.node()?.getBoundingClientRect().width || 600;
+        const height = svgElement.node()?.getBoundingClientRect().height || 400;
 
         if (!simulationRef.current) {
-            simulationRef.current = d3.forceSimulation<GitNode, GitLink>()
-                .force('link', d3.forceLink<GitNode, GitLink>().id(d => d.id).distance(50).strength(0.5))
-                .force('charge', d3.forceManyBody().strength(-150))
+            simulationRef.current = d3.forceSimulation<GitNode>()
+                .force('link', d3.forceLink<GitNode, GitLink>().id(d => d.id).distance(20).strength(0.5))
+                .force('charge', d3.forceManyBody().strength(-30))
                 .force('center', d3.forceCenter(width / 2, height / 2))
-                .force('collide', d3.forceCollide().radius(d => Math.sqrt(d.size) + 15).strength(1));
-        }
+                .force('collide', d3.forceCollide(d => Math.sqrt(d.size) + 3));
 
+            linkGroupRef.current = svgElement.append('g').attr('class', 'links');
+            nodeGroupRef.current = svgElement.append('g').attr('class', 'nodes');
+
+            simulationRef.current.on('tick', () => {
+                nodeGroupRef.current?.selectAll<SVGCircleElement, GitNode>('circle')
+                    .attr('cx', d => d.x!)
+                    .attr('cy', d => d.y!);
+
+                linkGroupRef.current?.selectAll<SVGLineElement, GitLink>('line')
+                    .attr('x1', d => (d.source as GitNode).x!)
+                    .attr('y1', d => (d.source as GitNode).y!)
+                    .attr('x2', d => (d.target as GitNode).x!)
+                    .attr('y2', d => (d.target as GitNode).y!);
+            });
+        }
+        
+        const data = processedCommits[commitIndex];
+        setNodes(data.nodes);
+        setLinks(data.links);
+
+    }, [commitIndex, processedCommits]);
+
+    // This effect updates the D3 elements when React state changes
+    useEffect(() => {
+        if (!simulationRef.current || !nodeGroupRef.current || !linkGroupRef.current) return;
+        
         simulationRef.current.nodes(nodes);
         simulationRef.current.force<d3.ForceLink<GitNode, GitLink>>('link')?.links(links);
+        
+        // Update nodes
+        const nodeSelection = nodeGroupRef.current.selectAll<SVGCircleElement, GitNode>('circle')
+            .data(nodes, d => d.id);
+            
+        nodeSelection.enter()
+            .append('circle')
+            .attr('r', 0)
+            .attr('class', d => d.type === 'dir' ? 'fill-blue-500/50 stroke-blue-400' : 'fill-primary/50 stroke-primary')
+            .transition().duration(500)
+            .attr('r', d => Math.sqrt(d.size) + 3);
 
-        simulationRef.current.on('tick', () => {
-            nodeElements
-              .attr('cx', d => d.x = Math.max(10, Math.min(width - 10, d.x!)))
-              .attr('cy', d => d.y = Math.max(10, Math.min(height - 10, d.y!)));
-              
-            linkElements
-                .attr('x1', d => (d.source as GitNode).x!)
-                .attr('y1', d => (d.source as GitNode).y!)
-                .attr('x2', d => (d.target as GitNode).x!)
-                .attr('y2', d => (d.target as GitNode).y!);
-        });
+        nodeSelection.transition().duration(500)
+            .attr('r', d => Math.sqrt(d.size) + 3);
+            
+        nodeSelection.exit()
+            .transition().duration(500)
+            .attr('r', 0)
+            .remove();
 
-        simulationRef.current.alpha(1).restart();
+        // Update links
+        const linkSelection = linkGroupRef.current.selectAll<SVGLineElement, GitLink>('line')
+            .data(links, d => `${(d.source as GitNode).id}-${(d.target as GitNode).id}`);
+            
+        linkSelection.enter()
+            .append('line')
+            .attr('class', 'stroke-gray-600')
+            .attr('stroke-width', 0.5)
+            .attr('stroke-opacity', 0);
+            
+        linkSelection.transition().duration(500).attr('stroke-opacity', 1);
+
+        linkSelection.exit().remove();
+        
+        simulationRef.current.alpha(0.8).restart();
+
     }, [nodes, links]);
 
 
-    useEffect(() => {
-        if (isPlaying) {
-            const timer = setInterval(() => {
-                setCurrentCommitIndex(prev => {
-                    const nextIndex = prev + 1;
-                    if (nextIndex < mockCommits.length) {
-                        processCommit(nextIndex);
-                        return nextIndex;
-                    }
-                    setIsPlaying(false);
-                    return prev;
-                });
-            }, 500);
-            return () => clearInterval(timer);
-        }
-    }, [isPlaying, processCommit]);
-
-    const handleReset = useCallback(() => {
+    const reset = useCallback(() => {
         setIsPlaying(false);
-        setCurrentCommitIndex(0);
-        setNodes([]);
-        setLinks([]);
-        processCommit(0);
-    }, [processCommit]);
+        setCommitIndex(0);
+    }, []);
+
+    // Auto-play interval
+    useEffect(() => {
+        if (isPlaying && commitIndex < mockCommits.length - 1) {
+            const timer = setTimeout(() => {
+                setCommitIndex(prev => prev + 1);
+            }, 500);
+            return () => clearTimeout(timer);
+        } else if (commitIndex >= mockCommits.length - 1) {
+            setIsPlaying(false);
+        }
+    }, [isPlaying, commitIndex]);
 
     const handlePlayPause = () => {
-        if(currentCommitIndex >= mockCommits.length - 1) {
-            handleReset();
+        if (commitIndex >= mockCommits.length - 1) {
+            reset();
             setTimeout(() => setIsPlaying(true), 100);
         } else {
             setIsPlaying(!isPlaying);
         }
     };
     
-    useEffect(() => {
-        handleReset();
-    }, [handleReset]);
+    const currentCommit = mockCommits[commitIndex];
 
-  return (
-    <div className="w-full h-full bg-gray-900 flex flex-col p-4 text-white font-mono">
-        <Card className="bg-gray-800/50 border-gray-700">
-            <CardHeader>
-                <CardTitle className="text-primary">Git History Visualizer</CardTitle>
-                <CardDescription>Watch a repository's history unfold like a galaxy.</CardDescription>
-            </CardHeader>
-             <CardContent className="flex flex-col sm:flex-row gap-4">
-                <Input value={repoUrl} onChange={(e) => setRepoUrl(e.target.value)} placeholder="Enter GitHub repo URL (e.g., https://github.com/user/repo)" className="bg-gray-900 border-gray-700"/>
-                <div className="flex gap-2">
-                    <Button onClick={handlePlayPause} className="w-24">
-                        {isPlaying ? <Pause className="mr-2 h-4 w-4"/> : <Play className="mr-2 h-4 w-4"/>}
-                        {currentCommitIndex >= mockCommits.length-1 ? "Replay" : isPlaying ? "Pause" : "Play"}
-                    </Button>
-                    <Button onClick={handleReset} variant="outline"><RefreshCw className="mr-2 h-4 w-4"/>Reset</Button>
+    return (
+        <div className="w-full h-full bg-gray-900 flex flex-col p-4 text-white font-mono gap-4">
+            <Card className="bg-gray-800/50 border-gray-700">
+                <CardHeader className="flex-row justify-between items-center">
+                    <div>
+                        <CardTitle className="text-primary">Git History Visualizer</CardTitle>
+                        <CardDescription>Watch a repository's history unfold like a galaxy.</CardDescription>
+                    </div>
+                    <div className="flex gap-2">
+                        <Button onClick={handlePlayPause} className="w-28">
+                            {isPlaying ? <Pause className="mr-2 h-4 w-4"/> : <Play className="mr-2 h-4 w-4"/>}
+                            {commitIndex >= mockCommits.length - 1 ? "Replay" : isPlaying ? "Pause" : "Play"}
+                        </Button>
+                        <Button onClick={reset} variant="outline"><RefreshCw className="h-4 w-4"/></Button>
+                    </div>
+                </CardHeader>
+            </Card>
+            
+            <div className="flex-grow relative border border-gray-700 rounded-lg bg-black/30 overflow-hidden">
+                <svg ref={svgRef} className="w-full h-full" />
+                <div className="absolute bottom-4 left-4 right-4 bg-gray-800/80 p-3 rounded-lg text-sm backdrop-blur-sm shadow-lg">
+                    <p className="flex items-center gap-2"><GitCommit className="h-4 w-4 text-primary"/>{currentCommit.message}</p>
+                    <p className="text-xs text-gray-400 mt-1">by {currentCommit.author} ({commitIndex + 1}/{mockCommits.length})</p>
+                    <div className="w-full bg-gray-600 rounded-full h-1.5 mt-2">
+                         <div className="bg-primary h-1.5 rounded-full" style={{ width: `${((commitIndex + 1) / mockCommits.length) * 100}%` }}></div>
+                    </div>
                 </div>
-            </CardContent>
-        </Card>
-        
-        <div className="flex-grow relative mt-4">
-            <svg ref={svgRef} className="w-full h-full">
-                <g className="links">
-                    {links.map((link, i) => (
-                        <line key={i} className="link stroke-gray-600" strokeWidth="0.5"/>
-                    ))}
-                </g>
-                <g className="nodes">
-                    <AnimatePresence>
-                        {nodes.map(node => (
-                            <motion.circle
-                                key={node.id}
-                                className={cn("node stroke-primary", node.type === 'dir' ? 'fill-blue-500/20' : 'fill-primary/20')}
-                                r={Math.sqrt(node.size) + 3}
-                                initial={{ r: 0 }}
-                                animate={{ r: Math.sqrt(node.size) + 3 }}
-                                exit={{ r: 0 }}
-                            />
-                        ))}
-                    </AnimatePresence>
-                </g>
-            </svg>
-            <AnimatePresence>
-                {isPlaying && mockCommits[currentCommitIndex] && (
-                     <motion.div initial={{ opacity: 0, y: 10}} animate={{opacity: 1, y: 0}} exit={{opacity: 0, y: -10}} className="absolute bottom-4 right-4 bg-gray-800/80 p-3 rounded-lg text-sm backdrop-blur-sm">
-                        <p className="flex items-center gap-2"><GitCommit className="h-4 w-4 text-primary"/>{mockCommits[currentCommitIndex].message}</p>
-                        <p className="text-xs text-gray-400 mt-1">by {mockCommits[currentCommitIndex].author}</p>
-                    </motion.div>
-                )}
-            </AnimatePresence>
+            </div>
         </div>
-    </div>
-  );
+    );
 };
 
 export default GitHistoryVisualizer;

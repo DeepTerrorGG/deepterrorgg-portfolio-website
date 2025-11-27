@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
@@ -62,12 +63,15 @@ const SudokuSolver: React.FC = () => {
     const resetBoard = useCallback((puzzleKey: keyof typeof puzzles = "Easy") => {
         setIsSolving(false);
         solverGenerator.current = null;
-        setInitialBoard(puzzles[puzzleKey]);
-        setBoard(puzzles[puzzleKey]);
+        const newPuzzle = puzzles[puzzleKey] ? JSON.parse(JSON.stringify(puzzles[puzzleKey])) : JSON.parse(JSON.stringify(puzzles.Easy));
+        setInitialBoard(newPuzzle);
+        setBoard(newPuzzle);
         setCurrentCell(null);
     }, []);
 
-    useEffect(() => resetBoard(), [resetBoard]);
+    useEffect(() => {
+        resetBoard();
+    }, [resetBoard]);
 
     const isValid = (board: Board, row: number, col: number, num: number): boolean => {
         for (let i = 0; i < 9; i++) {

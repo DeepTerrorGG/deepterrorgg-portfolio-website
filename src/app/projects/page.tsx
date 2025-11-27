@@ -1095,7 +1095,7 @@ const ProjectDetailContent = ({ project }: { project: Project }) => {
                   </Button>
             )}
         </div>
-    )
+    );
 };
 
 
@@ -1211,4 +1211,11 @@ export default function ProjectsPage() {
 
               {/* Project Details Area */}
               <div className="flex-shrink-0 bg-card">
-                  <ProjectDetail
+                  <ProjectDetailContent project={selectedProject} />
+              </div>
+          </div>
+        </ScrollArea>
+      </div>
+    </div>
+  );
+}

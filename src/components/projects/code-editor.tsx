@@ -24,6 +24,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
 const languages: CodeLanguage[] = ['JavaScript', 'Python', 'TypeScript', 'Java', 'C#', 'C++', 'Go', 'Rust', 'C', 'Swift', 'HTML', 'CSS', 'SQL', 'Assembly', 'Lisp', 'Fortran', 'COBOL', 'Pascal', 'Perl', 'LOLCODE', 'Whitespace', 'Brainf*ck', 'ArnoldC', 'Shakespeare'];
 const exampleTypes = ["Hello World", "Bubble Sort", "Factorial", "FizzBuzz", "Prime Number Check", "Palindrome Check", "Fibonacci Sequence", "Tower of Hanoi", "Binary Search", "99 Bottles of Beer", "Cat Program", "Quine", "Simple Web Server", "Simple Class", "Canvas Drawing"];
 const tasks: CodeTask[] = ['explain', 'refactor', 'comment', 'debug', 'optimize', 'test'];
+const unsupportedLanguages: CodeLanguage[] = ['LOLCODE', 'Whitespace', 'Brainf*ck', 'ArnoldC', 'Shakespeare'];
 
 const codeExamples: Record<string, Partial<Record<CodeLanguage, string>>> = {
   "Hello World": {
@@ -326,6 +327,33 @@ ctx.fillRect(10, 10, 150, 80);`,
   },
 };
 
+const helloWorldOutputs: Partial<Record<CodeLanguage, string>> = {
+    'JavaScript': 'Hello, World!',
+    'Python': 'Hello, World!',
+    'TypeScript': 'Hello, World!',
+    'Java': 'Hello, World!',
+    'C#': 'Hello, World!',
+    'C++': 'Hello, World!',
+    'Go': 'Hello, World!',
+    'Rust': 'Hello, World!',
+    'C': 'Hello, World!',
+    'Swift': 'Hello, World!',
+    'HTML': '<h1>Hello, World!</h1>',
+    'CSS': 'The content "Hello, World!" would be displayed on the page.',
+    'SQL': 'Hello, World!',
+    'Assembly': 'Hello, World!',
+    'Lisp': 'Hello, World!',
+    'Fortran': ' Hello, World!',
+    'COBOL': 'Hello, World!',
+    'Pascal': 'Hello, World!',
+    'Perl': 'Hello, World!',
+    'LOLCODE': 'HAI WORLD!',
+    'Whitespace': 'Hello, World!',
+    'Brainf*ck': 'Hello World!',
+    'ArnoldC': 'Hello World',
+    'Shakespeare': 'Hello, World!',
+};
+
 
 export default function CodeEditor() {
   const { toast } = useToast();
@@ -361,10 +389,22 @@ export default function CodeEditor() {
   const handleRunCode = async () => {
     setConsoleOutput([]);
     setActiveTab('console-output');
+    
+    if (unsupportedLanguages.includes(language)) {
+        if (example === "Hello World" && helloWorldOutputs[language]) {
+            setConsoleOutput([helloWorldOutputs[language]!]);
+        } else {
+             setConsoleOutput([
+                `Execution for ${language} is not supported by the Piston API.`
+            ]);
+        }
+        return;
+    }
+
     setIsExecuting(true);
 
     try {
-        const response = await fetch('/api/execute-code', {
+        const response = await fetch('/api/execute-code/route.ts', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

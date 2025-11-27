@@ -21,7 +21,7 @@ export async function POST(request: Request) {
         version: '*', // Use the latest version of the language
         files: [
           {
-            name: `main.${language}`,
+            name: `main`, // Filename doesn't need extension
             content: code,
           },
         ],
@@ -37,9 +37,12 @@ export async function POST(request: Request) {
     }
 
     const result = await response.json();
-    const output = result.run.stdout || result.run.stderr || '';
+    // Combine stdout and stderr for a comprehensive output
+    const output = `${result.run.stdout || ''}${result.run.stderr || ''}`.trim();
+    const finalOutput = output === '' ? 'Code executed successfully with no console output.' : output;
 
-    return NextResponse.json({ output });
+
+    return NextResponse.json({ output: finalOutput });
 
   } catch (error: any) {
     console.error('Execute Code API Error:', error);

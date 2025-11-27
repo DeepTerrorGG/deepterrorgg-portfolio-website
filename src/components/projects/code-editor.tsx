@@ -361,10 +361,10 @@ export default function CodeEditor() {
     monaco?.editor.defineTheme('transparent-theme', {
       base: 'vs-dark',
       inherit: true,
-      rules: [{ token: '', foreground: 'ffffff00', background: 'ffffff00' }], // Transparent text
+      rules: [],
       colors: {
         'editor.background': '#00000000', // Transparent background
-        'editor.foreground': '#E0E0E0', // Fallback text color (should be transparent)
+        'editor.foreground': '#00000000', // Transparent text
         'editorCursor.foreground': '#FFFFFF', // White cursor
         'editor.selectionBackground': '#FFFFFF20', // Barely visible selection
       },
@@ -477,6 +477,7 @@ export default function CodeEditor() {
   const editorStyle = {
     lineHeight: '1.5',
     letterSpacing: '0.025em',
+    fontSize: '18px',
   };
 
   return (

@@ -1,10 +1,10 @@
+
 // src/app/projects/page.tsx
 'use client';
 
-import React, { useState, useMemo, Suspense } from 'react';
+import React, { useState, useMemo } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import dynamic from 'next/dynamic';
 import PageTitle from '@/components/ui/page-title';
 import { Button } from '@/components/ui/button';
 import { TechStack } from '@/components/ui/tech-stack';
@@ -21,61 +21,61 @@ import {
 } from "@/components/ui/dialog";
 import { DoomIcon } from '@/components/icons/doom';
 
-// Dynamically import all project components
-const TodoList = dynamic(() => import('@/components/projects/todo-list'), { loading: () => <ProjectLoader /> });
-const UnitConverter = dynamic(() => import('@/components/projects/unit-converter'), { loading: () => <ProjectLoader /> });
-const Calculator3D = dynamic(() => import('@/components/projects/calculator-3d'), { loading: () => <ProjectLoader /> });
-const SimpleTextAnimator = dynamic(() => import('@/components/projects/simple-text-animator'), { loading: () => <ProjectLoader /> });
-const FractalRenderer = dynamic(() => import('@/components/projects/fractal-renderer'), { loading: () => <ProjectLoader /> });
-const PomodoroTimer = dynamic(() => import('@/components/projects/pomodoro-timer'), { loading: () => <ProjectLoader /> });
-const PasswordGenerator = dynamic(() => import('@/components/projects/password-generator'), { loading: () => <ProjectLoader /> });
-const BmiCalculator = dynamic(() => import('@/components/projects/bmi-calculator'), { loading: () => <ProjectLoader /> });
-const BudgetPlanner = dynamic(() => import('@/components/projects/budget-planner'), { loading: () => <ProjectLoader /> });
-const GithubProfileFinder = dynamic(() => import('@/components/projects/github-profile-finder'), { loading: () => <ProjectLoader /> });
-const BeatMaker = dynamic(() => import('@/components/projects/beat-maker'), { loading: () => <ProjectLoader /> });
-const MarkdownEditor = dynamic(() => import('@/components/projects/markdown-editor'), { loading: () => <ProjectLoader /> });
-const WeatherApp = dynamic(() => import('@/components/projects/weather-app'), { loading: () => <ProjectLoader /> });
-const StockTracker = dynamic(() => import('@/components/projects/stock-tracker'), { loading: () => <ProjectLoader /> });
-const Spreadsheet = dynamic(() => import('@/components/projects/spreadsheet'), { loading: () => <ProjectLoader /> });
-const TicTacToe = dynamic(() => import('@/components/projects/tic-tac-toe'), { loading: () => <ProjectLoader /> });
-const RockPaperScissors = dynamic(() => import('@/components/projects/rock-paper-scissors'), { loading: () => <ProjectLoader /> });
-const AudioVisualizer = dynamic(() => import('@/components/projects/audio-visualizer'), { loading: () => <ProjectLoader /> });
-const CharacterCounter = dynamic(() => import('@/components/projects/character-counter'), { loading: () => <ProjectLoader /> });
-const CollaborativeWhiteboard = dynamic(() => import('@/components/projects/collaborative-whiteboard'), { loading: () => <ProjectLoader /> });
-const KanbanBoard = dynamic(() => import('@/components/projects/kanban-board'), { loading: () => <ProjectLoader /> });
-const PixelEditor = dynamic(() => import('@/components/projects/pixel-editor'), { loading: () => <ProjectLoader /> });
-const TurnBasedStrategy = dynamic(() => import('@/components/projects/turn-based-strategy'), { loading: () => <ProjectLoader /> });
-const DeckBuildingRoguelike = dynamic(() => import('@/components/projects/deck-building-roguelike'), { loading: () => <ProjectLoader /> });
-const IdleClickerGame = dynamic(() => import('@/components/projects/idle-clicker-game'), { loading: () => <ProjectLoader /> });
-const DoomEmulator = dynamic(() => import('@/components/projects/doom-emulator'), { loading: () => <ProjectLoader /> });
-const DownDetectorDetector = dynamic(() => import('@/components/projects/down-detector-detector'), { loading: () => <ProjectLoader /> });
-const UselessUiPlayground = dynamic(() => import('@/components/projects/useless-ui-playground'), { loading: () => <ProjectLoader /> });
-const ScreenshotService = dynamic(() => import('@/components/projects/screenshot-service'), { loading: () => <ProjectLoader /> });
-const WebsiteStatusChecker = dynamic(() => import('@/components/projects/website-status-checker'), { loading: () => <ProjectLoader /> });
-const SortingVisualizer = dynamic(() => import('@/components/projects/sorting-visualizer'), { loading: () => <ProjectLoader /> });
-const EcommerceDashboard = dynamic(() => import('@/app/dashboard/page'), { loading: () => <ProjectLoader /> });
-const InventoryDashboard = dynamic(() => import('@/components/projects/inventory-dashboard/inventory-dashboard'), { loading: () => <ProjectLoader /> });
-const SpotifyPlaylistGenerator = dynamic(() => import('@/components/projects/spotify-playlist-generator'), { loading: () => <ProjectLoader /> });
-const SpeedTester = dynamic(() => import('@/components/projects/speed-tester'), { loading: () => <ProjectLoader /> });
-const PathfindingVisualizer = dynamic(() => import('@/components/projects/pathfinding-visualizer'), { loading: () => <ProjectLoader /> });
-const AsciiWebcam = dynamic(() => import('@/components/projects/ascii-webcam'), { loading: () => <ProjectLoader /> });
-const TierListMaker = dynamic(() => import('@/components/projects/tier-list/tier-list-maker'), { loading: () => <ProjectLoader /> });
-const MemeStockMarket = dynamic(() => import('@/components/projects/meme-stock-market'), { loading: () => <ProjectLoader /> });
-const CodeRacer = dynamic(() => import('@/components/projects/code-racer'), { loading: () => <ProjectLoader /> });
-const TimeCapsuleProject = dynamic(() => import('@/components/projects/time-capsule'), { loading: () => <ProjectLoader /> });
-const InfiniteCanvas = dynamic(() => import('@/components/projects/infinite-canvas'), { ssr: false, loading: () => <ProjectLoader /> });
-const GitHistoryVisualizer = dynamic(() => import('@/components/projects/githistory-visualizer'), { loading: () => <ProjectLoader /> });
-const VoiceControlledTetris = dynamic(() => import('@/components/projects/voice-controlled-tetris'), { ssr: false, loading: () => <ProjectLoader /> });
-const FractalTree = dynamic(() => import('@/components/projects/fractal-tree'), { loading: () => <ProjectLoader /> });
-const BinaryVsLinearSearch = dynamic(() => import('@/components/projects/binary-vs-linear-search'), { loading: () => <ProjectLoader /> });
-const SudokuSolver = dynamic(() => import('@/components/projects/sudoku-solver'), { loading: () => <ProjectLoader /> });
-const ConnectFour = dynamic(() => import('@/components/projects/connect-four'), { loading: () => <ProjectLoader /> });
-const MemoryMatrix = dynamic(() => import('@/components/projects/memory-matrix'), { loading: () => <ProjectLoader /> });
-const BookingCalendar = dynamic(() => import('@/components/projects/booking-calendar'), { loading: () => <ProjectLoader /> });
-const ThisDayInHistory = dynamic(() => import('@/components/projects/this-day-in-history'), { loading: () => <ProjectLoader /> });
-const DigitalAssetManager = dynamic(() => import('@/components/projects/digital-asset-manager'), { loading: () => <ProjectLoader /> });
-const PaymentLedger = dynamic(() => import('@/components/projects/payment-ledger'), { loading: () => <ProjectLoader /> });
-const LogIngestor = dynamic(() => import('@/components/projects/log-ingestor'), { loading: () => <ProjectLoader /> });
+// Statically import all project components
+import TodoList from '@/components/projects/todo-list';
+import UnitConverter from '@/components/projects/unit-converter';
+import Calculator3D from '@/components/projects/calculator-3d';
+import SimpleTextAnimator from '@/components/projects/simple-text-animator';
+import FractalRenderer from '@/components/projects/fractal-renderer';
+import PomodoroTimer from '@/components/projects/pomodoro-timer';
+import PasswordGenerator from '@/components/projects/password-generator';
+import BmiCalculator from '@/components/projects/bmi-calculator';
+import BudgetPlanner from '@/components/projects/budget-planner';
+import GithubProfileFinder from '@/components/projects/github-profile-finder';
+import BeatMaker from '@/components/projects/beat-maker';
+import MarkdownEditor from '@/components/projects/markdown-editor';
+import WeatherApp from '@/components/projects/weather-app';
+import StockTracker from '@/components/projects/stock-tracker';
+import Spreadsheet from '@/components/projects/spreadsheet';
+import TicTacToe from '@/components/projects/tic-tac-toe';
+import RockPaperScissors from '@/components/projects/rock-paper-scissors';
+import AudioVisualizer from '@/components/projects/audio-visualizer';
+import CharacterCounter from '@/components/projects/character-counter';
+import CollaborativeWhiteboard from '@/components/projects/collaborative-whiteboard';
+import KanbanBoard from '@/components/projects/kanban-board';
+import PixelEditor from '@/components/projects/pixel-editor';
+import TurnBasedStrategy from '@/components/projects/turn-based-strategy';
+import DeckBuildingRoguelike from '@/components/projects/deck-building-roguelike';
+import IdleClickerGame from '@/components/projects/idle-clicker-game';
+import DoomEmulator from '@/components/projects/doom-emulator';
+import DownDetectorDetector from '@/components/projects/down-detector-detector';
+import UselessUiPlayground from '@/components/projects/useless-ui-playground';
+import ScreenshotService from '@/components/projects/screenshot-service';
+import WebsiteStatusChecker from '@/components/projects/website-status-checker';
+import SortingVisualizer from '@/components/projects/sorting-visualizer';
+import EcommerceDashboard from '@/app/dashboard/page';
+import InventoryDashboard from '@/components/projects/inventory-dashboard/inventory-dashboard';
+import SpotifyPlaylistGenerator from '@/components/projects/spotify-playlist-generator';
+import SpeedTester from '@/components/projects/speed-tester';
+import PathfindingVisualizer from '@/components/projects/pathfinding-visualizer';
+import AsciiWebcam from '@/components/projects/ascii-webcam';
+import TierListMaker from '@/components/projects/tier-list/tier-list-maker';
+import MemeStockMarket from '@/components/projects/meme-stock-market';
+import CodeRacer from '@/components/projects/code-racer';
+import TimeCapsuleProject from '@/components/projects/time-capsule';
+import InfiniteCanvas from '@/components/projects/infinite-canvas';
+import GitHistoryVisualizer from '@/components/projects/githistory-visualizer';
+import VoiceControlledTetris from '@/components/projects/voice-controlled-tetris';
+import FractalTree from '@/components/projects/fractal-tree';
+import BinaryVsLinearSearch from '@/components/projects/binary-vs-linear-search';
+import SudokuSolver from '@/components/projects/sudoku-solver';
+import ConnectFour from '@/components/projects/connect-four';
+import MemoryMatrix from '@/components/projects/memory-matrix';
+import BookingCalendar from '@/components/projects/booking-calendar';
+import ThisDayInHistory from '@/components/projects/this-day-in-history';
+import DigitalAssetManager from '@/components/projects/digital-asset-manager';
+import PaymentLedger from '@/components/projects/payment-ledger';
+import LogIngestor from '@/components/projects/log-ingestor';
 
 interface Technology {
   name: string;
@@ -98,12 +98,6 @@ interface Project {
   externalLink?: string;
   renderImage: boolean;
 }
-
-const ProjectLoader = () => (
-    <div className="flex h-96 w-full items-center justify-center bg-card">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-    </div>
-);
 
 const projectsData: Project[] = [
     {
@@ -1178,9 +1172,7 @@ export default function ProjectsPage() {
                   <DialogDescription className="sr-only">{mobileProject.description}</DialogDescription>
               </DialogHeader>
               <ScrollArea className="flex-grow min-h-0">
-                <Suspense fallback={<ProjectLoader/>}>
-                    {mobileProject.component}
-                </Suspense>
+                {mobileProject.component}
               </ScrollArea>
             </DialogContent>
           </Dialog>
@@ -1223,9 +1215,7 @@ export default function ProjectsPage() {
            <div className="animate-fade-in flex flex-col min-h-full">
               {/* Project Component Area */}
               <div className="flex-shrink-0 flex items-center justify-center relative bg-muted/20 border-b border-border min-h-[50vh]">
-                  <Suspense fallback={<ProjectLoader />}>
-                      {selectedProject.component}
-                  </Suspense>
+                  {selectedProject.component}
               </div>
 
               {/* Project Details Area */}

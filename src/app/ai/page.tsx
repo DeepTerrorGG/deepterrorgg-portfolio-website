@@ -2,10 +2,9 @@
 // src/app/ai/page.tsx
 'use client';
 
-import React, { useState, useMemo, Suspense } from 'react';
+import React, { useState, useMemo } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import dynamic from 'next/dynamic';
 import PageTitle from '@/components/ui/page-title';
 import { Button } from '@/components/ui/button';
 import { TechStack } from '@/components/ui/tech-stack';
@@ -21,17 +20,17 @@ import {
   DialogClose,
 } from "@/components/ui/dialog";
 
-// Dynamically import all project components
-const AIVideoGenerator = dynamic(() => import('@/components/projects/ai-video-generator'), { loading: () => <ProjectLoader /> });
-const AIChatbot = dynamic(() => import('@/components/projects/ai-chatbot'), { loading: () => <ProjectLoader /> });
-const AIStoryGenerator = dynamic(() => import('@/components/projects/ai-story-generator'), { loading: () => <ProjectLoader /> });
-const AIRecipeGenerator = dynamic(() => import('@/components/projects/ai-recipe-generator'), { loading: () => <ProjectLoader /> });
-const AIImageGenerator = dynamic(() => import('@/components/projects/ai-image-generator'), { loading: () => <ProjectLoader /> });
-const CodeEditor = dynamic(() => import('@/components/projects/code-editor'), { loading: () => <ProjectLoader /> });
-const ThePasswordGame = dynamic(() => import('@/components/projects/the-password-game'), { loading: () => <ProjectLoader /> });
-const AIInfinityCraft = dynamic(() => import('@/components/projects/ai-infinity-craft'), { loading: () => <ProjectLoader /> });
-const AIPromptEnhancer = dynamic(() => import('@/components/projects/ai-prompt-enhancer'), { loading: () => <ProjectLoader /> });
-const CodeBeautifier = dynamic(() => import('@/components/projects/code-beautifier'), { loading: () => <ProjectLoader /> });
+// Statically import all project components
+import AIVideoGenerator from '@/components/projects/ai-video-generator';
+import AIChatbot from '@/components/projects/ai-chatbot';
+import AIStoryGenerator from '@/components/projects/ai-story-generator';
+import AIRecipeGenerator from '@/components/projects/ai-recipe-generator';
+import AIImageGenerator from '@/components/projects/ai-image-generator';
+import CodeEditor from '@/components/projects/code-editor';
+import ThePasswordGame from '@/components/projects/the-password-game';
+import AIInfinityCraft from '@/components/projects/ai-infinity-craft';
+import AIPromptEnhancer from '@/components/projects/ai-prompt-enhancer';
+import CodeBeautifier from '@/components/projects/code-beautifier';
 
 interface Technology {
   name: string;
@@ -54,12 +53,6 @@ interface Project {
   externalLink?: string;
   renderImage: boolean;
 }
-
-const ProjectLoader = () => (
-    <div className="flex h-96 w-full items-center justify-center bg-card">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-    </div>
-);
 
 const projectsData: Project[] = [
     {
@@ -356,9 +349,7 @@ export default function AiProjectsPage() {
                   <DialogDescription className="sr-only">{mobileProject.description}</DialogDescription>
               </DialogHeader>
               <ScrollArea className="flex-grow min-h-0">
-                <Suspense fallback={<ProjectLoader/>}>
-                    {mobileProject.component}
-                </Suspense>
+                {mobileProject.component}
               </ScrollArea>
             </DialogContent>
           </Dialog>
@@ -401,9 +392,7 @@ export default function AiProjectsPage() {
            <div className="animate-fade-in flex flex-col min-h-full">
               {/* Project Component Area */}
               <div className="flex-shrink-0 flex items-center justify-center relative bg-muted/20 border-b border-border min-h-[50vh]">
-                  <Suspense fallback={<ProjectLoader />}>
-                      {selectedProject.component}
-                  </Suspense>
+                  {selectedProject.component}
               </div>
 
               {/* Project Details Area */}

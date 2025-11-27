@@ -36,24 +36,15 @@ const GithubProfileFinder = dynamic(() => import('@/components/projects/github-p
 const BeatMaker = dynamic(() => import('@/components/projects/beat-maker'), { loading: () => <ProjectLoader /> });
 const MarkdownEditor = dynamic(() => import('@/components/projects/markdown-editor'), { loading: () => <ProjectLoader /> });
 const WeatherApp = dynamic(() => import('@/components/projects/weather-app'), { loading: () => <ProjectLoader /> });
-const AIVideoGenerator = dynamic(() => import('@/components/projects/ai-video-generator'), { loading: () => <ProjectLoader /> });
 const StockTracker = dynamic(() => import('@/components/projects/stock-tracker'), { loading: () => <ProjectLoader /> });
 const Spreadsheet = dynamic(() => import('@/components/projects/spreadsheet'), { loading: () => <ProjectLoader /> });
-const AIChatbot = dynamic(() => import('@/components/projects/ai-chatbot'), { loading: () => <ProjectLoader /> });
-const AIStoryGenerator = dynamic(() => import('@/components/projects/ai-story-generator'), { loading: () => <ProjectLoader /> });
-const AIRecipeGenerator = dynamic(() => import('@/components/projects/ai-recipe-generator'), { loading: () => <ProjectLoader /> });
-const AIImageGenerator = dynamic(() => import('@/components/projects/ai-image-generator'), { loading: () => <ProjectLoader /> });
-const CodeEditor = dynamic(() => import('@/components/projects/code-editor'), { loading: () => <ProjectLoader /> });
 const TicTacToe = dynamic(() => import('@/components/projects/tic-tac-toe'), { loading: () => <ProjectLoader /> });
 const RockPaperScissors = dynamic(() => import('@/components/projects/rock-paper-scissors'), { loading: () => <ProjectLoader /> });
-const ThePasswordGame = dynamic(() => import('@/components/projects/the-password-game'), { loading: () => <ProjectLoader /> });
-const AIInfinityCraft = dynamic(() => import('@/components/projects/ai-infinity-craft'), { loading: () => <ProjectLoader /> });
 const AudioVisualizer = dynamic(() => import('@/components/projects/audio-visualizer'), { loading: () => <ProjectLoader /> });
 const CharacterCounter = dynamic(() => import('@/components/projects/character-counter'), { loading: () => <ProjectLoader /> });
 const CollaborativeWhiteboard = dynamic(() => import('@/components/projects/collaborative-whiteboard'), { loading: () => <ProjectLoader /> });
 const KanbanBoard = dynamic(() => import('@/components/projects/kanban-board'), { loading: () => <ProjectLoader /> });
 const PixelEditor = dynamic(() => import('@/components/projects/pixel-editor'), { loading: () => <ProjectLoader /> });
-const AIPromptEnhancer = dynamic(() => import('@/components/projects/ai-prompt-enhancer'), { loading: () => <ProjectLoader /> });
 const TurnBasedStrategy = dynamic(() => import('@/components/projects/turn-based-strategy'), { loading: () => <ProjectLoader /> });
 const DeckBuildingRoguelike = dynamic(() => import('@/components/projects/deck-building-roguelike'), { loading: () => <ProjectLoader /> });
 const IdleClickerGame = dynamic(() => import('@/components/projects/idle-clicker-game'), { loading: () => <ProjectLoader /> });
@@ -65,7 +56,6 @@ const WebsiteStatusChecker = dynamic(() => import('@/components/projects/website
 const SortingVisualizer = dynamic(() => import('@/components/projects/sorting-visualizer'), { loading: () => <ProjectLoader /> });
 const EcommerceDashboard = dynamic(() => import('@/app/dashboard/page'), { loading: () => <ProjectLoader /> });
 const InventoryDashboard = dynamic(() => import('@/components/projects/inventory-dashboard/inventory-dashboard'), { loading: () => <ProjectLoader /> });
-const CodeBeautifier = dynamic(() => import('@/components/projects/code-beautifier'), { loading: () => <ProjectLoader /> });
 const SpotifyPlaylistGenerator = dynamic(() => import('@/components/projects/spotify-playlist-generator'), { loading: () => <ProjectLoader /> });
 const SpeedTester = dynamic(() => import('@/components/projects/speed-tester'), { loading: () => <ProjectLoader /> });
 const PathfindingVisualizer = dynamic(() => import('@/components/projects/pathfinding-visualizer'), { loading: () => <ProjectLoader /> });
@@ -655,186 +645,6 @@ const projectsData: Project[] = [
       { name: 'Genkit', iconSrc: '/icons/genkit.svg' },
       { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },
       { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss.svg' },
-    ],
-    renderImage: true,
-  },
-  {
-    id: 'code-beautifier',
-    title: 'Code Beautifier',
-    imageUrls: ['/placeholder.png'],
-    imageAlt: 'Code beautifier app for creating images of code',
-    imageHint: 'code snippet image generator',
-    description: 'Turn your code snippets into beautiful, shareable images.',
-    personalNote: 'I\'ve always admired tools like Carbon that make sharing code on social media look great. This was my take on it, using a Next.js API route with @vercel/og to generate the final image from simple HTML.',
-    difficulty: 'AI',
-    component: <CodeBeautifier />,
-    technologies: [
-      { name: 'React', iconSrc: '/icons/react.svg' },
-      { name: 'Next.js', iconSrc: '/icons/nextjs.svg' },
-      { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },
-      { name: '@vercel/og', iconSrc: '/icons/vercel.svg' },
-    ],
-    renderImage: true,
-  },
-  {
-    id: 'ai-prompt-enhancer',
-    title: 'AI Prompt Enhancer',
-    imageUrls: ['/placeholder.png'],
-    imageAlt: 'AI prompt enhancer interface',
-    imageHint: 'ai prompt engineering tool',
-    description: 'An AI-powered tool to take your basic ideas and transform them into detailed, effective prompts for large language models.',
-    personalNote: 'Crafting good prompts is an art. This tool is designed to help with that process by leveraging an AI to think about the details you might miss. It was a fun meta-project—using AI to help users use AI better!',
-    difficulty: 'AI',
-    component: <AIPromptEnhancer />,
-    technologies: [
-        { name: 'React', iconSrc: '/icons/react.svg' },
-        { name: 'Next.js', iconSrc: '/icons/nextjs.svg' },
-        { name: 'Genkit', iconSrc: '/icons/genkit.svg' },
-    ],
-    renderImage: true,
-  },
-  {
-    id: 'ai-infinity-craft',
-    title: 'AI Infinity Craft',
-    imageUrls: ['/placeholder.png'],
-    imageAlt: 'AI Infinity Craft game interface',
-    imageHint: 'crafting game alchemy',
-    description: 'A creative crafting game where you combine elements to discover new ones, powered by AI.',
-    personalNote: 'This project was a fascinating exploration into using AI for emergent gameplay. The AI acts as the "game engine" for discovery, leading to surprising and creative combinations. It shows how generative AI can create truly dynamic and unpredictable experiences.',
-    difficulty: 'AI',
-    component: <AIInfinityCraft />,
-    technologies: [
-      { name: 'React', iconSrc: '/icons/react.svg' },
-      { name: 'Next.js', iconSrc: '/icons/nextjs.svg' },
-      { name: 'Genkit', iconSrc: '/icons/genkit.svg' },
-      { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },
-      { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss.svg' },
-    ],
-    renderImage: true,
-  },
-  {
-    id: 'ai-password-game',
-    title: 'The AI Password Game',
-    imageUrls: ['/placeholder.png'],
-    imageAlt: 'AI Password Game interface',
-    imageHint: 'password game security',
-    description: 'A game where you must create a password that follows an increasingly absurd set of rules, some generated by an AI.',
-    personalNote: 'This was an incredibly fun project that combines complex validation logic with creative AI. It shows how AI can be used to make even a simple concept like a password field into something unpredictable and entertaining.',
-    difficulty: 'AI',
-    component: <ThePasswordGame />,
-    technologies: [
-      { name: 'React', iconSrc: '/icons/react.svg' },
-      { name: 'Next.js', iconSrc: '/icons/nextjs.svg' },
-      { name: 'Genkit', iconSrc: '/icons/genkit.svg' },
-      { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },
-      { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss.svg' },
-    ],
-    renderImage: true,
-  },
-  {
-    id: 'ai-image-generator',
-    title: 'AI Image Generator',
-    imageUrls: ['https://i.imgur.com/3f4lJ3v.png'],
-    imageAlt: 'AI Image Generator app',
-    imageHint: 'ai image generator interface',
-    description: 'Create unique images from text prompts using generative AI.',
-    personalNote:
-      "This was my first time using a text-to-image model and it was incredible to see how the AI could interpret my text prompts and turn them into art. It's a fun way to explore creativity and AI.",
-    difficulty: 'AI',
-    component: <AIImageGenerator />,
-    technologies: [
-      { name: 'React', iconSrc: '/icons/react.svg' },
-      { name: 'Next.js', iconSrc: '/icons/nextjs.svg' },
-      { name: 'Genkit', iconSrc: '/icons/genkit.svg' },
-    ],
-    renderImage: true,
-  },
-  {
-    id: 'ai-chatbot',
-    title: 'AI Chatbot',
-    imageUrls: ['https://i.imgur.com/sdJjVAd.png'],
-    imageAlt: 'AI Chatbot interface',
-    imageHint: 'ai chatbot interface',
-    description: 'A conversational AI chatbot that remembers past interactions.',
-    personalNote:
-      "Building a chatbot that could hold a conversation and remember what was said earlier was a great way to learn about managing conversational state. It's a fun project that shows the power of large language models.",
-    difficulty: 'AI',
-    component: <AIChatbot />,
-    technologies: [
-      { name: 'React', iconSrc: '/icons/react.svg' },
-      { name: 'Next.js', iconSrc: '/icons/nextjs.svg' },
-      { name: 'Genkit', iconSrc: '/icons/genkit.svg' },
-    ],
-    renderImage: true,
-  },
-  {
-    id: 'ai-recipe-generator',
-    title: 'AI Recipe Generator',
-    imageUrls: ['https://i.imgur.com/cWbx8fE.png'],
-    imageAlt: 'AI Recipe Generator interface',
-    imageHint: 'ai recipe generator app',
-    description: 'Generate creative recipes based on a list of ingredients.',
-    personalNote:
-      'This project combines my interests in coding and cooking. It’s amazing to see how AI can take a few ingredients and come up with a full recipe. It really shows how AI can be a tool for everyday creativity.',
-    difficulty: 'AI',
-    component: <AIRecipeGenerator />,
-    technologies: [
-      { name: 'React', iconSrc: '/icons/react.svg' },
-      { name: 'Next.js', iconSrc: '/icons/nextjs.svg' },
-      { name: 'Genkit', iconSrc: '/icons/genkit.svg' },
-    ],
-    renderImage: true,
-  },
-  {
-    id: 'ai-story-generator',
-    title: 'AI Story Generator',
-    imageUrls: ['https://i.imgur.com/1Tx3iQ9.png'],
-    imageAlt: 'AI Story Generator interface',
-    imageHint: 'ai story generator app',
-    description: 'Create unique stories with characters and settings from your imagination.',
-    personalNote:
-      'I love storytelling, so building a tool that could help generate creative stories was a really fun project. It’s a great example of how AI can be used as a creative partner to spark new ideas.',
-    difficulty: 'AI',
-    component: <AIStoryGenerator />,
-    technologies: [
-      { name: 'React', iconSrc: '/icons/react.svg' },
-      { name: 'Next.js', iconSrc: '/icons/nextjs.svg' },
-      { name: 'Genkit', iconSrc: '/icons/genkit.svg' },
-    ],
-    renderImage: true,
-  },
-  {
-    id: 'ai-video-generator',
-    title: 'AI Video Generator',
-    imageUrls: ['/placeholder.png'],
-    imageAlt: 'AI video generator interface',
-    imageHint: 'ai video generator app',
-    description: 'Generate short video clips from text prompts using the Veo model.',
-    personalNote: 'This was an exciting project to explore the cutting-edge of generative AI. The process is asynchronous and can take time, which presented interesting UI/UX challenges for managing loading and progress states.',
-    difficulty: 'AI',
-    component: <AIVideoGenerator />,
-    technologies: [
-        { name: 'React', iconSrc: '/icons/react.svg' },
-        { name: 'Next.js', iconSrc: '/icons/nextjs.svg' },
-        { name: 'Genkit', iconSrc: '/icons/genkit.svg' },
-        { name: 'Google Veo', iconSrc: '/icons/gemini.svg'}
-    ],
-    renderImage: true,
-  },
-  {
-    id: 'code-editor',
-    title: 'AI Coding Assistant',
-    imageUrls: ['https://i.imgur.com/y8V3eGo.png'],
-    imageAlt: 'Code editor with AI assistant',
-    imageHint: 'code editor ai assistant',
-    description: 'A code editor with an integrated AI assistant that can explain, refactor, and add comments to your code.',
-    personalNote: 'This was a challenging but very rewarding project. Integrating an AI that can understand and manipulate code really opened my eyes to the future of software development. It feels like building a tool from the future.',
-    difficulty: 'AI',
-    component: <CodeEditor />,
-    technologies: [
-        { name: 'React', iconSrc: '/icons/react.svg' },
-        { name: 'Next.js', iconSrc: '/icons/nextjs.svg' },
-        { name: 'Genkit', iconSrc: '/icons/genkit.svg' },
     ],
     renderImage: true,
   },

@@ -13,6 +13,7 @@ import SplineShowcase from '@/components/home/spline-showcase';
 import type { Spline } from '@splinetool/react-spline';
 import { Card, CardContent } from '@/components/ui/card';
 import dynamic from 'next/dynamic';
+import React, { useState, useEffect } from 'react';
 
 
 const CodeEditor = dynamic(() => import('@/components/projects/code-editor'), { ssr: false });
@@ -154,6 +155,12 @@ const ScrollingTechRow = ({ items, direction = 'left' }: { items: typeof technol
 
 
 export default function HomePage() {
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
   const footerLinks = [
     { name: 'Contact', icon: <Mail className="h-5 w-5" />, href: '/contact' },
     { name: 'About', icon: <User className="h-5 w-5" />, href: '/about' },
@@ -274,9 +281,11 @@ export default function HomePage() {
             <h2 className="text-3xl md:text-4xl font-bold text-foreground">3D Model Showcase</h2>
             <p className="text-muted-foreground mt-3 max-w-2xl mx-auto">A collection of my 3D creations. Use the arrows to navigate.</p>
           </div>
-          <div className="hidden md:block">
-            <SplineShowcase models={splineModels} />
-          </div>
+          {isMounted && (
+            <div className="hidden md:block">
+              <SplineShowcase models={splineModels} />
+            </div>
+          )}
           <div className="block md:hidden">
             <Card className="border-border bg-card">
               <CardContent className="p-6 text-center">
@@ -318,3 +327,6 @@ export default function HomePage() {
     
 
 
+
+
+    

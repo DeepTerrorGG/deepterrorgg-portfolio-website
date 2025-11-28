@@ -97,11 +97,11 @@ const DigitalAssetManager: React.FC = () => {
   useEffect(() => {
     try {
       const storedItems = localStorage.getItem('dam_items');
-      const items = storedItems ? JSON.parse(storedItems) : initialItems;
+      const items = storedItems ? JSON.parse(storedItems) : initialItems.filter(item => !isImageFile(item.name));
       setAssetState({ items, uploadProgress: {} });
     } catch (e) {
       console.error("Failed to load from local storage", e);
-      setAssetState({ items: initialItems, uploadProgress: {} });
+      setAssetState({ items: initialItems.filter(item => !isImageFile(item.name)), uploadProgress: {} });
     }
     setIsLoading(false);
   }, []);
@@ -115,51 +115,51 @@ const DigitalAssetManager: React.FC = () => {
   
   // UNIFIED UPLOAD EFFECT
   useEffect(() => {
-    const activeUploads = Object.keys(assetState.uploadProgress).length > 0;
-    if (!activeUploads) return;
+    if (Object.keys(assetState.uploadProgress).length === 0) return;
   
     const interval = setInterval(() => {
       setAssetState(currentState => {
-        const newProgress = { ...currentState.uploadProgress };
-        const completedItems: FSItem[] = [];
         let hasChanges = false;
+        const newProgress = { ...currentState.uploadProgress };
+        const newItems = [...currentState.items];
   
         for (const fileName in newProgress) {
           const current = newProgress[fileName];
-          if (current.progress < 100) {
-            hasChanges = true;
-            const nextProgress = Math.min(100, current.progress + Math.random() * 30);
+          const nextProgress = Math.min(100, current.progress + Math.random() * 30);
+          hasChanges = true;
+          
+          if (nextProgress >= 100) {
+            const file = current.file;
+            const newPath = currentState.currentPath ? `${currentState.currentPath}/${fileName}` : fileName;
+            newItems.push({
+              id: crypto.randomUUID(),
+              name: fileName,
+              type: 'file',
+              path: newPath,
+              url: URL.createObjectURL(file),
+              size: file.size
+            });
+            delete newProgress[fileName];
+          } else {
             newProgress[fileName] = { ...current, progress: nextProgress };
-  
-            if (nextProgress >= 100) {
-              const file = current.file;
-              const newPath = currentPath ? `${currentPath}/${fileName}` : fileName;
-              completedItems.push({
-                id: crypto.randomUUID(),
-                name: fileName,
-                type: 'file',
-                path: newPath,
-                url: URL.createObjectURL(file),
-                size: file.size
-              });
-              delete newProgress[fileName];
-            }
           }
         }
         
-        if (!hasChanges && completedItems.length === 0) {
+        if (!hasChanges) {
+          clearInterval(interval);
           return currentState;
         }
 
         return {
-          items: [...currentState.items, ...completedItems],
+          ...currentState,
+          items: newItems,
           uploadProgress: newProgress
         };
       });
     }, 200);
   
     return () => clearInterval(interval);
-  }, [assetState.uploadProgress, currentPath]);
+  }, [assetState.uploadProgress]);
   
   const displayedItems = useMemo(() => {
     return assetState.items
@@ -193,7 +193,8 @@ const DigitalAssetManager: React.FC = () => {
         const file = files[i];
         const fileName = file.name;
         
-        if (assetState.items.some(item => (currentPath ? `${currentPath}/${fileName}` : fileName) === item.path) || assetState.uploadProgress[fileName]) {
+        const pathToCheck = currentPath ? `${currentPath}/${fileName}` : fileName;
+        if (assetState.items.some(item => item.path === pathToCheck) || assetState.uploadProgress[fileName]) {
             toast({ title: "File already exists", description: `"${fileName}" is already in this folder or upload queue.`, variant: "destructive" });
             continue;
         }
@@ -294,7 +295,7 @@ const DigitalAssetManager: React.FC = () => {
             else setPreviewingItem(item);
           }}
         >
-          <div className="aspect-square flex items-center justify-center p-4 bg-muted/30 rounded-t-lg">
+          <div className="aspect-square flex items-center justify-center p-4 bg-muted/30 rounded-t-lg overflow-hidden">
               {item.type === 'folder' ? <Folder className="w-16 h-16 sm:w-24 sm:h-24 text-primary"/> : 
                 isImageFile(item.name) && item.url ? <Image src={item.url} alt={item.name} width={96} height={96} className="w-full h-full object-cover"/> : getFileIcon(item.name)}
           </div>
@@ -382,15 +383,14 @@ const DigitalAssetManager: React.FC = () => {
         <DialogContent><DialogHeader><DialogTitle>Move "{movingItem?.name}"</DialogTitle></DialogHeader><p className="text-muted-foreground text-sm my-4">Select a destination folder.</p><div className="space-y-2 max-h-64 overflow-y-auto">{assetState.items.filter(i => i.type === 'folder' && i.id !== movingItem?.id && !i.path.startsWith(movingItem?.path + '/')).map(folder => (<Button key={folder.id} variant="outline" className="w-full justify-start" onClick={() => handleMove(folder.path)}><Folder className="mr-2 h-4 w-4"/>{folder.path}</Button>))}<Button variant="outline" className="w-full justify-start" onClick={() => handleMove('')}><Folder className="mr-2 h-4 w-4"/>Root</Button></div></DialogContent>
       </Dialog>
       <Dialog open={!!previewingItem} onOpenChange={() => setPreviewingItem(null)}>
-        <DialogContent className="max-w-4xl h-[80vh] flex flex-col p-0">
-          <DialogHeader className="p-4 border-b flex justify-between items-center">
+        <DialogContent className="max-w-4xl h-[80vh] flex flex-col p-0 sm:rounded-lg">
+          <DialogHeader className="p-4 border-b">
             <DialogTitle>{previewingItem?.name}</DialogTitle>
-             <DialogClose asChild><Button variant="ghost" size="icon" className="h-7 w-7"><X className="h-5 w-5"/></Button></DialogClose>
           </DialogHeader>
-          <div className="flex-grow flex items-center justify-center bg-muted/50 rounded-b-lg overflow-hidden">
+          <div className="flex-grow flex items-center justify-center bg-muted/50 overflow-hidden">
             {previewingItem && isImageFile(previewingItem.name) && previewingItem.url ? (
               <Image 
-                src={previewingItem.url} 
+                src={previewingItem.url || 'https://picsum.photos/seed/placeholder/800/600'} 
                 alt={previewingItem.name || ''} 
                 width={800} 
                 height={600} 

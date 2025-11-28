@@ -22,6 +22,7 @@ import CollaborativeWhiteboard from '@/components/projects/collaborative-whitebo
 import DeckBuildingRoguelike from '@/components/projects/deck-building-roguelike';
 import GitHistoryVisualizer from '@/components/projects/githistory-visualizer';
 import KanbanBoard from '@/components/projects/kanban-board';
+import PreloadingLink from '@/components/ui/preloading-link';
 
 interface Project {
   id: string;
@@ -85,9 +86,9 @@ const ProjectShowcase: React.FC<ProjectShowcaseProps> = ({ projects }) => {
                   <CardFooter className="p-0 flex flex-col items-center gap-4">
                     <TechStack technologies={project.technologies} />
                     <Button asChild variant="outline" className="mt-4">
-                      <Link href={`/projects`}>
+                      <PreloadingLink href={`/projects`}>
                         Explore Project <ArrowRight className="ml-2 h-4 w-4" />
-                      </Link>
+                      </PreloadingLink>
                     </Button>
                   </CardFooter>
                 </div>

@@ -1,3 +1,4 @@
+
 // src/app/about/page.tsx
 'use client';
 import Image from 'next/image';
@@ -22,33 +23,36 @@ const techCategories = [
       { name: 'React', href: 'https://react.dev/', iconSrc: '/icons/react.svg' },
       { name: 'TypeScript', href: 'https://www.typescriptlang.org/', iconSrc: '/icons/typescript.svg' },
       { name: 'Node.js', href: 'https://nodejs.org/', iconSrc: '/icons/nodejs.svg' },
+      { name: 'Tailwind CSS', href: 'https://tailwindcss.com/', iconSrc: '/icons/tailwindcss.svg' },
     ],
   },
   {
-    title: 'Styling & UI',
+    title: 'UI & Animation',
     technologies: [
-      { name: 'Tailwind CSS', href: 'https://tailwindcss.com/', iconSrc: '/icons/tailwindcss.svg' },
       { name: 'shadcn/ui', href: 'https://ui.shadcn.com/', iconSrc: '/icons/shadcn.svg' },
       { name: 'Framer Motion', href: 'https://www.framer.com/motion/', iconSrc: '/icons/framer.svg' },
       { name: 'Lucide Icons', href: 'https://lucide.dev/', iconSrc: '/icons/lucide.svg' },
       { name: 'Spline', href: 'https://spline.design/', iconSrc: '/icons/spline.svg' },
+      { name: 'Recharts', href: 'https://recharts.org/', iconSrc: '/icons/recharts.svg' },
+      { name: 'D3.js', href: 'https://d3js.org/', iconSrc: '/icons/d3.svg' },
     ],
   },
    {
-    title: 'Data & UI Libraries',
+    title: 'Libraries & Utilities',
     technologies: [
       { name: 'React Hook Form', href: 'https://react-hook-form.com/', iconSrc: '/icons/react-hook-form.svg' },
       { name: 'Zod', href: 'https://zod.dev/', iconSrc: '/icons/zod.svg' },
       { name: 'dnd-kit', href: 'https://dndkit.com/', iconSrc: '/icons/dnd-kit.svg' },
-      { name: 'Recharts', href: 'https://recharts.org/', iconSrc: '/icons/recharts.svg' },
-      { name: 'D3.js', href: 'https://d3js.org/', iconSrc: '/icons/d3.svg' },
-      { name: 'date-fns', href: 'https://date-fns.org/', iconSrc: '/icons/date-fns.svg' },
       { name: 'TanStack Table', href: 'https://tanstack.com/table/v8', iconSrc: '/icons/react-query.svg' },
       { name: 'Monaco Editor', href: 'https://microsoft.github.io/monaco-editor/', iconSrc: '/icons/vscode.svg' },
+      { name: 'React Markdown', href: 'https://github.com/remarkjs/react-markdown', iconSrc: '/icons/react-markdown.svg' },
+      { name: 'date-fns', href: 'https://date-fns.org/', iconSrc: '/icons/date-fns.svg' },
+      { name: 'Faker.js', href: 'https://fakerjs.dev/', iconSrc: '/icons/faker.svg' },
+      { name: 'crypto-js', href: 'https://github.com/brix/crypto-js', iconSrc: '/icons/crypto-js.svg' },
     ],
   },
   {
-    title: 'AI & Backend Services',
+    title: 'AI, Backend & Services',
     technologies: [
       { name: 'Genkit', href: 'https://firebase.google.com/docs/genkit', iconSrc: '/icons/genkit.svg' },
       { name: 'Google Gemini', href: 'https://deepmind.google.com/technologies/gemini/', iconSrc: '/icons/gemini.svg' },
@@ -57,6 +61,22 @@ const techCategories = [
       { name: 'Resend', href: 'https://resend.com/', iconSrc: '/icons/resend.svg' },
       { name: 'Vercel', href: 'https://vercel.com/', iconSrc: '/icons/vercel.svg' },
       { name: '@vercel/og', href: 'https://vercel.com/docs/functions/edge-functions/og-image-generation', iconSrc: '/icons/vercel.svg' },
+      { name: 'Spotify API', href: 'https://developer.spotify.com/documentation/web-api', iconSrc: '/icons/spotify.svg' },
+      { name: 'GitHub API', href: 'https://docs.github.com/en/rest', iconSrc: '/icons/github.svg' },
+      { name: 'Coinbase API', href: 'https://commerce.coinbase.com/docs/api/', iconSrc: '/icons/coinbase.svg' },
+      { name: 'Piston API', href: 'https://github.com/engineer-man/piston', iconSrc: '/icons/piston.svg' },
+      { name: 'OpenWeatherMap API', href: 'https://openweathermap.org/api', iconSrc: '/icons/openweathermap.svg' },
+      { name: 'Wikimedia API', href: 'https://api.wikimedia.org/wiki/Main_Page', iconSrc: '/icons/wikipedia.svg' },
+      { name: 'thum.io API', href: 'https://www.thum.io/', iconSrc: '/icons/thum-io.svg' },
+    ],
+  },
+   {
+    title: 'Browser & Niche Tech',
+    technologies: [
+      { name: 'Web Speech API', href: 'https://developer.mozilla.org/en-US/docs/Web/API/Web_Speech_API', iconSrc: '/icons/webaudio.svg' },
+      { name: 'Web Audio API', href: 'https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API', iconSrc: '/icons/webaudio.svg' },
+      { name: 'HTML5 Canvas', href: 'https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API', iconSrc: '/icons/html5.svg' },
+      { name: 'DOSBox', href: 'https://www.dosbox.com/', iconSrc: '/icons/dosbox.svg' },
     ],
   },
 ];

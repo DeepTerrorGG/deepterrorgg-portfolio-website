@@ -13,6 +13,7 @@ import SplineShowcase from '@/components/home/spline-showcase';
 import type { Spline } from '@splinetool/react-spline';
 import { Card, CardContent } from '@/components/ui/card';
 import React, { useState, useEffect } from 'react';
+import PreloadingLink from '@/components/ui/preloading-link';
 
 
 const SplineModel = React.lazy(
@@ -204,14 +205,14 @@ export default function HomePage() {
               transition={{ duration: 0.7, delay: 0.8, ease: [0.25, 1, 0.5, 1] }}
             >
               <Button asChild size="lg">
-                <Link href="/projects">
+                <PreloadingLink href="/projects">
                   View My Work <ArrowRight className="ml-2 h-5 w-5" />
-                </Link>
+                </PreloadingLink>
               </Button>
               <Button asChild variant="outline" size="lg">
-                <Link href="/contact">
+                <PreloadingLink href="/contact">
                   Get In Touch <Mail className="ml-2 h-5 w-5" />
-                </Link>
+                </PreloadingLink>
               </Button>
             </motion.div>
           </div>
@@ -232,9 +233,9 @@ export default function HomePage() {
              <h2 className="text-3xl md:text-4xl font-bold text-primary">Have a Project in Mind?</h2>
              <p className="text-muted-foreground mt-3 max-w-xl mx-auto">I'm always open to discussing new projects, creative ideas, or opportunities to be part of an ambitious vision. Let's create something amazing together.</p>
               <Button asChild size="lg" className="mt-8">
-                <Link href="/contact">
+                <PreloadingLink href="/contact">
                   Contact Me <Mail className="ml-2 h-5 w-5" />
-                </Link>
+                </PreloadingLink>
               </Button>
           </div>
         </SectionContainer>
@@ -251,9 +252,9 @@ export default function HomePage() {
           </div>
           <div className="text-center mt-12">
               <Button asChild size="lg">
-                <Link href="/about">
+                <PreloadingLink href="/about">
                   View All Skills <ArrowRight className="ml-2 h-4 w-4" />
-                </Link>
+                </PreloadingLink>
               </Button>
             </div>
         </SectionContainer>
@@ -293,9 +294,9 @@ export default function HomePage() {
               <ArrowUp className="mr-2 h-4 w-4" /> Return to Top
             </Button>
             <Button asChild>
-              <Link href="/projects">
+              <PreloadingLink href="/projects">
                 <Compass className="mr-2 h-4 w-4" /> Explore More
-              </Link>
+              </PreloadingLink>
             </Button>
           </div>
           <p className="text-xs text-muted-foreground mt-12">

@@ -10,6 +10,7 @@ import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger, SheetClose } from '@/components/ui/sheet';
+import PreloadingLink from '@/components/ui/preloading-link';
 
 const navLinks = [
   { href: '/', label: 'Home' },
@@ -37,17 +38,17 @@ export default function Header() {
         <div className="flex h-16 md:h-20 items-center justify-between">
           
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2 group transition-transform hover:scale-105">
+          <PreloadingLink href="/" className="flex items-center gap-2 group transition-transform hover:scale-105">
             
             <span className="text-lg font-bold text-foreground group-hover:text-primary transition-colors">
               DeepTerrorGG
             </span>
-          </Link>
+          </PreloadingLink>
           
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-2 lg:space-x-1 p-1 rounded-full">
             {navLinks.map((link) => (
-              <Link
+              <PreloadingLink
                 key={link.href}
                 href={link.href}
                 onMouseOver={() => setHoveredPath(link.href)}
@@ -70,7 +71,7 @@ export default function Header() {
                     }}
                   />
                 )}
-              </Link>
+              </PreloadingLink>
             ))}
           </nav>
 
@@ -85,18 +86,18 @@ export default function Header() {
               <SheetContent side="right" className="bg-background border-l border-border p-0 w-full max-w-xs sm:max-w-sm">
                 <SheetHeader className="p-6 border-b border-border">
                   <SheetTitle>
-                     <Link href="/" className="flex items-center gap-2" onClick={() => setIsMobileMenuOpen(false)}>
+                     <PreloadingLink href="/" className="flex items-center gap-2" onClick={() => setIsMobileMenuOpen(false)}>
                       <span className="text-lg font-bold text-foreground">
                         Navigation
                       </span>
-                    </Link>
+                    </PreloadingLink>
                   </SheetTitle>
                 </SheetHeader>
                 <div className="flex flex-col h-full">
                   <nav className="flex-grow p-6 space-y-2">
                     {navLinks.map((link) => (
                       <SheetClose asChild key={link.href}>
-                        <Link
+                        <PreloadingLink
                           href={link.href}
                           onClick={() => setIsMobileMenuOpen(false)}
                           className={cn(
@@ -107,7 +108,7 @@ export default function Header() {
                           )}
                         >
                           {link.label}
-                        </Link>
+                        </PreloadingLink>
                       </SheetClose>
                     ))}
                   </nav>

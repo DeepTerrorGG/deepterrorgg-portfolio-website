@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState } from 'react';
@@ -9,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Label } from '@/components/ui/label';
 import { Plus, Trash2, Edit, Save, X } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { useFirestore, useCollection, addDocumentNonBlocking, deleteDocumentNonBlocking, updateDocumentNonBlocking } from '@/firebase';
+import { useFirestore, useCollection, addDocumentNonBlocking, deleteDocumentNonBlocking, updateDocumentNonBlocking, useMemoFirebase } from '@/firebase';
 import { collection, doc, serverTimestamp } from 'firebase/firestore';
 
 type FieldType = 'text' | 'textarea' | 'number' | 'boolean' | 'date' | 'image';
@@ -29,7 +28,7 @@ type ContentType = {
 export const SchemaEditor: React.FC = () => {
     const { toast } = useToast();
     const firestore = useFirestore();
-    const contentTypesQuery = collection(firestore, 'content_types');
+    const contentTypesQuery = useMemoFirebase(() => collection(firestore, 'content_types'), [firestore]);
     const { data: contentTypes } = useCollection<ContentType>(contentTypesQuery);
 
     const [selectedContentType, setSelectedContentType] = useState<ContentType | null>(null);
@@ -82,7 +81,7 @@ export const SchemaEditor: React.FC = () => {
         }
 
         if (isCreatingNew) {
-            addDocumentNonBlocking(contentTypesQuery, { ...selectedContentType, createdAt: serverTimestamp() });
+            addDocumentNonBlocking(collection(firestore, 'content_types'), { ...selectedContentType, createdAt: serverTimestamp() });
             toast({ title: 'Content Type Created!' });
         } else if (selectedContentType.id) {
             const { id, ...data } = selectedContentType;
@@ -178,5 +177,3 @@ export const SchemaEditor: React.FC = () => {
         </Card>
     );
 };
-
-    

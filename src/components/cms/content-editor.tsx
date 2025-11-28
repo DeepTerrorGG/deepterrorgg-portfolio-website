@@ -1,11 +1,10 @@
-
 'use client';
 
 import React, { useState, useMemo } from 'react';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useFirestore, useCollection, addDocumentNonBlocking, updateDocumentNonBlocking, deleteDocumentNonBlocking } from '@/firebase';
+import { useFirestore, useCollection, addDocumentNonBlocking, updateDocumentNonBlocking, deleteDocumentNonBlocking, useMemoFirebase } from '@/firebase';
 import { collection, doc, query, where, serverTimestamp } from 'firebase/firestore';
 import { Input } from '../ui/input';
 import { Textarea } from '../ui/textarea';
@@ -55,7 +54,7 @@ const DynamicFormField = ({ field, value, onChange }: { field: Field; value: any
 
 export const ContentEditor: React.FC = () => {
     const firestore = useFirestore();
-    const contentTypesQuery = collection(firestore, 'content_types');
+    const contentTypesQuery = useMemoFirebase(() => collection(firestore, 'content_types'), [firestore]);
     const { data: contentTypes, isLoading: loadingTypes } = useCollection<ContentType>(contentTypesQuery);
 
     const [selectedContentTypeId, setSelectedContentTypeId] = useState<string | null>(null);
@@ -63,8 +62,8 @@ export const ContentEditor: React.FC = () => {
 
     const selectedContentType = useMemo(() => contentTypes?.find(ct => ct.id === selectedContentTypeId), [contentTypes, selectedContentTypeId]);
 
-    const entriesQuery = useMemo(() => {
-        if (!selectedContentTypeId) return null;
+    const entriesQuery = useMemoFirebase(() => {
+        if (!selectedContentTypeId || !firestore) return null;
         return query(collection(firestore, 'content_entries'), where('contentTypeId', '==', selectedContentTypeId));
     }, [firestore, selectedContentTypeId]);
     const { data: entries, isLoading: loadingEntries } = useCollection<ContentEntry>(entriesQuery);
@@ -123,7 +122,7 @@ export const ContentEditor: React.FC = () => {
                             <div className="mt-2 border rounded-md h-96 overflow-y-auto">
                                 {loadingEntries ? <Loader2 className="animate-spin m-4"/> : entries?.map(entry => (
                                     <Button key={entry.id} variant={selectedEntry?.id === entry.id ? 'secondary' : 'ghost'} className="w-full justify-start" onClick={() => setSelectedEntry(entry)}>
-                                        {entry.fields.title || entry.fields.name || `Entry ${entry.id.substring(0,5)}`}
+                                        {entry.fields.title || entry.fields.name || `Entry ${entry.id?.substring(0,5)}`}
                                     </Button>
                                 ))}
                             </div>
@@ -160,5 +159,3 @@ export const ContentEditor: React.FC = () => {
         </Card>
     );
 };
-
-    

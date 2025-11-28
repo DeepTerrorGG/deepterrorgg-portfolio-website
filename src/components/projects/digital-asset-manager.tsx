@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useRef, useMemo, useEffect, useCallback } from 'react';
@@ -42,14 +43,22 @@ interface FSItem {
   size?: number;
 }
 
+type UploadProgress = {
+    progress: number;
+    file: File;
+};
+
+interface AssetState {
+    items: FSItem[];
+    uploadProgress: Record<string, UploadProgress>;
+}
+
+
 const initialItems: FSItem[] = [
   { id: '1', name: 'Documents', type: 'folder', path: 'Documents' },
   { id: '2', name: 'Images', type: 'folder', path: 'Images' },
   { id: '3', name: 'project-brief.pdf', type: 'file', path: 'project-brief.pdf', url: '#', size: 1024 },
-  { id: '4', name: 'logo.png', type: 'file', path: 'logo.png', url: 'https://picsum.photos/seed/4/800/600', size: 51200 },
   { id: '5', name: 'meeting-notes.txt', type: 'file', path: 'meeting-notes.txt', url: '#', size: 2048 },
-  { id: '6', name: 'cat.jpg', type: 'file', path: 'Images/cat.jpg', url: 'https://picsum.photos/seed/cat/800/600', size: 12345 },
-  { id: '7', name: 'dog.jpg', type: 'file', path: 'Images/dog.jpg', url: 'https://picsum.photos/seed/dog/800/600', size: 23456 },
   { id: '8', name: 'Reports', type: 'folder', path: 'Documents/Reports' },
   { id: '9', name: 'Q1-report.docx', type: 'file', path: 'Documents/Reports/Q1-report.docx', url: '#', size: 54321 },
   { id: '10', name: 'budget.xlsx', type: 'file', path: 'Documents/Reports/budget.xlsx', url: '#', size: 23456 },
@@ -71,7 +80,7 @@ const getFileIcon = (fileName: string) => {
 
 
 const DigitalAssetManager: React.FC = () => {
-  const [items, setItems] = useState<FSItem[]>([]);
+  const [assetState, setAssetState] = useState<AssetState>({ items: [], uploadProgress: {} });
   const [currentPath, setCurrentPath] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
@@ -84,21 +93,15 @@ const DigitalAssetManager: React.FC = () => {
   const [movingItem, setMovingItem] = useState<FSItem | null>(null);
   const [previewingItem, setPreviewingItem] = useState<FSItem | null>(null);
   
-  // Upload state
-  const [uploadProgress, setUploadProgress] = useState<Record<string, number>>({});
-  
   // Load from local storage
   useEffect(() => {
     try {
       const storedItems = localStorage.getItem('dam_items');
-      if (storedItems) {
-        setItems(JSON.parse(storedItems));
-      } else {
-        setItems(initialItems);
-      }
+      const items = storedItems ? JSON.parse(storedItems) : initialItems;
+      setAssetState({ items, uploadProgress: {} });
     } catch (e) {
       console.error("Failed to load from local storage", e);
-      setItems(initialItems);
+      setAssetState({ items: initialItems, uploadProgress: {} });
     }
     setIsLoading(false);
   }, []);
@@ -106,12 +109,60 @@ const DigitalAssetManager: React.FC = () => {
   // Save to local storage
   useEffect(() => {
     if (!isLoading) {
-      localStorage.setItem('dam_items', JSON.stringify(items));
+      localStorage.setItem('dam_items', JSON.stringify(assetState.items));
     }
-  }, [items, isLoading]);
+  }, [assetState.items, isLoading]);
+  
+  // UNIFIED UPLOAD EFFECT
+  useEffect(() => {
+    const activeUploads = Object.keys(assetState.uploadProgress).length > 0;
+    if (!activeUploads) return;
+  
+    const interval = setInterval(() => {
+      setAssetState(currentState => {
+        const newProgress = { ...currentState.uploadProgress };
+        const completedItems: FSItem[] = [];
+        let hasChanges = false;
+  
+        for (const fileName in newProgress) {
+          const current = newProgress[fileName];
+          if (current.progress < 100) {
+            hasChanges = true;
+            const nextProgress = Math.min(100, current.progress + Math.random() * 30);
+            newProgress[fileName] = { ...current, progress: nextProgress };
+  
+            if (nextProgress >= 100) {
+              const file = current.file;
+              const newPath = currentPath ? `${currentPath}/${fileName}` : fileName;
+              completedItems.push({
+                id: crypto.randomUUID(),
+                name: fileName,
+                type: 'file',
+                path: newPath,
+                url: URL.createObjectURL(file),
+                size: file.size
+              });
+              delete newProgress[fileName];
+            }
+          }
+        }
+        
+        if (!hasChanges && completedItems.length === 0) {
+          return currentState;
+        }
 
+        return {
+          items: [...currentState.items, ...completedItems],
+          uploadProgress: newProgress
+        };
+      });
+    }, 200);
+  
+    return () => clearInterval(interval);
+  }, [assetState.uploadProgress, currentPath]);
+  
   const displayedItems = useMemo(() => {
-    return items
+    return assetState.items
       .filter(item => {
           const itemParentPath = item.path.includes('/') ? item.path.substring(0, item.path.lastIndexOf('/')) : '';
           return itemParentPath === currentPath;
@@ -121,7 +172,7 @@ const DigitalAssetManager: React.FC = () => {
           if (a.type === 'file' && b.type === 'folder') return 1;
           return a.name.localeCompare(b.name);
       });
-  }, [items, currentPath]);
+  }, [assetState.items, currentPath]);
 
   const navigateUp = () => {
     const pathParts = currentPath.split('/').filter(Boolean);
@@ -134,51 +185,40 @@ const DigitalAssetManager: React.FC = () => {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files || files.length === 0) return;
+    
+    const newUploads: Record<string, UploadProgress> = {};
+    let filesToUploadCount = 0;
 
     for (let i = 0; i < files.length; i++) {
         const file = files[i];
         const fileName = file.name;
-        setUploadProgress(prev => ({ ...prev, [fileName]: 0 }));
-        const interval = setInterval(() => {
-            setUploadProgress(prev => {
-                if(!prev.hasOwnProperty(fileName)) { // Check if it was already completed and removed
-                    clearInterval(interval);
-                    return prev;
-                }
-                const currentProgress = prev[fileName] || 0;
-                const nextProgress = Math.min(100, currentProgress + Math.random() * 20);
-                
-                if (nextProgress >= 100) {
-                    clearInterval(interval);
-                    const newPath = currentPath ? `${currentPath}/${fileName}` : fileName;
-                    const newItem: FSItem = { id: crypto.randomUUID(), name: fileName, type: 'file', path: newPath, url: URL.createObjectURL(file), size: file.size };
-                    setItems(currentItems => [...currentItems, newItem]);
-                    
-                    // Correctly remove the completed upload from progress state
-                    const { [fileName]: _, ...remainingProgress } = prev;
-                    return remainingProgress;
-                }
-                
-                return { ...prev, [fileName]: nextProgress };
-            });
-        }, 200);
+        
+        if (assetState.items.some(item => (currentPath ? `${currentPath}/${fileName}` : fileName) === item.path) || assetState.uploadProgress[fileName]) {
+            toast({ title: "File already exists", description: `"${fileName}" is already in this folder or upload queue.`, variant: "destructive" });
+            continue;
+        }
+        newUploads[fileName] = { progress: 0, file: file };
+        filesToUploadCount++;
     }
 
-    toast({
-      title: "Upload Started",
-      description: `Uploading ${files.length} file(s)...`,
-    });
+    if (filesToUploadCount > 0) {
+      setAssetState(prev => ({...prev, uploadProgress: { ...prev.uploadProgress, ...newUploads }}));
+      toast({
+        title: "Upload Started",
+        description: `Uploading ${filesToUploadCount} file(s)...`,
+      });
+    }
   };
   
   const handleCreateFolder = () => {
     if (!newFolderName.trim()) { toast({ title: 'Folder name is required', variant: 'destructive'}); return; }
     const newPath = currentPath ? `${currentPath}/${newFolderName}` : newFolderName;
-    if (items.some(item => item.path === newPath)) {
+    if (assetState.items.some(item => item.path === newPath)) {
         toast({ title: 'Folder already exists', variant: 'destructive' });
         return;
     }
     const newFolder: FSItem = { id: crypto.randomUUID(), name: newFolderName, type: 'folder', path: newPath };
-    setItems(prev => [...prev, newFolder]);
+    setAssetState(prev => ({...prev, items: [...prev.items, newFolder]}));
     toast({ title: `Folder "${newFolderName}" created.` });
     setNewFolderName('');
     setIsNewFolderOpen(false);
@@ -190,17 +230,19 @@ const DigitalAssetManager: React.FC = () => {
   }
 
   const handleRename = () => {
-    if (!renamingItem || !renamingItem.name.trim()) { toast({ title: 'Name is required', variant: 'destructive' }); return; }
+    if (!renamingItem) return;
+    const newName = renamingItem.name.trim();
+    if (!newName) { toast({ title: 'Name is required', variant: 'destructive' }); return; }
     
     const parentPath = renamingItem.path.includes('/') ? renamingItem.path.substring(0, renamingItem.path.lastIndexOf('/')) : '';
-    const newPath = parentPath ? `${parentPath}/${renamingItem.name}` : renamingItem.name;
+    const newPath = parentPath ? `${parentPath}/${newName}` : newName;
 
-    if (items.some(item => item.path === newPath && item.id !== renamingItem.id)) {
+    if (assetState.items.some(item => item.path === newPath && item.id !== renamingItem.id)) {
         toast({ title: 'An item with this name already exists', variant: 'destructive' });
         return;
     }
 
-    setItems(prev => prev.map(item => item.id === renamingItem.id ? { ...item, name: renamingItem.name, path: newPath } : item));
+    setAssetState(prev => ({...prev, items: prev.items.map(item => item.id === renamingItem.id ? { ...item, name: newName, path: newPath } : item)}));
     toast({ title: 'Renamed successfully' });
     setRenamingItem(null);
   };
@@ -209,14 +251,14 @@ const DigitalAssetManager: React.FC = () => {
     if (!movingItem) return;
 
     const newPath = destinationPath ? `${destinationPath}/${movingItem.name}` : movingItem.name;
-    if (items.some(item => item.path === newPath && item.id !== movingItem.id)) {
+    if (assetState.items.some(item => item.path === newPath && item.id !== movingItem.id)) {
       toast({ title: 'An item with this name already exists in the destination', variant: 'destructive' });
       return;
     }
     
     if(movingItem.type === 'folder') {
-        setItems(prev => prev.map(item => {
-            if(item.path.startsWith(movingItem.path + '/')) { // It's a child
+        setAssetState(prev => ({...prev, items: prev.items.map(item => {
+            if(item.path.startsWith(movingItem.path + '/')) {
                 const newChildPath = newPath + item.path.substring(movingItem.path.length);
                 return { ...item, path: newChildPath };
             }
@@ -224,9 +266,9 @@ const DigitalAssetManager: React.FC = () => {
                 return { ...item, path: newPath };
             }
             return item;
-        }));
+        })}));
     } else {
-        setItems(prev => prev.map(item => item.id === movingItem.id ? { ...item, path: newPath } : item));
+        setAssetState(prev => ({...prev, items: prev.items.map(item => item.id === movingItem.id ? { ...item, path: newPath } : item)}));
     }
 
     toast({ title: `Moved "${movingItem.name}" to "${destinationPath || 'Root'}"` });
@@ -234,11 +276,11 @@ const DigitalAssetManager: React.FC = () => {
   };
   
   const deleteItem = (itemToDelete: FSItem) => {
-    setItems(prev => prev.filter(item => {
+    setAssetState(prev => ({...prev, items: prev.items.filter(item => {
         if(item.id === itemToDelete.id) return false;
         if(itemToDelete.type === 'folder' && item.path.startsWith(itemToDelete.path + '/')) return false;
         return true;
-    }));
+    })}));
     toast({ title: `Deleted ${itemToDelete.name}`, variant: "destructive" });
   }
 
@@ -264,7 +306,7 @@ const DigitalAssetManager: React.FC = () => {
               <DropdownMenuContent align="end" onClick={e => e.stopPropagation()}>
                 {item.type === 'file' && item.url && <DropdownMenuItem onClick={() => { const link = document.createElement('a'); link.href = item.url!; link.download = item.name; link.click(); }}><Download className="mr-2 h-4 w-4"/>Download</DropdownMenuItem>}
                 <DropdownMenuItem onClick={() => setMovingItem(item)}><Move className="mr-2 h-4 w-4"/>Move</DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setRenamingItem(item)}><Edit className="mr-2 h-4 w-4"/>Rename</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setRenamingItem({ ...item })}><Edit className="mr-2 h-4 w-4"/>Rename</DropdownMenuItem>
                 <DropdownMenuItem onClick={() => copyLink(item)}><LinkIcon className="mr-2 h-4 w-4"/>Copy Link</DropdownMenuItem>
                 <DropdownMenuSeparator/>
                 <AlertDialog>
@@ -279,7 +321,7 @@ const DigitalAssetManager: React.FC = () => {
       <ContextMenuContent onClick={e => e.stopPropagation()}>
           {item.type === 'file' && item.url && <ContextMenuItem onClick={() => { const link = document.createElement('a'); link.href = item.url!; link.download = item.name; link.click(); }}><Download className="mr-2 h-4 w-4"/>Download</ContextMenuItem>}
           <ContextMenuItem onClick={() => setMovingItem(item)}><Move className="mr-2 h-4 w-4"/>Move</ContextMenuItem>
-          <ContextMenuItem onClick={() => setRenamingItem(item)}><Edit className="mr-2 h-4 w-4"/>Rename</ContextMenuItem>
+          <ContextMenuItem onClick={() => setRenamingItem({ ...item })}><Edit className="mr-2 h-4 w-4"/>Rename</ContextMenuItem>
           <ContextMenuItem onClick={() => copyLink(item)}><Share2 className="mr-2 h-4 w-4"/>Share</ContextMenuItem>
           <ContextMenuSeparator/>
           <AlertDialog>
@@ -308,7 +350,7 @@ const DigitalAssetManager: React.FC = () => {
           {isLoading ? ( <div className="absolute inset-0 flex flex-col items-center justify-center text-muted-foreground"><Loader2 className="h-8 w-8 animate-spin text-primary" /><p className="mt-2">Loading files...</p></div> ) : (
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
               {displayedItems.map(item => <FileSystemItem key={item.id} item={item} />)}
-              {Object.entries(uploadProgress).map(([name, progress]) => (
+              {Object.entries(assetState.uploadProgress).map(([name, { progress }]) => (
                 <div key={name} className="p-2 border rounded-lg flex flex-col justify-center items-center gap-2">
                     <p className="text-xs truncate w-full text-center">{name}</p>
                     <Progress value={progress} className="h-2 w-full"/>
@@ -325,20 +367,30 @@ const DigitalAssetManager: React.FC = () => {
         <DialogContent><DialogHeader><DialogTitle>Create New Folder</DialogTitle></DialogHeader><Input placeholder="Folder name..." value={newFolderName} onChange={e => setNewFolderName(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleCreateFolder()} autoFocus/><DialogFooter><Button variant="outline" onClick={() => setIsNewFolderOpen(false)}>Cancel</Button><Button onClick={handleCreateFolder}>Create</Button></DialogFooter></DialogContent>
       </Dialog>
       <Dialog open={!!renamingItem} onOpenChange={() => setRenamingItem(null)}>
-        <DialogContent><DialogHeader><DialogTitle>Rename "{renamingItem?.path.split('/').pop()}"</DialogTitle></DialogHeader><Input defaultValue={renamingItem?.name || ''} onChange={(e) => renamingItem && setRenamingItem({...renamingItem, name: e.target.value})} onKeyDown={e => e.key === 'Enter' && handleRename()} autoFocus/><DialogFooter><Button variant="outline" onClick={() => setRenamingItem(null)}>Cancel</Button><Button onClick={handleRename}>Save</Button></DialogFooter></DialogContent>
+        <DialogContent>
+            <DialogHeader><DialogTitle>Rename "{renamingItem?.path.split('/').pop()}"</DialogTitle></DialogHeader>
+            <Input 
+                value={renamingItem?.name || ''} 
+                onChange={(e) => setRenamingItem(prev => prev ? { ...prev, name: e.target.value } : null)} 
+                onKeyDown={e => e.key === 'Enter' && handleRename()} 
+                autoFocus
+            />
+            <DialogFooter><Button variant="outline" onClick={() => setRenamingItem(null)}>Cancel</Button><Button onClick={handleRename}>Save</Button></DialogFooter>
+        </DialogContent>
       </Dialog>
       <Dialog open={!!movingItem} onOpenChange={() => setMovingItem(null)}>
-        <DialogContent><DialogHeader><DialogTitle>Move "{movingItem?.name}"</DialogTitle></DialogHeader><p className="text-muted-foreground text-sm my-4">Select a destination folder.</p><div className="space-y-2 max-h-64 overflow-y-auto">{items.filter(i => i.type === 'folder' && i.id !== movingItem?.id && !i.path.startsWith(movingItem?.path + '/')).map(folder => (<Button key={folder.id} variant="outline" className="w-full justify-start" onClick={() => handleMove(folder.path)}><Folder className="mr-2 h-4 w-4"/>{folder.path}</Button>))}<Button variant="outline" className="w-full justify-start" onClick={() => handleMove('')}><Folder className="mr-2 h-4 w-4"/>Root</Button></div></DialogContent>
+        <DialogContent><DialogHeader><DialogTitle>Move "{movingItem?.name}"</DialogTitle></DialogHeader><p className="text-muted-foreground text-sm my-4">Select a destination folder.</p><div className="space-y-2 max-h-64 overflow-y-auto">{assetState.items.filter(i => i.type === 'folder' && i.id !== movingItem?.id && !i.path.startsWith(movingItem?.path + '/')).map(folder => (<Button key={folder.id} variant="outline" className="w-full justify-start" onClick={() => handleMove(folder.path)}><Folder className="mr-2 h-4 w-4"/>{folder.path}</Button>))}<Button variant="outline" className="w-full justify-start" onClick={() => handleMove('')}><Folder className="mr-2 h-4 w-4"/>Root</Button></div></DialogContent>
       </Dialog>
       <Dialog open={!!previewingItem} onOpenChange={() => setPreviewingItem(null)}>
         <DialogContent className="max-w-4xl h-[80vh] flex flex-col p-0">
-          <DialogHeader className="p-4 border-b">
+          <DialogHeader className="p-4 border-b flex justify-between items-center">
             <DialogTitle>{previewingItem?.name}</DialogTitle>
+             <DialogClose asChild><Button variant="ghost" size="icon" className="h-7 w-7"><X className="h-5 w-5"/></Button></DialogClose>
           </DialogHeader>
           <div className="flex-grow flex items-center justify-center bg-muted/50 rounded-b-lg overflow-hidden">
-            {previewingItem && isImageFile(previewingItem.name) ? (
+            {previewingItem && isImageFile(previewingItem.name) && previewingItem.url ? (
               <Image 
-                src={previewingItem.url || 'https://picsum.photos/seed/placeholder/800/600'} 
+                src={previewingItem.url} 
                 alt={previewingItem.name || ''} 
                 width={800} 
                 height={600} 
@@ -360,3 +412,5 @@ const DigitalAssetManager: React.FC = () => {
 };
 
 export default DigitalAssetManager;
+
+    

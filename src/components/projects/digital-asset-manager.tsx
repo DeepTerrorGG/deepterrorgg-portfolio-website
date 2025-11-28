@@ -185,9 +185,9 @@ const DigitalAssetManager: React.FC = () => {
 
   const handleRename = () => {
     if (!renamingItem || !renamingItem.name.trim()) { toast({ title: 'Name is required', variant: 'destructive' }); return; }
-    const newPath = renamingItem.path.includes('/') 
-      ? `${renamingItem.path.substring(0, renamingItem.path.lastIndexOf('/'))}/${renamingItem.name}`
-      : renamingItem.name;
+    
+    const parentPath = renamingItem.path.includes('/') ? renamingItem.path.substring(0, renamingItem.path.lastIndexOf('/')) : '';
+    const newPath = parentPath ? `${parentPath}/${renamingItem.name}` : renamingItem.name;
 
     if (items.some(item => item.path === newPath && item.id !== renamingItem.id)) {
         toast({ title: 'An item with this name already exists', variant: 'destructive' });
@@ -198,7 +198,7 @@ const DigitalAssetManager: React.FC = () => {
     toast({ title: 'Renamed successfully' });
     setRenamingItem(null);
   };
-
+  
   const handleMove = (destinationPath: string) => {
     if (!movingItem) return;
 
@@ -318,13 +318,13 @@ const DigitalAssetManager: React.FC = () => {
         <DialogContent><DialogHeader><DialogTitle>Create New Folder</DialogTitle></DialogHeader><Input placeholder="Folder name..." value={newFolderName} onChange={e => setNewFolderName(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleCreateFolder()} autoFocus/><DialogFooter><Button variant="outline" onClick={() => setIsNewFolderOpen(false)}>Cancel</Button><Button onClick={handleCreateFolder}>Create</Button></DialogFooter></DialogContent>
       </Dialog>
       <Dialog open={!!renamingItem} onOpenChange={() => setRenamingItem(null)}>
-        <DialogContent><DialogHeader><DialogTitle>Rename "{renamingItem?.name}"</DialogTitle></DialogHeader><Input defaultValue={renamingItem?.name} onChange={e => setRenamingItem(r => r ? {...r, name: e.target.value} : null)} onKeyDown={e => e.key === 'Enter' && handleRename()} autoFocus/><DialogFooter><Button variant="outline" onClick={() => setRenamingItem(null)}>Cancel</Button><Button onClick={handleRename}>Save</Button></DialogFooter></DialogContent>
+        <DialogContent><DialogHeader><DialogTitle>Rename "{renamingItem?.name}"</DialogTitle></DialogHeader><Input value={renamingItem?.name || ''} onChange={e => setRenamingItem(r => r ? {...r, name: e.target.value} : null)} onKeyDown={e => e.key === 'Enter' && handleRename()} autoFocus/><DialogFooter><Button variant="outline" onClick={() => setRenamingItem(null)}>Cancel</Button><Button onClick={handleRename}>Save</Button></DialogFooter></DialogContent>
       </Dialog>
       <Dialog open={!!movingItem} onOpenChange={() => setMovingItem(null)}>
         <DialogContent><DialogHeader><DialogTitle>Move "{movingItem?.name}"</DialogTitle></DialogHeader><p className="text-muted-foreground text-sm my-4">Select a destination folder.</p><div className="space-y-2 max-h-64 overflow-y-auto">{items.filter(i => i.type === 'folder' && i.id !== movingItem?.id && !i.path.startsWith(movingItem?.path + '/')).map(folder => (<Button key={folder.id} variant="outline" className="w-full justify-start" onClick={() => handleMove(folder.path)}><Folder className="mr-2 h-4 w-4"/>{folder.path}</Button>))}<Button variant="outline" className="w-full justify-start" onClick={() => handleMove('')}><Folder className="mr-2 h-4 w-4"/>Root</Button></div></DialogContent>
       </Dialog>
       <Dialog open={!!previewingItem} onOpenChange={() => setPreviewingItem(null)}>
-         <DialogContent className="max-w-4xl h-[80vh] flex flex-col p-0">
+        <DialogContent className="max-w-4xl h-[80vh] flex flex-col p-0">
           <DialogHeader className="p-4 border-b">
             <DialogTitle>{previewingItem?.name}</DialogTitle>
           </DialogHeader>
@@ -337,7 +337,7 @@ const DigitalAssetManager: React.FC = () => {
                 height={600} 
                 className="max-w-full max-h-full object-contain"
               />
-            ) : previewingItem && isPdfFile(previewingItem.name) && previewingItem.url ? (
+            ) : previewingItem && isPdfFile(previewingItem.name) && previewingItem.url && previewingItem.url !== '#' ? (
                 <iframe src={previewingItem.url} className="w-full h-full border-0" title={previewingItem.name} />
             ) : (
               <div className="flex flex-col items-center gap-4 text-muted-foreground">

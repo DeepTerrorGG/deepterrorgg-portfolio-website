@@ -76,6 +76,7 @@ import ThisDayInHistory from '@/components/projects/this-day-in-history';
 import DigitalAssetManager from '@/components/projects/digital-asset-manager';
 import PaymentLedger from '@/components/projects/payment-ledger';
 import LogIngestor from '@/components/projects/log-ingestor';
+import HeadlessCms from '@/components/projects/headless-cms';
 
 interface Technology {
   name: string;
@@ -100,6 +101,25 @@ interface Project {
 }
 
 const projectsData: Project[] = [
+    {
+      id: 'headless-cms',
+      title: 'Headless CMS',
+      imageUrls: ['/placeholder.png'],
+      imageAlt: 'A headless content management system dashboard',
+      imageHint: 'cms dashboard schema',
+      description: 'A tool like Contentful or Strapi. Define content types (e.g., "Blog Post") and the API endpoints are auto-generated.',
+      personalNote: 'This is a great project for agencies. It shows an understanding of database schemas, dynamic API generation, and role-based access control. A meta-schema defines content types, and a single API engine serves content dynamically.',
+      difficulty: 'Advanced',
+      component: <HeadlessCms />,
+      technologies: [
+        { name: 'React', iconSrc: '/icons/react.svg' },
+        { name: 'Next.js', iconSrc: '/icons/nextjs.svg' },
+        { name: 'Firebase', iconSrc: '/icons/firebase.svg' },
+        { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },
+        { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss.svg' },
+      ],
+      renderImage: true,
+    },
     {
       id: 'log-ingestor',
       title: 'Real-Time Log Ingestor',

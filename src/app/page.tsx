@@ -1,4 +1,3 @@
-
 'use client';
 
 import Link from 'next/link';
@@ -8,12 +7,20 @@ import { motion } from 'framer-motion';
 import AnimateOnScroll from '@/components/ui/animate-on-scroll';
 import { Button } from '@/components/ui/button';
 import { ArrowRight, Mail, User, ArrowUp, Compass, Monitor } from 'lucide-react';
-import ProjectShowcase from '@/components/home/project-showcase';
 import SplineShowcase from '@/components/home/spline-showcase';
 import type { Spline } from '@splinetool/react-spline';
-import { Card, CardContent } from '@/components/ui/card';
-import React, { useState, useEffect } from 'react';
+import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
+import React, { useState, useEffect, useRef } from 'react';
 import PreloadingLink from '@/components/ui/preloading-link';
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from '@/components/ui/carousel';
+import Autoplay from 'embla-carousel-autoplay';
+import { TechStack } from '@/components/ui/tech-stack';
 
 
 const SplineModel = React.lazy(
@@ -140,6 +147,9 @@ const ScrollingTechRow = ({ items, direction = 'left' }: { items: typeof technol
 
 export default function HomePage() {
   const [isMounted, setIsMounted] = useState(false);
+  const autoplayPlugin = useRef(
+    Autoplay({ delay: 5000, stopOnInteraction: true, stopOnMouseEnter: true })
+  );
 
   useEffect(() => {
     setIsMounted(true);
@@ -224,7 +234,55 @@ export default function HomePage() {
             <h2 className="text-3xl md:text-4xl font-bold text-foreground">Featured Projects</h2>
             <p className="text-muted-foreground mt-3 max-w-2xl mx-auto">A curated selection of my projects, showcasing a blend of technical skill and creative vision.</p>
           </div>
-          <ProjectShowcase projects={featuredProjects} />
+          {isMounted && (
+            <Carousel
+                plugins={[autoplayPlugin.current]}
+                className="w-full"
+                opts={{ loop: true }}
+                onMouseEnter={autoplayPlugin.current.stop}
+                onMouseLeave={autoplayPlugin.current.reset}
+              >
+              <CarouselContent>
+                {featuredProjects.map((project) => (
+                  <CarouselItem key={project.id}>
+                    <div className="p-1">
+                      <Card className="flex flex-col md:flex-row overflow-hidden h-full min-h-[480px] transform-style-3d transition-transform duration-500 ease-in-out">
+                        <div className="relative w-full md:w-1/2 h-64 md:h-auto bg-card">
+                          <div className="w-full h-full min-h-[300px] md:min-h-full flex items-center justify-center bg-muted/30 p-8">
+                            <div className="text-center">
+                                  <Compass className="h-16 w-16 text-primary mx-auto mb-4"/>
+                                  <h3 className="text-xl font-bold">Explore this Project</h3>
+                                  <p className="text-muted-foreground mt-2">
+                                      This is an interactive demo. Click the button to explore it on the projects page.
+                                  </p>
+                              </div>
+                          </div>
+                        </div>
+                        <div className="w-full md:w-1/2 flex flex-col p-6 sm:p-8 justify-center">
+                          <CardHeader className="p-0 mb-4">
+                            <CardTitle className="text-2xl lg:text-3xl text-primary">{project.title}</CardTitle>
+                          </CardHeader>
+                          <CardContent className="p-0 flex-grow mb-6">
+                            <p className="text-muted-foreground">{project.description}</p>
+                          </CardContent>
+                          <CardFooter className="p-0 flex flex-col items-start gap-4">
+                            <TechStack technologies={project.technologies} />
+                            <Button asChild variant="outline" className="mt-4">
+                              <PreloadingLink href={`/projects`}>
+                                Explore Project <ArrowRight className="ml-2 h-4 w-4" />
+                              </PreloadingLink>
+                            </Button>
+                          </CardFooter>
+                        </div>
+                      </Card>
+                    </div>
+                  </CarouselItem>
+                ))}
+              </CarouselContent>
+              <CarouselPrevious className="absolute left-[-50px] top-1/2 -translate-y-1/2 z-10 h-10 w-10 sm:h-12 sm:w-12 rounded-full bg-background/50 hover:bg-background/80" />
+              <CarouselNext className="absolute right-[-50px] top-1/2 -translate-y-1/2 z-10 h-10 w-10 sm:h-12 sm:w-12 rounded-full bg-background/50 hover:bg-background/80" />
+            </Carousel>
+          )}
         </SectionContainer>
         
         {/* Call to Action Section */}
@@ -307,14 +365,3 @@ export default function HomePage() {
     </>
   );
 }
-
-    
-
-    
-
-
-
-
-    
-
-    

@@ -16,7 +16,7 @@ export interface TimeCapsule {
   id: string;
   encryptedMessage: string;
   unlockDate: Date;
-  // `uid` might not be on the client-side object, but is essential for rules
+  uid?: string; // UID is optional now
 }
 
 interface CapsuleCardProps {

@@ -8,18 +8,13 @@ import { Plus, Loader2 } from 'lucide-react';
 import { CreateCapsuleDialog } from './time-capsule/create-capsule-dialog';
 import { CapsuleCard } from './time-capsule/capsule-card';
 import type { TimeCapsule } from './time-capsule/capsule-card';
-import { useAuth, useUser, useFirestore, useCollection, useMemoFirebase, addDocumentNonBlocking, deleteDocumentNonBlocking } from '@/firebase';
-import { collection, query, where, Timestamp } from 'firebase/firestore';
-import { initiateAnonymousSignIn } from '@/firebase/non-blocking-login';
-import { doc } from 'firebase/firestore';
+import { useFirestore, useCollection, useMemoFirebase, addDocumentNonBlocking, deleteDocumentNonBlocking } from '@/firebase';
+import { collection, query, Timestamp, doc } from 'firebase/firestore';
 
 const TimeCapsuleProject: React.FC = () => {
-  const auth = useAuth();
-  const { user, isUserLoading } = useUser();
   const firestore = useFirestore();
   
   const capsulesQuery = useMemoFirebase(
-    // Query all capsules, no user filter
     () => query(collection(firestore, 'timeCapsules')),
     [firestore]
   );
@@ -34,16 +29,9 @@ const TimeCapsuleProject: React.FC = () => {
 
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
 
-  useEffect(() => {
-    if (!isUserLoading && !user) {
-      initiateAnonymousSignIn(auth);
-    }
-  }, [isUserLoading, user, auth]);
-
   const handleAddCapsule = (capsule: { encryptedMessage: string; unlockDate: Date; }) => {
-    if (!user) return;
     const capsuleColRef = collection(firestore, 'timeCapsules');
-    addDocumentNonBlocking(capsuleColRef, { ...capsule, uid: user.uid });
+    addDocumentNonBlocking(capsuleColRef, capsule);
   };
   
   const handleDeleteCapsule = (id: string) => {
@@ -52,7 +40,7 @@ const TimeCapsuleProject: React.FC = () => {
   };
   
   const renderContent = () => {
-    if (isUserLoading || isLoadingCapsules) {
+    if (isLoadingCapsules) {
         return (
             <div className="flex items-center justify-center h-full text-muted-foreground">
                 <Loader2 className="mr-2 h-5 w-5 animate-spin" />
@@ -87,7 +75,7 @@ const TimeCapsuleProject: React.FC = () => {
               <CardTitle>Digital Time Capsule</CardTitle>
               <CardDescription>Leave a message for the future. It will be encrypted and unreadable until the unlock date.</CardDescription>
             </div>
-            <Button onClick={() => setIsCreateDialogOpen(true)} disabled={!user}>
+            <Button onClick={() => setIsCreateDialogOpen(true)}>
               <Plus className="mr-2 h-4 w-4"/>
               Create Capsule
             </Button>

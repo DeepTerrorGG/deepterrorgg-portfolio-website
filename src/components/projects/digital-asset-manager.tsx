@@ -46,15 +46,17 @@ interface FSItem {
 const initialItems: FSItem[] = [
   { id: '1', name: 'Documents', type: 'folder', path: 'Documents' },
   { id: '2', name: 'Images', type: 'folder', path: 'Images' },
-  { id: '3', name: 'project-brief.pdf', type: 'file', path: 'project-brief.pdf', url: 'https://picsum.photos/seed/3/800/600', size: 1024 },
+  { id: '3', name: 'project-brief.pdf', type: 'file', path: 'project-brief.pdf', url: '#', size: 1024 },
   { id: '4', name: 'logo.png', type: 'file', path: 'logo.png', url: 'https://picsum.photos/seed/4/800/600', size: 51200 },
-  { id: '5', name: 'meeting-notes.txt', type: 'file', path: 'meeting-notes.txt', url: 'https://picsum.photos/seed/5/800/600', size: 2048 },
+  { id: '5', name: 'meeting-notes.txt', type: 'file', path: 'meeting-notes.txt', url: '#', size: 2048 },
   { id: '6', name: 'cat.jpg', type: 'file', path: 'Images/cat.jpg', url: 'https://picsum.photos/seed/cat/800/600', size: 12345 },
   { id: '7', name: 'dog.jpg', type: 'file', path: 'Images/dog.jpg', url: 'https://picsum.photos/seed/dog/800/600', size: 23456 },
   { id: '8', name: 'Reports', type: 'folder', path: 'Documents/Reports' },
   { id: '9', name: 'Q1-report.docx', type: 'file', path: 'Documents/Reports/Q1-report.docx', url: '#', size: 54321 },
 ];
 // --- END MOCK DATA ---
+
+const isImageFile = (fileName: string) => /\.(jpg|jpeg|png|gif)$/i.test(fileName);
 
 const DigitalAssetManager: React.FC = () => {
   const [items, setItems] = useState<FSItem[]>(initialItems);
@@ -74,14 +76,16 @@ const DigitalAssetManager: React.FC = () => {
   const [uploadProgress, setUploadProgress] = useState<Record<string, number>>({});
 
   const displayedItems = useMemo(() => {
-    return items.filter(item => {
-        const itemParentPath = item.path.substring(0, item.path.lastIndexOf('/'));
-        if (currentPath === '') {
-            // Root directory
-            return !item.path.includes('/');
-        }
-        return itemParentPath === currentPath;
-    });
+    return items
+      .filter(item => {
+          const itemParentPath = item.path.includes('/') ? item.path.substring(0, item.path.lastIndexOf('/')) : '';
+          return itemParentPath === currentPath;
+      })
+      .sort((a, b) => {
+          if (a.type === 'folder' && b.type === 'file') return -1;
+          if (a.type === 'file' && b.type === 'folder') return 1;
+          return a.name.localeCompare(b.name);
+      });
   }, [items, currentPath]);
 
   const navigateUp = () => {
@@ -246,7 +250,27 @@ const DigitalAssetManager: React.FC = () => {
         <DialogContent><DialogHeader><DialogTitle>Move "{movingItem?.name}"</DialogTitle></DialogHeader><p className="text-muted-foreground text-sm my-4">Select a destination folder.</p><div className="space-y-2 max-h-64 overflow-y-auto">{items.filter(i => i.type === 'folder' && i.id !== movingItem?.id).map(folder => (<Button key={folder.id} variant="outline" className="w-full justify-start" onClick={() => handleMove(folder.path)}><Folder className="mr-2 h-4 w-4"/>{folder.name}</Button>))}<Button variant="outline" className="w-full justify-start" onClick={() => handleMove('')}><Folder className="mr-2 h-4 w-4"/>Root</Button></div></DialogContent>
       </Dialog>
       <Dialog open={!!previewingItem} onOpenChange={() => setPreviewingItem(null)}>
-        <DialogContent className="max-w-4xl h-[80vh] flex flex-col"><DialogHeader><DialogTitle>{previewingItem?.name}</DialogTitle></DialogHeader><div className="flex-grow flex items-center justify-center bg-muted/50 rounded-md"><Image src={previewingItem?.url || 'https://picsum.photos/seed/placeholder/800/600'} alt={previewingItem?.name || ''} width={800} height={600} className="max-w-full max-h-full object-contain"/></div></DialogContent>
+        <DialogContent className="max-w-4xl h-[80vh] flex flex-col">
+          <DialogHeader>
+            <DialogTitle>{previewingItem?.name}</DialogTitle>
+          </DialogHeader>
+          <div className="flex-grow flex items-center justify-center bg-muted/50 rounded-md overflow-hidden">
+            {previewingItem && isImageFile(previewingItem.name) ? (
+              <Image 
+                src={previewingItem.url || 'https://picsum.photos/seed/placeholder/800/600'} 
+                alt={previewingItem.name || ''} 
+                width={800} 
+                height={600} 
+                className="max-w-full max-h-full object-contain"
+              />
+            ) : (
+              <div className="flex flex-col items-center gap-4 text-muted-foreground">
+                <FileIcon className="w-24 h-24" />
+                <p>No preview available for this file type.</p>
+              </div>
+            )}
+          </div>
+        </DialogContent>
       </Dialog>
     </div>
   );

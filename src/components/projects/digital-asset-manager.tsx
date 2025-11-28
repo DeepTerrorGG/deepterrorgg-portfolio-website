@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useRef, useMemo, useEffect, useCallback } from 'react';
@@ -142,17 +141,24 @@ const DigitalAssetManager: React.FC = () => {
         setUploadProgress(prev => ({ ...prev, [fileName]: 0 }));
         const interval = setInterval(() => {
             setUploadProgress(prev => {
+                if(!prev.hasOwnProperty(fileName)) { // Check if it was already completed and removed
+                    clearInterval(interval);
+                    return prev;
+                }
                 const currentProgress = prev[fileName] || 0;
                 const nextProgress = Math.min(100, currentProgress + Math.random() * 20);
+                
                 if (nextProgress >= 100) {
                     clearInterval(interval);
                     const newPath = currentPath ? `${currentPath}/${fileName}` : fileName;
                     const newItem: FSItem = { id: crypto.randomUUID(), name: fileName, type: 'file', path: newPath, url: URL.createObjectURL(file), size: file.size };
                     setItems(currentItems => [...currentItems, newItem]);
-                    const finalProgress = { ...prev };
-                    delete finalProgress[fileName];
-                    return finalProgress;
+                    
+                    // Correctly remove the completed upload from progress state
+                    const { [fileName]: _, ...remainingProgress } = prev;
+                    return remainingProgress;
                 }
+                
                 return { ...prev, [fileName]: nextProgress };
             });
         }, 200);
@@ -247,7 +253,8 @@ const DigitalAssetManager: React.FC = () => {
           }}
         >
           <div className="aspect-square flex items-center justify-center p-4 bg-muted/30 rounded-t-lg">
-              {item.type === 'folder' ? <Folder className="w-16 h-16 sm:w-24 sm:h-24 text-primary"/> : getFileIcon(item.name)}
+              {item.type === 'folder' ? <Folder className="w-16 h-16 sm:w-24 sm:h-24 text-primary"/> : 
+                isImageFile(item.name) && item.url ? <Image src={item.url} alt={item.name} width={96} height={96} className="w-full h-full object-cover"/> : getFileIcon(item.name)}
           </div>
           <div className="p-2 text-center text-sm truncate">{item.name}</div>
           
@@ -318,7 +325,7 @@ const DigitalAssetManager: React.FC = () => {
         <DialogContent><DialogHeader><DialogTitle>Create New Folder</DialogTitle></DialogHeader><Input placeholder="Folder name..." value={newFolderName} onChange={e => setNewFolderName(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleCreateFolder()} autoFocus/><DialogFooter><Button variant="outline" onClick={() => setIsNewFolderOpen(false)}>Cancel</Button><Button onClick={handleCreateFolder}>Create</Button></DialogFooter></DialogContent>
       </Dialog>
       <Dialog open={!!renamingItem} onOpenChange={() => setRenamingItem(null)}>
-        <DialogContent><DialogHeader><DialogTitle>Rename "{renamingItem?.name}"</DialogTitle></DialogHeader><Input value={renamingItem?.name || ''} onChange={e => setRenamingItem(r => r ? {...r, name: e.target.value} : null)} onKeyDown={e => e.key === 'Enter' && handleRename()} autoFocus/><DialogFooter><Button variant="outline" onClick={() => setRenamingItem(null)}>Cancel</Button><Button onClick={handleRename}>Save</Button></DialogFooter></DialogContent>
+        <DialogContent><DialogHeader><DialogTitle>Rename "{renamingItem?.path.split('/').pop()}"</DialogTitle></DialogHeader><Input defaultValue={renamingItem?.name || ''} onChange={(e) => renamingItem && setRenamingItem({...renamingItem, name: e.target.value})} onKeyDown={e => e.key === 'Enter' && handleRename()} autoFocus/><DialogFooter><Button variant="outline" onClick={() => setRenamingItem(null)}>Cancel</Button><Button onClick={handleRename}>Save</Button></DialogFooter></DialogContent>
       </Dialog>
       <Dialog open={!!movingItem} onOpenChange={() => setMovingItem(null)}>
         <DialogContent><DialogHeader><DialogTitle>Move "{movingItem?.name}"</DialogTitle></DialogHeader><p className="text-muted-foreground text-sm my-4">Select a destination folder.</p><div className="space-y-2 max-h-64 overflow-y-auto">{items.filter(i => i.type === 'folder' && i.id !== movingItem?.id && !i.path.startsWith(movingItem?.path + '/')).map(folder => (<Button key={folder.id} variant="outline" className="w-full justify-start" onClick={() => handleMove(folder.path)}><Folder className="mr-2 h-4 w-4"/>{folder.path}</Button>))}<Button variant="outline" className="w-full justify-start" onClick={() => handleMove('')}><Folder className="mr-2 h-4 w-4"/>Root</Button></div></DialogContent>

@@ -1,7 +1,7 @@
 
 'use client';
 
-import React, { useState, useRef, useMemo, useEffect } from 'react';
+import React, { useState, useRef, useMemo, useEffect, useCallback } from 'react';
 import {
   Folder, File as FileIcon, Upload, Plus, MoreVertical, Trash2, Link as LinkIcon, Edit, Loader2, ArrowLeft, Download, X, Share2, Move, FileText, FileSpreadsheet, FileJson
 } from 'lucide-react';
@@ -29,7 +29,7 @@ import {
   ContextMenuTrigger,
   ContextMenuSeparator,
 } from "@/components/ui/context-menu";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '../ui/alert-dialog';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '../ui/alert-dialog';
 import { Progress } from '../ui/progress';
 import Image from 'next/image';
 
@@ -337,7 +337,7 @@ const DigitalAssetManager: React.FC = () => {
                 height={600} 
                 className="max-w-full max-h-full object-contain"
               />
-            ) : previewingItem && isPdfFile(previewingItem.name) ? (
+            ) : previewingItem && isPdfFile(previewingItem.name) && previewingItem.url ? (
                 <iframe src={previewingItem.url} className="w-full h-full border-0" title={previewingItem.name} />
             ) : (
               <div className="flex flex-col items-center gap-4 text-muted-foreground">

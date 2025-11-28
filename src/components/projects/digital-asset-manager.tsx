@@ -87,7 +87,7 @@ const getFileIcon = (fileName: string) => {
 
 
 const DigitalAssetManager: React.FC = () => {
-  const [assetState, setAssetState] = useState<AssetState>({ items: [], uploadProgress: {} });
+  const [assetState, setAssetState] = useState<AssetState>({ items: initialItems, uploadProgress: {} });
   const [currentPath, setCurrentPath] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
@@ -120,61 +120,64 @@ const DigitalAssetManager: React.FC = () => {
     }
   }, [assetState.items, isLoading]);
   
-  // UNIFIED UPLOAD EFFECT
+    // UNIFIED UPLOAD EFFECT
   useEffect(() => {
     if (Object.keys(assetState.uploadProgress).length === 0) return;
-  
+
     const interval = setInterval(() => {
-      let hasChanges = false;
-      const newProgress = { ...assetState.uploadProgress };
-      const newItems = [...assetState.items];
-  
-      for (const fileName in newProgress) {
-        const current = newProgress[fileName];
-        const nextProgress = Math.min(100, current.progress + Math.random() * 30);
-        hasChanges = true;
+      setAssetState(prev => {
+        const newProgress = { ...prev.uploadProgress };
+        const newItems = [...prev.items];
+        let hasChanges = false;
         
-        if (nextProgress >= 100) {
-          const file = current.file;
-          const newPath = currentPath ? `${currentPath}/${fileName}` : fileName;
+        for (const fileName in newProgress) {
+          hasChanges = true;
+          const current = newProgress[fileName];
+          const nextProgress = Math.min(100, current.progress + Math.random() * 30);
           
-          const reader = new FileReader();
-          reader.onload = (readEvent) => {
-            setAssetState(prev => {
-              const updatedItems = [...prev.items, {
+          if (nextProgress >= 100) {
+            const file = current.file;
+            const newPath = currentPath ? `${currentPath}/${fileName}` : fileName;
+            const reader = new FileReader();
+            
+            reader.onload = (readEvent) => {
+              const newFileItem: FSItem = {
                 id: crypto.randomUUID(),
                 name: fileName,
                 type: 'file',
                 path: newPath,
-                url: readEvent.target?.result as string, // This is the Base64 dataURL
+                url: readEvent.target?.result as string,
                 size: file.size
-              }];
-              const updatedProgress = { ...prev.uploadProgress };
-              delete updatedProgress[fileName];
-              return { items: updatedItems, uploadProgress: updatedProgress };
-            });
-          };
-          reader.readAsDataURL(file);
-          
-          // Since reading is async, we just remove it from the progress queue for now.
-          // The onload will handle adding it to items.
-          delete newProgress[fileName];
+              };
+              
+              setAssetState(currentState => {
+                  const updatedProgress = { ...currentState.uploadProgress };
+                  delete updatedProgress[fileName];
+                  return {
+                      items: [...currentState.items, newFileItem],
+                      uploadProgress: updatedProgress,
+                  }
+              });
+            };
+            reader.readAsDataURL(file);
+            // This is async, so we just remove it from the progress to be updated
+            delete newProgress[fileName];
 
-        } else {
-          newProgress[fileName] = { ...current, progress: nextProgress };
+          } else {
+            newProgress[fileName] = { ...current, progress: nextProgress };
+          }
         }
-      }
-      
-      if (!hasChanges) {
-        clearInterval(interval);
-      } else {
-        // Only update progress, not items yet.
-        setAssetState(prev => ({...prev, uploadProgress: newProgress }));
-      }
+        
+        if (!hasChanges) {
+          clearInterval(interval);
+        }
+        
+        return { ...prev, uploadProgress: newProgress };
+      });
     }, 200);
-  
+
     return () => clearInterval(interval);
-  }, [assetState.uploadProgress, assetState.items, currentPath]);
+  }, [assetState.uploadProgress, currentPath]);
   
   const displayedItems = useMemo(() => {
     return assetState.items
@@ -201,29 +204,31 @@ const DigitalAssetManager: React.FC = () => {
     const files = e.target.files;
     if (!files || files.length === 0) return;
     
-    const newUploads: Record<string, UploadProgress> = {};
-    let filesToUploadCount = 0;
+    setAssetState(prev => {
+        const newUploads: Record<string, UploadProgress> = {};
+        let filesToUploadCount = 0;
 
-    for (let i = 0; i < files.length; i++) {
-        const file = files[i];
-        const fileName = file.name;
-        
-        const pathToCheck = currentPath ? `${currentPath}/${fileName}` : fileName;
-        if (assetState.items.some(item => item.path === pathToCheck) || assetState.uploadProgress[fileName]) {
-            toast({ title: "File already exists", description: `"${fileName}" is already in this folder or upload queue.`, variant: "destructive" });
-            continue;
+        for (let i = 0; i < files.length; i++) {
+            const file = files[i];
+            const fileName = file.name;
+            
+            const pathToCheck = currentPath ? `${currentPath}/${fileName}` : fileName;
+            if (prev.items.some(item => item.path === pathToCheck) || prev.uploadProgress[fileName]) {
+                toast({ title: "File already exists", description: `"${fileName}" is already in this folder or upload queue.`, variant: "destructive" });
+                continue;
+            }
+            newUploads[fileName] = { progress: 0, file: file };
+            filesToUploadCount++;
         }
-        newUploads[fileName] = { progress: 0, file: file };
-        filesToUploadCount++;
-    }
 
-    if (filesToUploadCount > 0) {
-      setAssetState(prev => ({...prev, uploadProgress: { ...prev.uploadProgress, ...newUploads }}));
-      toast({
-        title: "Upload Started",
-        description: `Uploading ${filesToUploadCount} file(s)...`,
-      });
-    }
+        if (filesToUploadCount > 0) {
+            toast({
+              title: "Upload Started",
+              description: `Uploading ${filesToUploadCount} file(s)...`,
+            });
+        }
+        return { ...prev, uploadProgress: { ...prev.uploadProgress, ...newUploads } };
+    });
   };
   
   const handleCreateFolder = () => {
@@ -392,14 +397,16 @@ const DigitalAssetManager: React.FC = () => {
       
       {/* Dialogs */}
       <Dialog open={isNewFolderOpen} onOpenChange={setIsNewFolderOpen}>
-        <DialogContent><DialogHeader><DialogTitle>Create New Folder</DialogTitle></DialogHeader><Input placeholder="Folder name..." value={newFolderName} onChange={e => setNewFolderName(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleCreateFolder()} autoFocus/><DialogFooter><Button variant="outline" onClick={() => setIsNewFolderOpen(false)}>Cancel</Button><Button onClick={handleCreateFolder}>Create</Button></DialogFooter></DialogContent>
+        <DialogContent><DialogHeader><DialogTitle>Create New Folder</DialogTitle></DialogHeader>
+        <Input placeholder="Folder name..." value={newFolderName} onChange={e => setNewFolderName(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleCreateFolder()} autoFocus/>
+        <DialogFooter><Button variant="outline" onClick={() => setIsNewFolderOpen(false)}>Cancel</Button><Button onClick={handleCreateFolder}>Create</Button></DialogFooter></DialogContent>
       </Dialog>
       <Dialog open={!!renamingItem} onOpenChange={v => !v && setRenamingItem(null)}>
         <DialogContent>
             <DialogHeader><DialogTitle>Rename "{renamingItem?.path.split('/').pop()}"</DialogTitle></DialogHeader>
             <Input 
                 value={renamingItem?.name || ''} 
-                onChange={(e) => renamingItem && setRenamingItem({ ...renamingItem, name: e.target.value }) } 
+                onChange={(e) => setRenamingItem(prev => prev ? {...prev, name: e.target.value} : null)} 
                 onKeyDown={e => e.key === 'Enter' && handleRename()} 
                 autoFocus
             />
@@ -413,18 +420,12 @@ const DigitalAssetManager: React.FC = () => {
          <DialogContent className="max-w-4xl h-[80vh] flex flex-col p-0 sm:rounded-lg overflow-hidden bg-muted/80 backdrop-blur-sm border-border">
           <DialogHeader className="p-4 border-b flex-row justify-between items-center">
             <DialogTitle>{previewingItem?.name}</DialogTitle>
-             <DialogClose asChild>
-                <Button variant="ghost" size="icon">
-                  <X className="h-5 w-5" />
-                  <span className="sr-only">Close</span>
-                </Button>
-            </DialogClose>
           </DialogHeader>
           <div className="flex-grow flex items-center justify-center overflow-hidden p-4">
             {previewingItem && isImageFile(previewingItem.name) && previewingItem.url ? (
               <Image 
                 src={previewingItem.url} 
-                alt={previewingItem.name || 'Image preview'}
+                alt="Image preview"
                 width={800} 
                 height={600} 
                 className="max-w-full max-h-full object-contain"

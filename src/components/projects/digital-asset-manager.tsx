@@ -56,28 +56,13 @@ const DigitalAssetManager: React.FC = () => {
 
   const [isNewFolderOpen, setIsNewFolderOpen] = useState(false);
   const [newFolderName, setNewFolderName] = useState('');
-
-  // Sign in anonymously if not logged in
-  useEffect(() => {
-    if (auth && !user) {
-      signInAnonymously(auth).catch((error) => {
-        console.error("Anonymous sign-in failed:", error);
-        toast({ title: 'Authentication Failed', description: 'Could not sign in anonymously.', variant: 'destructive' });
-      });
-    }
-  }, [auth, user, toast]);
-
+  
   const rootPath = useMemo(() => {
     return user ? `user_files/${user.uid}` : '';
   }, [user]);
-  
-  const fetchItems = useCallback(async () => {
-    if (!rootPath) {
-      setIsLoading(false);
-      return;
-    };
 
-    const fullPath = currentPath ? `${rootPath}/${currentPath}` : rootPath;
+  const fetchItems = useCallback(async (currentRootPath: string) => {
+    const fullPath = currentPath ? `${currentRootPath}/${currentPath}` : currentRootPath;
     setIsLoading(true);
 
     try {
@@ -88,49 +73,57 @@ const DigitalAssetManager: React.FC = () => {
       const folders: FolderItem[] = res.prefixes.map(folderRef => ({
         name: folderRef.name,
         type: 'folder',
-        path: folderRef.fullPath.substring(rootPath.length + 1), // Store relative path
+        path: folderRef.fullPath.substring(currentRootPath.length > 0 ? currentRootPath.length + 1 : 0),
       }));
       
       const files: FileItem[] = await Promise.all(res.items.map(async itemRef => {
-        if(itemRef.name === '.placeholder') return null; // Skip placeholder
+        if(itemRef.name === '.placeholder') return null;
         const metadata = await itemRef.getMetadata();
         const url = await getDownloadURL(itemRef);
         return {
           name: itemRef.name,
           type: 'file' as const,
-          path: itemRef.fullPath.substring(rootPath.length + 1), // Store relative path
+          path: itemRef.fullPath.substring(currentRootPath.length > 0 ? currentRootPath.length + 1 : 0),
           url,
           size: metadata.size,
         };
       }));
 
-      setItems([...folders, ...files.filter(f => f !== null) as FileItem[]]);
+      setItems([...folders, ...files.filter((f): f is FileItem => f !== null)]);
     } catch (error) {
       console.error(error);
       toast({ title: 'Error fetching files', variant: 'destructive' });
     }
     setIsLoading(false);
-  }, [rootPath, currentPath, toast]);
+  }, [currentPath, toast]);
 
+  // Effect for signing in and fetching initial data
   useEffect(() => {
-    if (user && rootPath) {
-        fetchItems();
+    if (auth && !user) {
+      signInAnonymously(auth).catch((error) => {
+        console.error("Anonymous sign-in failed:", error);
+        toast({ title: 'Authentication Failed', description: 'Could not sign in anonymously.', variant: 'destructive' });
+        setIsLoading(false);
+      });
+    } else if (user && rootPath) {
+      fetchItems(rootPath);
     } else {
-        // Only set loading to false if we're not expecting a user object soon
-        setIsLoading(!auth || !!user);
-        setItems([]);
+        setIsLoading(true); // Waiting for auth
     }
-  }, [user, rootPath, fetchItems, auth]);
+  }, [user, rootPath, auth, fetchItems, toast]);
+
 
   const handleUpload = (files: FileList) => {
+    if (!files || !rootPath) return;
     const fullCurrentPath = currentPath ? `${rootPath}/${currentPath}` : rootPath;
-    if (!files || !fullCurrentPath) return;
     const storage = getStorage();
 
     Array.from(files).forEach(file => {
       const filePath = `${fullCurrentPath}/${file.name}`;
       const storageRef = ref(storage, filePath);
       const uploadTask = uploadBytesResumable(storageRef, file);
+
+      setUploadProgress(prev => ({...prev, [file.name]: 0}));
 
       uploadTask.on('state_changed',
         (snapshot) => {
@@ -143,7 +136,7 @@ const DigitalAssetManager: React.FC = () => {
           setUploadProgress(prev => { const newProg = {...prev}; delete newProg[file.name]; return newProg; });
         },
         () => {
-          fetchItems();
+          fetchItems(rootPath); // Refetch after upload
           toast({ title: 'Upload complete', description: `${file.name} has been uploaded.`});
           setTimeout(() => {
             setUploadProgress(prev => { const newProg = {...prev}; delete newProg[file.name]; return newProg; });
@@ -162,9 +155,8 @@ const DigitalAssetManager: React.FC = () => {
   };
   
   const createFolder = async () => {
-    if (!newFolderName.trim()) { toast({ title: 'Folder name is required', variant: 'destructive'}); return; }
+    if (!newFolderName.trim() || !rootPath) { toast({ title: 'Folder name is required', variant: 'destructive'}); return; }
     const fullCurrentPath = currentPath ? `${rootPath}/${currentPath}` : rootPath;
-    if (!fullCurrentPath) return;
     
     const folderPath = `${fullCurrentPath}/${newFolderName}/`;
     const placeholderPath = `${folderPath}.placeholder`;
@@ -172,8 +164,8 @@ const DigitalAssetManager: React.FC = () => {
     const storage = getStorage();
     const storageRef = ref(storage, placeholderPath);
     try {
-        await uploadBytesResumable(storageRef, new Blob());
-        fetchItems();
+        await uploadBytesResumable(storageRef, new Blob(['']));
+        fetchItems(rootPath);
         toast({ title: `Folder "${newFolderName}" created`});
     } catch(e) {
         console.error(e);
@@ -184,29 +176,23 @@ const DigitalAssetManager: React.FC = () => {
   }
 
   const deleteItem = async (item: AssetItem) => {
+    if(!rootPath) return;
     const storage = getStorage();
     const fullItemPath = `${rootPath}/${item.path}`;
 
     if(item.type === 'file') {
         await deleteObject(ref(storage, fullItemPath));
-    } else { // Folder: recursively delete contents
+    } else {
         const listRef = ref(storage, fullItemPath);
         const res = await listAll(listRef);
+        // This is a simplified version, it won't delete nested folders for this demo.
         await Promise.all(res.items.map(itemRef => deleteObject(itemRef)));
-        // This is a simplified version, it won't delete nested folders.
-        // A full implementation would need a recursive function.
+        // Delete the placeholder to "delete" the folder
+        const placeholderRef = ref(storage, `${fullItemPath}/.placeholder`);
+        try { await deleteObject(placeholderRef) } catch(e) { /* ignore */ }
     }
-    fetchItems();
-    toast({ title: `Deleted "${item.name}"`, variant: 'destructive'});
-  }
-  
-  const formatBytes = (bytes: number, decimals = 2) => {
-      if (bytes === 0) return '0 Bytes';
-      const k = 1024;
-      const dm = decimals < 0 ? 0 : decimals;
-      const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-      const i = Math.floor(Math.log(bytes) / Math.log(k));
-      return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+    fetchItems(rootPath);
+    toast({ title: `Deleted "${item.name}"`, variant: "destructive"});
   }
 
   return (
@@ -222,17 +208,14 @@ const DigitalAssetManager: React.FC = () => {
           <div className="flex items-center gap-2">
             <Button onClick={() => setIsNewFolderOpen(true)} disabled={!user}><Plus className="mr-2 h-4 w-4"/>New Folder</Button>
             <Button variant="outline" onClick={() => fileInputRef.current?.click()} disabled={!user}><Upload className="mr-2 h-4 w-4"/>Upload</Button>
-            <input type="file" ref={fileInputRef} onChange={e => handleUpload(e.target.files!)} multiple className="hidden"/>
+            <input type="file" ref={fileInputRef} onChange={e => e.target.files && handleUpload(e.target.files)} multiple className="hidden"/>
           </div>
         </CardHeader>
         <CardContent className="flex-grow p-4 relative overflow-y-auto">
           {isLoading ? (
-             <div className="absolute inset-0 flex items-center justify-center">
+             <div className="absolute inset-0 flex flex-col items-center justify-center text-muted-foreground">
               <Loader2 className="h-8 w-8 animate-spin text-primary" />
-            </div>
-          ) : !user ? (
-            <div className="flex items-center justify-center h-full text-muted-foreground">
-                <p>Signing in to create your file storage...</p>
+              <p className="mt-2">{user ? "Loading files..." : "Authenticating..."}</p>
             </div>
           ) : (
             items.length > 0 || Object.keys(uploadProgress).length > 0 ? (
@@ -247,8 +230,8 @@ const DigitalAssetManager: React.FC = () => {
                           <DropdownMenu>
                               <DropdownMenuTrigger asChild><Button variant="ghost" size="icon" className="h-7 w-7"><MoreVertical className="h-4 w-4"/></Button></DropdownMenuTrigger>
                               <DropdownMenuContent>
-                                  {item.type==='file' && <DropdownMenuItem onSelect={() => {navigator.clipboard.writeText(item.url); toast({title: "Link Copied!"})}}><LinkIcon className="mr-2 h-4 w-4"/>Copy Link</DropdownMenuItem>}
-                                  {item.type==='file' && <DropdownMenuItem onSelect={() => window.open(item.url, '_blank')}><Download className="mr-2 h-4 w-4"/>Download</DropdownMenuItem>}
+                                  {item.type==='file' && <DropdownMenuItem onSelect={() => {navigator.clipboard.writeText((item as FileItem).url); toast({title: "Link Copied!"})}}><LinkIcon className="mr-2 h-4 w-4"/>Copy Link</DropdownMenuItem>}
+                                  {item.type==='file' && <DropdownMenuItem onSelect={() => window.open((item as FileItem).url, '_blank')}><Download className="mr-2 h-4 w-4"/>Download</DropdownMenuItem>}
                                   <DropdownMenuItem onSelect={() => deleteItem(item)} className="text-destructive focus:text-destructive"><Trash2 className="mr-2 h-4 w-4"/>Delete</DropdownMenuItem>
                               </DropdownMenuContent>
                           </DropdownMenu>
@@ -257,12 +240,12 @@ const DigitalAssetManager: React.FC = () => {
                   ))}
                   <AnimatePresence>
                   {Object.entries(uploadProgress).map(([name, progress]) => (
-                     <motion.div key={name} initial={{opacity:0, y: 10}} animate={{opacity:1, y: 0}} exit={{opacity:0, scale: 0.8}} className="group relative border rounded-lg">
+                     <motion.div key={name} initial={{opacity:0, y: 10}} animate={{opacity:1, y: 0}} exit={{opacity:0, scale: 0.8}} className="group relative border rounded-lg flex flex-col">
                         <div className="aspect-square flex flex-col items-center justify-center p-4 bg-muted/30 rounded-t-lg">
                             <Loader2 className="w-16 h-16 text-primary animate-spin"/>
                         </div>
-                        <div className="p-2 text-sm truncate text-center">{name}</div>
-                        <Progress value={progress} className="w-full h-1 rounded-none rounded-b-lg"/>
+                        <div className="p-2 text-sm truncate text-center flex-grow">{name}</div>
+                        <Progress value={progress} className="w-full h-1 rounded-b-lg"/>
                       </motion.div>
                   ))}
                   </AnimatePresence>
@@ -279,7 +262,7 @@ const DigitalAssetManager: React.FC = () => {
             <DialogHeader><DialogTitle>Create New Folder</DialogTitle></DialogHeader>
             <Input placeholder="Folder name..." value={newFolderName} onChange={e => setNewFolderName(e.target.value)} onKeyDown={e => e.key === 'Enter' && createFolder()}/>
             <DialogFooter>
-                <Button variant="outline" onClick={() => setIsNewFolderOpen(false)}>Cancel</Button>
+                <Button variant="outline" onClick={() => {setIsNewFolderOpen(false); setNewFolderName('');}}>Cancel</Button>
                 <Button onClick={createFolder}>Create</Button>
             </DialogFooter>
         </DialogContent>
@@ -289,3 +272,5 @@ const DigitalAssetManager: React.FC = () => {
 };
 
 export default DigitalAssetManager;
+
+    

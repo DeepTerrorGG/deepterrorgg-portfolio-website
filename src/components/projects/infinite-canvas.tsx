@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
@@ -14,6 +13,8 @@ type CellData = {
   char: string;
   color: string;
 };
+
+const backgroundChars = '`.,*;"-~_';
 
 const InfiniteCanvas: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -53,8 +54,25 @@ const InfiniteCanvas: React.FC = () => {
     const startRow = Math.floor(viewTop / scaledCellSize) - 1;
     const endRow = Math.ceil(viewBottom / scaledCellSize) + 1;
 
+    // Draw background ASCII
+    ctx.font = `${scaledCellSize * 0.7}px monospace`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillStyle = 'hsl(var(--muted-foreground) / 0.1)';
+     for (let y = startRow; y <= endRow; y++) {
+      for (let x = startCol; x <= endCol; x++) {
+        const key = `${x},${y}`;
+        if (!cells.has(key)) {
+            const hash = (x * 31 + y * 17) % backgroundChars.length;
+            const char = backgroundChars[Math.abs(hash)];
+             ctx.fillText(char, x * scaledCellSize + scaledCellSize / 2, y * scaledCellSize + scaledCellSize / 2);
+        }
+      }
+    }
+
+
     // Draw grid lines for visible area
-    ctx.strokeStyle = 'hsl(var(--border) / 0.5)';
+    ctx.strokeStyle = 'hsl(var(--border) / 0.2)';
     ctx.lineWidth = 1 / viewport.zoom;
     for (let col = startCol; col <= endCol; col++) {
       ctx.beginPath();

@@ -39,7 +39,7 @@ interface FSItem {
   name: string;
   type: 'folder' | 'file';
   path: string;
-  url?: string;
+  url?: string; // This will now store a Base64 dataURL for images
   size?: number;
 }
 
@@ -53,11 +53,9 @@ interface AssetState {
     uploadProgress: Record<string, UploadProgress>;
 }
 
-
 const initialItems: FSItem[] = [
   { id: '1', name: 'Documents', type: 'folder', path: 'Documents' },
   { id: '2', name: 'Images', type: 'folder', path: 'Images' },
-  { id: '3', name: 'project-brief.pdf', type: 'file', path: 'project-brief.pdf', url: '#', size: 1024 },
   { id: '5', name: 'meeting-notes.txt', type: 'file', path: 'meeting-notes.txt', url: '#', size: 2048 },
   { id: '8', name: 'Reports', type: 'folder', path: 'Documents/Reports' },
   { id: '9', name: 'Q1-report.docx', type: 'file', path: 'Documents/Reports/Q1-report.docx', url: '#', size: 54321 },
@@ -67,7 +65,6 @@ const initialItems: FSItem[] = [
 
 const isImageFile = (fileName: string) => /\.(jpg|jpeg|png|gif|webp)$/i.test(fileName);
 const isPdfFile = (fileName: string) => /\.(pdf)$/i.test(fileName);
-
 
 const getFileIcon = (fileName: string) => {
     const iconBaseClasses = "w-16 h-16 sm:w-24 sm:h-24";
@@ -106,7 +103,7 @@ const DigitalAssetManager: React.FC = () => {
   // Load from local storage
   useEffect(() => {
     try {
-      const storedItems = localStorage.getItem('dam_items');
+      const storedItems = localStorage.getItem('dam_items_v2'); // Use a new key to avoid conflicts
       const items = storedItems ? JSON.parse(storedItems) : initialItems;
       setAssetState({ items, uploadProgress: {} });
     } catch (e) {
@@ -119,7 +116,7 @@ const DigitalAssetManager: React.FC = () => {
   // Save to local storage
   useEffect(() => {
     if (!isLoading) {
-      localStorage.setItem('dam_items', JSON.stringify(assetState.items));
+      localStorage.setItem('dam_items_v2', JSON.stringify(assetState.items));
     }
   }, [assetState.items, isLoading]);
   
@@ -128,48 +125,56 @@ const DigitalAssetManager: React.FC = () => {
     if (Object.keys(assetState.uploadProgress).length === 0) return;
   
     const interval = setInterval(() => {
-      setAssetState(currentState => {
-        let hasChanges = false;
-        const newProgress = { ...currentState.uploadProgress };
-        const newItems = [...currentState.items];
+      let hasChanges = false;
+      const newProgress = { ...assetState.uploadProgress };
+      const newItems = [...assetState.items];
   
-        for (const fileName in newProgress) {
-          const current = newProgress[fileName];
-          const nextProgress = Math.min(100, current.progress + Math.random() * 30);
-          hasChanges = true;
-          
-          if (nextProgress >= 100) {
-            const file = current.file;
-            const newPath = currentPath ? `${currentPath}/${fileName}` : fileName;
-            newItems.push({
-              id: crypto.randomUUID(),
-              name: fileName,
-              type: 'file',
-              path: newPath,
-              url: URL.createObjectURL(file),
-              size: file.size
-            });
-            delete newProgress[fileName];
-          } else {
-            newProgress[fileName] = { ...current, progress: nextProgress };
-          }
-        }
+      for (const fileName in newProgress) {
+        const current = newProgress[fileName];
+        const nextProgress = Math.min(100, current.progress + Math.random() * 30);
+        hasChanges = true;
         
-        if (!hasChanges) {
-          clearInterval(interval);
-          return currentState;
-        }
+        if (nextProgress >= 100) {
+          const file = current.file;
+          const newPath = currentPath ? `${currentPath}/${fileName}` : fileName;
+          
+          const reader = new FileReader();
+          reader.onload = (readEvent) => {
+            setAssetState(prev => {
+              const updatedItems = [...prev.items, {
+                id: crypto.randomUUID(),
+                name: fileName,
+                type: 'file',
+                path: newPath,
+                url: readEvent.target?.result as string, // This is the Base64 dataURL
+                size: file.size
+              }];
+              const updatedProgress = { ...prev.uploadProgress };
+              delete updatedProgress[fileName];
+              return { items: updatedItems, uploadProgress: updatedProgress };
+            });
+          };
+          reader.readAsDataURL(file);
+          
+          // Since reading is async, we just remove it from the progress queue for now.
+          // The onload will handle adding it to items.
+          delete newProgress[fileName];
 
-        return {
-          ...currentState,
-          items: newItems,
-          uploadProgress: newProgress
-        };
-      });
+        } else {
+          newProgress[fileName] = { ...current, progress: nextProgress };
+        }
+      }
+      
+      if (!hasChanges) {
+        clearInterval(interval);
+      } else {
+        // Only update progress, not items yet.
+        setAssetState(prev => ({...prev, uploadProgress: newProgress }));
+      }
     }, 200);
   
     return () => clearInterval(interval);
-  }, [assetState.uploadProgress, currentPath]);
+  }, [assetState.uploadProgress, assetState.items, currentPath]);
   
   const displayedItems = useMemo(() => {
     return assetState.items
@@ -419,7 +424,7 @@ const DigitalAssetManager: React.FC = () => {
             {previewingItem && isImageFile(previewingItem.name) && previewingItem.url ? (
               <Image 
                 src={previewingItem.url} 
-                alt={previewingItem.name || ''} 
+                alt={previewingItem.name || 'Image preview'}
                 width={800} 
                 height={600} 
                 className="max-w-full max-h-full object-contain"
@@ -440,4 +445,3 @@ const DigitalAssetManager: React.FC = () => {
 };
 
 export default DigitalAssetManager;
-

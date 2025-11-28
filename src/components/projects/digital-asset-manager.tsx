@@ -16,7 +16,12 @@ import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { getStorage, ref, uploadBytesResumable, getDownloadURL, deleteObject, listAll } from 'firebase/storage';
 import { Progress } from '../ui/progress';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '../ui/dropdown-menu';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '../ui/dropdown-menu';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '../ui/dialog';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useAuth } from '@/firebase';
@@ -67,7 +72,7 @@ const DigitalAssetManager: React.FC = () => {
   }, [user]);
   
   const fetchItems = useCallback(async () => {
-    if (!rootPath) { // Wait for user and rootPath to be available
+    if (!rootPath) {
       setIsLoading(false);
       return;
     };
@@ -108,13 +113,14 @@ const DigitalAssetManager: React.FC = () => {
   }, [rootPath, currentPath, toast]);
 
   useEffect(() => {
-    if (user && rootPath) { // Ensure user and rootPath are ready before fetching
+    if (user && rootPath) {
         fetchItems();
     } else {
-        setIsLoading(!user); // If no user, we are still "loading" the auth state
+        // Only set loading to false if we're not expecting a user object soon
+        setIsLoading(!auth || !!user);
         setItems([]);
     }
-  }, [user, rootPath, fetchItems]);
+  }, [user, rootPath, fetchItems, auth]);
 
   const handleUpload = (files: FileList) => {
     const fullCurrentPath = currentPath ? `${rootPath}/${currentPath}` : rootPath;
@@ -183,11 +189,12 @@ const DigitalAssetManager: React.FC = () => {
 
     if(item.type === 'file') {
         await deleteObject(ref(storage, fullItemPath));
-    } else { // Folder
+    } else { // Folder: recursively delete contents
         const listRef = ref(storage, fullItemPath);
         const res = await listAll(listRef);
         await Promise.all(res.items.map(itemRef => deleteObject(itemRef)));
-        // Also need to delete subfolders recursively, simplified for this demo
+        // This is a simplified version, it won't delete nested folders.
+        // A full implementation would need a recursive function.
     }
     fetchItems();
     toast({ title: `Deleted "${item.name}"`, variant: 'destructive'});
@@ -232,7 +239,7 @@ const DigitalAssetManager: React.FC = () => {
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
                   {items.map(item => (
                     <Card key={item.path} className="group relative transition-all hover:shadow-lg hover:-translate-y-1">
-                      <div className="aspect-square flex items-center justify-center p-4 bg-muted/30 rounded-t-lg" onClick={() => item.type === 'folder' && handleFolderClick(item.path)}>
+                      <div className="aspect-square flex items-center justify-center p-4 bg-muted/30 rounded-t-lg cursor-pointer" onClick={() => item.type === 'folder' && handleFolderClick(item.path)}>
                           {item.type === 'folder' ? <Folder className="w-16 h-16 text-primary"/> : <File className="w-16 h-16 text-muted-foreground"/>}
                       </div>
                       <div className="p-2 text-center text-sm truncate">{item.name}</div>
@@ -240,7 +247,7 @@ const DigitalAssetManager: React.FC = () => {
                           <DropdownMenu>
                               <DropdownMenuTrigger asChild><Button variant="ghost" size="icon" className="h-7 w-7"><MoreVertical className="h-4 w-4"/></Button></DropdownMenuTrigger>
                               <DropdownMenuContent>
-                                  {item.type==='file' && <DropdownMenuItem onSelect={() => navigator.clipboard.writeText(item.url)}><LinkIcon className="mr-2 h-4 w-4"/>Copy Link</DropdownMenuItem>}
+                                  {item.type==='file' && <DropdownMenuItem onSelect={() => {navigator.clipboard.writeText(item.url); toast({title: "Link Copied!"})}}><LinkIcon className="mr-2 h-4 w-4"/>Copy Link</DropdownMenuItem>}
                                   {item.type==='file' && <DropdownMenuItem onSelect={() => window.open(item.url, '_blank')}><Download className="mr-2 h-4 w-4"/>Download</DropdownMenuItem>}
                                   <DropdownMenuItem onSelect={() => deleteItem(item)} className="text-destructive focus:text-destructive"><Trash2 className="mr-2 h-4 w-4"/>Delete</DropdownMenuItem>
                               </DropdownMenuContent>

@@ -11,6 +11,12 @@ service cloud.firestore {
     function isOwner(userId) {
         return request.auth.uid == userId;
     }
+    
+    // For this demo, we'll use a simple "admin" claim. In a real app,
+    // this would be managed securely via a backend.
+    function isAdmin() {
+        return request.auth.token.admin == true;
+    }
 
     match /users/{userId}/{allSubcollections=**} {
       allow read, write: if isOwner(userId);
@@ -52,5 +58,21 @@ service cloud.firestore {
     match /whiteboard-objects/{objectId} {
       allow read, write: if isSignedIn();
     }
+
+    // --- HEADLESS CMS RULES ---
+    
+    // Content Type Schemas: Only admins can manage the structure of content.
+    match /content_types/{contentTypeId} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin(); // In a real app, check for 'admin' role
+    }
+
+    // Content Entries: Public can read, authenticated users (editors) can write.
+    match /content_entries/{contentEntryId} {
+        allow read: if true;
+        allow create, update, delete: if isSignedIn();
+    }
   }
 }
+
+    

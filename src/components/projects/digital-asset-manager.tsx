@@ -229,12 +229,10 @@ const DigitalAssetManager: React.FC = () => {
         <DialogContent><DialogHeader><DialogTitle>Move "{movingItem?.name}"</DialogTitle></DialogHeader><p className="text-muted-foreground text-sm my-4">Select a destination folder.</p><div className="space-y-2 max-h-64 overflow-y-auto">{items.filter(i => i.type === 'folder' && i.id !== movingItem?.id).map(folder => (<Button key={folder.id} variant="outline" className="w-full justify-start" onClick={() => handleMove(folder.path)}><Folder className="mr-2 h-4 w-4"/>{folder.name}</Button>))}<Button variant="outline" className="w-full justify-start" onClick={() => handleMove('')}><Folder className="mr-2 h-4 w-4"/>Root</Button></div></DialogContent>
       </Dialog>
       <Dialog open={!!previewingItem} onOpenChange={() => setPreviewingItem(null)}>
-        <DialogContent className="max-w-4xl h-[80vh] flex flex-col"><DialogHeader><DialogTitle>{previewingItem?.name}</DialogTitle></DialogHeader><div className="flex-grow flex items-center justify-center bg-muted/50 rounded-md"><Image src={previewingItem?.url || ''} alt={previewingItem?.name || ''} width={800} height={600} className="max-w-full max-h-full object-contain"/></div></DialogContent>
+        <DialogContent className="max-w-4xl h-[80vh] flex flex-col"><DialogHeader><DialogTitle>{previewingItem?.name}</DialogTitle></DialogHeader><div className="flex-grow flex items-center justify-center bg-muted/50 rounded-md"><Image src={previewingItem?.url || 'https://picsum.photos/seed/placeholder/800/600'} alt={previewingItem?.name || ''} width={800} height={600} className="max-w-full max-h-full object-contain"/></div></DialogContent>
       </Dialog>
     </div>
   );
 };
 
 export default DigitalAssetManager;
-
-    

@@ -1,7 +1,7 @@
 
 'use client';
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useMemo } from 'react';
 import {
   Folder, File as FileIcon, Upload, Plus, MoreVertical, Trash2, Link as LinkIcon, Edit, Loader2, ArrowLeft, Download, X, Share2, Copy, Move
 } from 'lucide-react';
@@ -49,6 +49,10 @@ const initialItems: FSItem[] = [
   { id: '3', name: 'project-brief.pdf', type: 'file', path: 'project-brief.pdf', url: 'https://picsum.photos/seed/3/800/600', size: 1024 },
   { id: '4', name: 'logo.png', type: 'file', path: 'logo.png', url: 'https://picsum.photos/seed/4/800/600', size: 51200 },
   { id: '5', name: 'meeting-notes.txt', type: 'file', path: 'meeting-notes.txt', url: 'https://picsum.photos/seed/5/800/600', size: 2048 },
+  { id: '6', name: 'cat.jpg', type: 'file', path: 'Images/cat.jpg', url: 'https://picsum.photos/seed/cat/800/600', size: 12345 },
+  { id: '7', name: 'dog.jpg', type: 'file', path: 'Images/dog.jpg', url: 'https://picsum.photos/seed/dog/800/600', size: 23456 },
+  { id: '8', name: 'Reports', type: 'folder', path: 'Documents/Reports' },
+  { id: '9', name: 'Q1-report.docx', type: 'file', path: 'Documents/Reports/Q1-report.docx', url: '#', size: 54321 },
 ];
 // --- END MOCK DATA ---
 
@@ -68,6 +72,17 @@ const DigitalAssetManager: React.FC = () => {
   
   // --- Upload state ---
   const [uploadProgress, setUploadProgress] = useState<Record<string, number>>({});
+
+  const displayedItems = useMemo(() => {
+    return items.filter(item => {
+        const itemParentPath = item.path.substring(0, item.path.lastIndexOf('/'));
+        if (currentPath === '') {
+            // Root directory
+            return !item.path.includes('/');
+        }
+        return itemParentPath === currentPath;
+    });
+  }, [items, currentPath]);
 
   const navigateUp = () => {
     const pathParts = currentPath.split('/').filter(Boolean);
@@ -92,7 +107,8 @@ const DigitalAssetManager: React.FC = () => {
                 const nextProgress = Math.min(100, currentProgress + Math.random() * 20);
                 if (nextProgress >= 100) {
                     clearInterval(interval);
-                    const newItem: FSItem = { id: Date.now().toString() + i, name: fileName, type: 'file', path: fileName, url: '#', size: file.size };
+                    const newPath = currentPath ? `${currentPath}/${fileName}` : fileName;
+                    const newItem: FSItem = { id: Date.now().toString() + i, name: fileName, type: 'file', path: newPath, url: URL.createObjectURL(file), size: file.size };
                     setItems(currentItems => [...currentItems, newItem]);
                     const finalProgress = { ...prev };
                     delete finalProgress[fileName];
@@ -111,7 +127,8 @@ const DigitalAssetManager: React.FC = () => {
   
   const handleCreateFolder = () => {
     if (!newFolderName.trim()) { toast({ title: 'Folder name is required', variant: 'destructive'}); return; }
-    const newFolder: FSItem = { id: Date.now().toString(), name: newFolderName, type: 'folder', path: newFolderName };
+    const newPath = currentPath ? `${currentPath}/${newFolderName}` : newFolderName;
+    const newFolder: FSItem = { id: Date.now().toString(), name: newFolderName, type: 'folder', path: newPath };
     setItems(prev => [...prev, newFolder]);
     toast({ title: `Folder "${newFolderName}" created.` });
     setNewFolderName('');
@@ -205,7 +222,7 @@ const DigitalAssetManager: React.FC = () => {
         <CardContent className="flex-grow p-4 relative overflow-y-auto">
           {isLoading ? ( <div className="absolute inset-0 flex flex-col items-center justify-center text-muted-foreground"><Loader2 className="h-8 w-8 animate-spin text-primary" /><p className="mt-2">Loading files...</p></div> ) : (
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-              {items.map(item => <FileSystemItem key={item.id} item={item} />)}
+              {displayedItems.map(item => <FileSystemItem key={item.id} item={item} />)}
               {Object.entries(uploadProgress).map(([name, progress]) => (
                 <div key={name} className="p-2 border rounded-lg flex flex-col justify-center items-center gap-2">
                     <p className="text-xs truncate w-full text-center">{name}</p>

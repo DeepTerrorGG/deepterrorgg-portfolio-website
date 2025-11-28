@@ -29,7 +29,7 @@ import {
   ContextMenuTrigger,
   ContextMenuSeparator,
 } from "@/components/ui/context-menu";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '../ui/alert-dialog';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '../ui/alert-dialog';
 import { Progress } from '../ui/progress';
 import Image from 'next/image';
 
@@ -58,6 +58,8 @@ const initialItems: FSItem[] = [
 // --- END INITIAL STATE ---
 
 const isImageFile = (fileName: string) => /\.(jpg|jpeg|png|gif|webp)$/i.test(fileName);
+const isPdfFile = (fileName: string) => /\.(pdf)$/i.test(fileName);
+
 
 const getFileIcon = (fileName: string) => {
     if (/\.(pdf)$/i.test(fileName)) return <FileText className="w-16 h-16 sm:w-24 sm:h-24 text-red-500" />;
@@ -145,7 +147,7 @@ const DigitalAssetManager: React.FC = () => {
                 if (nextProgress >= 100) {
                     clearInterval(interval);
                     const newPath = currentPath ? `${currentPath}/${fileName}` : fileName;
-                    const newItem: FSItem = { id: Date.now().toString() + i, name: fileName, type: 'file', path: newPath, url: URL.createObjectURL(file), size: file.size };
+                    const newItem: FSItem = { id: crypto.randomUUID(), name: fileName, type: 'file', path: newPath, url: URL.createObjectURL(file), size: file.size };
                     setItems(currentItems => [...currentItems, newItem]);
                     const finalProgress = { ...prev };
                     delete finalProgress[fileName];
@@ -169,7 +171,7 @@ const DigitalAssetManager: React.FC = () => {
         toast({ title: 'Folder already exists', variant: 'destructive' });
         return;
     }
-    const newFolder: FSItem = { id: Date.now().toString(), name: newFolderName, type: 'folder', path: newPath };
+    const newFolder: FSItem = { id: crypto.randomUUID(), name: newFolderName, type: 'folder', path: newPath };
     setItems(prev => [...prev, newFolder]);
     toast({ title: `Folder "${newFolderName}" created.` });
     setNewFolderName('');
@@ -322,9 +324,11 @@ const DigitalAssetManager: React.FC = () => {
         <DialogContent><DialogHeader><DialogTitle>Move "{movingItem?.name}"</DialogTitle></DialogHeader><p className="text-muted-foreground text-sm my-4">Select a destination folder.</p><div className="space-y-2 max-h-64 overflow-y-auto">{items.filter(i => i.type === 'folder' && i.id !== movingItem?.id && !i.path.startsWith(movingItem?.path + '/')).map(folder => (<Button key={folder.id} variant="outline" className="w-full justify-start" onClick={() => handleMove(folder.path)}><Folder className="mr-2 h-4 w-4"/>{folder.path}</Button>))}<Button variant="outline" className="w-full justify-start" onClick={() => handleMove('')}><Folder className="mr-2 h-4 w-4"/>Root</Button></div></DialogContent>
       </Dialog>
       <Dialog open={!!previewingItem} onOpenChange={() => setPreviewingItem(null)}>
-        <DialogContent className="max-w-4xl h-[80vh] flex flex-col">
-          <DialogHeader><DialogTitle>{previewingItem?.name}</DialogTitle></DialogHeader>
-          <div className="flex-grow flex items-center justify-center bg-muted/50 rounded-md overflow-hidden">
+         <DialogContent className="max-w-4xl h-[80vh] flex flex-col p-0">
+          <DialogHeader className="p-4 border-b">
+            <DialogTitle>{previewingItem?.name}</DialogTitle>
+          </DialogHeader>
+          <div className="flex-grow flex items-center justify-center bg-muted/50 rounded-b-lg overflow-hidden">
             {previewingItem && isImageFile(previewingItem.name) ? (
               <Image 
                 src={previewingItem.url || 'https://picsum.photos/seed/placeholder/800/600'} 
@@ -333,6 +337,8 @@ const DigitalAssetManager: React.FC = () => {
                 height={600} 
                 className="max-w-full max-h-full object-contain"
               />
+            ) : previewingItem && isPdfFile(previewingItem.name) ? (
+                <iframe src={previewingItem.url} className="w-full h-full border-0" title={previewingItem.name} />
             ) : (
               <div className="flex flex-col items-center gap-4 text-muted-foreground">
                 {previewingItem && getFileIcon(previewingItem.name)}

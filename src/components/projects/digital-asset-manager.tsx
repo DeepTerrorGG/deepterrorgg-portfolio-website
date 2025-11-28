@@ -42,7 +42,7 @@ const DigitalAssetManager: React.FC = () => {
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const auth = useAuth();
-  const user = auth.currentUser;
+  const user = auth?.currentUser;
   
   const [currentPath, setCurrentPath] = useState<string>('');
   const [items, setItems] = useState<AssetItem[]>([]);
@@ -66,20 +66,18 @@ const DigitalAssetManager: React.FC = () => {
     return user ? `user_files/${user.uid}` : '';
   }, [user]);
   
-  const fullCurrentPath = useMemo(() => {
-    if (!rootPath) return '';
-    return currentPath ? `${rootPath}/${currentPath}` : rootPath;
-  }, [rootPath, currentPath]);
-
   const fetchItems = useCallback(async () => {
-    if (!fullCurrentPath) {
+    if (!rootPath) { // Wait for user and rootPath to be available
       setIsLoading(false);
       return;
     };
+
+    const fullPath = currentPath ? `${rootPath}/${currentPath}` : rootPath;
     setIsLoading(true);
+
     try {
       const storage = getStorage();
-      const listRef = ref(storage, fullCurrentPath);
+      const listRef = ref(storage, fullPath);
       const res = await listAll(listRef);
 
       const folders: FolderItem[] = res.prefixes.map(folderRef => ({
@@ -107,18 +105,19 @@ const DigitalAssetManager: React.FC = () => {
       toast({ title: 'Error fetching files', variant: 'destructive' });
     }
     setIsLoading(false);
-  }, [fullCurrentPath, rootPath, toast]);
+  }, [rootPath, currentPath, toast]);
 
   useEffect(() => {
-    if (user) {
+    if (user && rootPath) { // Ensure user and rootPath are ready before fetching
         fetchItems();
     } else {
-        setIsLoading(true);
+        setIsLoading(!user); // If no user, we are still "loading" the auth state
         setItems([]);
     }
-  }, [user, fetchItems]);
+  }, [user, rootPath, fetchItems]);
 
   const handleUpload = (files: FileList) => {
+    const fullCurrentPath = currentPath ? `${rootPath}/${currentPath}` : rootPath;
     if (!files || !fullCurrentPath) return;
     const storage = getStorage();
 
@@ -158,6 +157,7 @@ const DigitalAssetManager: React.FC = () => {
   
   const createFolder = async () => {
     if (!newFolderName.trim()) { toast({ title: 'Folder name is required', variant: 'destructive'}); return; }
+    const fullCurrentPath = currentPath ? `${rootPath}/${currentPath}` : rootPath;
     if (!fullCurrentPath) return;
     
     const folderPath = `${fullCurrentPath}/${newFolderName}/`;

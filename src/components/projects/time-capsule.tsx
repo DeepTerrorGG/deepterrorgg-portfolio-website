@@ -1,35 +1,82 @@
 
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Plus } from 'lucide-react';
+import { Plus, Loader2 } from 'lucide-react';
 import { CreateCapsuleDialog } from './time-capsule/create-capsule-dialog';
 import { CapsuleCard } from './time-capsule/capsule-card';
 import type { TimeCapsule } from './time-capsule/capsule-card';
+import { useAuth, useUser, useFirestore, useCollection, useMemoFirebase, addDocumentNonBlocking, deleteDocumentNonBlocking } from '@/firebase';
+import { collection, query, where, Timestamp } from 'firebase/firestore';
+import { initiateAnonymousSignIn } from '@/firebase/non-blocking-login';
+import { doc } from 'firebase/firestore';
 
 const TimeCapsuleProject: React.FC = () => {
-  const [capsules, setCapsules] = useState<TimeCapsule[]>(() => {
-    // For demonstration, let's create some initial capsules
-    const now = new Date();
-    return [
-      { id: '1', message: 'This is an unlocked message from the past!', unlockDate: new Date(now.getTime() - 10000) },
-      { id: '2', message: 'This one unlocks in 15 seconds.', unlockDate: new Date(now.getTime() + 15000) },
-      { id: '3', message: 'A secret for next year.', unlockDate: new Date(now.getFullYear() + 1, now.getMonth(), now.getDate()) },
-    ];
-  });
+  const auth = useAuth();
+  const { user, isUserLoading } = useUser();
+  const firestore = useFirestore();
   
+  const capsulesQuery = useMemoFirebase(
+    // Query all capsules, no user filter
+    () => query(collection(firestore, 'timeCapsules')),
+    [firestore]
+  );
+  const { data: capsulesData, isLoading: isLoadingCapsules } = useCollection<Omit<TimeCapsule, 'unlockDate'> & { unlockDate: Timestamp }>(capsulesQuery);
+
+  const capsules: TimeCapsule[] = React.useMemo(() => {
+    return (capsulesData || []).map(c => ({
+      ...c,
+      unlockDate: c.unlockDate.toDate(),
+    }));
+  }, [capsulesData]);
+
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
 
-  const handleAddCapsule = (capsule: Omit<TimeCapsule, 'id'>) => {
-    setCapsules(prev => [...prev, { ...capsule, id: Date.now().toString() }]);
+  useEffect(() => {
+    if (!isUserLoading && !user) {
+      initiateAnonymousSignIn(auth);
+    }
+  }, [isUserLoading, user, auth]);
+
+  const handleAddCapsule = (capsule: { encryptedMessage: string; unlockDate: Date; }) => {
+    if (!user) return;
+    const capsuleColRef = collection(firestore, 'timeCapsules');
+    addDocumentNonBlocking(capsuleColRef, { ...capsule, uid: user.uid });
   };
   
   const handleDeleteCapsule = (id: string) => {
-    setCapsules(prev => prev.filter(c => c.id !== id));
+    const capsuleDocRef = doc(firestore, 'timeCapsules', id);
+    deleteDocumentNonBlocking(capsuleDocRef);
   };
+  
+  const renderContent = () => {
+    if (isUserLoading || isLoadingCapsules) {
+        return (
+            <div className="flex items-center justify-center h-full text-muted-foreground">
+                <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                Loading time capsules...
+            </div>
+        )
+    }
 
+    if (capsules.length === 0) {
+      return (
+        <div className="flex items-center justify-center h-full text-muted-foreground">
+          <p>No time capsules yet. Create one to get started!</p>
+        </div>
+      );
+    }
+
+    return (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {capsules.map(capsule => (
+            <CapsuleCard key={capsule.id} capsule={capsule} onDelete={handleDeleteCapsule} />
+            ))}
+        </div>
+    )
+  }
 
   return (
     <div className="w-full h-full bg-card flex flex-col p-4 sm:p-6 lg:p-8">
@@ -40,24 +87,14 @@ const TimeCapsuleProject: React.FC = () => {
               <CardTitle>Digital Time Capsule</CardTitle>
               <CardDescription>Leave a message for the future. It will be encrypted and unreadable until the unlock date.</CardDescription>
             </div>
-            <Button onClick={() => setIsCreateDialogOpen(true)}>
+            <Button onClick={() => setIsCreateDialogOpen(true)} disabled={!user}>
               <Plus className="mr-2 h-4 w-4"/>
               Create Capsule
             </Button>
           </div>
         </CardHeader>
         <CardContent className="flex-grow overflow-auto">
-          {capsules.length === 0 ? (
-            <div className="flex items-center justify-center h-full text-muted-foreground">
-              <p>No time capsules yet. Create one to get started!</p>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {capsules.map(capsule => (
-                <CapsuleCard key={capsule.id} capsule={capsule} onDelete={handleDeleteCapsule} />
-              ))}
-            </div>
-          )}
+            {renderContent()}
         </CardContent>
       </Card>
       

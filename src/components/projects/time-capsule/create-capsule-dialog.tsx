@@ -8,22 +8,25 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
-import { Calendar as CalendarIcon } from 'lucide-react';
+import { Calendar as CalendarIcon, KeyRound } from 'lucide-react';
 import { format } from 'date-fns';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import type { TimeCapsule } from './capsule-card';
+import { Input } from '@/components/ui/input';
+import * as CryptoJS from 'crypto-js';
 
 interface CreateCapsuleDialogProps {
   isOpen: boolean;
   onClose: () => void;
-  onAddCapsule: (capsule: Omit<TimeCapsule, 'id'>) => void;
+  onAddCapsule: (capsule: { encryptedMessage: string; unlockDate: Date; }) => void;
 }
 
 export const CreateCapsuleDialog: React.FC<CreateCapsuleDialogProps> = ({ isOpen, onClose, onAddCapsule }) => {
   const { toast } = useToast();
   const [message, setMessage] = useState('');
   const [unlockDate, setUnlockDate] = useState<Date | undefined>();
+  const [password, setPassword] = useState('');
 
   const handleSubmit = () => {
     if (!message.trim()) {
@@ -38,11 +41,18 @@ export const CreateCapsuleDialog: React.FC<CreateCapsuleDialogProps> = ({ isOpen
       toast({ title: "Date must be in the future", variant: "destructive" });
       return;
     }
+    if (!password) {
+        toast({ title: "A password is required to encrypt the message", variant: "destructive" });
+        return;
+    }
 
-    onAddCapsule({ message, unlockDate });
+    const encryptedMessage = CryptoJS.AES.encrypt(message, password).toString();
+
+    onAddCapsule({ encryptedMessage, unlockDate });
     onClose();
     setMessage('');
     setUnlockDate(undefined);
+    setPassword('');
   };
 
   return (
@@ -50,11 +60,11 @@ export const CreateCapsuleDialog: React.FC<CreateCapsuleDialogProps> = ({ isOpen
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Create a New Time Capsule</DialogTitle>
-          <DialogDescription>Write your message and set a future date to unlock it.</DialogDescription>
+          <DialogDescription>Write your message and set a future date to unlock it. The message will be encrypted with your password.</DialogDescription>
         </DialogHeader>
         <div className="space-y-4 py-4">
           <div className="space-y-2">
-            <Label htmlFor="message">Your Message</Label>
+            <Label htmlFor="message">Your Secret Message</Label>
             <Textarea
               id="message"
               value={message}
@@ -63,6 +73,19 @@ export const CreateCapsuleDialog: React.FC<CreateCapsuleDialogProps> = ({ isOpen
               rows={5}
             />
           </div>
+           <div className="space-y-2">
+              <Label htmlFor="password">Encryption Password</Label>
+              <div className="flex items-center gap-2">
+                <KeyRound className="h-5 w-5 text-muted-foreground"/>
+                <Input
+                    id="password"
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="Enter a strong password"
+                />
+              </div>
+           </div>
           <div className="space-y-2">
             <Label>Unlock Date</Label>
             <Popover>
@@ -92,7 +115,7 @@ export const CreateCapsuleDialog: React.FC<CreateCapsuleDialogProps> = ({ isOpen
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={onClose}>Cancel</Button>
-          <Button onClick={handleSubmit}>Create Capsule</Button>
+          <Button onClick={handleSubmit}>Encrypt & Create Capsule</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

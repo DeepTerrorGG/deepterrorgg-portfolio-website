@@ -8,11 +8,15 @@ import { Lock, Unlock, Trash2, Clock } from 'lucide-react';
 import { differenceInSeconds, formatDistanceToNow } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
+import { Input } from '@/components/ui/input';
+import { useToast } from '@/hooks/use-toast';
+import * as CryptoJS from 'crypto-js';
 
 export interface TimeCapsule {
   id: string;
-  message: string;
+  encryptedMessage: string;
   unlockDate: Date;
+  // `uid` might not be on the client-side object, but is essential for rules
 }
 
 interface CapsuleCardProps {
@@ -21,8 +25,11 @@ interface CapsuleCardProps {
 }
 
 export const CapsuleCard: React.FC<CapsuleCardProps> = ({ capsule, onDelete }) => {
+  const { toast } = useToast();
   const [isLocked, setIsLocked] = useState(new Date() < capsule.unlockDate);
   const [timeRemaining, setTimeRemaining] = useState('');
+  const [decryptedMessage, setDecryptedMessage] = useState('');
+  const [password, setPassword] = useState('');
 
   useEffect(() => {
     if (!isLocked) {
@@ -44,6 +51,24 @@ export const CapsuleCard: React.FC<CapsuleCardProps> = ({ capsule, onDelete }) =
     return () => clearInterval(interval);
   }, [capsule.unlockDate, isLocked]);
 
+  const handleDecrypt = () => {
+    if (!password) {
+      toast({ title: "Password required", variant: "destructive" });
+      return;
+    }
+    try {
+      const bytes = CryptoJS.AES.decrypt(capsule.encryptedMessage, password);
+      const originalText = bytes.toString(CryptoJS.enc.Utf8);
+      if (!originalText) {
+        throw new Error("Decryption failed. Invalid password or corrupted data.");
+      }
+      setDecryptedMessage(originalText);
+    } catch (e) {
+      toast({ title: "Decryption Failed", description: (e as Error).message, variant: "destructive" });
+    }
+  };
+
+
   return (
     <Card className={cn(
         "flex flex-col relative overflow-hidden transition-all",
@@ -62,8 +87,16 @@ export const CapsuleCard: React.FC<CapsuleCardProps> = ({ capsule, onDelete }) =
             <p className="font-semibold text-lg">LOCKED</p>
             <p className="text-sm text-muted-foreground">Unlocks {timeRemaining}</p>
           </div>
+        ) : decryptedMessage ? (
+           <p className="text-lg italic">"{decryptedMessage}"</p>
         ) : (
-          <p className="text-lg italic">"{capsule.message}"</p>
+          <div className="flex flex-col items-center gap-2">
+            <p className="text-sm text-muted-foreground">Enter password to decrypt message:</p>
+            <div className="flex gap-2">
+              <Input type="password" value={password} onChange={e => setPassword(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleDecrypt()} />
+              <Button onClick={handleDecrypt}>Decrypt</Button>
+            </div>
+          </div>
         )}
       </CardContent>
       <CardFooter className="flex justify-end p-2 border-t">

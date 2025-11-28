@@ -287,10 +287,34 @@
         }
       },
       "required": ["key", "item1", "item2", "result", "createdAt"]
+    },
+    "TimeCapsule": {
+      "title": "Time Capsule",
+      "description": "A secure, user-specific time capsule.",
+      "type": "object",
+      "properties": {
+        "uid": {
+          "type": "string",
+          "description": "The UID of the user who owns this capsule."
+        },
+        "encryptedMessage": {
+          "type": "string",
+          "description": "The message, encrypted client-side."
+        },
+        "unlockDate": {
+          "type": "string",
+          "format": "date-time",
+          "description": "The future date when the message can be decrypted."
+        }
+      },
+      "required": ["uid", "encryptedMessage", "unlockDate"]
     }
   },
   "auth": {
-    "providers": []
+    "providers": [
+      "password",
+      "anonymous"
+    ]
   },
   "firestore": {
     "/users/{userId}": {
@@ -346,6 +370,12 @@
         "$ref": "#/entities/Recipe"
       },
       "description": "Stores discovered crafting recipes for the AI Infinity Craft game."
+    },
+    "/timeCapsules/{capsuleId}": {
+      "schema": {
+        "$ref": "#/entities/TimeCapsule"
+      },
+      "description": "Stores user-specific time capsules."
     }
   }
 }

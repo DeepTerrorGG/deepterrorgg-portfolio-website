@@ -70,12 +70,22 @@ const isPdfFile = (fileName: string) => /\.(pdf)$/i.test(fileName);
 
 
 const getFileIcon = (fileName: string) => {
-    if (/\.(pdf)$/i.test(fileName)) return <FileText className="w-16 h-16 sm:w-24 sm:h-24 text-red-500" />;
-    if (/\.(docx?)$/i.test(fileName)) return <FileText className="w-16 h-16 sm:w-24 sm:h-24 text-blue-500" />;
-    if (/\.(xlsx?|csv)$/i.test(fileName)) return <FileSpreadsheet className="w-16 h-16 sm:w-24 sm:h-24 text-green-500" />;
-    if (/\.(txt|md)$/i.test(fileName)) return <FileText className="w-16 h-16 sm:w-24 sm:h-24 text-gray-500" />;
-    if (/\.(json|js|ts|html|css)$/i.test(fileName)) return <FileJson className="w-16 h-16 sm:w-24 sm:h-24 text-yellow-500" />;
-    return <FileIcon className="w-16 h-16 sm:w-24 sm:h-24 text-muted-foreground" />;
+    const iconBaseClasses = "w-16 h-16 sm:w-24 sm:h-24";
+    let icon;
+
+    if (/\.(pdf)$/i.test(fileName)) icon = <FileText className={cn(iconBaseClasses, "text-red-500")} />;
+    else if (/\.(docx?)$/i.test(fileName)) icon = <FileText className={cn(iconBaseClasses, "text-blue-500")} />;
+    else if (/\.(xlsx?|csv)$/i.test(fileName)) icon = <FileSpreadsheet className={cn(iconBaseClasses, "text-green-500")} />;
+    else if (/\.(txt|md)$/i.test(fileName)) icon = <FileText className={cn(iconBaseClasses, "text-gray-500")} />;
+    else if (/\.(json|js|ts|html|css)$/i.test(fileName)) icon = <FileJson className={cn(iconBaseClasses, "text-yellow-500")} />;
+    else icon = <FileIcon className={cn(iconBaseClasses, "text-muted-foreground")} />;
+    
+    return (
+        <div className="flex flex-col items-center justify-center text-center">
+            {icon}
+            <p className="mt-2 text-xs text-muted-foreground w-full max-w-[96px] sm:max-w-[128px] truncate">{fileName}</p>
+        </div>
+    );
 };
 
 
@@ -97,11 +107,11 @@ const DigitalAssetManager: React.FC = () => {
   useEffect(() => {
     try {
       const storedItems = localStorage.getItem('dam_items');
-      const items = storedItems ? JSON.parse(storedItems) : initialItems.filter(item => !isImageFile(item.name));
+      const items = storedItems ? JSON.parse(storedItems) : initialItems;
       setAssetState({ items, uploadProgress: {} });
     } catch (e) {
       console.error("Failed to load from local storage", e);
-      setAssetState({ items: initialItems.filter(item => !isImageFile(item.name)), uploadProgress: {} });
+      setAssetState({ items: initialItems, uploadProgress: {} });
     }
     setIsLoading(false);
   }, []);
@@ -130,7 +140,7 @@ const DigitalAssetManager: React.FC = () => {
           
           if (nextProgress >= 100) {
             const file = current.file;
-            const newPath = currentState.currentPath ? `${currentState.currentPath}/${fileName}` : fileName;
+            const newPath = currentPath ? `${currentPath}/${fileName}` : fileName;
             newItems.push({
               id: crypto.randomUUID(),
               name: fileName,
@@ -159,7 +169,7 @@ const DigitalAssetManager: React.FC = () => {
     }, 200);
   
     return () => clearInterval(interval);
-  }, [assetState.uploadProgress]);
+  }, [assetState.uploadProgress, currentPath]);
   
   const displayedItems = useMemo(() => {
     return assetState.items
@@ -243,7 +253,19 @@ const DigitalAssetManager: React.FC = () => {
         return;
     }
 
-    setAssetState(prev => ({...prev, items: prev.items.map(item => item.id === renamingItem.id ? { ...item, name: newName, path: newPath } : item)}));
+    const isFolder = renamingItem.type === 'folder';
+
+    setAssetState(prev => ({...prev, items: prev.items.map(item => {
+        if (isFolder && item.path.startsWith(renamingItem.path + '/')) {
+             const newChildPath = newPath + item.path.substring(renamingItem.path.length);
+             return { ...item, path: newChildPath };
+        }
+        if (item.id === renamingItem.id) {
+            return { ...item, name: newName, path: newPath };
+        }
+        return item;
+    })}));
+
     toast({ title: 'Renamed successfully' });
     setRenamingItem(null);
   };
@@ -367,12 +389,12 @@ const DigitalAssetManager: React.FC = () => {
       <Dialog open={isNewFolderOpen} onOpenChange={setIsNewFolderOpen}>
         <DialogContent><DialogHeader><DialogTitle>Create New Folder</DialogTitle></DialogHeader><Input placeholder="Folder name..." value={newFolderName} onChange={e => setNewFolderName(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleCreateFolder()} autoFocus/><DialogFooter><Button variant="outline" onClick={() => setIsNewFolderOpen(false)}>Cancel</Button><Button onClick={handleCreateFolder}>Create</Button></DialogFooter></DialogContent>
       </Dialog>
-      <Dialog open={!!renamingItem} onOpenChange={() => setRenamingItem(null)}>
+      <Dialog open={!!renamingItem} onOpenChange={v => !v && setRenamingItem(null)}>
         <DialogContent>
             <DialogHeader><DialogTitle>Rename "{renamingItem?.path.split('/').pop()}"</DialogTitle></DialogHeader>
             <Input 
                 value={renamingItem?.name || ''} 
-                onChange={(e) => setRenamingItem(prev => prev ? { ...prev, name: e.target.value } : null)} 
+                onChange={(e) => renamingItem && setRenamingItem({ ...renamingItem, name: e.target.value }) } 
                 onKeyDown={e => e.key === 'Enter' && handleRename()} 
                 autoFocus
             />
@@ -382,15 +404,21 @@ const DigitalAssetManager: React.FC = () => {
       <Dialog open={!!movingItem} onOpenChange={() => setMovingItem(null)}>
         <DialogContent><DialogHeader><DialogTitle>Move "{movingItem?.name}"</DialogTitle></DialogHeader><p className="text-muted-foreground text-sm my-4">Select a destination folder.</p><div className="space-y-2 max-h-64 overflow-y-auto">{assetState.items.filter(i => i.type === 'folder' && i.id !== movingItem?.id && !i.path.startsWith(movingItem?.path + '/')).map(folder => (<Button key={folder.id} variant="outline" className="w-full justify-start" onClick={() => handleMove(folder.path)}><Folder className="mr-2 h-4 w-4"/>{folder.path}</Button>))}<Button variant="outline" className="w-full justify-start" onClick={() => handleMove('')}><Folder className="mr-2 h-4 w-4"/>Root</Button></div></DialogContent>
       </Dialog>
-      <Dialog open={!!previewingItem} onOpenChange={() => setPreviewingItem(null)}>
-        <DialogContent className="max-w-4xl h-[80vh] flex flex-col p-0 sm:rounded-lg">
-          <DialogHeader className="p-4 border-b">
+      <Dialog open={!!previewingItem} onOpenChange={v => !v && setPreviewingItem(null)}>
+         <DialogContent className="max-w-4xl h-[80vh] flex flex-col p-0 sm:rounded-lg overflow-hidden bg-muted/80 backdrop-blur-sm border-border">
+          <DialogHeader className="p-4 border-b flex-row justify-between items-center">
             <DialogTitle>{previewingItem?.name}</DialogTitle>
+             <DialogClose asChild>
+                <Button variant="ghost" size="icon">
+                  <X className="h-5 w-5" />
+                  <span className="sr-only">Close</span>
+                </Button>
+            </DialogClose>
           </DialogHeader>
-          <div className="flex-grow flex items-center justify-center bg-muted/50 overflow-hidden">
+          <div className="flex-grow flex items-center justify-center overflow-hidden p-4">
             {previewingItem && isImageFile(previewingItem.name) && previewingItem.url ? (
               <Image 
-                src={previewingItem.url || 'https://picsum.photos/seed/placeholder/800/600'} 
+                src={previewingItem.url} 
                 alt={previewingItem.name || ''} 
                 width={800} 
                 height={600} 
@@ -413,4 +441,3 @@ const DigitalAssetManager: React.FC = () => {
 
 export default DigitalAssetManager;
 
-    

@@ -1,9 +1,9 @@
 
 'use client';
 
-import React, { useState, useRef, useMemo } from 'react';
+import React, { useState, useRef, useMemo, useEffect } from 'react';
 import {
-  Folder, File as FileIcon, Upload, Plus, MoreVertical, Trash2, Link as LinkIcon, Edit, Loader2, ArrowLeft, Download, X, Share2, Copy, Move
+  Folder, File as FileIcon, Upload, Plus, MoreVertical, Trash2, Link as LinkIcon, Edit, Loader2, ArrowLeft, Download, X, Share2, Move, FileText, FileSpreadsheet, FileJson
 } from 'lucide-react';
 import {
   Card,
@@ -33,7 +33,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Progress } from '../ui/progress';
 import Image from 'next/image';
 
-// --- MOCK DATA & TYPES ---
+// --- TYPES AND INITIAL STATE ---
 interface FSItem {
   id: string;
   name: string;
@@ -53,27 +53,61 @@ const initialItems: FSItem[] = [
   { id: '7', name: 'dog.jpg', type: 'file', path: 'Images/dog.jpg', url: 'https://picsum.photos/seed/dog/800/600', size: 23456 },
   { id: '8', name: 'Reports', type: 'folder', path: 'Documents/Reports' },
   { id: '9', name: 'Q1-report.docx', type: 'file', path: 'Documents/Reports/Q1-report.docx', url: '#', size: 54321 },
+  { id: '10', name: 'budget.xlsx', type: 'file', path: 'Documents/Reports/budget.xlsx', url: '#', size: 23456 },
 ];
-// --- END MOCK DATA ---
+// --- END INITIAL STATE ---
 
-const isImageFile = (fileName: string) => /\.(jpg|jpeg|png|gif)$/i.test(fileName);
+const isImageFile = (fileName: string) => /\.(jpg|jpeg|png|gif|webp)$/i.test(fileName);
+
+const getFileIcon = (fileName: string) => {
+    if (/\.(pdf)$/i.test(fileName)) return <FileText className="w-16 h-16 sm:w-24 sm:h-24 text-red-500" />;
+    if (/\.(docx?)$/i.test(fileName)) return <FileText className="w-16 h-16 sm:w-24 sm:h-24 text-blue-500" />;
+    if (/\.(xlsx?|csv)$/i.test(fileName)) return <FileSpreadsheet className="w-16 h-16 sm:w-24 sm:h-24 text-green-500" />;
+    if (/\.(txt|md)$/i.test(fileName)) return <FileText className="w-16 h-16 sm:w-24 sm:h-24 text-gray-500" />;
+    if (/\.(json|js|ts|html|css)$/i.test(fileName)) return <FileJson className="w-16 h-16 sm:w-24 sm:h-24 text-yellow-500" />;
+    return <FileIcon className="w-16 h-16 sm:w-24 sm:h-24 text-muted-foreground" />;
+};
+
 
 const DigitalAssetManager: React.FC = () => {
-  const [items, setItems] = useState<FSItem[]>(initialItems);
+  const [items, setItems] = useState<FSItem[]>([]);
   const [currentPath, setCurrentPath] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // --- Dialog states ---
+  // Dialog states
   const [isNewFolderOpen, setIsNewFolderOpen] = useState(false);
   const [newFolderName, setNewFolderName] = useState('');
   const [renamingItem, setRenamingItem] = useState<FSItem | null>(null);
   const [movingItem, setMovingItem] = useState<FSItem | null>(null);
   const [previewingItem, setPreviewingItem] = useState<FSItem | null>(null);
   
-  // --- Upload state ---
+  // Upload state
   const [uploadProgress, setUploadProgress] = useState<Record<string, number>>({});
+  
+  // Load from local storage
+  useEffect(() => {
+    try {
+      const storedItems = localStorage.getItem('dam_items');
+      if (storedItems) {
+        setItems(JSON.parse(storedItems));
+      } else {
+        setItems(initialItems);
+      }
+    } catch (e) {
+      console.error("Failed to load from local storage", e);
+      setItems(initialItems);
+    }
+    setIsLoading(false);
+  }, []);
+
+  // Save to local storage
+  useEffect(() => {
+    if (!isLoading) {
+      localStorage.setItem('dam_items', JSON.stringify(items));
+    }
+  }, [items, isLoading]);
 
   const displayedItems = useMemo(() => {
     return items
@@ -103,7 +137,6 @@ const DigitalAssetManager: React.FC = () => {
     for (let i = 0; i < files.length; i++) {
         const file = files[i];
         const fileName = file.name;
-        // Simulate upload
         setUploadProgress(prev => ({ ...prev, [fileName]: 0 }));
         const interval = setInterval(() => {
             setUploadProgress(prev => {
@@ -132,6 +165,10 @@ const DigitalAssetManager: React.FC = () => {
   const handleCreateFolder = () => {
     if (!newFolderName.trim()) { toast({ title: 'Folder name is required', variant: 'destructive'}); return; }
     const newPath = currentPath ? `${currentPath}/${newFolderName}` : newFolderName;
+    if (items.some(item => item.path === newPath)) {
+        toast({ title: 'Folder already exists', variant: 'destructive' });
+        return;
+    }
     const newFolder: FSItem = { id: Date.now().toString(), name: newFolderName, type: 'folder', path: newPath };
     setItems(prev => [...prev, newFolder]);
     toast({ title: `Folder "${newFolderName}" created.` });
@@ -146,19 +183,54 @@ const DigitalAssetManager: React.FC = () => {
 
   const handleRename = () => {
     if (!renamingItem || !renamingItem.name.trim()) { toast({ title: 'Name is required', variant: 'destructive' }); return; }
-    setItems(prev => prev.map(item => item.id === renamingItem.id ? renamingItem : item));
+    const newPath = renamingItem.path.includes('/') 
+      ? `${renamingItem.path.substring(0, renamingItem.path.lastIndexOf('/'))}/${renamingItem.name}`
+      : renamingItem.name;
+
+    if (items.some(item => item.path === newPath && item.id !== renamingItem.id)) {
+        toast({ title: 'An item with this name already exists', variant: 'destructive' });
+        return;
+    }
+
+    setItems(prev => prev.map(item => item.id === renamingItem.id ? { ...item, name: renamingItem.name, path: newPath } : item));
     toast({ title: 'Renamed successfully' });
     setRenamingItem(null);
   };
 
   const handleMove = (destinationPath: string) => {
     if (!movingItem) return;
+
+    const newPath = destinationPath ? `${destinationPath}/${movingItem.name}` : movingItem.name;
+    if (items.some(item => item.path === newPath && item.id !== movingItem.id)) {
+      toast({ title: 'An item with this name already exists in the destination', variant: 'destructive' });
+      return;
+    }
+    
+    if(movingItem.type === 'folder') {
+        setItems(prev => prev.map(item => {
+            if(item.path.startsWith(movingItem.path + '/')) { // It's a child
+                const newChildPath = newPath + item.path.substring(movingItem.path.length);
+                return { ...item, path: newChildPath };
+            }
+            if(item.id === movingItem.id) {
+                return { ...item, path: newPath };
+            }
+            return item;
+        }));
+    } else {
+        setItems(prev => prev.map(item => item.id === movingItem.id ? { ...item, path: newPath } : item));
+    }
+
     toast({ title: `Moved "${movingItem.name}" to "${destinationPath || 'Root'}"` });
     setMovingItem(null);
   };
   
   const deleteItem = (itemToDelete: FSItem) => {
-    setItems(items.filter(item => item.id !== itemToDelete.id));
+    setItems(prev => prev.filter(item => {
+        if(item.id === itemToDelete.id) return false;
+        if(itemToDelete.type === 'folder' && item.path.startsWith(itemToDelete.path + '/')) return false;
+        return true;
+    }));
     toast({ title: `Deleted ${itemToDelete.name}`, variant: "destructive" });
   }
 
@@ -173,37 +245,37 @@ const DigitalAssetManager: React.FC = () => {
           }}
         >
           <div className="aspect-square flex items-center justify-center p-4 bg-muted/30 rounded-t-lg">
-              {item.type === 'folder' ? <Folder className="w-16 h-16 text-primary"/> : <FileIcon className="w-16 h-16 text-muted-foreground"/>}
+              {item.type === 'folder' ? <Folder className="w-16 h-16 sm:w-24 sm:h-24 text-primary"/> : getFileIcon(item.name)}
           </div>
           <div className="p-2 text-center text-sm truncate">{item.name}</div>
           
           <div className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity">
             <DropdownMenu>
-              <DropdownMenuTrigger asChild><Button variant="ghost" size="icon" className="h-7 w-7"><MoreVertical className="h-4 w-4"/></Button></DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                {item.type === 'file' && <DropdownMenuItem onClick={(e) => {e.stopPropagation(); window.open(item.url, '_blank')}}><Download className="mr-2 h-4 w-4"/>Download</DropdownMenuItem>}
-                <DropdownMenuItem onClick={(e) => {e.stopPropagation(); setMovingItem(item)}}><Move className="mr-2 h-4 w-4"/>Move</DropdownMenuItem>
-                <DropdownMenuItem onClick={(e) => {e.stopPropagation(); setRenamingItem(item)}}><Edit className="mr-2 h-4 w-4"/>Rename</DropdownMenuItem>
-                <DropdownMenuItem onClick={(e) => {e.stopPropagation(); copyLink(item)}}><LinkIcon className="mr-2 h-4 w-4"/>Copy Link</DropdownMenuItem>
+              <DropdownMenuTrigger asChild><Button variant="ghost" size="icon" className="h-7 w-7" onClick={e => e.stopPropagation()}><MoreVertical className="h-4 w-4"/></Button></DropdownMenuTrigger>
+              <DropdownMenuContent align="end" onClick={e => e.stopPropagation()}>
+                {item.type === 'file' && item.url && <DropdownMenuItem onClick={() => { const link = document.createElement('a'); link.href = item.url!; link.download = item.name; link.click(); }}><Download className="mr-2 h-4 w-4"/>Download</DropdownMenuItem>}
+                <DropdownMenuItem onClick={() => setMovingItem(item)}><Move className="mr-2 h-4 w-4"/>Move</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setRenamingItem(item)}><Edit className="mr-2 h-4 w-4"/>Rename</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => copyLink(item)}><LinkIcon className="mr-2 h-4 w-4"/>Copy Link</DropdownMenuItem>
                 <DropdownMenuSeparator/>
                 <AlertDialog>
                   <AlertDialogTrigger asChild><DropdownMenuItem onSelect={e => e.preventDefault()} className="text-destructive focus:text-destructive"><Trash2 className="mr-2 h-4 w-4"/>Delete</DropdownMenuItem></AlertDialogTrigger>
-                  <AlertDialogContent><AlertDialogHeader><AlertDialogTitle>Are you sure?</AlertDialogTitle><AlertDialogDescription>This will permanently delete "{item.name}".</AlertDialogDescription></AlertDialogHeader><AlertDialogFooter><AlertDialogCancel>Cancel</AlertDialogCancel><AlertDialogAction onClick={() => deleteItem(item)}>Delete</AlertDialogAction></AlertDialogFooter></AlertDialogContent>
+                  <AlertDialogContent><AlertDialogHeader><AlertDialogTitle>Are you sure?</AlertDialogTitle><AlertDialogDescription>This will permanently delete "{item.name}". If this is a folder, all its contents will also be deleted.</AlertDialogDescription></AlertDialogHeader><AlertDialogFooter><AlertDialogCancel>Cancel</AlertDialogCancel><AlertDialogAction onClick={() => deleteItem(item)}>Delete</AlertDialogAction></AlertDialogFooter></AlertDialogContent>
                 </AlertDialog>
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
         </Card>
       </ContextMenuTrigger>
-      <ContextMenuContent>
-          {item.type === 'file' && <ContextMenuItem onClick={() => window.open(item.url, '_blank')}><Download className="mr-2 h-4 w-4"/>Download</ContextMenuItem>}
+      <ContextMenuContent onClick={e => e.stopPropagation()}>
+          {item.type === 'file' && item.url && <ContextMenuItem onClick={() => { const link = document.createElement('a'); link.href = item.url!; link.download = item.name; link.click(); }}><Download className="mr-2 h-4 w-4"/>Download</ContextMenuItem>}
           <ContextMenuItem onClick={() => setMovingItem(item)}><Move className="mr-2 h-4 w-4"/>Move</ContextMenuItem>
           <ContextMenuItem onClick={() => setRenamingItem(item)}><Edit className="mr-2 h-4 w-4"/>Rename</ContextMenuItem>
           <ContextMenuItem onClick={() => copyLink(item)}><Share2 className="mr-2 h-4 w-4"/>Share</ContextMenuItem>
           <ContextMenuSeparator/>
           <AlertDialog>
               <AlertDialogTrigger asChild><ContextMenuItem onSelect={e => e.preventDefault()} className="text-destructive focus:text-destructive"><Trash2 className="mr-2 h-4 w-4"/>Delete</ContextMenuItem></AlertDialogTrigger>
-              <AlertDialogContent><AlertDialogHeader><AlertDialogTitle>Are you sure?</AlertDialogTitle><AlertDialogDescription>This will permanently delete "{item.name}".</AlertDialogDescription></AlertDialogHeader><AlertDialogFooter><AlertDialogCancel>Cancel</AlertDialogCancel><AlertDialogAction onClick={() => deleteItem(item)}>Delete</AlertDialogAction></AlertDialogFooter></AlertDialogContent>
+              <AlertDialogContent><AlertDialogHeader><AlertDialogTitle>Are you sure?</AlertDialogTitle><AlertDialogDescription>This will permanently delete "{item.name}". If this is a folder, all its contents will also be deleted.</AlertDialogDescription></AlertDialogHeader><AlertDialogFooter><AlertDialogCancel>Cancel</AlertDialogCancel><AlertDialogAction onClick={() => deleteItem(item)}>Delete</AlertDialogAction></AlertDialogFooter></AlertDialogContent>
           </AlertDialog>
       </ContextMenuContent>
     </ContextMenu>
@@ -247,13 +319,11 @@ const DigitalAssetManager: React.FC = () => {
         <DialogContent><DialogHeader><DialogTitle>Rename "{renamingItem?.name}"</DialogTitle></DialogHeader><Input defaultValue={renamingItem?.name} onChange={e => setRenamingItem(r => r ? {...r, name: e.target.value} : null)} onKeyDown={e => e.key === 'Enter' && handleRename()} autoFocus/><DialogFooter><Button variant="outline" onClick={() => setRenamingItem(null)}>Cancel</Button><Button onClick={handleRename}>Save</Button></DialogFooter></DialogContent>
       </Dialog>
       <Dialog open={!!movingItem} onOpenChange={() => setMovingItem(null)}>
-        <DialogContent><DialogHeader><DialogTitle>Move "{movingItem?.name}"</DialogTitle></DialogHeader><p className="text-muted-foreground text-sm my-4">Select a destination folder.</p><div className="space-y-2 max-h-64 overflow-y-auto">{items.filter(i => i.type === 'folder' && i.id !== movingItem?.id).map(folder => (<Button key={folder.id} variant="outline" className="w-full justify-start" onClick={() => handleMove(folder.path)}><Folder className="mr-2 h-4 w-4"/>{folder.name}</Button>))}<Button variant="outline" className="w-full justify-start" onClick={() => handleMove('')}><Folder className="mr-2 h-4 w-4"/>Root</Button></div></DialogContent>
+        <DialogContent><DialogHeader><DialogTitle>Move "{movingItem?.name}"</DialogTitle></DialogHeader><p className="text-muted-foreground text-sm my-4">Select a destination folder.</p><div className="space-y-2 max-h-64 overflow-y-auto">{items.filter(i => i.type === 'folder' && i.id !== movingItem?.id && !i.path.startsWith(movingItem?.path + '/')).map(folder => (<Button key={folder.id} variant="outline" className="w-full justify-start" onClick={() => handleMove(folder.path)}><Folder className="mr-2 h-4 w-4"/>{folder.path}</Button>))}<Button variant="outline" className="w-full justify-start" onClick={() => handleMove('')}><Folder className="mr-2 h-4 w-4"/>Root</Button></div></DialogContent>
       </Dialog>
       <Dialog open={!!previewingItem} onOpenChange={() => setPreviewingItem(null)}>
         <DialogContent className="max-w-4xl h-[80vh] flex flex-col">
-          <DialogHeader>
-            <DialogTitle>{previewingItem?.name}</DialogTitle>
-          </DialogHeader>
+          <DialogHeader><DialogTitle>{previewingItem?.name}</DialogTitle></DialogHeader>
           <div className="flex-grow flex items-center justify-center bg-muted/50 rounded-md overflow-hidden">
             {previewingItem && isImageFile(previewingItem.name) ? (
               <Image 
@@ -265,7 +335,7 @@ const DigitalAssetManager: React.FC = () => {
               />
             ) : (
               <div className="flex flex-col items-center gap-4 text-muted-foreground">
-                <FileIcon className="w-24 h-24" />
+                {previewingItem && getFileIcon(previewingItem.name)}
                 <p>No preview available for this file type.</p>
               </div>
             )}

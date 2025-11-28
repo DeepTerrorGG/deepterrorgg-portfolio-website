@@ -51,7 +51,7 @@ const nextConfig: NextConfig = {
   },
    experimental: {
     serverActions: {
-      bodySizeLimit: '4.5mb',
+      bodySizeLimit: '250mb',
     },
   },
   serverExternalPackages: ['shiki', '@vercel/og'],

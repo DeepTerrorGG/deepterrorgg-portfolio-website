@@ -16,6 +16,7 @@ import { Loader2 } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { Label } from '../ui/label';
+import { logActivity } from '@/lib/logger';
 
 const genres: StoryGenre[] = ['Any', 'Fantasy', 'Science Fiction', 'Mystery', 'Horror', 'Romance', 'Comedy'];
 const styles: StoryStyle[] = ['Default', 'Poetic', 'Gritty', 'Humorous', 'Epistolary (told through letters)'];
@@ -48,9 +49,11 @@ export default function AIStoryGenerator() {
       const result = await generateStory(prompt);
       if (result) {
         setStory(result);
+        logActivity(`Generated AI story with prompt: "${character} in ${setting}"`);
       }
     } catch (error) {
       console.error(error);
+      logActivity(`Failed to generate AI story. Error: ${(error as Error).message}`, 'error');
       // Handle error display
     }
 

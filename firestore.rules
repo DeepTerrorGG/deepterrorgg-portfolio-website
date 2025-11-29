@@ -19,40 +19,39 @@ service cloud.firestore {
     }
 
     match /users/{userId}/{allSubcollections=**} {
-      allow read, write: if isOwner(userId);
+      allow read, write: if true;
     }
     
     match /artworks/{artworkId} {
-        allow read, write: if isSignedIn();
+        allow read, write: if true;
     }
     
     match /about_me/{aboutMeId} {
-        allow read, write: if isSignedIn();
+        allow read, write: if true;
     }
     
     match /contact_info/{contactInfoId} {
-        allow read, write: if isSignedIn();
+        allow read, write: if true;
     }
 
     match /kanban-columns/{columnId} {
-        allow read, write: if isSignedIn();
+        allow read, write: if true;
     }
 
     match /kanban-columns/{columnId}/tasks/{taskId} {
-        allow read, write: if isSignedIn();
+        allow read, write: if true;
     }
 
     match /kanban-categories/{categoryId} {
-        allow read, write: if isSignedIn();
+        allow read, write: if true;
     }
 
     match /recipes/{recipeId} {
-        allow read, write: if isSignedIn();
+        allow read, write: if true;
     }
 
     match /timeCapsules/{capsuleId} {
-      allow read, create: if true;
-      allow delete: if resource.data.uid == request.auth.uid;
+      allow read, write: if true;
     }
 
     match /whiteboard-objects/{objectId} {
@@ -68,7 +67,18 @@ service cloud.firestore {
     }
     
     match /system_logs/{logId} {
-      allow read, write: if true; 
+      // Allow anyone to read the logs
+      allow read: if true; 
+      
+      // ONLY allow users to CREATE new log entries.
+      // They cannot update or delete existing logs.
+      allow create: if request.resource.data.msg is string &&
+                       request.resource.data.msg.size() < 500 &&
+                       request.resource.data.level in ['info', 'warn', 'error'] &&
+                       request.resource.data.timestamp == request.time;
+      
+      // Explicitly deny update and delete
+      allow update, delete: if false;
     }
   }
 }

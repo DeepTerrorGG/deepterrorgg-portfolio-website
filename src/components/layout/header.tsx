@@ -11,6 +11,7 @@ import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger, SheetClose } from '@/components/ui/sheet';
 import PreloadingLink from '@/components/ui/preloading-link';
+import { logActivity } from '@/lib/logger';
 
 const navLinks = [
   { href: '/', label: 'Home' },
@@ -30,6 +31,11 @@ export default function Header() {
 
   useEffect(() => {
     setHoveredPath(pathname);
+    // Log page navigation
+    const pageName = navLinks.find(link => link.href === pathname)?.label || 'Page';
+    if (pathname !== '/') {
+        logActivity(`Navigated to ${pageName}`);
+    }
   }, [pathname]);
 
   return (

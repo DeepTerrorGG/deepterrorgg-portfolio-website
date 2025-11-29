@@ -19,6 +19,7 @@ import {
   DialogDescription,
   DialogClose,
 } from "@/components/ui/dialog";
+import { logActivity } from '@/lib/logger';
 
 // Statically import all project components
 import AIVideoGenerator from '@/components/projects/ai-video-generator';
@@ -310,6 +311,7 @@ export default function AiProjectsPage() {
   const handleProjectSelect = (project: Project) => {
     setSelectedProjectId(project.id);
     setMobileProject(project);
+    logActivity(`Viewed AI project: ${project.title}`);
   };
 
   return (
@@ -370,7 +372,7 @@ export default function AiProjectsPage() {
               {allProjects.map((project) => (
                 <li key={project.id}>
                   <button
-                    onClick={() => setSelectedProjectId(project.id)}
+                    onClick={() => { setSelectedProjectId(project.id); logActivity(`Viewed AI project: ${project.title}`); }}
                     className={cn(
                       "w-full text-left p-3 rounded-md transition-colors duration-200",
                       selectedProjectId === project.id

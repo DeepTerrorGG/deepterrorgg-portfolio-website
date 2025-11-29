@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
@@ -96,22 +95,24 @@ const GitHistoryVisualizer: React.FC = () => {
         const link = svg.select<SVGGElement>('g.links').selectAll('line')
           .data(data.links, (d: any) => `${(d.source as GitNode).id}-${(d.target as GitNode).id}`);
         
-        link.exit().transition().duration(300).attr('stroke-opacity', 0).remove();
+        link.exit().transition().duration(500).attr('stroke-opacity', 0).remove();
+        
         link.enter().append('line')
-          .attr('stroke', '#4A5568')
+          .attr('stroke', '#319795') // Teal color for links
           .attr('stroke-width', 0.5)
           .attr('stroke-opacity', 0)
-          .transition().duration(300)
-          .attr('stroke-opacity', 1);
+          .transition().duration(500)
+          .attr('stroke-opacity', 0.5);
     
         const node = svg.select<SVGGElement>('g.nodes').selectAll('circle')
           .data(data.nodes, (d: any) => (d as GitNode).id);
           
-        node.exit().transition().duration(300).attr('r', 0).remove();
+        node.exit().transition().duration(500).attr('r', 0).remove();
         
         const nodeEnter = node.enter().append('circle')
           .attr('r', 0)
-          .attr('class', (d: GitNode) => d.type === 'dir' ? 'fill-blue-500/50 stroke-blue-400' : 'fill-primary/50 stroke-primary');
+          .attr('fill-opacity', 0)
+          .attr('class', (d: GitNode) => d.type === 'dir' ? 'fill-blue-400/50 stroke-blue-300' : 'fill-teal-500/50 stroke-teal-400');
 
         nodeEnter.append('title').text((d: GitNode) => d.id);
           
@@ -128,10 +129,11 @@ const GitHistoryVisualizer: React.FC = () => {
                     d.fx = null; d.fy = null;
                 })
             )
-          .transition().duration(300)
-          .attr('r', d => Math.max(3, Math.sqrt(d.size)));
+          .transition().duration(500)
+          .attr('r', d => Math.max(3, Math.sqrt(d.size)))
+          .attr('fill-opacity', 0.5);
           
-        node.transition().duration(300)
+        node.transition().duration(500)
           .attr('r', d => Math.max(3, Math.sqrt(d.size)));
 
         simulationRef.current.nodes(data.nodes);
@@ -151,10 +153,10 @@ const GitHistoryVisualizer: React.FC = () => {
         svg.append('g').attr('class', 'nodes');
     
         const simulation = d3.forceSimulation<GitNode>()
-          .force('link', d3.forceLink<GitNode, GitLink>().id((d: any) => d.id).distance(20).strength(0.8))
-          .force('charge', d3.forceManyBody().strength(-40))
+          .force('link', d3.forceLink<GitNode, GitLink>().id((d: any) => d.id).distance(25).strength(0.7))
+          .force('charge', d3.forceManyBody().strength(-50))
           .force('center', d3.forceCenter(width / 2, height / 2))
-          .force('collide', d3.forceCollide(d => Math.sqrt(d.size) + 4));
+          .force('collide', d3.forceCollide(d => Math.sqrt(d.size) + 5));
     
         simulation.on('tick', () => {
           svg.select<SVGGElement>('g.nodes').selectAll('circle')
@@ -179,7 +181,7 @@ const GitHistoryVisualizer: React.FC = () => {
         if (isPlaying && commitIndex < commits.length - 1) {
             const timer = setTimeout(() => {
                 setCommitIndex(prev => prev + 1);
-            }, 500); // Slowed down playback speed
+            }, 300); // Adjusted playback speed
             return () => clearTimeout(timer);
         } else if (commitIndex >= commits.length - 1 && isPlaying && commits.length > 0) {
             setIsPlaying(false);
@@ -264,6 +266,11 @@ const GitHistoryVisualizer: React.FC = () => {
                 {commits.length === 0 && !isLoading && (
                     <div className="absolute inset-0 flex items-center justify-center text-gray-500">
                         <p>Enter a repository URL to begin.</p>
+                    </div>
+                )}
+                 {isLoading && (
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/50">
+                        <Loader2 className="h-8 w-8 animate-spin text-primary"/>
                     </div>
                 )}
             </div>

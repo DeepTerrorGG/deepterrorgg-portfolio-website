@@ -20,6 +20,7 @@ import {
   DialogClose,
 } from "@/components/ui/dialog";
 import { DoomIcon } from '@/components/icons/doom';
+import { logActivity } from '@/lib/logger';
 
 // Statically import all project components
 import TodoList from '@/components/projects/todo-list';
@@ -126,14 +127,15 @@ const projectsData: Project[] = [
       imageUrls: ['/placeholder.png'],
       imageAlt: 'A real-time log ingestion pipeline dashboard',
       imageHint: 'log pipeline dashboard',
-      description: 'A simulation of a high-throughput logging pipeline, like Datadog or Sentry, complete with a mock SDK, in-memory queue, and a live dashboard.',
-      personalNote: 'This project showcases a complex, scalable architecture. It simulates a client-side SDK sending logs to an in-memory queue, which is then processed by a background worker in batches. The dashboard visualizes the queue size and processed logs in real-time, demonstrating an understanding of asynchronous data flow and system design.',
+      description: 'A dashboard that displays real-time logs from across the application, demonstrating a scalable system architecture for handling streaming data.',
+      personalNote: 'This project is a real, functioning logging system. Other parts of this portfolio, like page navigations and AI actions, generate logs that are written to Firestore. This dashboard then displays those logs live, showcasing an understanding of real-time data flow and system observability.',
       difficulty: 'Advanced',
       component: <LogIngestor />,
       technologies: [
         { name: 'React', iconSrc: '/icons/react.svg' },
+        { name: 'Next.js', iconSrc: '/icons/nextjs.svg' },
+        { name: 'Firebase', iconSrc: '/icons/firebase.svg' },
         { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },
-        { name: 'Recharts', iconSrc: '/icons/recharts.svg' },
         { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss.svg' },
       ],
       renderImage: true,
@@ -1153,6 +1155,7 @@ export default function ProjectsPage() {
   const handleProjectSelect = (project: Project) => {
     setSelectedProjectId(project.id);
     setMobileProject(project);
+    logActivity(`Viewed project: ${project.title}`);
   };
 
   return (
@@ -1213,7 +1216,7 @@ export default function ProjectsPage() {
               {allProjects.map((project) => (
                 <li key={project.id}>
                   <button
-                    onClick={() => setSelectedProjectId(project.id)}
+                    onClick={() => { setSelectedProjectId(project.id); logActivity(`Viewed project: ${project.title}`); }}
                     className={cn(
                       "w-full text-left p-3 rounded-md transition-colors duration-200",
                       selectedProjectId === project.id

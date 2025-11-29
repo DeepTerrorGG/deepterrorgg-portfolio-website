@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useRef, useState, useCallback, useEffect } from 'react';
@@ -34,7 +35,6 @@ const AudioVisualizer: React.FC = () => {
     const dataArray = new Uint8Array(bufferLength);
     analyser.getByteFrequencyData(dataArray);
     
-    // Ensure canvas is sized correctly before drawing
     if (canvas.width !== canvas.clientWidth || canvas.height !== canvas.clientHeight) {
         canvas.width = canvas.clientWidth;
         canvas.height = canvas.clientHeight;
@@ -44,17 +44,19 @@ const AudioVisualizer: React.FC = () => {
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
     const barWidth = (canvas.width / bufferLength) * 2.5;
-    let barHeight;
     let x = 0;
 
-    const primaryColor = getComputedStyle(document.documentElement).getPropertyValue('--primary').trim();
+    const primaryColorHsl = getComputedStyle(document.documentElement).getPropertyValue('--primary').trim();
+    const destructiveColorHsl = getComputedStyle(document.documentElement).getPropertyValue('--destructive').trim();
+    
     const gradient = ctx.createLinearGradient(0, canvas.height, 0, 0);
-    gradient.addColorStop(0, `hsl(${primaryColor})`);
-    gradient.addColorStop(0.5, `hsla(${primaryColor}, 0.5)`);
-    gradient.addColorStop(1, 'hsl(var(--destructive))');
+    gradient.addColorStop(0, `hsl(${primaryColorHsl})`);
+    gradient.addColorStop(0.5, `hsla(${primaryColorHsl.replace(/ /g, ', ')}, 0.5)`);
+    gradient.addColorStop(1, `hsl(${destructiveColorHsl})`);
+
 
     for (let i = 0; i < bufferLength; i++) {
-      barHeight = dataArray[i];
+      const barHeight = dataArray[i];
       
       ctx.fillStyle = gradient;
       ctx.fillRect(x, canvas.height - barHeight / 2, barWidth, barHeight / 2);

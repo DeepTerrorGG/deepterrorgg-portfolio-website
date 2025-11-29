@@ -59,15 +59,16 @@ service cloud.firestore {
       allow read, write: if true;
     }
 
-    // --- HEADLESS CMS RULES ---
-    
-    // Public can read and write schemas and content
     match /content_types/{contentTypeId} {
-      allow read, write: if true;
+        allow read, write: if true;
     }
 
     match /content_entries/{contentEntryId} {
         allow read, write: if true;
+    }
+    
+    match /system_logs/{logId} {
+      allow read, write: if true; 
     }
   }
 }

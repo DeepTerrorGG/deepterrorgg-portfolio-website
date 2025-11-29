@@ -308,6 +308,66 @@
         }
       },
       "required": ["uid", "encryptedMessage", "unlockDate"]
+    },
+    "ContentType": {
+        "title": "Content Type",
+        "description": "Defines the schema for a type of content in the CMS.",
+        "type": "object",
+        "properties": {
+            "name": { "type": "string", "description": "Display name, e.g., 'Blog Post'" },
+            "slug": { "type": "string", "description": "API-friendly slug, e.g., 'blog-post'" },
+            "fields": {
+                "type": "array",
+                "items": { "$ref": "#/entities/Field" }
+            }
+        },
+        "required": ["name", "slug", "fields"]
+    },
+    "Field": {
+        "title": "Field",
+        "description": "A single field within a Content Type schema.",
+        "type": "object",
+        "properties": {
+            "name": { "type": "string" },
+            "type": { "type": "string", "enum": ["text", "textarea", "number", "boolean", "date", "image"] }
+        },
+        "required": ["name", "type"]
+    },
+    "ContentEntry": {
+        "title": "Content Entry",
+        "description": "An individual piece of content, based on a Content Type.",
+        "type": "object",
+        "properties": {
+            "contentTypeId": { "type": "string" },
+            "slug": { "type": "string" },
+            "createdAt": { "type": "string", "format": "date-time" },
+            "updatedAt": { "type": "string", "format": "date-time" },
+            "fields": {
+                "type": "object",
+                "description": "A map where keys are field names and values are the content.",
+                "additionalProperties": true
+            }
+        },
+        "required": ["contentTypeId", "slug", "createdAt", "updatedAt", "fields"]
+    },
+    "SystemLog": {
+      "title": "System Log",
+      "description": "A single log entry for the system.",
+      "type": "object",
+      "properties": {
+        "level": {
+          "type": "string",
+          "enum": ["info", "warn", "error"]
+        },
+        "msg": {
+          "type": "string"
+        },
+        "timestamp": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": ["level", "msg", "timestamp"]
     }
   },
   "auth": {
@@ -376,6 +436,22 @@
         "$ref": "#/entities/TimeCapsule"
       },
       "description": "Stores user-specific time capsules."
+    },
+    "/content_types/{contentTypeId}": {
+      "schema": {
+        "$ref": "#/entities/ContentType"
+      },
+      "description": "Defines the schemas for different types of content."
+    },
+    "/content_entries/{contentEntryId}": {
+      "schema": {
+        "$ref": "#/entities/ContentEntry"
+      },
+      "description": "Stores the actual content entries for the CMS."
+    },
+    "/system_logs/{logId}": {
+        "schema": { "$ref": "#/entities/SystemLog" },
+        "description": "Stores system log entries."
     }
   }
 }

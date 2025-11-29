@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useRef, useCallback, useEffect } from 'react';
@@ -18,18 +19,26 @@ const AudioVisualizer: React.FC = () => {
   const analyserRef = useRef<AnalyserNode | null>(null);
   const sourceRef = useRef<AudioBufferSourceNode | null>(null);
   const animationFrameId = useRef<number>(0);
+  
+  const isPlayingRef = useRef(isPlaying);
+  useEffect(() => {
+    isPlayingRef.current = isPlaying;
+  }, [isPlaying]);
 
   // Initialize AudioContext
   useEffect(() => {
     if (typeof window !== 'undefined' && !audioContextRef.current) {
         try {
             audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
+            analyserRef.current = audioContextRef.current.createAnalyser();
+            analyserRef.current.fftSize = 256;
+            analyserRef.current.connect(audioContextRef.current.destination);
         } catch (e) {
             toast({ title: 'Error', description: 'Web Audio API is not supported by your browser.', variant: 'destructive' });
         }
     }
     return () => {
-        audioContextRef.current?.close();
+        audioContextRef.current?.close().catch(console.error);
     }
   }, [toast]);
   
@@ -73,14 +82,14 @@ const AudioVisualizer: React.FC = () => {
     const barWidth = (canvas.width / bufferLength) * 2.5;
     let x = 0;
 
-    const primaryColorHsl = '180 100% 25.1%'; // From globals.css
+    const primaryColorHsl = '180 100% 25.1%';
     
     for (let i = 0; i < bufferLength; i++) {
         const barHeight = dataArray[i];
         
         const gradient = ctx.createLinearGradient(0, canvas.height, 0, canvas.height - barHeight);
         gradient.addColorStop(0, `hsl(${primaryColorHsl})`);
-        gradient.addColorStop(1, `hsla(${primaryColorHsl.replace(/%/g, '').replace(/\s/g, ',')}, 0.5)`);
+        gradient.addColorStop(1, `hsla(${primaryColorHsl.replace(/\s/g, ',')}, 0.5)`);
         
         ctx.fillStyle = gradient;
         ctx.fillRect(x, canvas.height - barHeight, barWidth, barHeight);
@@ -88,41 +97,25 @@ const AudioVisualizer: React.FC = () => {
     }
   }, []);
 
-
   const animate = useCallback(() => {
-    if (!isPlaying) return;
+    if (!isPlayingRef.current) return;
     draw();
     animationFrameId.current = requestAnimationFrame(animate);
-  }, [isPlaying, draw]);
-  
-  useEffect(() => {
-      if (isPlaying) {
-          animationFrameId.current = requestAnimationFrame(animate);
-      } else {
-          cancelAnimationFrame(animationFrameId.current);
-      }
-      return () => cancelAnimationFrame(animationFrameId.current);
-  }, [isPlaying, animate]);
-
+  }, [draw]);
 
   const play = () => {
-    if (!audioBuffer || !audioContextRef.current) return;
+    if (!audioBuffer || !audioContextRef.current || !analyserRef.current) return;
     if (audioContextRef.current.state === 'suspended') {
         audioContextRef.current.resume();
     }
     
-    stop(); // Stop any previous playback
+    stop(); // Stop any previous playback to avoid multiple sources
 
     const source = audioContextRef.current.createBufferSource();
     source.buffer = audioBuffer;
     sourceRef.current = source;
 
-    const analyser = audioContextRef.current.createAnalyser();
-    analyser.fftSize = 256;
-    analyserRef.current = analyser;
-
-    source.connect(analyser);
-    analyser.connect(audioContextRef.current.destination);
+    source.connect(analyserRef.current);
     
     source.onended = () => {
       setIsPlaying(false);
@@ -130,23 +123,41 @@ const AudioVisualizer: React.FC = () => {
 
     source.start(0);
     setIsPlaying(true);
+    
+    // Start animation loop
+    animationFrameId.current = requestAnimationFrame(animate);
   };
   
   const stop = () => {
     if (sourceRef.current) {
-        sourceRef.current.onended = null; // Prevent onended from firing on manual stop
-        sourceRef.current.stop();
-        sourceRef.current.disconnect();
+        sourceRef.current.onended = null;
+        try {
+            sourceRef.current.stop();
+            sourceRef.current.disconnect();
+        } catch (e) {
+            console.error("Error stopping source node:", e);
+        }
     }
     setIsPlaying(false);
+    cancelAnimationFrame(animationFrameId.current);
   };
 
   const reset = () => {
     stop();
     setAudioBuffer(null);
     setFileName(null);
+    // Clear canvas
+    const canvas = canvasRef.current;
+    if (canvas) {
+        const ctx = canvas.getContext('2d');
+        if (ctx) {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = 'hsl(var(--card))';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+        }
+    }
   };
-
+  
   return (
     <div className="flex flex-col items-center justify-center w-full h-full bg-card p-4 sm:p-6 lg:p-8">
       <Card className="w-full max-w-2xl mx-auto shadow-2xl">

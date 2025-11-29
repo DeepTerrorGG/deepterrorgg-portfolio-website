@@ -37,6 +37,7 @@ const GitHistoryVisualizer: React.FC = () => {
     const svgRef = useRef<SVGSVGElement | null>(null);
     const containerRef = useRef<HTMLDivElement | null>(null);
     const simulationRef = useRef<d3.Simulation<GitNode, GitLink> | null>(null);
+    const dimensionsRef = useRef<{width: number, height: number} | null>(null);
 
     const processedCommits = useMemo(() => {
         if (commits.length === 0) return [];
@@ -146,9 +147,11 @@ const GitHistoryVisualizer: React.FC = () => {
     useEffect(() => {
         const initSimulation = () => {
             if (!containerRef.current || simulationRef.current) return;
+
             const container = containerRef.current;
             const width = container.clientWidth;
             const height = container.clientHeight;
+            dimensionsRef.current = { width, height };
 
             const svg = d3.select(svgRef.current).attr('viewBox', `0 0 ${width} ${height}`);
             svg.append('g').attr('class', 'links');
@@ -174,27 +177,11 @@ const GitHistoryVisualizer: React.FC = () => {
             });
             simulationRef.current = simulation;
         };
-
-        const resizeObserver = new ResizeObserver(() => {
-            if (simulationRef.current && containerRef.current) {
-                const width = containerRef.current.clientWidth;
-                const height = containerRef.current.clientHeight;
-                d3.select(svgRef.current).attr('viewBox', `0 0 ${width} ${height}`);
-                simulationRef.current.force('x', d3.forceX(width / 2).strength(0.05));
-                simulationRef.current.force('y', d3.forceY(height / 2).strength(0.05));
-                simulationRef.current.alpha(0.3).restart();
-            }
-        });
-
-        if (containerRef.current) {
-            initSimulation();
-            resizeObserver.observe(containerRef.current);
-        }
+        
+        // Run only once on mount
+        initSimulation();
 
         return () => {
-            if (containerRef.current) {
-                resizeObserver.unobserve(containerRef.current);
-            }
             simulationRef.current?.stop();
         };
     }, []);
@@ -204,7 +191,7 @@ const GitHistoryVisualizer: React.FC = () => {
         if (isPlaying && commitIndex < commits.length - 1) {
             const timer = setTimeout(() => {
                 setCommitIndex(prev => prev + 1);
-            }, 300);
+            }, 700); // Slowed down from 300ms
             return () => clearTimeout(timer);
         } else if (commitIndex >= commits.length - 1 && isPlaying && commits.length > 0) {
             setIsPlaying(false);

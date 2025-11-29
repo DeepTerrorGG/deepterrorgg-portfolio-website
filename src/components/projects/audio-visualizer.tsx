@@ -1,136 +1,179 @@
-
 'use client';
 
 import React, { useRef, useState, useCallback, useEffect } from 'react';
-import { AlertTriangle } from 'lucide-react';
+import { AlertTriangle, Play, StopCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';
+import { Button } from '../ui/button';
+import { cn } from '@/lib/utils';
 
 const AudioVisualizer: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const audioRef = useRef<HTMLAudioElement>(null);
-  
-  // Use refs to store single instances of audio nodes and animation ID
   const audioContextRef = useRef<AudioContext | null>(null);
   const analyserRef = useRef<AnalyserNode | null>(null);
-  const sourceNodeRef = useRef<MediaElementAudioSourceNode | null>(null);
+  const sourceNodeRef = useRef<AudioBufferSourceNode | null>(null);
+  const audioBufferRef = useRef<AudioBuffer | null>(null);
   const animationFrameIdRef = useRef<number | null>(null);
-  
+
+  const [isPlaying, setIsPlaying] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [fileName, setFileName] = useState<string | null>(null);
+
   const { toast } = useToast();
 
   const draw = useCallback(() => {
+    if (!analyserRef.current || !canvasRef.current) return;
+
     const analyser = analyserRef.current;
     const canvas = canvasRef.current;
-    if (!analyser || !canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    const bufferLength = analyser.frequencyBinCount;
+    const dataArray = new Uint8Array(bufferLength);
+    analyser.getByteFrequencyData(dataArray);
     
-    // Resize canvas if necessary
+    // Ensure canvas is sized correctly before drawing
     if (canvas.width !== canvas.clientWidth || canvas.height !== canvas.clientHeight) {
         canvas.width = canvas.clientWidth;
         canvas.height = canvas.clientHeight;
     }
 
-    const bufferLength = analyser.frequencyBinCount;
-    const dataArray = new Uint8Array(bufferLength);
-    analyser.getByteTimeDomainData(dataArray);
-
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-
     ctx.fillStyle = 'hsl(var(--card))';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    ctx.lineWidth = 2;
-    ctx.strokeStyle = 'hsl(var(--primary))';
-    ctx.beginPath();
-
-    const sliceWidth = canvas.width * 1.0 / bufferLength;
+    const barWidth = (canvas.width / bufferLength) * 2.5;
+    let barHeight;
     let x = 0;
 
+    const primaryColor = getComputedStyle(document.documentElement).getPropertyValue('--primary').trim();
+    const gradient = ctx.createLinearGradient(0, canvas.height, 0, 0);
+    gradient.addColorStop(0, `hsl(${primaryColor})`);
+    gradient.addColorStop(0.5, `hsla(${primaryColor}, 0.5)`);
+    gradient.addColorStop(1, 'hsl(var(--destructive))');
+
     for (let i = 0; i < bufferLength; i++) {
-      const v = dataArray[i] / 128.0;
-      const y = v * canvas.height / 2;
-
-      if (i === 0) {
-        ctx.moveTo(x, y);
-      } else {
-        ctx.lineTo(x, y);
-      }
-      x += sliceWidth;
+      barHeight = dataArray[i];
+      
+      ctx.fillStyle = gradient;
+      ctx.fillRect(x, canvas.height - barHeight / 2, barWidth, barHeight / 2);
+      
+      x += barWidth + 1;
     }
-
-    ctx.lineTo(canvas.width, canvas.height / 2);
-    ctx.stroke();
-
-    animationFrameIdRef.current = requestAnimationFrame(draw);
   }, []);
 
-  const setupAudioContext = () => {
-    if (audioContextRef.current || !audioRef.current) return;
+  const animate = useCallback(() => {
+    if (!isPlaying) return;
+    draw();
+    animationFrameIdRef.current = requestAnimationFrame(animate);
+  }, [isPlaying, draw]);
 
-    try {
-      const context = new (window.AudioContext || (window as any).webkitAudioContext)();
-      const analyser = context.createAnalyser();
-      analyser.fftSize = 2048;
-      
-      const source = context.createMediaElementSource(audioRef.current);
-      
-      source.connect(analyser);
-      analyser.connect(context.destination);
-      
-      audioContextRef.current = context;
-      analyserRef.current = analyser;
-      sourceNodeRef.current = source;
-
-    } catch (e) {
-      console.error("Error creating audio context:", e);
-      setError('Web Audio API is not supported by this browser.');
+  useEffect(() => {
+    if (isPlaying) {
+      animationFrameIdRef.current = requestAnimationFrame(animate);
+    } else {
+      if (animationFrameIdRef.current) {
+        cancelAnimationFrame(animationFrameIdRef.current);
+      }
     }
-  };
+    return () => {
+      if (animationFrameIdRef.current) {
+        cancelAnimationFrame(animationFrameIdRef.current);
+      }
+    };
+  }, [isPlaying, animate]);
 
-  const onPlay = () => {
+  const setupAudioContext = useCallback(() => {
     if (!audioContextRef.current) {
-      setupAudioContext();
+      try {
+        const context = new (window.AudioContext || (window as any).webkitAudioContext)();
+        audioContextRef.current = context;
+        const analyser = context.createAnalyser();
+        analyser.fftSize = 256;
+        analyserRef.current = analyser;
+      } catch (e) {
+        setError('Web Audio API is not supported by this browser.');
+        return false;
+      }
     }
+    if (audioContextRef.current.state === 'suspended') {
+      audioContextRef.current.resume();
+    }
+    return true;
+  }, []);
+
+  const play = () => {
+    if (!audioBufferRef.current || isPlaying) return;
+    if (!setupAudioContext()) return;
     
-    const context = audioContextRef.current;
-    if (context && context.state === 'suspended') {
-      context.resume();
+    if (sourceNodeRef.current) {
+      sourceNodeRef.current.stop();
+      sourceNodeRef.current.disconnect();
     }
-    
-    if (animationFrameIdRef.current) {
-      cancelAnimationFrame(animationFrameIdRef.current);
-    }
-    animationFrameIdRef.current = requestAnimationFrame(draw);
+
+    const audioContext = audioContextRef.current!;
+    const analyser = analyserRef.current!;
+
+    const source = audioContext.createBufferSource();
+    source.buffer = audioBufferRef.current;
+    sourceNodeRef.current = source;
+
+    source.connect(analyser);
+    analyser.connect(audioContext.destination);
+
+    source.onended = () => setIsPlaying(false);
+
+    source.start(0);
+    setIsPlaying(true);
   };
 
-  const onPauseOrEnd = () => {
-    if (animationFrameIdRef.current) {
-      cancelAnimationFrame(animationFrameIdRef.current);
-      animationFrameIdRef.current = null;
+  const stop = () => {
+    if (sourceNodeRef.current) {
+      sourceNodeRef.current.stop();
     }
+    setIsPlaying(false);
   };
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    if (file && audioRef.current) {
-      onPauseOrEnd();
-      
-      const url = URL.createObjectURL(file);
-      audioRef.current.src = url;
+    if (file) {
+      stop();
       setError(null);
+      setFileName(file.name);
       
-      toast({ title: 'Audio loaded!', description: 'Press play to start the visualization.' });
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        if (e.target?.result instanceof ArrayBuffer) {
+          if (!setupAudioContext()) return;
+          audioContextRef.current!.decodeAudioData(e.target.result)
+             .then(buffer => {
+                audioBufferRef.current = buffer;
+                toast({ title: 'Audio loaded!', description: 'Press play to start.' });
+             })
+             .catch(err => {
+                setError('Failed to decode audio file. Please try a different file.');
+                toast({ title: 'Error', description: 'Could not process the audio file.', variant: 'destructive'});
+             });
+        }
+      };
+      reader.onerror = () => {
+          setError('Error reading file.');
+          toast({ title: 'File Error', description: 'Could not read the selected file.', variant: 'destructive' });
+      };
+      reader.readAsArrayBuffer(file);
     }
   };
 
   useEffect(() => {
     return () => {
-        onPauseOrEnd(); 
-        if (audioContextRef.current) {
-            audioContextRef.current.close().catch(console.error);
+        if (sourceNodeRef.current) {
+          try { sourceNodeRef.current.stop(); } catch(e) {/* ignore */}
         }
+        if (animationFrameIdRef.current) {
+            cancelAnimationFrame(animationFrameIdRef.current);
+        }
+        audioContextRef.current?.close().catch(console.error);
     };
   }, []);
 
@@ -146,20 +189,19 @@ const AudioVisualizer: React.FC = () => {
         </div>
       )}
       <div className="w-full max-w-2xl space-y-4">
-        <audio 
-            ref={audioRef} 
-            controls 
-            className="w-full" 
-            onPlay={onPlay} 
-            onPause={onPauseOrEnd} 
-            onEnded={onPauseOrEnd}
-            crossOrigin="anonymous"
-        ></audio>
+        <div className="flex gap-4">
+            <Button onClick={play} disabled={!audioBufferRef.current || isPlaying} className="flex-1">
+                <Play className="mr-2 h-4 w-4"/> Play
+            </Button>
+            <Button onClick={stop} disabled={!isPlaying} variant="destructive" className="flex-1">
+                <StopCircle className="mr-2 h-4 w-4"/> Stop
+            </Button>
+        </div>
         <div>
           <Label htmlFor="audio-upload" className="sr-only">Upload Audio</Label>
           <Input id="audio-upload" type="file" accept="audio/*" onChange={handleFileChange} className="w-full file:text-primary file:font-bold hover:file:cursor-pointer" />
+          {fileName && <p className="text-xs text-muted-foreground mt-1">Loaded: {fileName}</p>}
         </div>
-        <p className="text-xs text-muted-foreground text-center">Upload an audio file and press play to start the visualization.</p>
       </div>
     </div>
   );

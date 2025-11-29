@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useRef, useState, useCallback, useEffect } from 'react';
@@ -50,10 +49,9 @@ const AudioVisualizer: React.FC = () => {
     const destructiveColorHsl = getComputedStyle(document.documentElement).getPropertyValue('--destructive').trim();
     
     const gradient = ctx.createLinearGradient(0, canvas.height, 0, 0);
-    gradient.addColorStop(0, `hsl(${primaryColorHsl})`);
+    gradient.addColorStop(0, `hsl(${primaryColorHsl.replace(/ /g, ', ')})`);
     gradient.addColorStop(0.5, `hsla(${primaryColorHsl.replace(/ /g, ', ')}, 0.5)`);
-    gradient.addColorStop(1, `hsl(${destructiveColorHsl})`);
-
+    gradient.addColorStop(1, `hsl(${destructiveColorHsl.replace(/ /g, ', ')})`);
 
     for (let i = 0; i < bufferLength; i++) {
       const barHeight = dataArray[i];
@@ -73,6 +71,7 @@ const AudioVisualizer: React.FC = () => {
 
   useEffect(() => {
     if (isPlaying) {
+      if (animationFrameIdRef.current) cancelAnimationFrame(animationFrameIdRef.current);
       animationFrameIdRef.current = requestAnimationFrame(animate);
     } else {
       if (animationFrameIdRef.current) {
@@ -110,7 +109,7 @@ const AudioVisualizer: React.FC = () => {
     if (!setupAudioContext()) return;
     
     if (sourceNodeRef.current) {
-      sourceNodeRef.current.stop();
+      try { sourceNodeRef.current.stop(); } catch(e) {}
       sourceNodeRef.current.disconnect();
     }
 
@@ -124,7 +123,9 @@ const AudioVisualizer: React.FC = () => {
     source.connect(analyser);
     analyser.connect(audioContext.destination);
 
-    source.onended = () => setIsPlaying(false);
+    source.onended = () => {
+        setIsPlaying(false);
+    };
 
     source.start(0);
     setIsPlaying(true);
@@ -132,7 +133,7 @@ const AudioVisualizer: React.FC = () => {
 
   const stop = () => {
     if (sourceNodeRef.current) {
-      sourceNodeRef.current.stop();
+        try { sourceNodeRef.current.stop(); } catch(e) {/* ignore */ }
     }
     setIsPlaying(false);
   };

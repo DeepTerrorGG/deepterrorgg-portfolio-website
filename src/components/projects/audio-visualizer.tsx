@@ -6,7 +6,6 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Button } from '@/components/ui/button';
 import { Upload, Play, Pause, RefreshCw, Music } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { cn } from '@/lib/utils';
 
 const AudioVisualizer: React.FC = () => {
   const { toast } = useToast();
@@ -20,6 +19,7 @@ const AudioVisualizer: React.FC = () => {
   const sourceRef = useRef<AudioBufferSourceNode | null>(null);
   const animationFrameId = useRef<number>(0);
   
+  // This ref is crucial to let the animation loop know the current playing state
   const isPlayingRef = useRef(isPlaying);
   useEffect(() => {
     isPlayingRef.current = isPlaying;
@@ -29,16 +29,22 @@ const AudioVisualizer: React.FC = () => {
   useEffect(() => {
     if (typeof window !== 'undefined' && !audioContextRef.current) {
         try {
-            audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
-            analyserRef.current = audioContextRef.current.createAnalyser();
-            analyserRef.current.fftSize = 256;
-            analyserRef.current.connect(audioContextRef.current.destination);
+            const context = new (window.AudioContext || (window as any).webkitAudioContext)();
+            audioContextRef.current = context;
+            const analyser = context.createAnalyser();
+            analyser.fftSize = 256;
+            analyser.connect(context.destination);
+            analyserRef.current = analyser;
         } catch (e) {
             toast({ title: 'Error', description: 'Web Audio API is not supported by your browser.', variant: 'destructive' });
         }
     }
+    // Cleanup on unmount
     return () => {
         audioContextRef.current?.close().catch(console.error);
+        if (animationFrameId.current) {
+          cancelAnimationFrame(animationFrameId.current);
+        }
     }
   }, [toast]);
   
@@ -50,20 +56,31 @@ const AudioVisualizer: React.FC = () => {
         toast({ title: "Audio Error", description: "AudioContext is not ready.", variant: "destructive" });
         return;
     }
+    
+    // Stop any current playback
+    stop();
 
     setFileName(file.name);
-    stop();
 
     try {
         const arrayBuffer = await file.arrayBuffer();
+        // Use a new AudioContext if the previous one was closed or interrupted
+        if (audioContextRef.current.state === 'closed') {
+             audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
+             const analyser = audioContextRef.current.createAnalyser();
+             analyser.fftSize = 256;
+             analyser.connect(audioContextRef.current.destination);
+             analyserRef.current = analyser;
+        }
         const decodedAudio = await audioContextRef.current.decodeAudioData(arrayBuffer);
         setAudioBuffer(decodedAudio);
         toast({ title: "File Loaded", description: `Ready to play ${file.name}` });
     } catch (e) {
         toast({ title: "Error decoding file", description: "Please select a valid audio file.", variant: "destructive" });
+        console.error("Decoding error:", e);
     }
   };
-  
+
   const draw = useCallback(() => {
     const analyser = analyserRef.current;
     const canvas = canvasRef.current;
@@ -75,21 +92,20 @@ const AudioVisualizer: React.FC = () => {
     const dataArray = new Uint8Array(bufferLength);
     analyser.getByteFrequencyData(dataArray);
 
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.fillStyle = 'hsl(var(--card))';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     
     const barWidth = (canvas.width / bufferLength) * 2.5;
     let x = 0;
-
-    const primaryColorHsl = '180 100% 25.1%';
+    
+    const primaryColorHsl = "180 100% 25.1%";
     
     for (let i = 0; i < bufferLength; i++) {
         const barHeight = dataArray[i];
         
         const gradient = ctx.createLinearGradient(0, canvas.height, 0, canvas.height - barHeight);
         gradient.addColorStop(0, `hsl(${primaryColorHsl})`);
-        gradient.addColorStop(1, `hsla(${primaryColorHsl.replace(/\s/g, ',')}, 0.5)`);
+        gradient.addColorStop(1, `hsla(${primaryColorHsl.replace(/\s/g, ', ')}, 0.5)`);
         
         ctx.fillStyle = gradient;
         ctx.fillRect(x, canvas.height - barHeight, barWidth, barHeight);
@@ -105,12 +121,17 @@ const AudioVisualizer: React.FC = () => {
 
   const play = () => {
     if (!audioBuffer || !audioContextRef.current || !analyserRef.current) return;
+    
     if (audioContextRef.current.state === 'suspended') {
         audioContextRef.current.resume();
     }
     
-    stop(); // Stop any previous playback to avoid multiple sources
-
+    // Stop any existing source to prevent overlap
+    if (sourceRef.current) {
+        sourceRef.current.stop();
+        sourceRef.current.disconnect();
+    }
+    
     const source = audioContextRef.current.createBufferSource();
     source.buffer = audioBuffer;
     sourceRef.current = source;
@@ -118,40 +139,46 @@ const AudioVisualizer: React.FC = () => {
     source.connect(analyserRef.current);
     
     source.onended = () => {
-      setIsPlaying(false);
+      if (isPlayingRef.current) { // Only set if it was playing
+        setIsPlaying(false);
+      }
     };
 
     source.start(0);
     setIsPlaying(true);
-    
-    // Start animation loop
-    animationFrameId.current = requestAnimationFrame(animate);
   };
   
   const stop = () => {
     if (sourceRef.current) {
-        sourceRef.current.onended = null;
+        sourceRef.current.onended = null; // Remove the onended handler to prevent state changes
         try {
             sourceRef.current.stop();
-            sourceRef.current.disconnect();
         } catch (e) {
             console.error("Error stopping source node:", e);
         }
     }
     setIsPlaying(false);
-    cancelAnimationFrame(animationFrameId.current);
   };
+
+  useEffect(() => {
+    if(isPlaying) {
+      animate();
+    } else {
+      cancelAnimationFrame(animationFrameId.current);
+    }
+    // Cleanup on unmount or when isPlaying changes to false
+    return () => cancelAnimationFrame(animationFrameId.current);
+  }, [isPlaying, animate])
+
 
   const reset = () => {
     stop();
     setAudioBuffer(null);
     setFileName(null);
-    // Clear canvas
     const canvas = canvasRef.current;
     if (canvas) {
         const ctx = canvas.getContext('2d');
         if (ctx) {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
             ctx.fillStyle = 'hsl(var(--card))';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
         }
@@ -169,7 +196,7 @@ const AudioVisualizer: React.FC = () => {
         </CardHeader>
         <CardContent className="space-y-4">
           <canvas ref={canvasRef} width="640" height="300" className="w-full h-64 rounded-md border bg-card" />
-          <div className="text-center text-sm text-muted-foreground truncate">{fileName || 'No file selected'}</div>
+          <div className="text-center text-sm text-muted-foreground truncate h-5">{fileName || 'No file selected'}</div>
           <div className="flex flex-col sm:flex-row gap-2 justify-center">
             <Button asChild variant="outline">
               <label htmlFor="audio-upload" className="cursor-pointer">

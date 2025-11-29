@@ -1,9 +1,8 @@
-
 'use client';
 
 import React, { useState, useEffect } from 'react';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
-import { useFirestore, useCollection } from '@/firebase';
+import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
 import { collection } from 'firebase/firestore';
 import { Button } from '../ui/button';
 import { Copy } from 'lucide-react';
@@ -14,7 +13,7 @@ type ContentType = { id: string; name: string; slug: string; };
 export const ApiExplorer: React.FC = () => {
     const { toast } = useToast();
     const firestore = useFirestore();
-    const contentTypesQuery = collection(firestore, 'content_types');
+    const contentTypesQuery = useMemoFirebase(() => collection(firestore, 'content_types'), [firestore]);
     const { data: contentTypes } = useCollection<ContentType>(contentTypesQuery);
     const [baseUrl, setBaseUrl] = useState('');
 
@@ -55,5 +54,3 @@ export const ApiExplorer: React.FC = () => {
         </Card>
     );
 };
-
-    

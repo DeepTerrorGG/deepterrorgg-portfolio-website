@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
@@ -33,8 +34,9 @@ const GitHistoryVisualizer: React.FC = () => {
     const [isPlaying, setIsPlaying] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     
-    const simulationRef = useRef<d3.Simulation<GitNode, GitLink> | null>(null);
     const svgRef = useRef<SVGSVGElement | null>(null);
+    const containerRef = useRef<HTMLDivElement | null>(null);
+    const simulationRef = useRef<d3.Simulation<GitNode, GitLink> | null>(null);
 
     const processedCommits = useMemo(() => {
         if (commits.length === 0) return [];
@@ -98,7 +100,7 @@ const GitHistoryVisualizer: React.FC = () => {
         link.exit().transition().duration(500).attr('stroke-opacity', 0).remove();
         
         link.enter().append('line')
-          .attr('stroke', '#319795') // Teal color for links
+          .attr('stroke', '#319795')
           .attr('stroke-width', 0.5)
           .attr('stroke-opacity', 0)
           .transition().duration(500)
@@ -141,47 +143,68 @@ const GitHistoryVisualizer: React.FC = () => {
         simulationRef.current.alpha(1).restart();
     }, []);
 
-    const measuredRef = useCallback((node: SVGSVGElement | null) => {
-        if (!node || simulationRef.current) return; // Only init once
-        svgRef.current = node;
+    useEffect(() => {
+        const initSimulation = () => {
+            if (!containerRef.current || simulationRef.current) return;
+            const container = containerRef.current;
+            const width = container.clientWidth;
+            const height = container.clientHeight;
 
-        const svg = d3.select(node);
-        const width = node.getBoundingClientRect().width;
-        const height = node.getBoundingClientRect().height;
-    
-        svg.append('g').attr('class', 'links');
-        svg.append('g').attr('class', 'nodes');
-    
-        const simulation = d3.forceSimulation<GitNode>()
-          .force('link', d3.forceLink<GitNode, GitLink>().id((d: any) => d.id).distance(25).strength(0.7))
-          .force('charge', d3.forceManyBody().strength(-50))
-          .force('center', d3.forceCenter(width / 2, height / 2))
-          .force('collide', d3.forceCollide(d => Math.sqrt(d.size) + 5));
-    
-        simulation.on('tick', () => {
-          svg.select<SVGGElement>('g.nodes').selectAll('circle')
-            .attr('cx', d => (d as GitNode).x ?? 0)
-            .attr('cy', d => (d as GitNode).y ?? 0);
-    
-          svg.select<SVGGElement>('g.links').selectAll('line')
-            .attr('x1', d => ((d as any).source as GitNode).x ?? 0)
-            .attr('y1', d => ((d as any).source as GitNode).y ?? 0)
-            .attr('x2', d => ((d as any).target as GitNode).x ?? 0)
-            .attr('y2', d => ((d as any).target as GitNode).y ?? 0);
+            const svg = d3.select(svgRef.current).attr('viewBox', `0 0 ${width} ${height}`);
+            svg.append('g').attr('class', 'links');
+            svg.append('g').attr('class', 'nodes');
+
+            const simulation = d3.forceSimulation<GitNode>()
+                .force('link', d3.forceLink<GitNode, GitLink>().id((d: any) => d.id).distance(25).strength(0.7))
+                .force('charge', d3.forceManyBody().strength(-50))
+                .force('x', d3.forceX(width / 2).strength(0.05))
+                .force('y', d3.forceY(height / 2).strength(0.05))
+                .force('collide', d3.forceCollide(d => Math.sqrt(d.size) + 5));
+
+            simulation.on('tick', () => {
+                svg.select<SVGGElement>('g.nodes').selectAll('circle')
+                    .attr('cx', d => (d as GitNode).x ?? 0)
+                    .attr('cy', d => (d as GitNode).y ?? 0);
+                
+                svg.select<SVGGElement>('g.links').selectAll('line')
+                    .attr('x1', d => ((d as any).source as GitNode).x ?? 0)
+                    .attr('y1', d => ((d as any).source as GitNode).y ?? 0)
+                    .attr('x2', d => ((d as any).target as GitNode).x ?? 0)
+                    .attr('y2', d => ((d as any).target as GitNode).y ?? 0);
+            });
+            simulationRef.current = simulation;
+        };
+
+        const resizeObserver = new ResizeObserver(() => {
+            if (simulationRef.current && containerRef.current) {
+                const width = containerRef.current.clientWidth;
+                const height = containerRef.current.clientHeight;
+                d3.select(svgRef.current).attr('viewBox', `0 0 ${width} ${height}`);
+                simulationRef.current.force('x', d3.forceX(width / 2).strength(0.05));
+                simulationRef.current.force('y', d3.forceY(height / 2).strength(0.05));
+                simulationRef.current.alpha(0.3).restart();
+            }
         });
-    
-        simulationRef.current = simulation;
-        if(processedCommits.length > 0) {
-            updateSimulation(processedCommits[commitIndex]);
+
+        if (containerRef.current) {
+            initSimulation();
+            resizeObserver.observe(containerRef.current);
         }
+
+        return () => {
+            if (containerRef.current) {
+                resizeObserver.unobserve(containerRef.current);
+            }
+            simulationRef.current?.stop();
+        };
+    }, []);
     
-    }, [processedCommits, updateSimulation, commitIndex]);
 
     useEffect(() => {
         if (isPlaying && commitIndex < commits.length - 1) {
             const timer = setTimeout(() => {
                 setCommitIndex(prev => prev + 1);
-            }, 300); // Adjusted playback speed
+            }, 300);
             return () => clearTimeout(timer);
         } else if (commitIndex >= commits.length - 1 && isPlaying && commits.length > 0) {
             setIsPlaying(false);
@@ -199,6 +222,9 @@ const GitHistoryVisualizer: React.FC = () => {
         setCommits([]);
         setCommitIndex(0);
         setIsPlaying(false);
+        if(simulationRef.current) {
+          updateSimulation({nodes: [], links: []});
+        }
         try {
             const history = await fetchRepoHistory({ repoUrl });
             if(history.length === 0) {
@@ -261,8 +287,8 @@ const GitHistoryVisualizer: React.FC = () => {
                 </CardContent>
             </Card>
             
-            <div className="flex-grow relative border border-gray-700 rounded-lg bg-black/30 overflow-hidden min-h-[400px]">
-                <svg ref={measuredRef} className="w-full h-full" />
+            <div ref={containerRef} className="flex-grow relative border border-gray-700 rounded-lg bg-black/30 overflow-hidden min-h-[400px]">
+                <svg ref={svgRef} className="w-full h-full" />
                 {commits.length === 0 && !isLoading && (
                     <div className="absolute inset-0 flex items-center justify-center text-gray-500">
                         <p>Enter a repository URL to begin.</p>

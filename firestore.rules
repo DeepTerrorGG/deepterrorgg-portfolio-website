@@ -61,16 +61,13 @@ service cloud.firestore {
 
     // --- HEADLESS CMS RULES ---
     
-    // Content Type Schemas: Only admins can manage the structure of content.
+    // Public can read and write schemas and content
     match /content_types/{contentTypeId} {
-      allow read: if true; // Public can read schemas
-      allow write: if isAdmin(); // In a real app, check for 'admin' role
+      allow read, write: if true;
     }
 
-    // Content Entries: Public can read, authenticated users (editors) can write.
     match /content_entries/{contentEntryId} {
-        allow read: if true;
-        allow create, update, delete: if isSignedIn();
+        allow read, write: if true;
     }
   }
 }

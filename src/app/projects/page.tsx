@@ -1,4 +1,3 @@
-
 // src/app/projects/page.tsx
 'use client';
 
@@ -40,7 +39,6 @@ import StockTracker from '@/components/projects/stock-tracker';
 import Spreadsheet from '@/components/projects/spreadsheet';
 import TicTacToe from '@/components/projects/tic-tac-toe';
 import RockPaperScissors from '@/components/projects/rock-paper-scissors';
-import AudioVisualizer from '@/components/projects/audio-visualizer';
 import CharacterCounter from '@/components/projects/character-counter';
 import CollaborativeWhiteboard from '@/components/projects/collaborative-whiteboard';
 import KanbanBoard from '@/components/projects/kanban-board';
@@ -78,6 +76,7 @@ import DigitalAssetManager from '@/components/projects/digital-asset-manager';
 import PaymentLedger from '@/components/projects/payment-ledger';
 import LogIngestor from '@/components/projects/log-ingestor';
 import HeadlessCms from '@/components/projects/headless-cms';
+import AudioVisualizer from '@/components/projects/audio-visualizer';
 
 interface Technology {
   name: string;
@@ -542,6 +541,24 @@ const projectsData: Project[] = [
         ],
         renderImage: true,
     },
+     {
+      id: 'audio-visualizer',
+      title: 'Audio Visualizer',
+      imageUrls: ['/placeholder.png'],
+      imageAlt: 'An audio visualizer with frequency bars',
+      imageHint: 'audio music visualization',
+      description: 'Upload an audio file and see the music come to life with a frequency bar visualization.',
+      personalNote: 'This project was a deep dive into the Web Audio API. It\'s fascinating to process audio data in real-time and translate it into a dynamic visual representation on an HTML5 Canvas.',
+      difficulty: 'Hard',
+      component: <AudioVisualizer />,
+      technologies: [
+        { name: 'React', iconSrc: '/icons/react.svg' },
+        { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },
+        { name: 'HTML5 Canvas', iconSrc: '/icons/html5.svg' },
+        { name: 'Web Audio API', iconSrc: '/icons/webaudio.svg' },
+      ],
+      renderImage: true,
+    },
     {
         id: 'website-status-checker',
         title: 'Website Status Checker',
@@ -932,23 +949,6 @@ const projectsData: Project[] = [
     personalNote: 'This was a deep dive into the Web Audio API. Generating sounds from scratch and syncing them perfectly in a scheduler taught me a ton about browser-based timing and audio synthesis. It\'s a fun blend of creativity and technical logic.',
     difficulty: 'Hard',
     component: <BeatMaker />,
-    technologies: [
-      { name: 'React', iconSrc: '/icons/react.svg' },
-      { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },
-      { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss.svg' },
-    ],
-    renderImage: true,
-  },
-  {
-    id: 'audio-visualizer',
-    title: 'Audio Visualizer',
-    imageUrls: ['/placeholder.png'],
-    imageAlt: 'A real-time audio visualizer',
-    imageHint: 'audio spectrum waveform',
-    description: 'Visualizes an audio file in real-time using a canvas element.',
-    personalNote: 'This project was a great introduction to the Web Audio API. It taught me how to analyze audio frequency data from a file and render it dynamically on a canvas. A fun way to "see" sound.',
-    difficulty: 'Hard',
-    component: <AudioVisualizer />,
     technologies: [
       { name: 'React', iconSrc: '/icons/react.svg' },
       { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },

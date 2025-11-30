@@ -101,11 +101,6 @@ const CodeRacer: React.FC = () => {
             return `<span class="${className}">${char === '\n' ? '&#9166;\n' : char.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</span>`;
         }).join('');
     };
-    
-    const editorStyle = {
-      lineHeight: '1.5',
-      letterSpacing: '0.025em',
-    };
 
     return (
         <div className="flex flex-col items-center justify-center w-full h-full bg-card p-4 sm:p-6 lg:p-8">
@@ -114,14 +109,18 @@ const CodeRacer: React.FC = () => {
                     <CardTitle className="text-3xl font-bold text-primary text-center">Code Racer</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-6">
-                    <div className="relative font-mono text-lg p-4 rounded-lg bg-black/30 border border-gray-700 h-64 overflow-y-auto">
+                    <div className="relative font-mono text-lg rounded-lg bg-black/30 border border-gray-700 h-64 overflow-y-auto">
                         <pre
-                            className="whitespace-pre-wrap select-none"
-                            style={editorStyle}
+                            className="whitespace-pre-wrap select-none p-4"
+                            style={{
+                                lineHeight: '1.5',
+                                letterSpacing: '0.025em',
+                                fontFamily: 'monospace',
+                            }}
                             dangerouslySetInnerHTML={{ __html: getHighlightedText() }}
                         />
                          <div
-                            className="absolute top-4 left-4 w-[calc(100%-2rem)] h-[calc(100%-2rem)]"
+                            className="absolute top-0 left-0 w-full h-full"
                         >
                             <Editor
                                 value={userInput}
@@ -131,6 +130,7 @@ const CodeRacer: React.FC = () => {
                                 theme="code-racer-theme"
                                 options={{
                                     minimap: { enabled: false },
+                                    fontFamily: 'monospace',
                                     fontSize: 18,
                                     lineHeight: 27, // 18 * 1.5
                                     letterSpacing: 0.45,
@@ -147,7 +147,7 @@ const CodeRacer: React.FC = () => {
                                     cursorStyle: 'line',
                                     renderLineHighlight: 'none',
                                     overviewRulerBorder: false,
-                                    padding: { top: 0, bottom: 0 },
+                                    padding: { top: 16, bottom: 16, left: 16, right: 16 },
                                 }}
                             />
                         </div>

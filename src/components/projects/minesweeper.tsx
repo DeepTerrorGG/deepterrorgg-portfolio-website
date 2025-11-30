@@ -4,7 +4,7 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Flag, Bomb, RefreshCw, Clock, Smile, Frown, Award, Play, Sparkles } from 'lucide-react';
+import { Flag, Bomb, RefreshCw, Play, Sparkles } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { Label } from '../ui/label';
@@ -27,7 +27,7 @@ const difficulties = {
 };
 
 const MinesweeperSolver: React.FC = () => {
-  const [difficulty, setDifficulty] = useState<Difficulty>('medium');
+  const [difficulty, setDifficulty] = useState<Difficulty>('hard');
   const [board, setBoard] = useState<Board>([]);
   const [gameState, setGameState] = useState<GameState>('idle');
   const [speed, setSpeed] = useState(5); // Speed on a 1-10 scale
@@ -79,7 +79,7 @@ const MinesweeperSolver: React.FC = () => {
       }
     }
     
-    // Ensure first click is on a 0-mine cell
+    // Ensure first click is on a 0-mine cell for a good start
     if (newBoard[firstClick.r][firstClick.c].adjacentMines !== 0 || newBoard[firstClick.r][firstClick.c].isMine) {
         return createBoard(firstClick); // Retry if first click isn't empty
     }
@@ -105,28 +105,36 @@ const MinesweeperSolver: React.FC = () => {
     resetGame();
   }, [difficulty, resetGame]);
 
-  const revealCell = (r: number, c: number, boardToUpdate: Board): Board => {
-    let newBoard = boardToUpdate;
-    const stack = [[r, c]];
-
+  const revealCell = useCallback((r: number, c: number, boardToUpdate: Board): Board => {
+    let newBoard = boardToUpdate.map(row => row.map(cell => ({ ...cell })));
+    const stack: [number, number][] = [[r, c]];
+    const visited = new Set<string>();
+    visited.add(`${r},${c}`);
+    
     while(stack.length > 0) {
         const [row, col] = stack.pop()!;
         if (row < 0 || row >= newBoard.length || col < 0 || col >= newBoard[0].length) continue;
+        
         const cell = newBoard[row][col];
         if (cell.isRevealed || cell.isFlagged) continue;
 
-        newBoard[row][col].isRevealed = true;
+        newBoard[row][col] = { ...cell, isRevealed: true };
         
-        if (cell.adjacentMines === 0) {
+        if (cell.adjacentMines === 0 && !cell.isMine) {
             for (let i = -1; i <= 1; i++) {
                 for (let j = -1; j <= 1; j++) {
-                    stack.push([row + i, col + j]);
+                    const newR = row + i;
+                    const newC = col + j;
+                    if(!visited.has(`${newR},${newC}`)) {
+                       stack.push([newR, newC]);
+                       visited.add(`${newR},${newC}`);
+                    }
                 }
             }
         }
     }
     return newBoard;
-  };
+  }, []);
 
   const getNeighbors = (r: number, c: number, b: Board) => {
     const neighbors: ({r: number, c: number} & Cell)[] = [];
@@ -143,74 +151,71 @@ const MinesweeperSolver: React.FC = () => {
     return neighbors;
   }
 
-  const solveStep = () => {
+ const solveStep = useCallback(() => {
     if (!isSolvingRef.current) return;
 
     setBoard(prevBoard => {
-        let boardChanged = false;
-        let newBoard = prevBoard.map(row => row.map(cell => ({ ...cell })));
+      let boardChanged = false;
+      let newBoard = prevBoard.map(row => row.map(cell => ({ ...cell })));
+      
+      const revealQueue: {r: number, c: number}[] = [];
+      const flagQueue: {r: number, c: number}[] = [];
 
-        for (let r = 0; r < newBoard.length; r++) {
-            for (let c = 0; c < newBoard[0].length; c++) {
-                const cell = newBoard[r][c];
-                if (!cell.isRevealed || cell.adjacentMines === 0) continue;
+      for (let r = 0; r < newBoard.length; r++) {
+        for (let c = 0; c < newBoard[0].length; c++) {
+          const cell = newBoard[r][c];
+          if (!cell.isRevealed || cell.adjacentMines === 0) continue;
 
-                setCurrentFocus({ r, c });
+          setCurrentFocus({ r, c });
 
-                const neighbors = getNeighbors(r, c, newBoard);
-                const flaggedNeighbors = neighbors.filter(n => n.isFlagged).length;
-                const unrevealedNeighbors = neighbors.filter(n => !n.isRevealed);
+          const neighbors = getNeighbors(r, c, newBoard);
+          const flaggedNeighbors = neighbors.filter(n => n.isFlagged).length;
+          const unrevealedNeighbors = neighbors.filter(n => !n.isRevealed && !n.isFlagged);
 
-                // Rule 1: If number of flags equals the cell number, reveal other non-flagged neighbors.
-                if (flaggedNeighbors === cell.adjacentMines) {
-                    unrevealedNeighbors.forEach(n => {
-                        if (!n.isFlagged) {
-                            newBoard[n.r][n.c].isRevealed = true;
-                            boardChanged = true;
-                        }
-                    });
-                }
-
-                // Rule 2: If number of unrevealed neighbors equals cell number minus flags, flag them all.
-                if (unrevealedNeighbors.length === cell.adjacentMains - flaggedNeighbors) {
-                    unrevealedNeighbors.forEach(n => {
-                        if (!n.isFlagged) {
-                            newBoard[n.r][n.c].isFlagged = true;
-                            boardChanged = true;
-                        }
-                    });
-                }
-            }
+          if (cell.adjacentMines === flaggedNeighbors && unrevealedNeighbors.length > 0) {
+            unrevealedNeighbors.forEach(n => revealQueue.push({r: n.r, c: n.c}));
+            boardChanged = true;
+          }
+          
+          if (cell.adjacentMines === unrevealedNeighbors.length + flaggedNeighbors && unrevealedNeighbors.length > 0) {
+            unrevealedNeighbors.forEach(n => flagQueue.push({r: n.r, c: n.c}));
+            boardChanged = true;
+          }
         }
+      }
+      
+      revealQueue.forEach(({r, c}) => newBoard = revealCell(r, c, newBoard));
+      flagQueue.forEach(({r, c}) => { if(!newBoard[r][c].isFlagged) newBoard[r][c].isFlagged = true; });
 
-        const revealedMines = newBoard.flat().some(c => c.isRevealed && c.isMine);
-        if (revealedMines) {
-            setGameState('lost');
-            return prevBoard;
-        }
+      const revealedMines = newBoard.flat().some(c => c.isRevealed && c.isMine);
+      if (revealedMines) {
+        setGameState('lost');
+        return prevBoard;
+      }
 
-        const unrevealedNonMines = newBoard.flat().filter(c => !c.isMine && !c.isRevealed).length;
-        if (unrevealedNonMines === 0) {
-            setGameState('won');
-            return newBoard.map(row => row.map(cell => ({...cell, isRevealed: true})));
-        }
+      const unrevealedNonMines = newBoard.flat().filter(c => !c.isMine && !c.isRevealed).length;
+      if (unrevealedNonMines === 0) {
+        setGameState('won');
+        return newBoard.map(row => row.map(cell => ({...cell, isRevealed: true})));
+      }
 
-        if (boardChanged) {
-            solverTimeoutRef.current = setTimeout(solveStep, 210 - speed * 20);
-        } else {
-            setGameState('idle'); // Stuck
-        }
-        return newBoard;
+      if (boardChanged) {
+        solverTimeoutRef.current = setTimeout(solveStep, 210 - speed * 20);
+      } else {
+        setGameState('idle'); // Stuck
+      }
+      return newBoard;
     });
-  };
+  }, [speed, revealCell]);
+
 
   const startSolving = () => {
     let startR, startC;
     const { rows, cols } = difficulties[difficulty];
-    do {
-      startR = Math.floor(Math.random() * rows);
-      startC = Math.floor(Math.random() * cols);
-    } while (startR === START_NODE_ROW && startC === START_NODE_COL); // Avoid center to make it more interesting
+    
+    // Pick a random starting point.
+    startR = Math.floor(Math.random() * rows);
+    startC = Math.floor(Math.random() * cols);
 
     const newBoardWithMines = createBoard({ r: startR, c: startC });
     const finalBoard = revealCell(startR, startC, newBoardWithMines);
@@ -235,8 +240,8 @@ const MinesweeperSolver: React.FC = () => {
 
   const getStatusMessage = () => {
     switch (gameState) {
-      case 'won': return <span className="text-green-400 flex items-center gap-2"><Award /> Solved!</span>;
-      case 'lost': return <span className="text-red-400 flex items-center gap-2"><Frown /> Failed!</span>;
+      case 'won': return <span className="text-green-400 flex items-center gap-2">Solved!</span>;
+      case 'lost': return <span className="text-red-400 flex items-center gap-2">Failed!</span>;
       case 'solving': return <span className="text-yellow-400 flex items-center gap-2 animate-pulse"><Sparkles /> Solving...</span>;
       default: return 'Ready to solve.';
     }
@@ -302,4 +307,3 @@ const MinesweeperSolver: React.FC = () => {
 };
 
 export default MinesweeperSolver;
-

@@ -55,7 +55,7 @@ export default function SplineShowcase({ models }: SplineShowcaseProps) {
                 pointerEvents: index === currentIndex ? 'auto' : 'none'
               }}
             >
-              {/* <SplineModel sceneUrl={model.url} /> */}
+              <SplineModel sceneUrl={model.url} />
             </div>
           ))}
         </CardContent>

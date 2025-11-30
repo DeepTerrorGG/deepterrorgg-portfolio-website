@@ -42,7 +42,7 @@ export default function RootLayout({
       >
         <Providers>
           <Header />
-          <main className="flex-grow flex flex-col z-0 pt-16 md:pt-20">
+          <main className="flex-grow flex flex-col z-0 pt-24 md:pt-28">
             {children}
           </main>
         </Providers>

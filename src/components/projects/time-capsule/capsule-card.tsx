@@ -16,7 +16,6 @@ export interface TimeCapsule {
   id: string;
   encryptedMessage: string;
   unlockDate: Date;
-  uid?: string; // UID is optional now
 }
 
 interface CapsuleCardProps {

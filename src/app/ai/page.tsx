@@ -7,7 +7,7 @@ import Link from 'next/link';
 import PageTitle from '@/components/ui/page-title';
 import { Button } from '@/components/ui/button';
 import { TechStack } from '@/components/ui/tech-stack';
-import { ExternalLink, Rocket, Loader2, ArrowLeft } from 'lucide-react';
+import { ExternalLink, Rocket, Loader2, ArrowLeft, Lock } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import {
@@ -19,6 +19,7 @@ import {
   DialogClose,
 } from "@/components/ui/dialog";
 import { logActivity } from '@/lib/logger';
+import { PaymentDialog } from '@/components/PaymentDialog';
 
 // Statically import all project components
 import AIVideoGenerator from '@/components/projects/ai-video-generator';
@@ -31,6 +32,7 @@ import ThePasswordGame from '@/components/projects/the-password-game';
 import AIInfinityCraft from '@/components/projects/ai-infinity-craft';
 import AIPromptEnhancer from '@/components/projects/ai-prompt-enhancer';
 import CodeBeautifier from '@/components/projects/code-beautifier';
+import CollaborativeStoryteller from '@/components/projects/collaborative-storyteller';
 
 interface Technology {
   name: string;
@@ -52,9 +54,30 @@ interface Project {
   component?: React.ReactNode;
   externalLink?: string;
   renderImage: boolean;
+  requiresPayment?: boolean;
+  paymentAmount?: number;
 }
 
 const projectsData: Project[] = [
+    {
+      id: 'collaborative-storyteller',
+      title: 'Collaborative AI Storyteller',
+      imageUrls: ['/placeholder.png'],
+      imageAlt: 'Collaborative AI Storyteller interface',
+      imageHint: 'ai story writing tool',
+      description: 'Write a story with an AI partner. You write a line, the AI writes the next, building a unique narrative together.',
+      personalNote: 'This project is a fun exploration of stateful, contextual AI. Unlike a simple prompt-response, the AI has to remember the entire story so far to generate a coherent continuation. It showcases how to manage a growing context with an LLM to create a truly interactive experience.',
+      difficulty: 'AI',
+      component: <CollaborativeStoryteller />,
+      technologies: [
+        { name: 'React', iconSrc: '/icons/react.svg' },
+        { name: 'Next.js', iconSrc: '/icons/nextjs.svg' },
+        { name: 'Genkit', iconSrc: '/icons/genkit.svg' },
+      ],
+      renderImage: true,
+      requiresPayment: true,
+      paymentAmount: 0.75,
+    },
     {
       id: 'code-beautifier',
       title: 'Code Beautifier',
@@ -72,6 +95,7 @@ const projectsData: Project[] = [
         { name: '@vercel/og', iconSrc: '/icons/vercel.svg' },
       ],
       renderImage: true,
+      requiresPayment: false,
     },
     {
       id: 'ai-prompt-enhancer',
@@ -89,6 +113,8 @@ const projectsData: Project[] = [
           { name: 'Genkit', iconSrc: '/icons/genkit.svg' },
       ],
       renderImage: true,
+      requiresPayment: true,
+      paymentAmount: 0.50,
     },
     {
       id: 'ai-infinity-craft',
@@ -108,6 +134,7 @@ const projectsData: Project[] = [
         { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss.svg' },
       ],
       renderImage: true,
+      requiresPayment: false,
     },
     {
       id: 'ai-password-game',
@@ -127,6 +154,7 @@ const projectsData: Project[] = [
         { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss.svg' },
       ],
       renderImage: true,
+      requiresPayment: false,
     },
     {
       id: 'ai-image-generator',
@@ -145,6 +173,8 @@ const projectsData: Project[] = [
         { name: 'Genkit', iconSrc: '/icons/genkit.svg' },
       ],
       renderImage: true,
+      requiresPayment: true,
+      paymentAmount: 1.00,
     },
     {
       id: 'ai-chatbot',
@@ -163,6 +193,8 @@ const projectsData: Project[] = [
         { name: 'Genkit', iconSrc: '/icons/genkit.svg' },
       ],
       renderImage: true,
+      requiresPayment: true,
+      paymentAmount: 0.25,
     },
     {
       id: 'ai-recipe-generator',
@@ -181,6 +213,8 @@ const projectsData: Project[] = [
         { name: 'Genkit', iconSrc: '/icons/genkit.svg' },
       ],
       renderImage: true,
+      requiresPayment: true,
+      paymentAmount: 0.50,
     },
     {
       id: 'ai-story-generator',
@@ -199,6 +233,8 @@ const projectsData: Project[] = [
         { name: 'Genkit', iconSrc: '/icons/genkit.svg' },
       ],
       renderImage: true,
+      requiresPayment: true,
+      paymentAmount: 0.75,
     },
     {
       id: 'ai-video-generator',
@@ -217,6 +253,8 @@ const projectsData: Project[] = [
           { name: 'Google Veo', iconSrc: '/icons/gemini.svg'}
       ],
       renderImage: true,
+      requiresPayment: true,
+      paymentAmount: 5.00,
     },
     {
       id: 'code-editor',
@@ -234,6 +272,8 @@ const projectsData: Project[] = [
           { name: 'Genkit', iconSrc: '/icons/genkit.svg' },
       ],
       renderImage: true,
+      requiresPayment: true,
+      paymentAmount: 1.50,
     },
 ];
 
@@ -293,6 +333,11 @@ export default function AiProjectsPage() {
   const [selectedProjectId, setSelectedProjectId] = useState<string>(allProjects[0].id);
   const [mobileProject, setMobileProject] = useState<Project | null>(null);
 
+  // Paywall state
+  const [isPaymentDialogOpen, setIsPaymentDialogOpen] = useState(false);
+  const [projectToUnlock, setProjectToUnlock] = useState<Project | null>(null);
+  const [unlockedProjects, setUnlockedProjects] = useState<Set<string>>(new Set());
+
   const selectedProject = useMemo(() => {
     return allProjects.find(p => p.id === selectedProjectId) || allProjects[0];
   }, [selectedProjectId]);
@@ -308,9 +353,24 @@ export default function AiProjectsPage() {
   };
 
   const handleProjectSelect = (project: Project) => {
-    setSelectedProjectId(project.id);
-    setMobileProject(project);
     logActivity(`Viewed AI project: ${project.title}`);
+
+    if (project.requiresPayment && !unlockedProjects.has(project.id)) {
+        setProjectToUnlock(project);
+        setIsPaymentDialogOpen(true);
+    } else {
+        setSelectedProjectId(project.id);
+        setMobileProject(project); // for mobile view
+    }
+  };
+  
+  const handlePaymentConfirm = () => {
+    if (projectToUnlock) {
+      setUnlockedProjects(prev => new Set(prev).add(projectToUnlock.id));
+      setSelectedProjectId(projectToUnlock.id);
+      setMobileProject(projectToUnlock);
+      setProjectToUnlock(null);
+    }
   };
 
   return (
@@ -328,7 +388,10 @@ export default function AiProjectsPage() {
                   onClick={() => handleProjectSelect(project)}
                   className="w-full text-left p-4 rounded-lg transition-colors duration-200 bg-card border hover:bg-muted"
                 >
-                  <h3 className="font-semibold">{project.title}</h3>
+                  <div className="flex justify-between items-center">
+                    <h3 className="font-semibold">{project.title}</h3>
+                    {project.requiresPayment && !unlockedProjects.has(project.id) && <Lock className="h-4 w-4 text-primary"/>}
+                  </div>
                   <p className={cn("text-xs font-medium", difficultyColors[project.difficulty])}>{project.difficulty}</p>
                   <p className="text-sm text-muted-foreground mt-1">{project.description}</p>
                 </button>
@@ -336,7 +399,7 @@ export default function AiProjectsPage() {
             ))}
           </ul>
         </ScrollArea>
-        {mobileProject && (
+        {mobileProject && unlockedProjects.has(mobileProject.id) && (
           <Dialog open={!!mobileProject} onOpenChange={(isOpen) => !isOpen && setMobileProject(null)}>
              <DialogContent className="p-0 sm:p-0 w-screen h-screen max-w-full max-h-full sm:max-w-full sm:max-h-full rounded-none sm:rounded-none flex flex-col" hideDefaultClose>
               <DialogHeader className="p-4 border-b flex-row items-center space-y-0 shrink-0">
@@ -371,7 +434,7 @@ export default function AiProjectsPage() {
               {allProjects.map((project) => (
                 <li key={project.id}>
                   <button
-                    onClick={() => { setSelectedProjectId(project.id); logActivity(`Viewed AI project: ${project.title}`); }}
+                    onClick={() => handleProjectSelect(project)}
                     className={cn(
                       "w-full text-left p-3 rounded-md transition-colors duration-200",
                       selectedProjectId === project.id
@@ -379,7 +442,10 @@ export default function AiProjectsPage() {
                         : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground'
                     )}
                   >
-                    <h3 className="font-semibold">{project.title}</h3>
+                    <div className="flex justify-between items-center">
+                      <h3 className="font-semibold">{project.title}</h3>
+                      {project.requiresPayment && !unlockedProjects.has(project.id) && <Lock className="h-4 w-4"/>}
+                    </div>
                     <p className={cn("text-xs", difficultyColors[project.difficulty])}>{project.difficulty}</p>
                   </button>
                 </li>
@@ -405,6 +471,16 @@ export default function AiProjectsPage() {
           </ScrollArea>
         </div>
       </div>
+      
+       {projectToUnlock && (
+        <PaymentDialog
+            isOpen={isPaymentDialogOpen}
+            onClose={() => { setIsPaymentDialogOpen(false); setProjectToUnlock(null); }}
+            onConfirm={handlePaymentConfirm}
+            featureName={projectToUnlock.title}
+            amount={projectToUnlock.paymentAmount || 1.00}
+        />
+       )}
     </div>
   );
 }

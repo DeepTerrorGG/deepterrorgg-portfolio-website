@@ -1,3 +1,4 @@
+
 'use client';
 
 import Link from 'next/link';
@@ -8,7 +9,7 @@ import AnimateOnScroll from '@/components/ui/animate-on-scroll';
 import { Button } from '@/components/ui/button';
 import { ArrowRight, Mail, User, ArrowUp, Compass, Monitor } from 'lucide-react';
 import SplineShowcase from '@/components/home/spline-showcase';
-import type { Spline } from '@splinetool/react-spline';
+import type Spline from '@splinetool/react-spline';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import React, { useState, useEffect, useRef } from 'react';
 import PreloadingLink from '@/components/ui/preloading-link';
@@ -69,16 +70,6 @@ const featuredProjects = [
         { name: 'React', iconSrc: '/icons/react.svg' },
         { name: 'D3.js', iconSrc: '/icons/d3.svg' },
         { name: 'Framer Motion', iconSrc: '/icons/framer.svg' },
-      ],
-    },
-    {
-      id: 'kanban-board',
-      title: 'Project Management Board',
-      description: 'A Trello-like board with draggable cards to manage tasks. A fantastic exercise in complex state management, real-time updates, and user interaction.',
-      technologies: [
-        { name: 'React', iconSrc: '/icons/react.svg' },
-        { name: 'Firebase', iconSrc: '/icons/firebase.svg' },
-        { name: 'dnd-kit', iconSrc: '/icons/dnd-kit.svg' },
       ],
     },
 ];

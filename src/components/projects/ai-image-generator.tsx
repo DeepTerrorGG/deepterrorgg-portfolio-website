@@ -20,7 +20,6 @@ import { Label } from '../ui/label';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import { ScrollArea } from '../ui/scroll-area';
-import { PaymentDialog } from '@/components/PaymentDialog';
 
 const imageStyles: ImageStyle[] = [
     'Default', 'Photorealistic', 'Cartoon', 'Watercolor', 'Cyberpunk', 'Minimalist', 'Fantasy Art', 'Pixel Art', 'Cinematic', '3D Model', 'Vintage Photo'
@@ -36,9 +35,6 @@ export default function AIImageGenerator() {
   const [style, setStyle] = useState<ImageStyle>('Default');
   const [aspectRatio, setAspectRatio] = useState<AspectRatio>('1:1');
   const [uploadedImages, setUploadedImages] = useState<string[]>([]);
-
-  const [isPaymentDialogOpen, setIsPaymentDialogOpen] = useState(false);
-  const [paymentConfirmed, setPaymentConfirmed] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -76,7 +72,8 @@ export default function AIImageGenerator() {
     setUploadedImages(prev => prev.filter((_, i) => i !== index));
   }
 
-  const performGeneration = async () => {
+  const handleSubmit = async (e: FormEvent) => {
+    e.preventDefault();
     if (!description.trim()) {
       toast({ title: 'Prompt is required', description: 'Please enter a description.', variant: 'destructive'});
       return;
@@ -95,33 +92,14 @@ export default function AIImageGenerator() {
       setImageUrl(url);
     } catch (error: any) {
       console.error(error);
-      if (error.message.includes('402')) { // Check for our custom 402 error
-        setIsPaymentDialogOpen(true);
-      } else {
-        toast({
-          title: 'Generation Failed',
-          description: error.message || 'An unexpected error occurred.',
-          variant: 'destructive',
-        });
-      }
+      toast({
+        title: 'Generation Failed',
+        description: error.message || 'An unexpected error occurred.',
+        variant: 'destructive',
+      });
     } finally {
       setLoading(false);
-      setPaymentConfirmed(false); // Reset for next generation
     }
-  };
-
-  const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault();
-    setIsPaymentDialogOpen(true); // Always open the dialog first
-  };
-  
-  const handlePaymentConfirm = () => {
-    // This is called by the dialog on successful payment.
-    setPaymentConfirmed(true);
-    // Use a timeout to ensure the state updates before we call performGeneration
-    setTimeout(() => {
-        performGeneration();
-    }, 100);
   };
 
   return (
@@ -240,14 +218,6 @@ export default function AIImageGenerator() {
           )}
         </CardContent>
       </Card>
-
-      <PaymentDialog
-        isOpen={isPaymentDialogOpen}
-        onClose={() => setIsPaymentDialogOpen(false)}
-        onConfirm={handlePaymentConfirm}
-        featureName="AI Image Generation"
-        amount={1.00}
-      />
     </div>
   );
 }

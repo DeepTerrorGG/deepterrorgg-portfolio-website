@@ -4,38 +4,38 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Play, Pause, RefreshCw, Sparkles, AlertTriangle } from 'lucide-react';
+import { Play, Pause, RefreshCw, Sparkles, AlertTriangle, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { Slider } from '../ui/slider';
-import { Label } from '../ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
+import { Label } from '../ui/label';
 import { Alert, AlertTitle, AlertDescription } from '../ui/alert';
+import { useToast } from '@/hooks/use-toast';
+
 
 type CellValue = number | string | null;
 type Board = CellValue[][];
-type SolveStep = { board: Board; currentRow: number; currentCol: number, status: 'placing' | 'backtracking' };
 type Difficulty = 'Easy' | 'Medium' | 'Hard';
 type GridSize = 4 | 9 | 16 | 25;
 
 const puzzles: Record<GridSize, Record<Difficulty, Board>> = {
     4: {
         'Easy': [
-            [null, 1, 3, null],
-            [3, null, null, 1],
-            [2, null, null, 3],
-            [null, 2, 1, null],
+            [null, null, 4, null],
+            [3, 4, null, null],
+            [null, null, 1, 2],
+            [null, 2, null, null]
         ],
         'Medium': [
             [null, null, 2, null],
-            [1, null, null, 4],
-            [3, null, null, 2],
+            [1, null, null, null],
+            [null, null, null, 3],
             [null, 4, null, null],
         ],
         'Hard': [
-            [null, null, null, 1],
-            [null, 2, null, null],
-            [null, null, 3, null],
             [4, null, null, null],
+            [null, 1, null, null],
+            [null, null, 2, null],
+            [null, null, null, 3],
         ],
     },
     9: {
@@ -75,59 +75,64 @@ const puzzles: Record<GridSize, Record<Difficulty, Board>> = {
     },
     16: {
         'Easy': [
-            [null,11,null,null,null,13,8,3,null,null,5,null,null,null,null,9],
-            [9,null,3,null,null,null,null,null,13,null,null,null,14,1,null,null],
-            [7,null,12,null,1,null,null,15,null,null,9,null,null,5,null,null],
-            [null,null,null,null,null,null,null,11,null,12,null,14,null,null,null,3],
-            [null,null,1,13,null,null,null,null,null,null,null,null,11,null,null,6],
-            [null,5,null,null,null,null,9,null,null,1,15,7,null,null,null,null],
-            [11,null,null,null,15,null,13,null,null,null,null,10,1,null,null,null],
-            [null,14,null,15,null,null,null,1,null,null,2,null,null,7,null,null],
-            [null,null,9,null,null,14,null,null,1,null,null,null,15,null,7,null],
-            [null,null,null,3,11,null,null,null,null,15,null,13,null,null,null,10],
-            [null,null,null,null,13,10,3,null,null,7,null,null,null,null,9,null],
-            [4,null,null,1,null,null,null,null,null,null,null,null,6,2,null,null],
-            [1,null,null,null,12,null,11,null,14,null,null,null,null,null,null,null],
-            [null,null,15,null,null,5,null,null,2,null,null,null,null,4,null,12],
-            [null,null,7,2,null,null,null,10,null,null,null,null,null,15,null,13],
-            [10,null,null,null,null,9,null,null,15,8,13,null,null,null,1,null],
+            [11,5,null,null,null,13,null,8,null,2,null,null,null,1,null,null],
+            [null,null,2,null,null,11,1,null,null,15,4,null,null,null,null,null],
+            [8,null,null,12,null,null,5,null,11,null,1,null,null,null,14,null],
+            [null,null,null,1,null,null,null,3,null,null,null,6,null,null,null,null],
+            [null,13,null,null,1,null,null,null,null,5,null,null,null,null,null,9],
+            [4,null,11,null,null,null,15,null,null,null,7,null,null,2,null,null],
+            [null,null,null,10,null,null,null,7,null,null,null,null,null,null,1,null],
+            [null,1,null,null,null,14,null,null,null,null,null,null,null,null,10,13],
+            [13,8,null,null,null,null,null,null,null,null,14,null,null,null,2,null],
+            [null,9,null,null,null,null,null,null,5,null,null,null,1,null,null,null],
+            [null,null,1,null,null,12,null,null,null,16,null,null,null,15,null,7],
+            [16,null,null,null,null,null,13,null,null,null,null,2,null,null,9,null],
+            [null,null,null,null,null,15,null,null,null,4,null,null,null,14,null,null],
+            [null,10,null,null,null,1,null,null,null,3,null,null,12,null,null,2],
+            [null,null,null,null,null,9,6,null,null,1,13,null,null,10,null,null],
+            [null,11,4,null,null,null,10,null,null,null,16,null,null,null,13,15],
         ],
         'Medium': [
-            // Simplified for demonstration as a full 16x16 medium is complex to create
-            [11,null,null,null,null,null,8,null,null,null,null,10,null,null,null,4],
-            [null,5,16,null,null,null,null,1,null,null,6,null,null,12,3,null],
-            [null,null,null,9,null,13,null,11,null,null,null,7,null,16,null,null],
-            [null,null,10,null,null,null,null,null,16,null,null,null,null,null,1,null],
-            [null,null,null,null,5,null,null,null,null,null,null,15,null,null,null,null],
-            [null,14,null,null,null,12,null,null,null,1,null,null,null,null,11,null],
-            [null,null,4,null,null,null,null,null,null,null,null,null,null,null,null,null],
-            [null,null,null,1,null,null,null,null,null,null,null,null,null,null,null,null],
-            [null,null,null,null,null,null,null,null,null,null,null,null,null,1,null,null],
-            [null,null,null,null,null,null,null,null,null,null,null,null,null,null,4,null],
-            [null,11,null,null,null,null,null,null,null,12,null,null,null,14,null,null],
-            [null,null,null,null,null,null,15,null,null,null,null,null,null,null,null,null],
-            [null,1,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
-            [null,null,2,null,null,null,null,null,null,null,null,null,9,null,null,null],
-            [null,8,null,null,null,null,null,null,null,3,null,null,null,null,10,null],
-            [13,null,null,null,null,null,null,null,null,null,null,null,null,null,null,7],
+            [null, 1, 2, null, null, 3, null, null, null, 4, null, null, 16, null, null, null],
+            [null, null, null, 3, null, null, null, null, null, null, null, 5, 6, null, null, null],
+            [null, null, null, null, 11, null, null, 6, null, null, null, null, 15, null, 1, 7],
+            [7, 8, null, null, null, null, 13, null, null, null, null, 1, null, null, null, null],
+            [null, 10, null, null, 1, null, null, null, null, null, null, null, null, null, null, 8],
+            [null, null, null, null, null, 12, null, null, 3, null, null, null, null, 9, null, null],
+            [13, 14, null, null, null, null, null, null, null, 7, null, null, null, 5, null, null],
+            [null, null, null, null, null, null, 9, null, null, null, 10, null, 2, null, null, null],
+            [null, null, null, 1, null, 16, null, null, null, null, 12, null, null, null, null, null],
+            [null, null, 10, null, null, null, 11, null, null, null, null, null, null, null, 14, 4],
+            [null, null, 7, null, null, null, null, 15, null, null, 13, null, null, null, null, null],
+            [16, null, null, null, null, null, null, null, null, null, null, 8, null, null, 10, null],
+            [null, null, null, null, null, 13, null, null, 1, null, null, null, null, null, 11, 12],
+            [5, 11, null, 6, null, null, null, null, null, 14, null, null, null, null, null, null],
+            [null, null, null, 14, 15, null, null, null, null, null, null, null, 7, null, null, null],
+            [null, null, null, null, null, 1, null, null, null, 9, null, null, null, 16, 8, null]
         ],
-        'Hard': [ // This is mostly empty for a true hard challenge
-            Array(16).fill(null), Array(16).fill(null), Array(16).fill(null), Array(16).fill(null),
-            [null,null,null,null,5,null,null,null,null,null,null,15,null,null,null,null],
-            [null,14,null,null,null,12,null,null,null,1,null,null,null,null,11,null],
-            Array(16).fill(null), Array(16).fill(null), Array(16).fill(null), Array(16).fill(null),
-            [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
-            [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
-            [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
-            [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
-            [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
-            [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+        'Hard': [ 
+            [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16],
+            [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null],
+            [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null],
+            [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null],
+            [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null],
+            [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null],
+            [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null],
+            [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null],
+            [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null],
+            [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null],
+            [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null],
+            [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null],
+            [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null],
+            [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null],
+            [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null],
+            [16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1],
         ]
     },
     25: {
-        'Easy': Array(25).fill(Array(25).fill(null)), // Placeholder for 25x25, extremely complex
-        'Medium': Array(25).fill(Array(25).fill(null)),
-        'Hard': Array(25).fill(Array(25).fill(null)),
+        'Easy': Array(25).fill(null).map(() => Array(25).fill(null)),
+        'Medium': Array(25).fill(null).map(() => Array(25).fill(null)),
+        'Hard': Array(25).fill(null).map(() => Array(25).fill(null)),
     }
 };
 
@@ -139,20 +144,137 @@ const toAlphaNum = (n: number | string | null): string | null => {
     return '?';
 };
 
+const solveWithAlgorithmX = (initialBoard: Board, size: number): Board | null => {
+    const boxSize = Math.sqrt(size);
+    if (!Number.isInteger(boxSize)) return null;
+
+    const matrix: { r: number, c: number, n: number, row: number[] }[] = [];
+    const constraintsCount = size * size * 4;
+
+    for (let r = 0; r < size; r++) {
+        for (let c = 0; c < size; c++) {
+            for (let n = 1; n <= size; n++) {
+                if (initialBoard[r][c] === null || initialBoard[r][c] === n) {
+                    const row = Array(constraintsCount).fill(0);
+                    const b = Math.floor(r / boxSize) * boxSize + Math.floor(c / boxSize);
+                    
+                    row[r * size + c] = 1; // Constraint 1: Cell (r, c) is filled
+                    row[size * size + r * size + (n - 1)] = 1; // Constraint 2: Number n is in row r
+                    row[size * size * 2 + c * size + (n - 1)] = 1; // Constraint 3: Number n is in column c
+                    row[size * size * 3 + b * size + (n - 1)] = 1; // Constraint 4: Number n is in box b
+                    matrix.push({ r, c, n, row });
+                }
+            }
+        }
+    }
+    
+    class Node {
+        L: Node = this; R: Node = this; U: Node = this; D: Node = this;
+        C: ColumnNode;
+        r?: number; c?: number; n?: number;
+        constructor() {
+             this.C = null as any; // This will be set later
+        }
+    }
+
+    class ColumnNode extends Node {
+        S: number = 0; N: string;
+        constructor(name = '') {
+            super();
+            this.N = name;
+            this.C = this;
+        }
+    }
+    
+    const root = new ColumnNode('root');
+    const columns: ColumnNode[] = [];
+    for (let i = 0; i < constraintsCount; i++) {
+        const c = new ColumnNode(i.toString());
+        columns.push(c);
+        c.L = root.L; c.R = root; root.L.R = c; root.L = c;
+    }
+
+    matrix.forEach(matrixRow => {
+        let lastNode: Node | null = null;
+        matrixRow.row.forEach((value, index) => {
+            if (value === 1) {
+                const c = columns[index];
+                const newNode = new Node();
+                newNode.C = c;
+                newNode.r = matrixRow.r; newNode.c = matrixRow.c; newNode.n = matrixRow.n;
+                newNode.U = c.U; newNode.D = c; c.U.D = newNode; c.U = newNode; c.S++;
+                if (lastNode) {
+                    newNode.L = lastNode; newNode.R = lastNode.R; lastNode.R.L = newNode; lastNode.R = newNode;
+                } else {
+                    lastNode = newNode;
+                }
+            }
+        });
+    });
+
+    const solutionNodes: Node[] = [];
+    const search = (): boolean => {
+        if (root.R === root) return true;
+        
+        let c = root.R as ColumnNode;
+        let s = Infinity;
+        for (let j = root.R as ColumnNode; j !== root; j = j.R as ColumnNode) {
+            if (j.S < s) { s = j.S; c = j; }
+        }
+
+        cover(c);
+        for (let r = c.D; r !== c; r = r.D) {
+            solutionNodes.push(r);
+            for (let j = r.R; j !== r; j = j.R) { if (j.C) cover(j.C); }
+            if (search()) return true;
+            solutionNodes.pop();
+            for (let j = r.L; j !== r; j = j.L) { if (j.C) uncover(j.C); }
+        }
+        uncover(c);
+        return false;
+    };
+    
+    const cover = (c: ColumnNode) => {
+        c.R.L = c.L; c.L.R = c.R;
+        for (let i = c.D; i !== c; i = i.D) {
+            for (let j = i.R; j !== i; j = j.R) {
+                j.D.U = j.U; j.U.D = j.D;
+                if (j.C) j.C.S--;
+            }
+        }
+    };
+
+    const uncover = (c: ColumnNode) => {
+        for (let i = c.U; i !== c; i = i.U) {
+            for (let j = i.L; j !== i; j = j.L) {
+                if (j.C) j.C.S++;
+                j.D.U = j; j.U.D = j;
+            }
+        }
+        c.R.L = c; c.L.R = c;
+    };
+    
+    if (search()) {
+        const solvedBoard = initialBoard.map(r => [...r]);
+        solutionNodes.forEach(node => {
+            if (node.r !== undefined && node.c !== undefined && node.n !== undefined) {
+                solvedBoard[node.r][node.c] = node.n;
+            }
+        });
+        return solvedBoard;
+    }
+
+    return null; // No solution found
+};
+
 
 const SudokuSolver: React.FC = () => {
+    const { toast } = useToast();
     const [size, setSize] = useState<GridSize>(9);
     const [difficulty, setDifficulty] = useState<Difficulty>('Easy');
     const [board, setBoard] = useState<Board>(puzzles[9].Easy);
     const [initialBoard, setInitialBoard] = useState<Board>(puzzles[9].Easy);
     const [isSolving, setIsSolving] = useState(false);
-    const [speed, setSpeed] = useState(1);
-    const solverRef = useRef<Generator | null>(null);
-    const isSolvingRef = useRef(false);
-
-    useEffect(() => {
-        isSolvingRef.current = isSolving;
-    }, [isSolving]);
 
     const resetBoard = useCallback((newSize: GridSize, newDifficulty: Difficulty) => {
         setIsSolving(false);
@@ -177,81 +299,18 @@ const SudokuSolver: React.FC = () => {
     useEffect(() => {
         resetBoard(size, difficulty);
     }, [size, difficulty, resetBoard]);
-    
-    const isValid = (board: Board, row: number, col: number, num: CellValue, boardSize: number): boolean => {
-        if (num === null) return true;
-        for (let i = 0; i < boardSize; i++) {
-            if ((board[row][i] === num) || (board[i][col] === num)) return false;
-        }
-        const boxSize = Math.sqrt(boardSize);
-        if (!Number.isInteger(boxSize)) return false;
-        const startRow = row - (row % boxSize), startCol = col - (col % boxSize);
-        for (let i = 0; i < boxSize; i++) {
-            for (let j = 0; j < boxSize; j++) {
-                if (board[i + startRow][j + startCol] === num) return false;
-            }
-        }
-        return true;
-    };
-
-    function* solveGenerator(currentBoard: Board, boardSize: number): Generator<SolveStep, boolean> {
-        for (let row = 0; row < boardSize; row++) {
-            for (let col = 0; col < boardSize; col++) {
-                if (currentBoard[row][col] === null) {
-                    for (let num = 1; num <= boardSize; num++) {
-                        if (isValid(currentBoard, row, col, num, boardSize)) {
-                            currentBoard[row][col] = num;
-                            yield { board: currentBoard.map(r => [...r]), currentRow: row, currentCol: col, status: 'placing' };
-                            if (yield* solveGenerator(currentBoard, boardSize)) {
-                                return true;
-                            }
-                            currentBoard[row][col] = null;
-                            yield { board: currentBoard.map(r => [...r]), currentRow: row, currentCol: col, status: 'backtracking' };
-                        }
-                    }
-                    return false;
-                }
-            }
-        }
-        return true;
-    }
-
-    const animateSolve = useCallback(() => {
-        if (!isSolvingRef.current || !solverRef.current) {
-            setIsSolving(false);
-            return;
-        }
-
-        const stepsPerFrame = Math.max(1, Math.floor(Math.pow(speed, 2)));
-        let result: IteratorResult<SolveStep, boolean> | undefined;
-
-        for (let i = 0; i < stepsPerFrame; i++) {
-            result = solverRef.current.next();
-            if (result.done) {
-                if (result.value) { // Solved successfully
-                    // Final board update is already handled by the last yield
-                } else {
-                    // Could not be solved
-                }
-                setIsSolving(false);
-                return;
-            }
-        }
-
-        if (result) {
-            setBoard(result.value.board);
-        }
-
-        requestAnimationFrame(animateSolve);
-    }, [speed]);
-
 
     const handleSolve = () => {
         setIsSolving(true);
-        isSolvingRef.current = true;
-        const boardCopy = board.map(r => [...r]);
-        solverRef.current = solveGenerator(boardCopy, size);
-        requestAnimationFrame(animateSolve);
+        setTimeout(() => {
+            const solvedBoard = solveWithAlgorithmX(JSON.parse(JSON.stringify(initialBoard)), size);
+            if (solvedBoard) {
+                setBoard(solvedBoard);
+            } else {
+                toast({ title: 'No Solution Found', description: 'This puzzle is unsolvable.', variant: 'destructive' });
+            }
+            setIsSolving(false);
+        }, 50);
     };
     
     const boxSize = Math.sqrt(size);
@@ -261,7 +320,7 @@ const SudokuSolver: React.FC = () => {
             <Card className="w-full max-w-4xl mx-auto shadow-2xl">
                 <CardHeader className="text-center">
                     <CardTitle className="text-3xl font-bold text-primary flex items-center justify-center gap-2"><Sparkles/>Sudoku Solver</CardTitle>
-                    <CardDescription>Visualizing a backtracking algorithm to solve Sudoku puzzles.</CardDescription>
+                    <CardDescription>Using Algorithm X (Dancing Links) to solve Sudoku puzzles instantly.</CardDescription>
                 </CardHeader>
                 <CardContent className="flex flex-col items-center gap-6">
                     {size === 25 && (
@@ -269,7 +328,7 @@ const SudokuSolver: React.FC = () => {
                             <AlertTriangle className="h-4 w-4" />
                             <AlertTitle>Performance Warning</AlertTitle>
                             <AlertDescription>
-                                Solving a 25x25 puzzle is computationally intensive and may take a very long time, potentially freezing the browser tab.
+                                Solving a 25x25 puzzle is computationally intensive. While faster, it might still take a moment.
                             </AlertDescription>
                         </Alert>
                     )}
@@ -319,17 +378,10 @@ const SudokuSolver: React.FC = () => {
                                 </SelectContent>
                             </Select>
                         </div>
-                         <div className="md:col-span-2">
-                             <Label className="flex justify-between">
-                                <span>Speed</span>
-                                <span>{speed.toFixed(0)}x steps/frame</span>
-                             </Label>
-                             <Slider min={1} max={100} step={1} value={[speed]} onValueChange={v => setSpeed(v[0])} disabled={isSolving}/>
-                        </div>
                     </div>
                      <div className="flex gap-4">
                         <Button onClick={handleSolve} className="w-32" disabled={isSolving}>
-                            {isSolving ? <><Pause className="mr-2 h-4 w-4"/>Solving...</> : <><Play className="mr-2 h-4 w-4"/>Solve</>}
+                            {isSolving ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : <><Play className="mr-2 h-4 w-4"/>Solve</>}
                         </Button>
                         <Button onClick={() => resetBoard(size, difficulty)} variant="outline">
                             <RefreshCw className="mr-2 h-4 w-4"/>Reset
@@ -342,4 +394,3 @@ const SudokuSolver: React.FC = () => {
 };
 
 export default SudokuSolver;
-

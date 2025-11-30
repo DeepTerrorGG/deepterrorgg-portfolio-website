@@ -12,7 +12,6 @@ import { Progress } from '../ui/progress';
 import { Label } from '../ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { Input } from '../ui/input';
-import { PaymentDialog } from '@/components/PaymentDialog';
 
 type GenerationStatus = 'idle' | 'generating' | 'done' | 'error';
 type AspectRatio = '16:9' | '9:16' | '4:3' | '1:1';
@@ -27,12 +26,10 @@ export default function AIVideoGenerator() {
   // Advanced options
   const [aspectRatio, setAspectRatio] = useState<AspectRatio>('16:9');
   const [negativePrompt, setNegativePrompt] = useState('');
-
-  const [isPaymentDialogOpen, setIsPaymentDialogOpen] = useState(false);
-  const [paymentConfirmed, setPaymentConfirmed] = useState(false);
   const pendingGenerationData = useRef<any>(null);
 
-  const performGeneration = async () => {
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
      if (!prompt.trim()) {
       toast({ title: 'Prompt is required', description: 'Please enter a description for the video.', variant: 'destructive' });
       return;
@@ -68,38 +65,16 @@ export default function AIVideoGenerator() {
     } catch (error: any) {
       clearInterval(progressInterval);
       
-      if (error.message.includes('402')) {
-        setIsPaymentDialogOpen(true);
-        setStatus('idle');
-        setProgress(0);
-      } else {
-        setStatus('error');
-        setProgress(0);
-        console.error(error);
-        toast({
-          title: 'Generation Failed',
-          description: error.message || 'An unexpected error occurred.',
-          variant: 'destructive',
-        });
-      }
-    } finally {
-        if (!error.message.includes('402')) {
-            setPaymentConfirmed(false);
-        }
+      setStatus('error');
+      setProgress(0);
+      console.error(error);
+      toast({
+        title: 'Generation Failed',
+        description: error.message || 'An unexpected error occurred.',
+        variant: 'destructive',
+      });
     }
   }
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsPaymentDialogOpen(true);
-  };
-  
-  const handlePaymentConfirm = () => {
-    setPaymentConfirmed(true);
-    setTimeout(() => {
-        performGeneration();
-    }, 100);
-  };
 
   const isLoading = status === 'generating';
 
@@ -173,13 +148,6 @@ export default function AIVideoGenerator() {
           )}
         </CardContent>
       </Card>
-      <PaymentDialog
-        isOpen={isPaymentDialogOpen}
-        onClose={() => setIsPaymentDialogOpen(false)}
-        onConfirm={handlePaymentConfirm}
-        featureName="AI Video Generation"
-        amount={5.00}
-      />
     </div>
   );
 }

@@ -19,7 +19,6 @@ import {
   DialogClose,
 } from "@/components/ui/dialog";
 import { DoomIcon } from '@/components/icons/doom';
-import { logActivity } from '@/lib/logger';
 
 // Statically import all project components
 import TodoList from '@/components/projects/todo-list';
@@ -41,7 +40,6 @@ import TicTacToe from '@/components/projects/tic-tac-toe';
 import RockPaperScissors from '@/components/projects/rock-paper-scissors';
 import CharacterCounter from '@/components/projects/character-counter';
 import CollaborativeWhiteboard from '@/components/projects/collaborative-whiteboard';
-import KanbanBoard from '@/components/projects/kanban-board';
 import PixelEditor from '@/components/projects/pixel-editor';
 import TurnBasedStrategy from '@/components/projects/turn-based-strategy';
 import DeckBuildingRoguelike from '@/components/projects/deck-building-roguelike';
@@ -58,8 +56,6 @@ import SpotifyPlaylistGenerator from '@/components/projects/spotify-playlist-gen
 import SpeedTester from '@/components/projects/speed-tester';
 import PathfindingVisualizer from '@/components/projects/pathfinding-visualizer';
 import AsciiWebcam from '@/components/projects/ascii-webcam';
-import TierListMaker from '@/components/projects/tier-list/tier-list-maker';
-import MemeStockMarket from '@/components/projects/meme-stock-market';
 import CodeRacer from '@/components/projects/code-racer';
 import TimeCapsuleProject from '@/components/projects/time-capsule';
 import InfiniteCanvas from '@/components/projects/infinite-canvas';
@@ -76,7 +72,7 @@ import DigitalAssetManager from '@/components/projects/digital-asset-manager';
 import PaymentLedger from '@/components/projects/payment-ledger';
 import LogIngestor from '@/components/projects/log-ingestor';
 import HeadlessCms from '@/components/projects/headless-cms';
-import MinesweeperSolver from '@/components/projects/minesweeper';
+import DistributedFractalExplorer from '@/components/projects/distributed-fractal-explorer';
 
 interface Technology {
   name: string;
@@ -94,13 +90,31 @@ interface Project {
   longDescription?: string;
   personalNote: string;
   difficulty: 'Easy' | 'Medium' | 'Hard' | 'Advanced' | 'AI' | 'Community' | 'Meme';
-  technologies: Technology[];
   component?: React.ReactNode;
   externalLink?: string;
   renderImage: boolean;
+  technologies: Technology[];
 }
 
 const projectsData: Project[] = [
+    {
+      id: 'distributed-fractal-explorer',
+      title: 'Distributed Fractal Explorer',
+      imageUrls: ['/placeholder.png'],
+      imageAlt: 'Distributed fractal rendering',
+      imageHint: 'fractal distributed computing',
+      description: 'A distributed computing project where every visitor helps render a small piece of a massive fractal.',
+      personalNote: 'This is an ambitious project inspired by SETI@home. It uses Firestore as a job queue. Visitors act as workers, claiming a "tile" to render via a serverless function, processing it in a web worker, and submitting it back. It\'s a full-stack showcase of distributed systems thinking.',
+      difficulty: 'Advanced',
+      component: <DistributedFractalExplorer />,
+      technologies: [
+        { name: 'React', iconSrc: '/icons/react.svg' },
+        { name: 'Next.js', iconSrc: '/icons/nextjs.svg' },
+        { name: 'Firebase', iconSrc: '/icons/firebase.svg' },
+        { name: 'Web Workers', iconSrc: '/icons/javascript.svg' },
+      ],
+      renderImage: true,
+    },
     {
       id: 'headless-cms',
       title: 'Headless CMS',
@@ -128,7 +142,7 @@ const projectsData: Project[] = [
       imageHint: 'log pipeline dashboard',
       description: 'A dashboard that displays real-time logs from across the application, demonstrating a scalable system architecture for handling streaming data.',
       personalNote: 'This project is a real, functioning logging system. Other parts of this portfolio, like page navigations and AI actions, generate logs that are written to Firestore. This dashboard then displays those logs live, showcasing an understanding of real-time data flow and system observability.',
-      difficulty: 'Advanced',
+      difficulty: 'Hard',
       component: <LogIngestor />,
       technologies: [
         { name: 'React', iconSrc: '/icons/react.svg' },
@@ -257,25 +271,8 @@ const projectsData: Project[] = [
       imageHint: 'sudoku board algorithm',
       description: 'Watch a backtracking algorithm solve a Sudoku puzzle in real-time, visualizing its "thinking" process as it tries and retracts numbers.',
       personalNote: 'This project is a great way to understand recursion and backtracking. Using a generator function to `yield` each step of the algorithm to React for rendering was a fun and powerful technique for visualizing complex logic.',
-      difficulty: 'Hard',
+      difficulty: 'Advanced',
       component: <SudokuSolver />,
-      technologies: [
-        { name: 'React', iconSrc: '/icons/react.svg' },
-        { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },
-        { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss.svg' },
-      ],
-      renderImage: true,
-    },
-    {
-      id: 'minesweeper-solver',
-      title: 'Minesweeper Solver',
-      imageUrls: ['/placeholder.png'],
-      imageAlt: 'A classic Minesweeper game board being solved by an AI',
-      imageHint: 'minesweeper game logic solver',
-      description: 'The classic puzzle game, but an AI plays it for you, visualizing its logical steps.',
-      personalNote: 'Implementing a Minesweeper solver is a great exercise in logic and algorithms. This visualizer shows how a computer "thinks" by applying simple, deterministic rules to clear the board, highlighting the cells it\'s currently analyzing.',
-      difficulty: 'Hard',
-      component: <MinesweeperSolver />,
       technologies: [
         { name: 'React', iconSrc: '/icons/react.svg' },
         { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },
@@ -407,43 +404,6 @@ const projectsData: Project[] = [
         { name: 'React', iconSrc: '/icons/react.svg' },
         { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },
         { name: 'Monaco Editor', iconSrc: '/icons/vscode.svg' },
-        { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss.svg' },
-        { name: 'Firebase', iconSrc: '/icons/firebase.svg' },
-      ],
-      renderImage: true,
-    },
-    {
-      id: 'meme-stock-market',
-      title: 'Meme Stock Market',
-      imageUrls: ['/placeholder.png'],
-      imageAlt: 'A meme stock market interface with charts',
-      imageHint: 'meme stock market chart',
-      description: 'A parody financial app where you invest fake money in meme templates. Prices fluctuate based on simulated demand.',
-      personalNote: 'This project is a fun take on stock trading, built with a real-time feel. It uses client-side logic to simulate a volatile market, making for an engaging and humorous experience. The next step is to connect it to a real database like Supabase for live, multiplayer trading.',
-      difficulty: 'Hard',
-      component: <MemeStockMarket />,
-      technologies: [
-        { name: 'React', iconSrc: '/icons/react.svg' },
-        { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },
-        { name: 'Recharts', iconSrc: '/icons/recharts.svg' },
-        { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss.svg' },
-      ],
-      renderImage: true,
-    },
-    {
-      id: 'tier-list-maker',
-      title: 'Community Tier List Maker',
-      imageUrls: ['/placeholder.png'],
-      imageAlt: 'A tier list maker interface for ranking items',
-      imageHint: 'tier list ranking chart',
-      description: 'Create and share your own tier lists. Drag and drop items into S, A, B, C, or D tiers.',
-      personalNote: 'This project was a fun challenge in creating a smooth and intuitive drag-and-drop interface with React. The next step is to add a database to save rankings and create a global community-voted master list.',
-      difficulty: 'Advanced',
-      component: <TierListMaker />,
-      technologies: [
-        { name: 'React', iconSrc: '/icons/react.svg' },
-        { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },
-        { name: '@dnd-kit', iconSrc: '/icons/dnd-kit.svg' },
         { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss.svg' },
         { name: 'Firebase', iconSrc: '/icons/firebase.svg' },
       ],
@@ -657,24 +617,6 @@ const projectsData: Project[] = [
       { name: 'React', iconSrc: '/icons/react.svg' },
       { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },
       { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss.svg' },
-    ],
-    renderImage: true,
-  },
-  {
-    id: 'kanban-board',
-    title: 'Project Management Board',
-    imageUrls: ['/placeholder.png'],
-    imageAlt: 'A Kanban-style project management board',
-    imageHint: 'kanban board project management',
-    description: 'A Trello-like board with draggable cards to manage tasks across different stages of a workflow.',
-    personalNote: 'This project was a fantastic exercise in complex state management and user interaction. Implementing smooth drag-and-drop functionality using native browser APIs and ensuring the state updates correctly was a rewarding challenge.',
-    difficulty: 'Advanced',
-    component: <KanbanBoard />,
-    technologies: [
-      { name: 'React', iconSrc: '/icons/react.svg' },
-      { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },
-      { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss.svg' },
-       { name: 'Firebase', iconSrc: '/icons/firebase.svg' },
     ],
     renderImage: true,
   },
@@ -1154,7 +1096,6 @@ export default function ProjectsPage() {
   const handleProjectSelect = (project: Project) => {
     setSelectedProjectId(project.id);
     setMobileProject(project);
-    logActivity(`Viewed project: ${project.title}`);
   };
 
   return (
@@ -1215,7 +1156,7 @@ export default function ProjectsPage() {
               {allProjects.map((project) => (
                 <li key={project.id}>
                   <button
-                    onClick={() => { setSelectedProjectId(project.id); logActivity(`Viewed project: ${project.title}`); }}
+                    onClick={() => setSelectedProjectId(project.id)}
                     className={cn(
                       "w-full text-left p-3 rounded-md transition-colors duration-200",
                       selectedProjectId === project.id
@@ -1237,7 +1178,7 @@ export default function ProjectsPage() {
           <ScrollArea className="h-full">
             <div className="animate-fade-in flex flex-col min-h-full">
                 {/* Project Component Area */}
-                <div className="flex-shrink-0 flex items-center justify-center relative bg-muted/20 border-b border-border min-h-[50vh]">
+                <div className="flex-shrink-0 flex items-center justify-center relative bg-muted/20 border-b border-border min-h-[60vh]">
                     {selectedProject.component}
                 </div>
 

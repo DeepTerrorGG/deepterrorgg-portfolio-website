@@ -1,3 +1,4 @@
+
 'use client';
 
 import Link from 'next/link';
@@ -8,7 +9,7 @@ import AnimateOnScroll from '@/components/ui/animate-on-scroll';
 import { Button } from '@/components/ui/button';
 import { ArrowRight, Mail, User, ArrowUp, Compass, Monitor } from 'lucide-react';
 import SplineShowcase from '@/components/home/spline-showcase';
-import type { Spline } from '@splinetool/react-spline';
+import type Spline from '@splinetool/react-spline';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import React, { useState, useEffect, useRef } from 'react';
 import PreloadingLink from '@/components/ui/preloading-link';
@@ -30,55 +31,65 @@ const SplineModel = React.lazy(
 
 const featuredProjects = [
     {
-      id: 'code-editor',
-      title: 'AI Coding Assistant',
-      description: 'A code editor with an integrated AI assistant that can explain, refactor, and add comments to your code. A powerful tool demonstrating the future of software development.',
-      technologies: [
-        { name: 'React', iconSrc: '/icons/react.svg' },
-        { name: 'Next.js', iconSrc: '/icons/nextjs.svg' },
-        { name: 'Genkit', iconSrc: '/icons/genkit.svg' },
-        { name: 'Monaco Editor', iconSrc: '/icons/vscode.svg' },
-      ],
-    },
-    {
-      id: 'collaborative-whiteboard',
-      title: 'Real-Time Collaborative Whiteboard',
-      description: 'A shared digital canvas where users can draw in real-time. A complex project combining data synchronization with a custom HTML canvas rendering engine.',
+      id: 'distributed-fractal-explorer',
+      title: 'Distributed Fractal Explorer',
+      description: 'A distributed computing project where visitors help render a massive fractal. It uses Firestore as a job queue and Web Workers for client-side processing.',
       technologies: [
         { name: 'React', iconSrc: '/icons/react.svg' },
         { name: 'Next.js', iconSrc: '/icons/nextjs.svg' },
         { name: 'Firebase', iconSrc: '/icons/firebase.svg' },
-        { name: 'Genkit', iconSrc: '/icons/genkit.svg' },
+        { name: 'Web Workers', iconSrc: '/icons/javascript.svg' },
       ],
     },
     {
-      id: 'deck-building-roguelike',
-      title: 'Deck-Builder Adventure',
-      description: 'A single-player card game where you build a powerful deck to battle through a procedurally generated map. A huge challenge in system and game design.',
+      id: 'ecommerce-dashboard',
+      title: 'E-commerce Dashboard',
+      description: 'A mock e-commerce admin dashboard with data tables, charts, and key metrics. Demonstrates handling complex data and creating professional UIs.',
+      technologies: [
+        { name: 'React', iconSrc: '/icons/react.svg' },
+        { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },
+        { name: 'Recharts', iconSrc: '/icons/recharts.svg' },
+        { name: '@tanstack/table', iconSrc: '/icons/react-query.svg' },
+      ],
+    },
+    {
+      id: 'payment-ledger',
+      title: 'Payment Ledger Simulation',
+      description: 'A simulation of a banking backend using double-entry bookkeeping to ensure transactional integrity, preventing issues like "double-spending".',
+      technologies: [
+        { name: 'React', iconSrc: '/icons/react.svg' },
+        { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },
+        { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss.svg' },
+      ],
+    },
+     {
+      id: 'headless-cms',
+      title: 'Headless CMS',
+      description: 'A tool like Contentful. Define content schemas, and the API endpoints are automatically generated, demonstrating dynamic API creation.',
+      technologies: [
+        { name: 'React', iconSrc: '/icons/react.svg' },
+        { name: 'Next.js', iconSrc: '/icons/nextjs.svg' },
+        { name: 'Firebase', iconSrc: '/icons/firebase.svg' },
+      ],
+    },
+    {
+      id: 'spreadsheet',
+      title: 'Web-Based Spreadsheet',
+      description: 'A simplified, in-browser spreadsheet application that supports basic formulas, complex state management, and performance optimization.',
+       technologies: [
+        { name: 'React', iconSrc: '/icons/react.svg' },
+        { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },
+        { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss.svg' },
+      ],
+    },
+    {
+      id: 'sudoku-solver',
+      title: 'Sudoku Solver Visualization',
+      description: 'Watch a backtracking algorithm solve a Sudoku puzzle in real-time, visualizing its "thinking" process as it tries and retracts numbers.',
        technologies: [
         { name: 'React', iconSrc: '/icons/react.svg' },
         { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },
         { name: 'Framer Motion', iconSrc: '/icons/framer.svg' },
-      ],
-    },
-     {
-      id: 'githistory-visualizer',
-      title: 'Git History Visualizer',
-      description: 'An animated visualization that plays back a project\'s commit history, showing files as an evolving, galaxy-like node graph using D3.js.',
-      technologies: [
-        { name: 'React', iconSrc: '/icons/react.svg' },
-        { name: 'D3.js', iconSrc: '/icons/d3.svg' },
-        { name: 'Framer Motion', iconSrc: '/icons/framer.svg' },
-      ],
-    },
-    {
-      id: 'kanban-board',
-      title: 'Project Management Board',
-      description: 'A Trello-like board with draggable cards to manage tasks. A fantastic exercise in complex state management, real-time updates, and user interaction.',
-      technologies: [
-        { name: 'React', iconSrc: '/icons/react.svg' },
-        { name: 'Firebase', iconSrc: '/icons/firebase.svg' },
-        { name: 'dnd-kit', iconSrc: '/icons/dnd-kit.svg' },
       ],
     },
 ];

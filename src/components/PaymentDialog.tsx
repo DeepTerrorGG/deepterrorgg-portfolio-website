@@ -46,29 +46,28 @@ export const PaymentDialog: React.FC<PaymentDialogProps> = ({
     try {
       const response = await fetch('/api/create-charge', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+        },
         body: JSON.stringify({
-          name: `AI Generation: ${featureName}`,
-          description: `One-time payment for using the ${featureName} feature.`,
+          name: `Unlock: ${featureName}`,
+          description: `One-time payment to access the ${featureName} feature.`,
           amount: amount.toFixed(2),
         }),
       });
 
       if (response.status === 402) {
-        const data = await response.json();
-        setCharge(data);
-      } else if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to create payment charge.');
+        const chargeData: ChargeResponse = await response.json();
+        setCharge(chargeData);
       } else {
-         // This case shouldn't happen with a 402 flow, but as a fallback
-        throw new Error('Unexpected response from server.');
+        const errorData = await response.json();
+        throw new Error(errorData.error || `Failed to create charge. Status: ${response.status}`);
       }
 
     } catch (error: any) {
       toast({
         title: 'Payment Error',
-        description: error.message,
+        description: error.message || "Could not initiate payment process.",
         variant: 'destructive',
       });
       setPaymentStatus('error');
@@ -77,24 +76,33 @@ export const PaymentDialog: React.FC<PaymentDialogProps> = ({
     }
   };
   
-  // When the dialog opens, create a new charge.
   useEffect(() => {
     if (isOpen) {
       createCharge();
     }
   }, [isOpen]);
 
-  // SIMULATION: In a real app, you'd use webhooks or polling to confirm payment.
-  // Here, we'll just confirm it after they've visited the payment page.
   const handleProceedToPayment = () => {
     if (!charge?.hosted_url) return;
-    window.open(charge.hosted_url, '_blank');
-    // Simulate a successful payment after a delay
+    
+    // Open the actual Coinbase checkout page in a new tab
+    window.open(charge.hosted_url, '_blank', 'noopener,noreferrer');
+    
+    // For this demo, we'll assume the payment is successful after a delay
+    toast({
+        title: 'Redirected to Payment',
+        description: 'Once payment is complete, you can use the feature. We will simulate success in a moment.'
+    });
+
     setPaymentStatus('paid');
     setTimeout(() => {
       onConfirm();
       onClose();
-    }, 1500);
+       toast({
+        title: 'Payment Confirmed!',
+        description: 'Your access has been granted for this session.'
+      });
+    }, 2500); // Wait a bit before "confirming"
   };
   
   const renderContent = () => {
@@ -102,7 +110,7 @@ export const PaymentDialog: React.FC<PaymentDialogProps> = ({
       return (
         <div className="flex flex-col items-center justify-center h-48 gap-4">
           <Loader2 className="h-12 w-12 animate-spin text-primary" />
-          <p className="text-muted-foreground">Generating payment invoice...</p>
+          <p className="text-muted-foreground">Connecting to payment service...</p>
         </div>
       );
     }
@@ -111,8 +119,8 @@ export const PaymentDialog: React.FC<PaymentDialogProps> = ({
       return (
         <div className="flex flex-col items-center justify-center h-48 gap-4 text-center">
             <CheckCircle className="h-16 w-16 text-green-500" />
-            <h3 className="text-xl font-bold">Payment Received!</h3>
-            <p className="text-muted-foreground">Your AI generation will begin shortly.</p>
+            <h3 className="text-xl font-bold">Payment "Confirmed"!</h3>
+            <p className="text-muted-foreground">Unlocking feature...</p>
         </div>
       );
     }
@@ -121,10 +129,10 @@ export const PaymentDialog: React.FC<PaymentDialogProps> = ({
       return (
         <>
           <DialogDescription>
-            To use the {featureName} feature, a one-time payment of ${amount.toFixed(2)} is required. Please proceed to complete the transaction with Coinbase.
+            To use the {featureName} feature, a one-time payment of ${amount.toFixed(2)} is required via Coinbase Commerce.
           </DialogDescription>
           <div className="py-4 text-center">
-            <p className="text-sm text-muted-foreground">You will be redirected to Coinbase Commerce to complete your payment securely.</p>
+            <p className="text-sm text-muted-foreground">Click below to proceed to the secure checkout page.</p>
           </div>
         </>
       );
@@ -132,7 +140,7 @@ export const PaymentDialog: React.FC<PaymentDialogProps> = ({
     
     return (
         <div className="flex flex-col items-center justify-center h-48 gap-4">
-            <p className="text-destructive text-center">Could not create a payment charge. Please ensure your API keys are configured correctly or try again later.</p>
+            <p className="text-destructive text-center">Could not create a payment charge. Please ensure the Coinbase API key is configured on the server and try again.</p>
         </div>
     );
   }
@@ -150,11 +158,12 @@ export const PaymentDialog: React.FC<PaymentDialogProps> = ({
         {renderContent()}
 
         <DialogFooter>
-          <Button variant="outline" onClick={onClose}>
+          <Button variant="outline" onClick={onClose} disabled={paymentStatus === 'paid'}>
             Cancel
           </Button>
           <Button onClick={handleProceedToPayment} disabled={!charge || isLoading || paymentStatus === 'paid'}>
-            Pay with Coinbase <ExternalLink className="ml-2 h-4 w-4" />
+            <ExternalLink className="mr-2 h-4 w-4"/>
+            Proceed to Payment
           </Button>
         </DialogFooter>
       </DialogContent>

@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
@@ -6,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { BrainCircuit, Play, RefreshCw } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { LeaderboardWrapper } from '../leaderboard-wrapper';
 
 type GameState = 'idle' | 'watching' | 'repeating' | 'game-over';
 const GRID_SIZE = 3;
@@ -85,53 +87,55 @@ const MemoryMatrix: React.FC = () => {
     }
 
     return (
-        <div className="flex flex-col items-center justify-center w-full h-full bg-card p-4 sm:p-6 lg:p-8">
-            <Card className="w-full max-w-md mx-auto shadow-2xl">
-                <CardHeader className="text-center">
-                    <CardTitle className="text-3xl font-bold text-primary flex items-center justify-center gap-2">
-                        <BrainCircuit /> Memory Matrix
-                    </CardTitle>
-                    <CardDescription>Memorize the sequence.</CardDescription>
-                </CardHeader>
-                <CardContent className="flex flex-col items-center gap-6">
-                    <div className="flex justify-between w-full font-mono text-lg">
-                        <span>Level: {level}</span>
-                        <span>Sequence: {sequence.length}</span>
-                    </div>
+        <LeaderboardWrapper gameId="memoryMatrix" score={level} isGameOver={gameState === 'game-over'}>
+            <div className="flex flex-col items-center justify-center w-full h-full bg-card p-4 sm:p-6 lg:p-8">
+                <Card className="w-full max-w-md mx-auto shadow-2xl">
+                    <CardHeader className="text-center">
+                        <CardTitle className="text-3xl font-bold text-primary flex items-center justify-center gap-2">
+                            <BrainCircuit /> Memory Matrix
+                        </CardTitle>
+                        <CardDescription>Memorize the sequence.</CardDescription>
+                    </CardHeader>
+                    <CardContent className="flex flex-col items-center gap-6">
+                        <div className="flex justify-between w-full font-mono text-lg">
+                            <span>Level: {level}</span>
+                            <span>Sequence: {sequence.length}</span>
+                        </div>
 
-                    <div 
-                        className="grid gap-2" 
-                        style={{ gridTemplateColumns: `repeat(${GRID_SIZE}, minmax(0, 1fr))`}}
-                    >
-                        {Array.from({ length: GRID_SIZE * GRID_SIZE }).map((_, index) => (
-                             <motion.button
-                                key={index}
-                                onClick={() => handlePlayerClick(index)}
-                                disabled={gameState !== 'repeating'}
-                                className={cn(
-                                    "w-20 h-20 sm:w-24 sm:h-24 rounded-lg transition-colors duration-200",
-                                    "bg-muted",
-                                    gameState === 'repeating' && "cursor-pointer hover:bg-muted/80",
-                                    activeTile === index && "!bg-primary"
-                                )}
-                                whileTap={gameState === 'repeating' ? { scale: 0.95, backgroundColor: '#4f46e5' } : {}}
-                            />
-                        ))}
-                    </div>
+                        <div 
+                            className="grid gap-2" 
+                            style={{ gridTemplateColumns: `repeat(${GRID_SIZE}, minmax(0, 1fr))`}}
+                        >
+                            {Array.from({ length: GRID_SIZE * GRID_SIZE }).map((_, index) => (
+                                <motion.button
+                                    key={index}
+                                    onClick={() => handlePlayerClick(index)}
+                                    disabled={gameState !== 'repeating'}
+                                    className={cn(
+                                        "w-20 h-20 sm:w-24 sm:h-24 rounded-lg transition-colors duration-200",
+                                        "bg-muted",
+                                        gameState === 'repeating' && "cursor-pointer hover:bg-muted/80",
+                                        activeTile === index && "!bg-primary"
+                                    )}
+                                    whileTap={gameState === 'repeating' ? { scale: 0.95, backgroundColor: '#4f46e5' } : {}}
+                                />
+                            ))}
+                        </div>
 
-                    <p className="text-muted-foreground h-6">{getStatusMessage()}</p>
-                    
-                    {gameState === 'idle' || gameState === 'game-over' ? (
-                        <Button onClick={startGame} size="lg">
-                            {gameState === 'idle' ? <Play className="mr-2 h-5 w-5"/> : <RefreshCw className="mr-2 h-5 w-5"/>}
-                            {gameState === 'idle' ? 'Start Game' : 'Play Again'}
-                        </Button>
-                    ) : (
-                        <div className="h-14"/> // Placeholder for button height
-                    )}
-                </CardContent>
-            </Card>
-        </div>
+                        <p className="text-muted-foreground h-6">{getStatusMessage()}</p>
+                        
+                        {gameState === 'idle' || gameState === 'game-over' ? (
+                            <Button onClick={startGame} size="lg">
+                                {gameState === 'idle' ? <Play className="mr-2 h-5 w-5"/> : <RefreshCw className="mr-2 h-5 w-5"/>}
+                                {gameState === 'idle' ? 'Start Game' : 'Play Again'}
+                            </Button>
+                        ) : (
+                            <div className="h-14"/> // Placeholder for button height
+                        )}
+                    </CardContent>
+                </Card>
+            </div>
+        </LeaderboardWrapper>
     );
 };
 

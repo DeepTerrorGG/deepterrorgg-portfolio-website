@@ -15,13 +15,17 @@ const TimeCapsuleProject: React.FC = () => {
   const firestore = useFirestore();
   
   const capsulesQuery = useMemoFirebase(
-    () => query(collection(firestore, 'timeCapsules')),
+    () => {
+        if (!firestore) return null;
+        return query(collection(firestore, 'timeCapsules'));
+    },
     [firestore]
   );
   const { data: capsulesData, isLoading: isLoadingCapsules } = useCollection<Omit<TimeCapsule, 'unlockDate'> & { unlockDate: Timestamp }>(capsulesQuery);
 
   const capsules: TimeCapsule[] = React.useMemo(() => {
-    return (capsulesData || []).map(c => ({
+    if (!capsulesData) return [];
+    return capsulesData.map(c => ({
       ...c,
       unlockDate: c.unlockDate.toDate(),
     }));
@@ -30,11 +34,13 @@ const TimeCapsuleProject: React.FC = () => {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
 
   const handleAddCapsule = (capsule: { encryptedMessage: string; unlockDate: Date; }) => {
+    if (!firestore) return;
     const capsuleColRef = collection(firestore, 'timeCapsules');
     addDocumentNonBlocking(capsuleColRef, capsule);
   };
   
   const handleDeleteCapsule = (id: string) => {
+    if (!firestore) return;
     const capsuleDocRef = doc(firestore, 'timeCapsules', id);
     deleteDocumentNonBlocking(capsuleDocRef);
   };

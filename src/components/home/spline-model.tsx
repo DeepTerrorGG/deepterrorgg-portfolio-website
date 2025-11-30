@@ -23,15 +23,10 @@ export default function SplineModel({ sceneUrl, onLoad, className, ...props }: S
       onLoad(spline);
     }
   };
-  
-  const handleWheel = (e: React.WheelEvent<HTMLDivElement>) => {
-    e.stopPropagation();
-  }
 
   return (
     <div 
       className={cn("relative w-full h-full", className)}
-      onWheel={handleWheel}
     >
       {isLoading && (
         <Skeleton className="absolute inset-0 w-full h-full" />

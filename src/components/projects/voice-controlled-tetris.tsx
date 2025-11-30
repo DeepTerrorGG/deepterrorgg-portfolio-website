@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Play, Pause, RefreshCw, MicOff } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { BOARD_WIDTH, BOARD_HEIGHT, createEmptyBoard, randomTetromino } from '@/lib/tetris';
+import { LeaderboardWrapper } from '../leaderboard-wrapper';
 
 type Player = {
   pos: { x: number; y: number };
@@ -274,49 +275,51 @@ const VoiceControlledTetris: React.FC = () => {
   }, [isGameOver, isPaused, playerDrop, hardDrop]);
 
   return (
-    <div className="w-full h-full bg-card flex items-center justify-center p-4" onKeyDown={handleKeyDown} tabIndex={0} ref={gameAreaRef}>
-      <div className="flex flex-col lg:flex-row gap-8 items-start">
-        <Card className="w-full lg:w-56 bg-muted/30 border-border order-last lg:order-first">
-          <CardHeader><CardTitle>Stats</CardTitle></CardHeader>
-          <CardContent className="space-y-4">
-            <div><p className="text-sm text-muted-foreground">Score</p><p className="font-bold text-lg">{score}</p></div>
-            <div><p className="text-sm text-muted-foreground">Lines</p><p className="font-bold text-lg">{lines}</p></div>
-            <div><p className="text-sm text-muted-foreground">Level</p><p className="font-bold text-lg">{level}</p></div>
-            <div className="pt-4"><p className="text-sm text-muted-foreground mb-2">Next Piece</p><NextPieceDisplay piece={nextPiece} /></div>
-          </CardContent>
-        </Card>
+    <LeaderboardWrapper gameId="tetris" score={score} isGameOver={isGameOver}>
+      <div className="w-full h-full bg-card flex items-center justify-center p-4" onKeyDown={handleKeyDown} tabIndex={0} ref={gameAreaRef}>
+        <div className="flex flex-col lg:flex-row gap-8 items-start">
+          <Card className="w-full lg:w-56 bg-muted/30 border-border order-last lg:order-first">
+            <CardHeader><CardTitle>Stats</CardTitle></CardHeader>
+            <CardContent className="space-y-4">
+              <div><p className="text-sm text-muted-foreground">Score</p><p className="font-bold text-lg">{score}</p></div>
+              <div><p className="text-sm text-muted-foreground">Lines</p><p className="font-bold text-lg">{lines}</p></div>
+              <div><p className="text-sm text-muted-foreground">Level</p><p className="font-bold text-lg">{level}</p></div>
+              <div className="pt-4"><p className="text-sm text-muted-foreground mb-2">Next Piece</p><NextPieceDisplay piece={nextPiece} /></div>
+            </CardContent>
+          </Card>
 
-        <div className="relative shadow-2xl">
-          <GameBoard board={board} player={player} />
-          {(isGameOver || isPaused) && (
-             <div className="absolute inset-0 bg-black/70 flex flex-col items-center justify-center gap-4 z-10">
-               <h2 className="text-3xl font-bold text-white">{isGameOver ? "Game Over" : "Paused"}</h2>
-               <Button onClick={startGame}><RefreshCw className="mr-2"/>{isGameOver ? 'Play Again' : 'Restart'}</Button>
-               {isPaused && !isGameOver && <Button onClick={() => setIsPaused(false)}>Resume</Button>}
-            </div>
-          )}
+          <div className="relative shadow-2xl">
+            <GameBoard board={board} player={player} />
+            {(isGameOver || isPaused) && (
+              <div className="absolute inset-0 bg-black/70 flex flex-col items-center justify-center gap-4 z-10">
+                <h2 className="text-3xl font-bold text-white">{isGameOver ? "Game Over" : "Paused"}</h2>
+                <Button onClick={startGame}><RefreshCw className="mr-2"/>{isGameOver ? 'Play Again' : 'Restart'}</Button>
+                {isPaused && !isGameOver && <Button onClick={() => setIsPaused(false)}>Resume</Button>}
+              </div>
+            )}
+          </div>
+          
+          <Card className="w-full lg:w-56 bg-muted/30 border-border">
+              <CardHeader><CardTitle>Controls</CardTitle></CardHeader>
+              <CardContent className="space-y-2 text-sm text-muted-foreground">
+                  <p><strong>Arrows:</strong> Move</p>
+                  <p><strong>Up / X:</strong> Rotate</p>
+                  <p><strong>Space:</strong> Hard Drop</p>
+                  <p><strong>P:</strong> Pause</p>
+              </CardContent>
+              <CardHeader><CardTitle>Voice</CardTitle></CardHeader>
+              <CardContent className="space-y-4">
+                  <Button variant="outline" className="w-full" disabled>
+                      <MicOff className="mr-2"/> Voice Disabled
+                  </Button>
+                  <div className="bg-black/30 p-2 rounded-md h-12 flex items-center justify-center">
+                      <p className="text-sm text-muted-foreground italic">Voice command...</p>
+                  </div>
+              </CardContent>
+          </Card>
         </div>
-        
-        <Card className="w-full lg:w-56 bg-muted/30 border-border">
-            <CardHeader><CardTitle>Controls</CardTitle></CardHeader>
-            <CardContent className="space-y-2 text-sm text-muted-foreground">
-                <p><strong>Arrows:</strong> Move</p>
-                <p><strong>Up / X:</strong> Rotate</p>
-                <p><strong>Space:</strong> Hard Drop</p>
-                <p><strong>P:</strong> Pause</p>
-            </CardContent>
-            <CardHeader><CardTitle>Voice</CardTitle></CardHeader>
-             <CardContent className="space-y-4">
-                 <Button variant="outline" className="w-full" disabled>
-                     <MicOff className="mr-2"/> Voice Disabled
-                 </Button>
-                <div className="bg-black/30 p-2 rounded-md h-12 flex items-center justify-center">
-                    <p className="text-sm text-muted-foreground italic">Voice command...</p>
-                </div>
-            </CardContent>
-        </Card>
       </div>
-    </div>
+    </LeaderboardWrapper>
   );
 };
 

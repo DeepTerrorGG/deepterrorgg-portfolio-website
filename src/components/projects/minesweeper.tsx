@@ -17,7 +17,7 @@ type Cell = {
   adjacentMines: number;
 };
 type Board = Cell[][];
-type GameState = 'idle' | 'solving' | 'won' | 'lost';
+type GameState = 'idle' | 'solving' | 'won' | 'lost' | 'stuck';
 type Difficulty = 'easy' | 'medium' | 'hard';
 
 const difficulties = {
@@ -158,8 +158,8 @@ const MinesweeperSolver: React.FC = () => {
       let boardChanged = false;
       let newBoard = prevBoard.map(row => row.map(cell => ({ ...cell })));
       
-      const revealQueue: {r: number, c: number}[] = [];
-      const flagQueue: {r: number, c: number}[] = [];
+      const revealQueue = new Set<string>();
+      const flagQueue = new Set<string>();
 
       for (let r = 0; r < newBoard.length; r++) {
         for (let c = 0; c < newBoard[0].length; c++) {
@@ -172,20 +172,48 @@ const MinesweeperSolver: React.FC = () => {
           const flaggedNeighbors = neighbors.filter(n => n.isFlagged).length;
           const unrevealedNeighbors = neighbors.filter(n => !n.isRevealed && !n.isFlagged);
 
+          // Basic Rule 1: If flagged neighbors match the cell number, reveal others.
           if (cell.adjacentMines === flaggedNeighbors && unrevealedNeighbors.length > 0) {
-            unrevealedNeighbors.forEach(n => revealQueue.push({r: n.r, c: n.c}));
+            unrevealedNeighbors.forEach(n => revealQueue.add(`${n.r},${n.c}`));
             boardChanged = true;
           }
           
+          // Basic Rule 2: If unrevealed neighbors match the remaining mines, flag them.
           if (cell.adjacentMines === unrevealedNeighbors.length + flaggedNeighbors && unrevealedNeighbors.length > 0) {
-            unrevealedNeighbors.forEach(n => flagQueue.push({r: n.r, c: n.c}));
+            unrevealedNeighbors.forEach(n => flagQueue.add(`${n.r},${n.c}`));
             boardChanged = true;
           }
         }
       }
+
+      // Advanced Pattern Recognition (e.g., 1-2 pattern)
+      if (!boardChanged) {
+        for (let r = 0; r < newBoard.length; r++) {
+          for (let c = 0; c < newBoard[0].length; c++) {
+            const cell = newBoard[r][c];
+            // Look for a 1-2 pattern
+            if (cell.isRevealed && cell.adjacentMines === 2) {
+              const neighbors = getNeighbors(r, c, newBoard);
+              const adjacentRevealedOnes = neighbors.filter(n => n.isRevealed && n.adjacentMines === 1);
+              if (adjacentRevealedOnes.length > 0) {
+                for (const oneCell of adjacentRevealedOnes) {
+                  const oneNeighbors = getNeighbors(oneCell.r, oneCell.c, newBoard);
+                  const twoNeighbors = getNeighbors(r, c, newBoard);
+                  const commonUnrevealed = twoNeighbors.filter(n2 => !n2.isRevealed && !n2.isFlagged && oneNeighbors.some(n1 => n1.r === n2.r && n1.c === n2.c));
+                  const twoOnlyUnrevealed = twoNeighbors.filter(n2 => !n2.isRevealed && !n2.isFlagged && !commonUnrevealed.some(c => c.r === n2.r && c.c === n2.c));
+                  if (commonUnrevealed.length === 2 && twoOnlyUnrevealed.length === 1) {
+                    flagQueue.add(`${twoOnlyUnrevealed[0].r},${twoOnlyUnrevealed[0].c}`);
+                    boardChanged = true;
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
       
-      revealQueue.forEach(({r, c}) => newBoard = revealCell(r, c, newBoard));
-      flagQueue.forEach(({r, c}) => { if(!newBoard[r][c].isFlagged) newBoard[r][c].isFlagged = true; });
+      revealQueue.forEach(key => { const [r, c] = key.split(',').map(Number); newBoard = revealCell(r, c, newBoard); });
+      flagQueue.forEach(key => { const [r, c] = key.split(',').map(Number); if(!newBoard[r][c].isFlagged) newBoard[r][c].isFlagged = true; });
 
       const revealedMines = newBoard.flat().some(c => c.isRevealed && c.isMine);
       if (revealedMines) {
@@ -200,9 +228,9 @@ const MinesweeperSolver: React.FC = () => {
       }
 
       if (boardChanged) {
-        solverTimeoutRef.current = setTimeout(solveStep, 210 - speed * 20);
+        solverTimeoutRef.current = setTimeout(solveStep, 410 - speed * 40);
       } else {
-        setGameState('idle'); // Stuck
+        setGameState('stuck'); // Use a 'stuck' state instead of 'idle'
       }
       return newBoard;
     });
@@ -213,9 +241,9 @@ const MinesweeperSolver: React.FC = () => {
     let startR, startC;
     const { rows, cols } = difficulties[difficulty];
     
-    // Pick a random starting point.
-    startR = Math.floor(Math.random() * rows);
-    startC = Math.floor(Math.random() * cols);
+    // Start from the middle
+    startR = Math.floor(rows / 2);
+    startC = Math.floor(cols / 2);
 
     const newBoardWithMines = createBoard({ r: startR, c: startC });
     const finalBoard = revealCell(startR, startC, newBoardWithMines);
@@ -243,6 +271,7 @@ const MinesweeperSolver: React.FC = () => {
       case 'won': return <span className="text-green-400 flex items-center gap-2">Solved!</span>;
       case 'lost': return <span className="text-red-400 flex items-center gap-2">Failed!</span>;
       case 'solving': return <span className="text-yellow-400 flex items-center gap-2 animate-pulse"><Sparkles /> Solving...</span>;
+      case 'stuck': return <span className="text-orange-400 flex items-center gap-2">Stuck!</span>;
       default: return 'Ready to solve.';
     }
   };

@@ -1,14 +1,13 @@
-
 'use client';
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import Editor, { useMonaco } from '@monaco-editor/react';
-import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
+import Editor from '@monaco-editor/react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { RefreshCw, Zap, Gauge, Check, Languages } from 'lucide-react';
+import { RefreshCw } from 'lucide-react';
 import { snippets, type Language } from '@/lib/code-snippets';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
-import { cn } from '@/lib/utils';
+import { ScrollArea } from '../ui/scroll-area';
 
 const CodeRacer: React.FC = () => {
     const [language, setLanguage] = useState<Language>('javascript');
@@ -21,37 +20,16 @@ const CodeRacer: React.FC = () => {
     const [isFinished, setIsFinished] = useState(false);
     
     const editorRef = useRef<any>(null);
-    const monaco = useMonaco();
 
-    useEffect(() => {
-        // Configure Monaco editor theme
-        monaco?.editor.defineTheme('code-racer-theme', {
-            base: 'vs-dark',
-            inherit: true,
-            rules: [
-                 { token: '', foreground: 'ffffff00', background: 'ffffff00' } // Make text transparent
-            ],
-            colors: {
-                'editor.background': '#00000000', // Transparent background
-                'editorCursor.foreground': '#FFFFFF', // Visible cursor
-                'editor.foreground': '#FFFFFF00', // Make selection transparent
-                'editor.selectionBackground': '#FFFFFF20', // Barely visible selection
-            },
-        });
-        monaco?.editor.setTheme('code-racer-theme');
-    }, [monaco]);
-    
     const resetGame = useCallback(() => {
-        const newLang = language;
-        setSnippet(snippets[newLang]);
+        const newSnippet = snippets[language];
+        setSnippet(newSnippet);
         setUserInput('');
         setStartTime(null);
         setWpm(0);
         setAccuracy(100);
         setIsFinished(false);
-        if (editorRef.current) {
-            editorRef.current.focus();
-        }
+        editorRef.current?.focus();
     }, [language]);
 
     useEffect(() => {
@@ -69,8 +47,9 @@ const CodeRacer: React.FC = () => {
         setUserInput(currentInput);
 
         let errors = 0;
+        const snippetToCompare = snippet.slice(0, currentInput.length);
         for (let i = 0; i < currentInput.length; i++) {
-            if (currentInput[i] !== snippet[i]) {
+            if (currentInput[i] !== snippetToCompare[i]) {
                 errors++;
             }
         }
@@ -81,7 +60,7 @@ const CodeRacer: React.FC = () => {
         if (startTime) {
             const timeElapsed = (Date.now() - startTime) / 1000 / 60; // in minutes
             if (timeElapsed > 0) {
-                const wordsTyped = correctChars / 5; // Standard WPM calculation
+                const wordsTyped = correctChars / 5;
                 setWpm(Math.round(wordsTyped / timeElapsed));
             }
         }
@@ -91,17 +70,6 @@ const CodeRacer: React.FC = () => {
         }
     };
     
-    const getHighlightedText = () => {
-        return snippet.split('').map((char, index) => {
-            let className = 'text-gray-500';
-            if (index < userInput.length) {
-                className = char === userInput[index] ? 'text-green-400' : 'text-red-500 bg-red-900/50';
-            }
-            // Use a span for newline characters to ensure they occupy space
-            return `<span class="${className}">${char === '\n' ? '&#9166;\n' : char.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</span>`;
-        }).join('');
-    };
-
     return (
         <div className="flex flex-col items-center justify-center w-full h-full bg-card p-4 sm:p-6 lg:p-8">
             <Card className="w-full max-w-4xl mx-auto shadow-2xl bg-[#0D1117] border-gray-800">
@@ -109,48 +77,33 @@ const CodeRacer: React.FC = () => {
                     <CardTitle className="text-3xl font-bold text-primary text-center">Code Racer</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-6">
-                    <div className="relative font-mono text-lg rounded-lg bg-black/30 border border-gray-700 h-64 overflow-y-auto">
-                        <pre
-                            className="whitespace-pre-wrap select-none p-4"
-                            style={{
-                                lineHeight: '1.5',
-                                letterSpacing: '0.025em',
-                                fontFamily: 'monospace',
-                            }}
-                            dangerouslySetInnerHTML={{ __html: getHighlightedText() }}
-                        />
-                         <div
-                            className="absolute top-0 left-0 w-full h-full"
-                        >
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 font-mono text-lg rounded-lg bg-black/30 border border-gray-700 h-80 overflow-hidden">
+                        {/* Left Pane: User Input Editor */}
+                        <div className="h-full">
                             <Editor
                                 value={userInput}
                                 onChange={handleEditorChange}
                                 onMount={(editor) => { editorRef.current = editor; editor.focus(); }}
                                 language={language}
-                                theme="code-racer-theme"
+                                theme="vs-dark"
                                 options={{
                                     minimap: { enabled: false },
-                                    fontFamily: 'monospace',
-                                    fontSize: 18,
-                                    lineHeight: 27, // 18 * 1.5
-                                    letterSpacing: 0.45,
+                                    fontSize: 16,
+                                    wordWrap: 'on',
                                     lineNumbers: 'off',
                                     glyphMargin: false,
                                     folding: false,
                                     lineDecorationsWidth: 0,
                                     lineNumbersMinChars: 0,
-                                    wordWrap: 'on',
-                                    scrollbar: { vertical: 'hidden', horizontal: 'hidden' },
-                                    overviewRulerLanes: 0,
-                                    hideCursorInOverviewRuler: true,
-                                    cursorBlinking: 'smooth',
-                                    cursorStyle: 'line',
-                                    renderLineHighlight: 'none',
-                                    overviewRulerBorder: false,
-                                    padding: { top: 16, bottom: 16, left: 16, right: 16 },
+                                    padding: { top: 16, bottom: 16 }
                                 }}
                             />
                         </div>
+                        
+                        {/* Right Pane: Snippet to type */}
+                        <ScrollArea className="h-full border-l border-gray-700">
+                           <pre className="p-4 text-gray-400 whitespace-pre-wrap">{snippet}</pre>
+                        </ScrollArea>
                     </div>
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
                         <div className="bg-black/30 p-3 rounded-lg">

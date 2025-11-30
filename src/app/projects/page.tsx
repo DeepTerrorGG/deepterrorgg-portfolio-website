@@ -76,6 +76,7 @@ import DigitalAssetManager from '@/components/projects/digital-asset-manager';
 import PaymentLedger from '@/components/projects/payment-ledger';
 import LogIngestor from '@/components/projects/log-ingestor';
 import HeadlessCms from '@/components/projects/headless-cms';
+import MinesweeperSolver from '@/components/projects/minesweeper';
 
 interface Technology {
   name: string;
@@ -258,6 +259,23 @@ const projectsData: Project[] = [
       personalNote: 'This project is a great way to understand recursion and backtracking. Using a generator function to `yield` each step of the algorithm to React for rendering was a fun and powerful technique for visualizing complex logic.',
       difficulty: 'Hard',
       component: <SudokuSolver />,
+      technologies: [
+        { name: 'React', iconSrc: '/icons/react.svg' },
+        { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },
+        { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss.svg' },
+      ],
+      renderImage: true,
+    },
+    {
+      id: 'minesweeper-solver',
+      title: 'Minesweeper Solver',
+      imageUrls: ['/placeholder.png'],
+      imageAlt: 'A classic Minesweeper game board being solved by an AI',
+      imageHint: 'minesweeper game logic solver',
+      description: 'The classic puzzle game, but an AI plays it for you, visualizing its logical steps.',
+      personalNote: 'Implementing a Minesweeper solver is a great exercise in logic and algorithms. This visualizer shows how a computer "thinks" by applying simple, deterministic rules to clear the board, highlighting the cells it\'s currently analyzing.',
+      difficulty: 'Hard',
+      component: <MinesweeperSolver />,
       technologies: [
         { name: 'React', iconSrc: '/icons/react.svg' },
         { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },
@@ -616,7 +634,7 @@ const projectsData: Project[] = [
     imageHint: 'deck building card game',
     description: 'A single-player card game where you build a powerful deck to battle through a procedurally generated map.',
     personalNote: 'This combines two of my favorite genres. It\'s a huge challenge in system design—creating a flexible system for cards, enemies, and map progression is the core of making it fun and replayable.',
-    difficulty: 'Advanced',
+    difficulty: 'Hard',
     component: <DeckBuildingRoguelike />,
     technologies: [
       { name: 'React', iconSrc: '/icons/react.svg' },
@@ -633,7 +651,7 @@ const projectsData: Project[] = [
     imageHint: 'strategy game grid',
     description: 'Command a squad of units on a grid in turn-based combat, inspired by classics like Fire Emblem and Advance Wars.',
     personalNote: 'This project is a great way to dive into game algorithms like pathfinding for movement and creating a simple AI for the opponent. It forces you to think strategically, both as a player and a developer.',
-    difficulty: 'Advanced',
+    difficulty: 'Medium',
     component: <TurnBasedStrategy />,
     technologies: [
       { name: 'React', iconSrc: '/icons/react.svg' },

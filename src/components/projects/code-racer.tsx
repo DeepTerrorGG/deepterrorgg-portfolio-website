@@ -86,6 +86,7 @@ const CodeRacer: React.FC = () => {
                                 onMount={(editor) => { editorRef.current = editor; editor.focus(); }}
                                 language={language}
                                 theme="vs-dark"
+                                loading={<div className="bg-[#1e1e1e] w-full h-full" />}
                                 options={{
                                     minimap: { enabled: false },
                                     fontSize: 16,

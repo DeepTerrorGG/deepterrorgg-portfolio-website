@@ -13,17 +13,16 @@ export function logActivity(message: string, level: 'info' | 'warn' | 'error' = 
       console.warn("Firestore not available. Skipping log.");
       return;
     }
-    
+
     const logsCollection = collection(firestore, 'system_logs');
-    
+
     // Use the non-blocking version of addDoc
     addDoc(logsCollection, {
       level,
       msg: message,
       timestamp: serverTimestamp(),
-    }).catch(error => {
-      // Silently fail to the console if logging fails.
-      console.error("Failed to write log to Firestore:", error);
+    }).catch(() => {
+      // Silently fail - logging is optional and shouldn't show errors to users
     });
 
   } catch (error) {

@@ -1,3 +1,4 @@
+
 // src/app/ai/page.tsx
 'use client';
 
@@ -459,7 +460,7 @@ export default function AiProjectsPage() {
           <ScrollArea className="h-full">
             <div className="animate-fade-in flex flex-col min-h-full">
               {/* Project Component Area */}
-              <div className="flex-shrink-0 flex items-center justify-center relative bg-muted/20 border-b border-border min-h-[50vh]">
+              <div className="flex-shrink-0 flex items-center justify-center relative bg-muted/20 border-b border-border min-h-[50vh] hover:bg-muted/30 transition-colors duration-300">
                 {selectedProject.component}
               </div>
 

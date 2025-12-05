@@ -1,3 +1,4 @@
+
 // src/app/projects/page.tsx
 'use client';
 
@@ -534,7 +535,7 @@ const projectsData: Project[] = [
             { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss.svg' },
         ],
         renderImage: true,
-    },
+  },
     {
     id: 'useless-ui-playground',
     title: 'Useless UI Playground',
@@ -1178,7 +1179,7 @@ export default function ProjectsPage() {
           <ScrollArea className="h-full">
             <div className="animate-fade-in flex flex-col min-h-full">
                 {/* Project Component Area */}
-                <div className="flex-shrink-0 flex items-center justify-center relative bg-muted/20 border-b border-border min-h-[60vh]">
+                <div className="flex-shrink-0 flex items-center justify-center relative bg-muted/20 border-b border-border min-h-[60vh] hover:bg-muted/30 transition-colors duration-300">
                     {selectedProject.component}
                 </div>
 

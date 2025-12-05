@@ -124,6 +124,3 @@
     background-color: hsl(var(--secondary));
   }
 }
-
-@layer components {
-}

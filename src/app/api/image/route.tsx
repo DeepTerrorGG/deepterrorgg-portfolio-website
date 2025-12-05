@@ -26,6 +26,8 @@ export async function GET(req: NextRequest) {
 
   const codeSnippet = decodeURIComponent(code);
 
+  const isHtml = codeSnippet.includes('<br');
+
   try {
     return new ImageResponse(
       (
@@ -72,28 +74,39 @@ export async function GET(req: NextRequest) {
             </div>
 
             {/* Code Area */}
-            <div
-              style={{
-                display: 'flex',
-                padding: '20px',
-                background: '#1A1B26', // Code background
-                color: '#d4d4d4', // Default text color
-                flex: 1,
-                overflow: 'hidden',
-              }}
-            >
-              <pre
+            {isHtml ? (
+              <div
                 style={{
-                  margin: 0,
+                  display: 'flex',
+                  padding: '20px',
+                  background: '#1A1B26', // Code background
+                  color: '#d4d4d4', // Default text color
+                  flex: 1,
+                  overflow: 'auto',
                   fontSize: '18px',
                   lineHeight: '1.5',
-                  whiteSpace: 'pre-wrap',
-                  wordBreak: 'break-all',
+                  flexDirection: 'column',
+                }}
+                 dangerouslySetInnerHTML={{ __html: codeSnippet }}
+              ></div>
+            ) : (
+              <pre
+                style={{
+                  display: 'flex',
+                  padding: '20px',
+                  margin: 0,
+                  background: '#1A1B26', // Code background
+                  color: '#d4d4d4', // Default text color
+                  flex: 1,
+                  overflow: 'auto',
+                  fontSize: '18px',
+                  lineHeight: '1.5',
+                  whiteSpace: 'pre',
                 }}
               >
-                <code>{codeSnippet}</code>
+                {codeSnippet}
               </pre>
-            </div>
+            )}
           </div>
         </div>
       ),

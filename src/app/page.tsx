@@ -22,6 +22,7 @@ import {
 } from '@/components/ui/carousel';
 import Autoplay from 'embla-carousel-autoplay';
 import { TechStack } from '@/components/ui/tech-stack';
+import AnimatedHeader from '@/components/home/AnimatedHeader';
 
 
 const SplineModel = React.lazy(
@@ -184,7 +185,7 @@ export default function HomePage() {
     <>
       <div className="flex flex-col flex-grow bg-background">
         {/* Hero Section */}
-        <AnimateOnScroll className="text-center h-[calc(100vh-80px)] min-h-[700px] flex flex-col justify-center items-center bg-grid-pattern relative">
+        <div className="text-center h-[calc(100vh-80px)] min-h-[700px] flex flex-col justify-center items-center relative">
           <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-background" />
           <div className="z-10">
             <motion.div
@@ -203,14 +204,7 @@ export default function HomePage() {
                 priority
               />
             </motion.div>
-            <motion.h1
-              className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-foreground mb-6 tracking-tighter"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.7, delay: 0.4, ease: [0.25, 1, 0.5, 1] }}
-            >
-              AI/Software Engineer
-            </motion.h1>
+            <AnimatedHeader text="AI/Fullstack Engineer" />
             <motion.p
               className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto mb-10"
               initial={{ opacity: 0, y: 20 }}
@@ -237,122 +231,130 @@ export default function HomePage() {
               </Button>
             </motion.div>
           </div>
-        </AnimateOnScroll>
+        </div>
         
         {/* Featured Projects Section */}
-        <SectionContainer id="featured-work" className="!py-24 md:!py-32">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground">Featured Projects</h2>
-            <p className="text-muted-foreground mt-3 max-w-2xl mx-auto">A curated selection of my projects, showcasing a blend of technical skill and creative vision.</p>
-          </div>
-          {isMounted && (
-            <Carousel
-                plugins={[autoplayPlugin.current]}
-                className="w-full"
-                opts={{ loop: true }}
-                onMouseEnter={autoplayPlugin.current.stop}
-                onMouseLeave={autoplayPlugin.current.reset}
-              >
-              <CarouselContent>
-                {featuredProjects.map((project) => (
-                  <CarouselItem key={project.id}>
-                    <div className="p-1">
-                      <Card className="flex flex-col md:flex-row overflow-hidden h-full min-h-[480px] transform-style-3d transition-transform duration-500 ease-in-out">
-                        <div className="relative w-full md:w-1/2 h-64 md:h-auto bg-card">
-                          <div className="w-full h-full min-h-[300px] md:min-h-full flex items-center justify-center bg-muted/30 p-8">
-                            <div className="text-center">
-                                  <Compass className="h-16 w-16 text-primary mx-auto mb-4"/>
-                                  <h3 className="text-xl font-bold">Explore this Project</h3>
-                                  <p className="text-muted-foreground mt-2">
-                                      This is an interactive demo. Click the button to explore it on the projects page.
-                                  </p>
-                              </div>
+        <AnimateOnScroll>
+          <SectionContainer id="featured-work" className="!py-24 md:!py-32">
+            <div className="text-center mb-16">
+              <h2 className="text-3xl md:text-4xl font-bold text-foreground">Featured Projects</h2>
+              <p className="text-muted-foreground mt-3 max-w-2xl mx-auto">A curated selection of my projects, showcasing a blend of technical skill and creative vision.</p>
+            </div>
+            {isMounted && (
+              <Carousel
+                  plugins={[autoplayPlugin.current]}
+                  className="w-full"
+                  opts={{ loop: true }}
+                  onMouseEnter={autoplayPlugin.current.stop}
+                  onMouseLeave={autoplayPlugin.current.reset}
+                >
+                <CarouselContent>
+                  {featuredProjects.map((project) => (
+                    <CarouselItem key={project.id}>
+                      <div className="p-1">
+                        <Card className="flex flex-col md:flex-row overflow-hidden h-full min-h-[480px] transform-style-3d">
+                          <div className="relative w-full md:w-1/2 h-64 md:h-auto bg-card">
+                            <div className="w-full h-full min-h-[300px] md:min-h-full flex items-center justify-center bg-muted/30 p-8">
+                              <div className="text-center">
+                                    <Compass className="h-16 w-16 text-primary mx-auto mb-4"/>
+                                    <h3 className="text-xl font-bold">Explore this Project</h3>
+                                    <p className="text-muted-foreground mt-2">
+                                        This is an interactive demo. Click the button to explore it on the projects page.
+                                    </p>
+                                </div>
+                            </div>
                           </div>
-                        </div>
-                        <div className="w-full md:w-1/2 flex flex-col p-6 sm:p-8 justify-center">
-                          <CardHeader className="p-0 mb-4">
-                            <CardTitle className="text-2xl lg:text-3xl text-primary">{project.title}</CardTitle>
-                          </CardHeader>
-                          <CardContent className="p-0 flex-grow mb-6">
-                            <p className="text-muted-foreground">{project.description}</p>
-                          </CardContent>
-                          <CardFooter className="p-0 flex flex-col items-start gap-4">
-                            <TechStack technologies={project.technologies} />
-                            <Button asChild variant="outline" className="mt-4">
-                              <PreloadingLink href={`/projects`}>
-                                Explore Project <ArrowRight className="ml-2 h-4 w-4" />
-                              </PreloadingLink>
-                            </Button>
-                          </CardFooter>
-                        </div>
-                      </Card>
-                    </div>
-                  </CarouselItem>
-                ))}
-              </CarouselContent>
-              <CarouselPrevious className="absolute left-[-50px] top-1/2 -translate-y-1/2 z-10 h-10 w-10 sm:h-12 sm:w-12 rounded-full bg-background/50 hover:bg-background/80" />
-              <CarouselNext className="absolute right-[-50px] top-1/2 -translate-y-1/2 z-10 h-10 w-10 sm:h-12 sm:w-12 rounded-full bg-background/50 hover:bg-background/80" />
-            </Carousel>
-          )}
-        </SectionContainer>
+                          <div className="w-full md:w-1/2 flex flex-col p-6 sm:p-8 justify-center">
+                            <CardHeader className="p-0 mb-4">
+                              <CardTitle className="text-2xl lg:text-3xl text-primary">{project.title}</CardTitle>
+                            </CardHeader>
+                            <CardContent className="p-0 flex-grow mb-6">
+                              <p className="text-muted-foreground">{project.description}</p>
+                            </CardContent>
+                            <CardFooter className="p-0 flex flex-col items-start gap-4">
+                              <TechStack technologies={project.technologies} />
+                              <Button asChild variant="outline" className="mt-4">
+                                <PreloadingLink href={`/projects`}>
+                                  Explore Project <ArrowRight className="ml-2 h-4 w-4" />
+                                </PreloadingLink>
+                              </Button>
+                            </CardFooter>
+                          </div>
+                        </Card>
+                      </div>
+                    </CarouselItem>
+                  ))}
+                </CarouselContent>
+                <CarouselPrevious className="absolute left-[-50px] top-1/2 -translate-y-1/2 z-10 h-10 w-10 sm:h-12 sm:w-12 rounded-full bg-background/50 hover:bg-background/80" />
+                <CarouselNext className="absolute right-[-50px] top-1/2 -translate-y-1/2 z-10 h-10 w-10 sm:h-12 sm:w-12 rounded-full bg-background/50 hover:bg-background/80" />
+              </Carousel>
+            )}
+          </SectionContainer>
+        </AnimateOnScroll>
         
         {/* Call to Action Section */}
-        <SectionContainer id="contact-cta" className="!pt-0">
-          <div className="text-center p-8 md:p-12">
-             <h2 className="text-3xl md:text-4xl font-bold text-primary">Have a Project in Mind?</h2>
-             <p className="text-muted-foreground mt-3 max-w-xl mx-auto">I'm always open to discussing new projects, creative ideas, or opportunities to be part of an ambitious vision. Let's create something amazing together.</p>
-              <Button asChild size="lg" className="mt-8">
-                <PreloadingLink href="/contact">
-                  Contact Me <Mail className="ml-2 h-5 w-5" />
-                </PreloadingLink>
-              </Button>
-          </div>
-        </SectionContainer>
+        <AnimateOnScroll>
+          <SectionContainer id="contact-cta" className="!pt-0">
+            <div className="text-center p-8 md:p-12">
+              <h2 className="text-3xl md:text-4xl font-bold text-primary">Have a Project in Mind?</h2>
+              <p className="text-muted-foreground mt-3 max-w-xl mx-auto">I'm always open to discussing new projects, creative ideas, or opportunities to be part of an ambitious vision. Let's create something amazing together.</p>
+                <Button asChild size="lg" className="mt-8">
+                  <PreloadingLink href="/contact">
+                    Contact Me <Mail className="ml-2 h-5 w-5" />
+                  </PreloadingLink>
+                </Button>
+            </div>
+          </SectionContainer>
+        </AnimateOnScroll>
 
          {/* Skills Section */}
-        <SectionContainer id="skills">
-           <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground">Skills & Expertise</h2>
-            <p className="text-muted-foreground mt-3 max-w-2xl mx-auto">The tools and technologies I use to bring ideas to life.</p>
-          </div>
-          <div className="space-y-8">
-              <ScrollingTechRow items={technologies.slice(0, Math.ceil(technologies.length / 2))} />
-              <ScrollingTechRow items={technologies.slice(Math.ceil(technologies.length / 2))} direction="right" />
-          </div>
-          <div className="text-center mt-12">
-              <Button asChild size="lg">
-                <PreloadingLink href="/about">
-                  View All Skills <ArrowRight className="ml-2 h-4 w-4" />
-                </PreloadingLink>
-              </Button>
+        <AnimateOnScroll>
+          <SectionContainer id="skills">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl md:text-4xl font-bold text-foreground">Skills & Expertise</h2>
+              <p className="text-muted-foreground mt-3 max-w-2xl mx-auto">The tools and technologies I use to bring ideas to life.</p>
             </div>
-        </SectionContainer>
+            <div className="space-y-8">
+                <ScrollingTechRow items={technologies.slice(0, Math.ceil(technologies.length / 2))} />
+                <ScrollingTechRow items={technologies.slice(Math.ceil(technologies.length / 2))} direction="right" />
+            </div>
+            <div className="text-center mt-12">
+                <Button asChild size="lg">
+                  <PreloadingLink href="/about">
+                    View All Skills <ArrowRight className="ml-2 h-4 w-4" />
+                  </PreloadingLink>
+                </Button>
+              </div>
+          </SectionContainer>
+        </AnimateOnScroll>
 
         {/* 3D Model Showcase */}
-         <SectionContainer id="spline-showcase">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground">3D Model Showcase</h2>
-            <p className="text-muted-foreground mt-3 max-w-2xl mx-auto">A collection of my 3D creations. Use the arrows to navigate.</p>
-          </div>
-          {isMounted && (
-            <React.Suspense fallback={<div className="bg-muted/20 w-full h-full min-h-[500px]" />}>
-              <div className="hidden md:block">
-                <SplineShowcase models={splineModels} />
-              </div>
-            </React.Suspense>
-          )}
-          <div className="block md:hidden">
-            <Card className="border-border bg-card">
-              <CardContent className="p-6 text-center">
-                <Monitor className="h-12 w-12 mx-auto text-primary mb-4" />
-                <h3 className="text-xl font-semibold text-foreground">3D Showcase Available on Desktop</h3>
-                <p className="text-muted-foreground mt-2">
-                  This interactive 3D model showcase is best experienced on a larger screen. Please view this page on a desktop or laptop to explore the models.
-                </p>
-              </CardContent>
-            </Card>
-          </div>
-        </SectionContainer>
+        <AnimateOnScroll>
+          <SectionContainer id="spline-showcase">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl md:text-4xl font-bold text-foreground">3D Model Showcase</h2>
+              <p className="text-muted-foreground mt-3 max-w-2xl mx-auto">A collection of my 3D creations. Use the arrows to navigate.</p>
+            </div>
+            {isMounted && (
+              <React.Suspense fallback={<div className="bg-muted/20 w-full h-full min-h-[500px]" />}>
+                <div className="hidden md:block">
+                  <SplineShowcase models={splineModels} />
+                </div>
+              </React.Suspense>
+            )}
+            <div className="block md:hidden">
+              <Card className="border-border bg-card">
+                <CardContent className="p-6 text-center">
+                  <Monitor className="h-12 w-12 mx-auto text-primary mb-4" />
+                  <h3 className="text-xl font-semibold text-foreground">3D Showcase Available on Desktop</h3>
+                  <p className="text-muted-foreground mt-2">
+                    This interactive 3D model showcase is best experienced on a larger screen. Please view this page on a desktop or laptop to explore the models.
+                  </p>
+                </CardContent>
+              </Card>
+            </div>
+          </SectionContainer>
+        </AnimateOnScroll>
       </div>
       <footer className="py-16 bg-background">
         <div className="container mx-auto px-4 text-center">

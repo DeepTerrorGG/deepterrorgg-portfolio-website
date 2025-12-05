@@ -43,7 +43,7 @@ export default function CodeBeautifier() {
 
     try {
       const { code: rawCode } = await beautifyCode({ code });
-      
+
       const params = new URLSearchParams({
         code: encodeURIComponent(rawCode),
         padding,
@@ -68,6 +68,30 @@ export default function CodeBeautifier() {
       setIsLoading(false);
     }
   };
+
+  const downloadImage = () => {
+    if (!generatedImageUrl) return;
+
+    // Create a new URL specifically for download with <br/> tags
+    const htmlCode = code.replace(/\n/g, '<br />');
+    const params = new URLSearchParams({
+        code: encodeURIComponent(htmlCode),
+        padding,
+        background,
+        title,
+        theme,
+        language,
+      });
+    
+    const downloadUrl = `/api/image?${params.toString()}`;
+
+    const link = document.createElement('a');
+    link.href = downloadUrl;
+    link.download = `${title.split('.')[0] || 'code'}.png`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full h-full p-4 bg-card">
@@ -155,12 +179,10 @@ export default function CodeBeautifier() {
           </CardContent>
         </Card>
          {generatedImageUrl && !isLoading && (
-            <a href={generatedImageUrl} download={`${title.split('.')[0] || 'code'}.png`}>
-                <Button size="lg" className="w-full">
-                    <Download className="mr-2 h-5 w-5" />
-                    Download PNG
-                </Button>
-            </a>
+            <Button onClick={downloadImage} size="lg" className="w-full">
+                <Download className="mr-2 h-5 w-5" />
+                Download PNG
+            </Button>
         )}
       </div>
     </div>

@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Menu, Wifi } from 'lucide-react';
 import React, { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
+import anime from 'animejs';
 
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -24,13 +24,51 @@ const navLinks = [
 ];
 
 
+const AnimatedNavLink = ({ href, label, isActive }: { href: string; label: string; isActive: boolean; }) => {
+  const handleMouseEnter = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    anime.remove(e.currentTarget.querySelectorAll('.letter'));
+    anime({
+      targets: e.currentTarget.querySelectorAll('.letter'),
+      translateY: [5, 0],
+      opacity: [0, 1],
+      easing: 'easeOutExpo',
+      duration: 500,
+      delay: anime.stagger(30)
+    });
+  };
+
+  return (
+    <PreloadingLink
+      href={href}
+      onMouseEnter={handleMouseEnter}
+      className={cn(
+        'relative px-4 py-2 text-sm font-medium text-foreground/70 transition-colors duration-300 hover:text-foreground',
+        isActive && 'text-foreground'
+      )}
+    >
+      <span className="flex">
+        {label.split('').map((letter, index) => (
+          <span key={index} className="letter inline-block" style={{ whiteSpace: 'pre' }}>
+            {letter}
+          </span>
+        ))}
+      </span>
+       {isActive && (
+        <div
+          className="absolute inset-x-2 bottom-0 h-0.5 bg-primary"
+          aria-hidden="true"
+        />
+      )}
+    </PreloadingLink>
+  );
+}
+
+
 export default function Header() {
   const pathname = usePathname();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
-  const [hoveredPath, setHoveredPath] = useState(pathname);
 
   useEffect(() => {
-    setHoveredPath(pathname);
     // Log page navigation
     const pageName = navLinks.find(link => link.href === pathname)?.label || 'Page';
     if (pathname !== '/') {
@@ -53,30 +91,12 @@ export default function Header() {
             {/* Desktop Navigation */}
             <nav className="hidden md:flex items-center space-x-1 p-1">
               {navLinks.map((link) => (
-                <PreloadingLink
+                <AnimatedNavLink
                   key={link.href}
                   href={link.href}
-                  onMouseOver={() => setHoveredPath(link.href)}
-                  onMouseLeave={() => setHoveredPath(pathname)}
-                  className={cn(
-                    'relative px-4 py-2 text-sm font-medium text-foreground/70 transition-colors duration-300 hover:text-foreground',
-                    pathname === link.href && 'text-foreground'
-                  )}
-                >
-                  {link.label}
-                   {link.href === hoveredPath && (
-                    <motion.div
-                      className="absolute inset-x-0 bottom-0 h-0.5 bg-primary"
-                      layoutId="navbar-underline"
-                      aria-hidden="true"
-                      transition={{
-                        type: "spring",
-                        stiffness: 350,
-                        damping: 30,
-                      }}
-                    />
-                  )}
-                </PreloadingLink>
+                  label={link.label}
+                  isActive={pathname === link.href}
+                />
               ))}
             </nav>
 

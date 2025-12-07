@@ -1,4 +1,3 @@
-
 // src/app/projects/page.tsx
 'use client';
 
@@ -74,6 +73,7 @@ import PaymentLedger from '@/components/projects/payment-ledger';
 import LogIngestor from '@/components/projects/log-ingestor';
 import HeadlessCms from '@/components/projects/headless-cms';
 import DistributedFractalExplorer from '@/components/projects/distributed-fractal-explorer';
+import AnimateOnScroll from '@/components/ui/animate-on-scroll';
 
 interface Technology {
   name: string;
@@ -1106,22 +1106,24 @@ export default function ProjectsPage() {
         <PageTitle subtitle="A selection of my creative and technical endeavors." className="!pt-6 !mb-6">
           My Projects
         </PageTitle>
-        <ScrollArea className="flex-grow">
-          <ul className="space-y-2 p-4">
-            {allProjects.map((project) => (
-              <li key={project.id}>
-                <button
-                  onClick={() => handleProjectSelect(project)}
-                  className="w-full text-left p-4 rounded-lg transition-colors duration-200 bg-card border hover:bg-muted"
-                >
-                  <h3 className="font-semibold">{project.title}</h3>
-                  <p className={cn("text-xs font-medium", difficultyColors[project.difficulty])}>{project.difficulty}</p>
-                  <p className="text-sm text-muted-foreground mt-1">{project.description}</p>
-                </button>
-              </li>
-            ))}
-          </ul>
-        </ScrollArea>
+        <AnimateOnScroll className="flex-grow">
+          <ScrollArea className="h-full">
+            <ul className="space-y-2 p-4">
+              {allProjects.map((project) => (
+                <li key={project.id}>
+                  <button
+                    onClick={() => handleProjectSelect(project)}
+                    className="w-full text-left p-4 rounded-lg transition-colors duration-200 bg-card border hover:bg-muted"
+                  >
+                    <h3 className="font-semibold">{project.title}</h3>
+                    <p className={cn("text-xs font-medium", difficultyColors[project.difficulty])}>{project.difficulty}</p>
+                    <p className="text-sm text-muted-foreground mt-1">{project.description}</p>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </ScrollArea>
+        </AnimateOnScroll>
         {mobileProject && (
           <Dialog open={!!mobileProject} onOpenChange={(isOpen) => !isOpen && setMobileProject(null)}>
              <DialogContent className="p-0 sm:p-0 w-screen h-screen max-w-full max-h-full sm:max-w-full sm:max-h-full rounded-none sm:rounded-none flex flex-col" hideDefaultClose>
@@ -1147,37 +1149,39 @@ export default function ProjectsPage() {
        <div className="hidden md:flex flex-row flex-grow h-[calc(100vh-80px)]">
         {/* Left Column: Project List */}
         <div className="w-1/3 max-w-sm border-r border-border flex flex-col h-full">
-          <div className="p-6 border-b shrink-0">
+          <AnimateOnScroll className="p-6 border-b shrink-0">
             <PageTitle subtitle="A selection of my creative and technical endeavors." className="text-left !mb-0 !pt-0">
               My Projects
             </PageTitle>
-          </div>
-          <ScrollArea className="flex-1 min-h-0">
-            <ul className="space-y-1 p-4">
-              {allProjects.map((project) => (
-                <li key={project.id}>
-                  <button
-                    onClick={() => setSelectedProjectId(project.id)}
-                    className={cn(
-                      "w-full text-left p-3 rounded-md transition-colors duration-200",
-                      selectedProjectId === project.id
-                        ? 'bg-primary/10 text-primary'
-                        : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground'
-                    )}
-                  >
-                    <h3 className="font-semibold">{project.title}</h3>
-                    <p className={cn("text-xs", difficultyColors[project.difficulty])}>{project.difficulty}</p>
-                  </button>
-                </li>
-              ))}
-            </ul>
-          </ScrollArea>
+          </AnimateOnScroll>
+          <AnimateOnScroll className="flex-1 min-h-0" delay={0.1}>
+            <ScrollArea className="h-full">
+              <ul className="space-y-1 p-4">
+                {allProjects.map((project) => (
+                  <li key={project.id}>
+                    <button
+                      onClick={() => setSelectedProjectId(project.id)}
+                      className={cn(
+                        "w-full text-left p-3 rounded-md transition-colors duration-200",
+                        selectedProjectId === project.id
+                          ? 'bg-primary/10 text-primary'
+                          : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground'
+                      )}
+                    >
+                      <h3 className="font-semibold">{project.title}</h3>
+                      <p className={cn("text-xs", difficultyColors[project.difficulty])}>{project.difficulty}</p>
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </ScrollArea>
+          </AnimateOnScroll>
         </div>
 
         {/* Right Column: Project Details & Component */}
-        <div className="flex-1 w-2/3 h-full overflow-hidden">
-          <ScrollArea className="h-full">
-            <div className="animate-fade-in flex flex-col min-h-full">
+        <div className="flex-1 w-2/3 h-full flex flex-col overflow-hidden">
+          <AnimateOnScroll className="flex-grow overflow-y-auto" delay={0.2}>
+            <div className="flex flex-col min-h-full">
                 {/* Project Component Area */}
                 <div className="flex-shrink-0 flex items-center justify-center relative bg-muted/20 border-b border-border min-h-[60vh] hover:bg-muted/30 transition-colors duration-300">
                     {selectedProject.component}
@@ -1188,7 +1192,7 @@ export default function ProjectsPage() {
                     <ProjectDetailContent project={selectedProject} />
                 </div>
             </div>
-          </ScrollArea>
+          </AnimateOnScroll>
         </div>
       </div>
     </div>

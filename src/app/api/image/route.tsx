@@ -4,6 +4,16 @@ import { NextRequest } from 'next/server';
 
 export const runtime = 'edge';
 
+// Basic sanitization function to escape HTML characters
+const escapeHtml = (unsafe: string) => {
+  return unsafe
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+};
+
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
 
@@ -24,9 +34,8 @@ export async function GET(req: NextRequest) {
     return new Response('Missing code parameter', { status: 400 });
   }
 
-  const codeSnippet = decodeURIComponent(code);
-
-  const isHtml = codeSnippet.includes('<br');
+  // Sanitize the code to treat it as plain text and prevent XSS
+  const codeSnippet = escapeHtml(decodeURIComponent(code));
 
   try {
     return new ImageResponse(
@@ -74,39 +83,22 @@ export async function GET(req: NextRequest) {
             </div>
 
             {/* Code Area */}
-            {isHtml ? (
-              <div
-                style={{
-                  display: 'flex',
-                  padding: '20px',
-                  background: '#1A1B26', // Code background
-                  color: '#d4d4d4', // Default text color
-                  flex: 1,
-                  overflow: 'auto',
-                  fontSize: '18px',
-                  lineHeight: '1.5',
-                  flexDirection: 'column',
-                }}
-                 dangerouslySetInnerHTML={{ __html: codeSnippet }}
-              ></div>
-            ) : (
-              <pre
-                style={{
-                  display: 'flex',
-                  padding: '20px',
-                  margin: 0,
-                  background: '#1A1B26', // Code background
-                  color: '#d4d4d4', // Default text color
-                  flex: 1,
-                  overflow: 'auto',
-                  fontSize: '18px',
-                  lineHeight: '1.5',
-                  whiteSpace: 'pre',
-                }}
-              >
-                {codeSnippet}
-              </pre>
-            )}
+            <pre
+              style={{
+                display: 'flex',
+                padding: '20px',
+                margin: 0,
+                background: '#1A1B26', // Code background
+                color: '#d4d4d4', // Default text color
+                flex: 1,
+                overflow: 'auto',
+                fontSize: '18px',
+                lineHeight: '1.5',
+                whiteSpace: 'pre-wrap', // Use pre-wrap to respect newlines
+              }}
+            >
+              {codeSnippet}
+            </pre>
           </div>
         </div>
       ),

@@ -1,4 +1,3 @@
-
 // src/app/startup/page.tsx
 'use client';
 
@@ -34,7 +33,7 @@ const communityProject = {
   ],
   imageAlt: 'Silent Horizon Minecraft Server',
   imageHint: 'minecraft landscape castle',
-  description: 'Founded and engineered a high-traffic Java-based game server infrastructure ("Silent Horizon"), growing it into a sustainable community platform.',
+  description: 'A case study of a large-scale community project I managed and developed.',
   role: 'Lead Software Engineer & Project Manager',
   highlights: {
     "Leadership & Management": [
@@ -69,7 +68,6 @@ export default function StartupPage() {
     <SectionContainer>
       <PageTitle
         subtitle={communityProject.description}
-        key={communityProject.description}
       >
         {communityProject.title}
       </PageTitle>
@@ -107,13 +105,13 @@ export default function StartupPage() {
         </div>
 
         {/* Details Section */}
-        <div className="w-full max-w-4xl flex flex-col space-y-6">
+        <div className="w-full max-w-4xl flex flex-col space-y-6 items-center text-center">
           
           <div>
             <h2 className="text-2xl font-bold text-primary mb-2">{communityProject.role}</h2>
             {Object.entries(communityProject.highlights).map(([category, points]) => (
-                <div key={category} className="mt-4">
-                    <h3 className="text-xl font-semibold mb-3">{category}</h3>
+                <div key={category} className="mt-4 text-left">
+                    <h3 className="text-xl font-semibold mb-3 text-center">{category}</h3>
                     <ul className="space-y-2">
                         {points.map((point, index) => (
                             <li key={index} className="flex items-start">

@@ -21,6 +21,7 @@ import {
 } from "@/components/ui/dialog";
 import { logActivity } from '@/lib/logger';
 import { PaymentDialog } from '@/components/PaymentDialog';
+import AnimateOnScroll from '@/components/ui/animate-on-scroll';
 
 // Statically import all project components
 import AIVideoGenerator from '@/components/projects/ai-video-generator';
@@ -375,7 +376,7 @@ export default function AiProjectsPage() {
   };
 
   return (
-    <div className="flex-grow flex flex-col h-full">
+    <AnimateOnScroll className="flex-grow flex flex-col h-full">
       {/* Mobile View: Full-screen list, dialog for details */}
       <div className="md:hidden flex flex-col h-full">
         <PageTitle subtitle="A selection of my AI-powered projects." className="!pt-6 !mb-6">
@@ -482,6 +483,6 @@ export default function AiProjectsPage() {
           amount={projectToUnlock.paymentAmount || 1.00}
         />
       )}
-    </div>
+    </AnimateOnScroll>
   );
 }

@@ -18,6 +18,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import type { DirectMessageFormState, DirectMessageSchemaType } from './schema';
 import { DirectMessageSchema } from './schema';
+import AnimateOnScroll from '@/components/ui/animate-on-scroll';
 
 
 const socialLinks = [
@@ -134,7 +135,7 @@ export default function ContactPage() {
         Get In Touch
       </PageTitle>
 
-      <div className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
+      <AnimateOnScroll className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
         <Card className="bg-card border-border">
           <CardHeader>
             <CardTitle className="flex items-center text-2xl text-foreground">
@@ -225,7 +226,7 @@ export default function ContactPage() {
             </p>
           </CardContent>
         </Card>
-      </div>
+      </AnimateOnScroll>
     </div>
   );
 }

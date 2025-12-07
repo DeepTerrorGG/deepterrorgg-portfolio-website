@@ -1,8 +1,10 @@
+
 export const firebaseConfig = {
-  "projectId": "deepterrorgg-portfolio",
-  "appId": "1:568392924675:web:bf4eee9a5401aa41585836",
-  "apiKey": "AIzaSyCN-c2Ve2N4Th7Lg51o9xNKJwwMPHOEyoc",
-  "authDomain": "deepterrorgg-portfolio.firebaseapp.com",
-  "measurementId": "G-WY5S4JEKHZ",
-  "messagingSenderId": "568392924675"
+  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
+  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
+  measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
+  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
 };

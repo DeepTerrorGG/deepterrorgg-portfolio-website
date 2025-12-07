@@ -1,4 +1,3 @@
-
 'use client';
 
 import Link from 'next/link';
@@ -19,6 +18,7 @@ const navLinks = [
   { href: '/startup', label: 'Startup' },
   { href: '/projects', label: 'Projects' },
   { href: '/ai', label: 'AI' },
+  { href: '/opensource', label: 'Open Source' },
   { href: '/about', label: 'About Me' },
   { href: '/contact', label: 'Contact' },
 ];

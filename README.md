@@ -55,7 +55,7 @@
 A comprehensive, feature-rich portfolio website built to showcase the intersection of **creative coding**, **artificial intelligence**, and **web development**. This project represents thousands of hours of learning, experimentation, and passion for creating interactive, meaningful digital experiences.
 
 **What makes this portfolio unique:**
-- � **50+ fully functional interactive demos** - not just screenshots
+-  **50+ fully functional interactive demos** - not just screenshots
 - 🤖 **11 AI-powered applications** using Google Gemini
 - 🎨 **3D visualizations** with Spline integration
 - 🔥 **Real-time collaboration** features with Firebase
@@ -492,7 +492,7 @@ A dedicated collection of **11 cutting-edge AI applications** powered by **Googl
 
 #### **Collaborative AI Storyteller**
 ```
-� Coinbase Commerce: $0.05 | 🤖 Model: Gemini Pro
+ Coinbase Commerce: $0.05 | 🤖 Model: Gemini Pro
 📊 Technology: Stateful Context Management
 ```
 Write a story together with AI - you write a line, the AI continues it. The AI tracks the entire story context to generate coherent continuations, creating truly collaborative storytelling.
@@ -503,7 +503,7 @@ Write a story together with AI - you write a line, the AI continues it. The AI t
 
 #### **AI Coding Assistant**
 ```
-� Coinbase Commerce: $0.05 | 🤖 Model: Gemini Pro
+ Coinbase Commerce: $0.05 | 🤖 Model: Gemini Pro
 📊 Technology: Code Analysis, Monaco Editor
 ```
 A code editor with integrated AI that can explain code, refactor for best practices, add comments, and detect bugs.
@@ -514,7 +514,7 @@ A code editor with integrated AI that can explain code, refactor for best practi
 
 #### **AI Video Generator**
 ```
-� Coinbase Commerce: $2.50 | 🎬 Model: Google Veo
+ Coinbase Commerce: $2.50 | 🎬 Model: Google Veo
 📊 Technology: Async Job Processing
 ```
 Generate short video clips from text prompts using Google's Veo model. Handles long-running async operations with progress tracking.
@@ -525,7 +525,7 @@ Generate short video clips from text prompts using Google's Veo model. Handles l
 
 #### **AI Image Generator**
 ```
-� Coinbase Commerce: $1.00 | 🖼️ Model: Imagen
+ Coinbase Commerce: $1.00 | 🖼️ Model: Imagen
 📊 Technology: Text-to-Image
 ```
 Create unique images from text descriptions using generative AI.
@@ -558,7 +558,7 @@ Combine  elements to discover new ones, with AI determining the results. Leads t
 
 #### **AI Chatbot**
 ```
-� Coinbase Commerce: $0.05 | 💬 Technology: Conversation Memory
+ Coinbase Commerce: $0.05 | 💬 Technology: Conversation Memory
 ```
 A chatbot that remembers past messages in the conversation for contextual responses.
 
@@ -568,7 +568,7 @@ A chatbot that remembers past messages in the conversation for contextual respon
 
 #### **AI Recipe Generator**
 ```
-� Coinbase Commerce: $0.05 | 🍳 Technology: Structured Output
+ Coinbase Commerce: $0.05 | 🍳 Technology: Structured Output
 ```
 Input ingredients you have, get creative recipe suggestions with step-by-step instructions.
 
@@ -578,7 +578,7 @@ Input ingredients you have, get creative recipe suggestions with step-by-step in
 
 #### **AI Story Generator**
 ```
-� Coinbase Commerce: $0.05 | 📖 Technology: Narrative Structure
+ Coinbase Commerce: $0.05 | 📖 Technology: Narrative Structure
 ```
 Create unique stories with custom characters, settings, and plot points.
 
@@ -588,7 +588,7 @@ Create unique stories with custom characters, settings, and plot points.
 
 #### **AI Prompt Enhancer**
 ```
-� Coinbase Commerce: $0.05 | ✨ Technology: Prompt Engineering
+ Coinbase Commerce: $0.05 | ✨ Technology: Prompt Engineering
 ```
 Takes basic ideas and transforms them into detailed, effective prompts for large language models.
 
@@ -718,24 +718,43 @@ Open [http://localhost:3000](http://localhost:3000) to view the portfolio.
 Create a `.env.local` file with:
 
 ```env
-# Firebase Configuration
-NEXT_PUBLIC_FIREBASE_API_KEY=your_api_key
-NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your_auth_domain
-NEXT_PUBLIC_FIREBASE_PROJECT_ID=your_project_id
-NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=your_storage_bucket
-NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
-NEXT_PUBLIC_FIREBASE_APP_ID=your_app_id
+# Firebase Configuration (client-side)
+NEXT_PUBLIC_FIREBASE_API_KEY="your_api_key"
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN="your_auth_domain"
+NEXT_PUBLIC_FIREBASE_PROJECT_ID="your_project_id"
+NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET="your_storage_bucket"
+NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID="your_sender_id"
+NEXT_PUBLIC_FIREBASE_APP_ID="your_app_id"
+NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID="your_measurement_id"
 
-# AI/Genkit (for AI projects)
-GOOGLE_GENAI_API_KEY=your_gemini_api_key
+# AI & Genkit (server-side)
+GEMINI_API_KEY="your_gemini_api_key"
 
-# Email (for contact form)
-RESEND_API_KEY=your_resend_api_key
+# Email (for contact form) (server-side)
+RESEND_API_KEY="your_resend_api_key"
+DESIGNATED_RECIPIENT_EMAIL="your_personal_email@example.com"
+RESEND_FROM_EMAIL="noreply@yourdomain.com"
+
+# Coinbase Commerce (for AI project payments) (server-side)
+COINBASE_API_KEY="your_coinbase_commerce_api_key"
+
+# NextAuth.js (server-side, for Spotify integration)
+NEXTAUTH_URL="http://localhost:3000"
+NEXTAUTH_SECRET="generate_a_secret_key" # Tip: `openssl rand -hex 32`
 
 # Optional API keys
-SPOTIFY_CLIENT_ID=your_spotify_id
-SPOTIFY_CLIENT_SECRET=your_spotify_secret
-OPENWEATHER_API_KEY=your_weather_key
+# These are used for specific projects and are not required for the main site to run.
+# You can leave them blank if you don't intend to use these features.
+
+# Spotify API (for playlist generator)
+SPOTIFY_CLIENT_ID="your_spotify_client_id"
+SPOTIFY_CLIENT_SECRET="your_spotify_client_secret"
+
+# OpenWeatherMap API (for weather app)
+NEXT_PUBLIC_OPENWEATHERMAP_API_KEY="your_openweathermap_api_key"
+
+# Site URL (for sitemap and metadata)
+NEXT_PUBLIC_SITE_URL="http://localhost:3000"
 ```
 
 ---

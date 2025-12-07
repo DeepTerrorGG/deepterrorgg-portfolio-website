@@ -4,8 +4,8 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { Brain, Code } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Brain, Code, Rocket, Lock, Bot } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { TechBadge } from '@/components/ui/tech-badge';
 import SectionContainer from '@/components/ui/section-container';
 
@@ -81,6 +81,33 @@ const techCategories = [
   },
 ];
 
+const featuredWork = [
+  {
+    category: "Distributed Computing & Systems",
+    icon: <Rocket className="h-6 w-6 text-primary" />,
+    projects: [
+      { name: "Distributed Fractal Explorer", description: "Architected a browser-based distributed computing network using WebSockets and Binary Streams. It orchestrates visitor browsers to act as parallel compute nodes." },
+      { name: "Real-Time Log Ingestor", description: "Engineered a high-throughput Big Data pipeline using Redis Streams and ClickHouse to handle massive traffic spikes without data loss." },
+    ]
+  },
+  {
+    category: "Fintech & Security",
+    icon: <Lock className="h-6 w-6 text-primary" />,
+    projects: [
+      { name: "Payment Ledger Simulation", description: "Built a double-entry bookkeeping engine ensuring ACID compliance and financial data integrity through pessimistic locking and idempotency checks." },
+      { name: "Infrastructure Management", description: "Extensive experience managing Minecraft (MCP) infrastructure, analyzing game logic, and hardening Linux servers against attacks." },
+    ]
+  },
+  {
+    category: "AI & Automation",
+    icon: <Bot className="h-6 w-6 text-primary" />,
+    projects: [
+      { name: "AI Agentic Workflows", description: "Developed intelligent extraction engines that convert unstructured DOM elements into strictly typed JSON schemas using LLMs (Gemini/OpenAI) and Zod." },
+      { name: "Dynamic API Generation", description: "Created meta-programming tools that auto-generate REST endpoints based on user-defined metadata." },
+    ]
+  }
+];
+
 
 export default function AboutPage() {
   const containerVariants = {
@@ -103,61 +130,81 @@ export default function AboutPage() {
     <div className="container mx-auto px-4 sm:px-6 lg:px-8">
       {/* Hero Section */}
       <SectionContainer className="!pt-12 !pb-16 md:!pt-16 md:!pb-24">
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-12 items-center">
-            <motion.div 
-                className="md:col-span-4 lg:col-span-5 relative h-80 md:h-96 rounded-2xl overflow-hidden shadow-2xl"
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.7, ease: 'easeOut' }}
-            >
-                <Image
-                    src="https://i.imgur.com/wcHgOHv.png"
-                    alt="Profile picture of a figure in ornate armor"
-                    fill
-                    sizes="(max-width: 768px) 100vw, 40vw"
-                    className="object-contain object-center"
-                    data-ai-hint="artist profile"
-                    priority
-                />
-                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+        <motion.div 
+            className="text-center"
+            variants={containerVariants}
+            initial="hidden"
+            animate="visible"
+        >
+            <motion.div variants={itemVariants} className="mb-8">
+              <Image
+                src="https://i.imgur.com/TsFpBse.png"
+                alt="DeepTerrorGG Avatar"
+                width={128}
+                height={128}
+                className="rounded-full border-4 border-primary shadow-lg mx-auto"
+                priority
+              />
             </motion.div>
-            <motion.div 
-                className="md:col-span-8 lg:col-span-7"
-                variants={containerVariants}
-                initial="hidden"
-                animate="visible"
-            >
-                <motion.p variants={itemVariants} className="text-primary font-semibold text-lg mb-2">About Me</motion.p>
-                <motion.h1 variants={itemVariants} className="text-4xl md:text-5xl font-extrabold text-foreground mb-4">DeepTerrorGG</motion.h1>
-                <motion.h2 variants={itemVariants} className="text-xl md:text-2xl text-muted-foreground font-medium mb-6">Programmer & Digital Artist</motion.h2>
-                <motion.p variants={itemVariants} className="text-lg text-foreground/80 leading-relaxed">
-                    A developer and digital artist exploring where code, emotion, and imagination meet. I’m driven by the honest energy of creators and the challenge of turning feelings into something tangible, whether it's through a line of code or a stroke of a digital brush.
-                </motion.p>
-            </motion.div>
-        </div>
+            <motion.h1 variants={itemVariants} className="text-4xl md:text-5xl font-extrabold text-foreground mb-4">DeepTerrorGG</motion.h1>
+            <motion.h2 variants={itemVariants} className="text-xl md:text-2xl text-primary font-medium mb-6">Full Stack Engineer | Systems Architect | AI Integration Specialist</motion.h2>
+            <motion.p variants={itemVariants} className="text-lg text-foreground/80 leading-relaxed max-w-3xl mx-auto">
+                In an era of digital noise, identity is performance. I believe code should speak louder than appearances. I am a Full Stack Engineer and Systems Architect who operates at the intersection of high-performance software, distributed computing, and low-level system configuration.
+            </motion.p>
+             <motion.p variants={itemVariants} className="text-lg text-foreground/80 leading-relaxed max-w-3xl mx-auto mt-4">
+                I don’t just build web applications; I architect the environments they run on. My workflow is heavily influenced by cybersecurity distributions (Kali Linux / BlackArch), instilling a security-first mindset in every system I engineer. Whether I am behind a screen in Serbia or acting as a node in a distributed network, the quality of the architecture remains the constant.
+            </motion.p>
+        </motion.div>
       </SectionContainer>
       
-      {/* My Story Section */}
-      <SectionContainer>
+      {/* Core Engineering Philosophy */}
+      <SectionContainer className="!py-0">
         <Card className="bg-card/50 border-border/50">
             <CardHeader className="text-center">
                 <CardTitle className="flex items-center justify-center gap-2 text-3xl text-foreground">
                     <Brain aria-hidden="true" className="text-primary h-8 w-8" />
-                    My Story
+                    Core Engineering Philosophy
                 </CardTitle>
             </CardHeader>
-            <CardContent className="text-muted-foreground text-lg leading-relaxed max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6">
+            <CardContent className="text-muted-foreground text-lg leading-relaxed max-w-4xl mx-auto text-center">
                 <p>
-                    My journey into art didn’t start with a plan; it started with a feeling, sparked by the style and honest energy of artist <Link href="https://www.tiktok.com/@hinxycrybaby" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline font-semibold">@hinxycrybaby</Link>. That inspiration is what pushed me to start creating on my own.
-                </p>
-                <p>
-                    For me, art isn’t just about visuals—it’s about expression. It’s how I work through thoughts, how I grow, and how I turn feelings into something you can see. Every project is a step toward becoming better, not just technically, but as a person.
-                </p>
-                 <p className="md:col-span-2">
-                    Besides coding and design, I’m drawn to games and anything with a strong aesthetic vibe. Those things shape how I see the world, and they help me add emotion, atmosphere, and personality to the things I build. I’m learning, reflecting, and creating from a place that feels honest.
+                    I specialize in bridging the gap between kernel-level configuration and high-performance user interfaces. I focus on building systems that are scalable, secure, and architecturally sound from the ground up.
                 </p>
             </CardContent>
         </Card>
+      </SectionContainer>
+
+      {/* Featured Architectural Work Section */}
+      <SectionContainer>
+        <div className="text-center mb-12">
+            <h2 className="flex items-center justify-center gap-2 text-3xl font-bold text-foreground">
+                <Code aria-hidden="true" className="text-primary h-8 w-8" />
+                Featured Architectural Work
+            </h2>
+             <p className="text-muted-foreground mt-3 max-w-2xl mx-auto">My portfolio focuses on complex engineering challenges rather than simple CRUD applications.</p>
+        </div>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            {featuredWork.map((category) => (
+                <motion.div key={category.category} variants={itemVariants}>
+                    <Card className="h-full bg-card/80">
+                        <CardHeader>
+                            <CardTitle className="flex items-center gap-3">
+                                {category.icon}
+                                {category.category}
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
+                            {category.projects.map((project) => (
+                                <div key={project.name}>
+                                    <h4 className="font-semibold">{project.name}</h4>
+                                    <p className="text-sm text-muted-foreground">{project.description}</p>
+                                </div>
+                            ))}
+                        </CardContent>
+                    </Card>
+                </motion.div>
+            ))}
+        </div>
       </SectionContainer>
 
       {/* Technology Stack Section */}

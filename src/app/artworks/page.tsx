@@ -23,6 +23,7 @@ import Autoplay from "embla-carousel-autoplay";
 import Fade from 'embla-carousel-fade';
 import { cn } from '@/lib/utils';
 import SectionContainer from '@/components/ui/section-container';
+import AnimateOnScroll from '@/components/ui/animate-on-scroll';
 
 interface Artwork {
   id: string;
@@ -191,7 +192,7 @@ export default function ArtworksPage() {
   };
 
   return (
-    <div className="w-full flex-grow flex flex-col">
+    <AnimateOnScroll className="w-full flex-grow flex flex-col">
       <PageTitle subtitle="Most of these were made for fun, but the truth is she inspired a lot of them. Her presence gave me the push to create, even this whole site. It’s a small way of turning feelings into something visible.">
         My Artworks
       </PageTitle>
@@ -395,6 +396,6 @@ export default function ArtworksPage() {
           animation: fade-out-slow 0.8s cubic-bezier(0.7, 0, 0.84, 0) forwards;
         }
       `}</style>
-    </div>
+    </AnimateOnScroll>
   );
 }

@@ -1180,19 +1180,20 @@ export default function ProjectsPage() {
 
         {/* Right Column: Project Details & Component */}
         <div className="flex-1 w-2/3 h-full flex flex-col overflow-hidden">
-          <AnimateOnScroll className="flex-grow overflow-y-auto" delay={0.2}>
-            <div className="flex flex-col min-h-full">
-                {/* Project Component Area */}
-                <div className="flex-shrink-0 flex items-center justify-center relative bg-muted/20 border-b border-border min-h-[60vh] hover:bg-muted/30 transition-colors duration-300">
-                    {selectedProject.component}
-                </div>
+          {/* This ScrollArea now wraps both the component and details */}
+          <ScrollArea className="h-full">
+            <AnimateOnScroll className="flex flex-col min-h-full" delay={0.2}>
+              {/* Project Component Area */}
+              <div className="flex-grow flex items-center justify-center relative bg-muted/20 border-b border-border min-h-[60vh] hover:bg-muted/30 transition-colors duration-300">
+                {selectedProject.component}
+              </div>
 
-                {/* Project Details Area */}
-                <div className="flex-shrink-0 bg-card">
-                    <ProjectDetailContent project={selectedProject} />
-                </div>
-            </div>
-          </AnimateOnScroll>
+              {/* Project Details Area */}
+              <div className="flex-shrink-0 bg-card">
+                <ProjectDetailContent project={selectedProject} />
+              </div>
+            </AnimateOnScroll>
+          </ScrollArea>
         </div>
       </div>
     </div>

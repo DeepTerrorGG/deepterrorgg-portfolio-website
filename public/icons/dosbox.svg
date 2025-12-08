@@ -1,1 +1,6 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 256 256"><path fill="currentColor" d="M216 40H40a8 8 0 0 0-8 8v152a8 8 0 0 0 8 8h176a8 8 0 0 0 8-8V48a8 8 0 0 0-8-8M48 192V56h160v136ZM172 108H84a12 12 0 0 0 0 24h88a12 12 0 0 0 0-24Z"/></svg>
+<svg width="800px" height="800px" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+  <path
+    fill="currentColor"
+    d="M4 3h16a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1m1 3v2h2v2h2v2h2v2h2v2h2v-2h-2v-2h-2v-2h-2V8H7V6z"
+  />
+</svg>

@@ -31,7 +31,7 @@ export async function fetchRepoHistory(input: z.infer<typeof GithubHistoryInputS
     }
 
     const [, owner, repo] = match;
-    const url = `https://api.github.com/repos/${owner}/${repo}/commits?per_page=30`;
+    const url = `https://api.github.com/repos/${owner}/${repo}/commits?per_page=100`;
 
     try {
         const response = await fetch(url, {
@@ -69,7 +69,11 @@ export async function fetchRepoHistory(input: z.infer<typeof GithubHistoryInputS
         // The GitHub API returns newest first, so we reverse it for chronological playback
         return commitsWithDetails.reverse();
     } catch (error) {
+        if (error instanceof TypeError && error.message.includes('fetch failed')) {
+            console.error("Network error fetching repository history:", error);
+            throw new Error('Network Error: Could not connect to the GitHub API. Please check your connection or firewall settings.');
+        }
         console.error("Error fetching repository history:", error);
-        throw error;
+        throw error; // Re-throw other errors
     }
 }

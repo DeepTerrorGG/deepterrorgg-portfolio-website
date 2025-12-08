@@ -133,11 +133,11 @@ const GitHistoryVisualizer: React.FC = () => {
                 })
             )
           .transition().duration(500)
-          .attr('r', d => Math.max(3, Math.sqrt(d.size)))
+          .attr('r', d => Math.max(2, Math.sqrt(d.size) / 1.5))
           .attr('fill-opacity', 0.5);
           
         node.transition().duration(500)
-          .attr('r', d => Math.max(3, Math.sqrt(d.size)));
+          .attr('r', d => Math.max(2, Math.sqrt(d.size) / 1.5));
 
         simulationRef.current.nodes(data.nodes);
         simulationRef.current.force<d3.ForceLink<GitNode, GitLink>>('link')?.links(data.links);
@@ -191,7 +191,7 @@ const GitHistoryVisualizer: React.FC = () => {
         if (isPlaying && commitIndex < commits.length - 1) {
             const timer = setTimeout(() => {
                 setCommitIndex(prev => prev + 1);
-            }, 700); // Slowed down from 300ms
+            }, 700);
             return () => clearTimeout(timer);
         } else if (commitIndex >= commits.length - 1 && isPlaying && commits.length > 0) {
             setIsPlaying(false);
@@ -209,24 +209,28 @@ const GitHistoryVisualizer: React.FC = () => {
         setCommits([]);
         setCommitIndex(0);
         setIsPlaying(false);
-        if(simulationRef.current) {
-          updateSimulation({nodes: [], links: []});
+        if (simulationRef.current) {
+            updateSimulation({ nodes: [], links: [] });
         }
         try {
             const history = await fetchRepoHistory({ repoUrl });
-            if(history.length === 0) {
-              toast({ title: "No commits found", description: "This repository might be empty or inaccessible.", variant: "destructive" });
+            if (history.length === 0) {
+                toast({ title: "No commits found", description: "This repository might be empty or inaccessible.", variant: "destructive" });
             } else {
-              setCommits(history);
-              setIsPlaying(true);
+                setCommits(history);
+                setIsPlaying(true);
             }
-        } catch (error) {
+        } catch (error: any) {
             console.error("Failed to fetch repo history:", error);
-            toast({ title: "Error fetching history", description: (error as Error).message, variant: "destructive" });
+            toast({
+                title: "Error Fetching History",
+                description: error.message || "An unknown error occurred.",
+                variant: "destructive",
+            });
         } finally {
             setIsLoading(false);
         }
-    }
+    };
 
     const reset = () => {
         setIsPlaying(false);

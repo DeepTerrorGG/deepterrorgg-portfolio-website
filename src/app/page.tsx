@@ -7,7 +7,7 @@ import SectionContainer from '@/components/ui/section-container';
 import { motion } from 'framer-motion';
 import AnimateOnScroll from '@/components/ui/animate-on-scroll';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, Mail, User, ArrowUp, Compass, Monitor } from 'lucide-react';
+import { ArrowRight, Mail, User, ArrowUpToLine, Github, Linkedin, Code, Star, Send, Loader2, Compass, Monitor } from 'lucide-react';
 import SplineShowcase from '@/components/home/spline-showcase';
 import type Spline from '@splinetool/react-spline';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
@@ -19,11 +19,18 @@ import {
   CarouselItem,
   CarouselNext,
   CarouselPrevious,
+  type CarouselApi,
 } from '@/components/ui/carousel';
 import Autoplay from 'embla-carousel-autoplay';
 import { TechStack } from '@/components/ui/tech-stack';
 import AnimatedHeader from '@/components/home/AnimatedHeader';
-
+import { useForm, type SubmitHandler } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Form, FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { useToast } from '@/hooks/use-toast';
+import { DirectMessageSchema, type DirectMessageSchemaType, type DirectMessageFormState } from '@/app/contact/schema';
 
 const SplineModel = React.lazy(
   () => import('@/components/home/spline-model')
@@ -32,66 +39,55 @@ const SplineModel = React.lazy(
 
 const featuredProjects = [
     {
-      id: 'distributed-fractal-explorer',
-      title: 'Distributed Fractal Explorer',
-      description: 'A distributed computing project where visitors help render a massive fractal. It uses Firestore as a job queue and Web Workers for client-side processing.',
+      id: 'genkit-starter',
+      title: 'Genkit Next.js Starter',
+      description: 'A production-ready starter template for building AI-powered applications with Next.js and Google\'s Genkit.',
+      longDescription: 'This template provides a comprehensive starting point for developers looking to integrate Google\'s generative AI framework, Genkit, with a modern Next.js application. It includes setup for server-side flows, client-side hooks, and examples of streaming responses, structured output, and tool use, helping developers bypass boilerplate and start building features immediately.',
       technologies: [
-        { name: 'React', iconSrc: '/icons/react.svg' },
         { name: 'Next.js', iconSrc: '/icons/nextjs.svg' },
+        { name: 'Genkit', iconSrc: '/icons/genkit.svg' },
+        { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },
+      ],
+      language: 'TypeScript',
+      stars: 152,
+    },
+    {
+      id: 'firebase-ui',
+      title: 'Firebase UI for React',
+      description: 'A set of reusable and accessible React components for building user interfaces that interact with Firebase services.',
+      longDescription: 'This project simplifies Firebase integration in React applications by providing pre-built components for authentication, Firestore data display, and file uploads. The goal is to provide a headless, customizable component library that handles the backend logic, allowing developers to focus on their application\'s unique UI/UX.',
+      technologies: [
+        { name: 'React', iconSrc: '/icons/react.svg' },
         { name: 'Firebase', iconSrc: '/icons/firebase.svg' },
-        { name: 'Web Workers', iconSrc: '/icons/javascript.svg' },
+        { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },
       ],
+      language: 'TypeScript',
+      stars: 88,
     },
     {
-      id: 'ecommerce-dashboard',
-      title: 'E-commerce Dashboard',
-      description: 'A mock e-commerce admin dashboard with data tables, charts, and key metrics. Demonstrates handling complex data and creating professional UIs.',
+      id: 'portfolio-template',
+      title: 'Portfolio Template',
+      description: 'The very same code that powers this portfolio website. Built to be easily customizable and showcase personal projects.',
+      longDescription: 'This project is a complete portfolio solution for developers and creatives. It features a modular design, easy content updates via mock data files, and a modern tech stack including Next.js, Framer Motion, and shadcn/ui. The goal is to provide a beautiful, performant, and easily-customizable template for showcasing personal projects and skills.',
       technologies: [
-        { name: 'React', iconSrc: '/icons/react.svg' },
-        { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },
-        { name: 'Recharts', iconSrc: '/icons/recharts.svg' },
-        { name: '@tanstack/table', iconSrc: '/icons/react-query.svg' },
+        { name: 'Next.js', iconSrc: '/icons/nextjs.svg' },
+        { name: 'Framer Motion', iconSrc: '/icons/framer.svg' },
+        { name: 'shadcn/ui', iconSrc: '/icons/shadcn.svg' },
       ],
-    },
-    {
-      id: 'payment-ledger',
-      title: 'Payment Ledger Simulation',
-      description: 'A simulation of a banking backend using double-entry bookkeeping to ensure transactional integrity, preventing issues like "double-spending".',
-      technologies: [
-        { name: 'React', iconSrc: '/icons/react.svg' },
-        { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },
-        { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss.svg' },
-      ],
+       language: 'TypeScript',
+      stars: 215,
     },
      {
-      id: 'headless-cms',
-      title: 'Headless CMS',
-      description: 'A tool like Contentful. Define content schemas, and the API endpoints are automatically generated, demonstrating dynamic API creation.',
+      id: 'cli-boilerplate',
+      title: 'CLI Tool Boilerplate',
+      description: 'A boilerplate for creating powerful, type-safe command-line tools with Node.js and TypeScript.',
+      longDescription: 'This starter kit includes argument parsing, command routing, colorized output, and automated testing setup. It helps developers quickly bootstrap a new CLI project, focusing on logic rather than setup. Includes examples for fetching data from an API and interacting with the local file system.',
       technologies: [
-        { name: 'React', iconSrc: '/icons/react.svg' },
-        { name: 'Next.js', iconSrc: '/icons/nextjs.svg' },
-        { name: 'Firebase', iconSrc: '/icons/firebase.svg' },
-      ],
-    },
-    {
-      id: 'spreadsheet',
-      title: 'Web-Based Spreadsheet',
-      description: 'A simplified, in-browser spreadsheet application that supports basic formulas, complex state management, and performance optimization.',
-       technologies: [
-        { name: 'React', iconSrc: '/icons/react.svg' },
+        { name: 'Node.js', iconSrc: '/icons/nodejs.svg' },
         { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },
-        { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss.svg' },
       ],
-    },
-    {
-      id: 'sudoku-solver',
-      title: 'Sudoku Solver Visualization',
-      description: 'Watch a backtracking algorithm solve a Sudoku puzzle in real-time, visualizing its "thinking" process as it tries and retracts numbers.',
-       technologies: [
-        { name: 'React', iconSrc: '/icons/react.svg' },
-        { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },
-        { name: 'Framer Motion', iconSrc: '/icons/framer.svg' },
-      ],
+      language: 'TypeScript',
+      stars: 42,
     },
 ];
 
@@ -103,7 +99,7 @@ const technologies = [
   { name: 'Tailwind CSS', href: 'https://tailwindcss.com/', iconSrc: '/icons/tailwindcss.svg' },
   { name: 'shadcn/ui', href: 'https://ui.shadcn.com/', iconSrc: '/icons/shadcn.svg' },
   { name: 'Framer Motion', href: 'https://www.framer.com/motion/', iconSrc: '/icons/framer.svg' },
-  { name: 'Lucide Icons', href: 'https://lucide.dev/', iconSrc: '/icons/lucide.svg' },
+  { name: 'Lucide', href: 'https://lucide.dev/', iconSrc: '/icons/lucide.svg' },
   { name: 'React Hook Form', href: 'https://react-hook-form.com/', iconSrc: '/icons/react-hook-form.svg' },
   { name: 'Zod', href: 'https://zod.dev/', iconSrc: '/icons/zod.svg' },
   { name: 'dnd-kit', href: 'https://dndkit.com/', iconSrc: '/icons/dnd-kit.svg' },
@@ -163,14 +159,58 @@ export default function HomePage() {
     Autoplay({ delay: 5000, stopOnInteraction: true, stopOnMouseEnter: true })
   );
 
+  const [api, setApi] = useState<CarouselApi>();
+  const [current, setCurrent] = useState(0);
+
+  const { toast } = useToast();
+  const form = useForm<DirectMessageSchemaType>({
+    resolver: zodResolver(DirectMessageSchema),
+    defaultValues: {
+      email: '',
+      message: '',
+    },
+  });
+
+  const onSubmit: SubmitHandler<DirectMessageSchemaType> = async (data) => {
+    try {
+      const response = await fetch('/api/send-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+
+      const result: DirectMessageFormState = await response.json();
+      if (response.ok && result.success) {
+        toast({ title: 'Message Sent!', description: result.message, variant: 'default' });
+        form.reset();
+      } else {
+        toast({ title: 'Error', description: result.message || 'An error occurred.', variant: 'destructive' });
+      }
+    } catch (error) {
+      toast({ title: 'Error', description: 'Failed to send message.', variant: 'destructive' });
+    }
+  };
+
+
   useEffect(() => {
     setIsMounted(true);
   }, []);
 
+  useEffect(() => {
+    if (!api) {
+      return
+    }
+    setCurrent(api.selectedScrollSnap())
+    api.on("select", () => {
+      setCurrent(api.selectedScrollSnap())
+    })
+  }, [api])
+
+
   const footerLinks = [
     { name: 'Contact', icon: <Mail className="h-5 w-5" />, href: '/contact' },
     { name: 'About', icon: <User className="h-5 w-5" />, href: '/about' },
-    { name: 'Back to Top', icon: <ArrowUp className="h-5 w-5" />, action: () => window.scrollTo({ top: 0, behavior: 'smooth' }) },
+    { name: 'Back to Top', icon: <ArrowUpToLine className="h-5 w-5" />, action: () => window.scrollTo({ top: 0, behavior: 'smooth' }) },
   ];
 
   function onSplineLoad(spline: Spline) {
@@ -232,6 +272,46 @@ export default function HomePage() {
             </motion.div>
           </div>
         </div>
+
+        {/* Artwork Section */}
+        <AnimateOnScroll>
+          <SectionContainer className="!py-16 md:!py-24">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+                <div className="text-center group">
+                    <h2 className="text-3xl font-extrabold tracking-tight group-hover:text-primary transition-colors duration-300">
+                      <span className="animated-gradient-text">THE PORTFOLIO</span>
+                    </h2>
+                    <p className="mt-3 text-muted-foreground transition-colors duration-300 group-hover:text-foreground">
+                      A curated collection of over 50 interactive projects, from AI applications to complex web systems.
+                    </p>
+                    <Button asChild variant="outline" className="mt-6 rounded-full px-6">
+                        <PreloadingLink href="/projects">
+                            VIEW PROJECTS <ArrowRight className="ml-2 h-4 w-4"/>
+                        </PreloadingLink>
+                    </Button>
+                    <div className="mt-8">
+                      <Image src="/images/anthology.png" alt="Anthology series characters" width={600} height={600} className="w-full h-auto" />
+                    </div>
+                </div>
+                <div className="text-center group">
+                    <h2 className="text-3xl font-extrabold tracking-tight group-hover:text-primary transition-colors duration-300">
+                      <span className="animated-gradient-text">THE ARTWORKS</span>
+                    </h2>
+                    <p className="mt-3 text-muted-foreground transition-colors duration-300 group-hover:text-foreground">
+                      A gallery of personal artworks and creative pieces inspired by digital art and emotion.
+                    </p>
+                     <Button asChild variant="outline" className="mt-6 rounded-full px-6">
+                        <PreloadingLink href="/artworks">
+                           VIEW GALLERY <ArrowRight className="ml-2 h-4 w-4"/>
+                        </PreloadingLink>
+                    </Button>
+                    <div className="mt-8">
+                       <Image src="/images/azuki.png" alt="Azuki character" width={600} height={600} className="w-full h-auto" />
+                    </div>
+                </div>
+            </div>
+          </SectionContainer>
+        </AnimateOnScroll>
         
         {/* Featured Projects Section */}
         <AnimateOnScroll>
@@ -242,6 +322,7 @@ export default function HomePage() {
             </div>
             {isMounted && (
               <Carousel
+                  setApi={setApi}
                   plugins={[autoplayPlugin.current]}
                   className="w-full"
                   opts={{ loop: true }}
@@ -252,57 +333,145 @@ export default function HomePage() {
                   {featuredProjects.map((project) => (
                     <CarouselItem key={project.id}>
                       <div className="p-1">
-                        <Card className="flex flex-col md:flex-row overflow-hidden h-full min-h-[480px] transform-style-3d">
-                          <div className="relative w-full md:w-1/2 h-64 md:h-auto bg-card">
-                            <div className="w-full h-full min-h-[300px] md:min-h-full flex items-center justify-center bg-muted/30 p-8">
-                              <div className="text-center">
-                                    <Compass className="h-16 w-16 text-primary mx-auto mb-4"/>
-                                    <h3 className="text-xl font-bold">Explore this Project</h3>
-                                    <p className="text-muted-foreground mt-2">
-                                        This is an interactive demo. Click the button to explore it on the projects page.
-                                    </p>
-                                </div>
+                        <Card className="bg-[#0d1117]/80 border-border/30 text-slate-300 font-mono shadow-2xl transition-all duration-500 h-full flex flex-col min-h-[480px]">
+                          {/* Terminal Header */}
+                          <CardHeader className="flex flex-row items-center gap-2 p-3 border-b border-border/30 bg-black/50">
+                            <div className="flex gap-1.5">
+                              <div className="w-3 h-3 rounded-full bg-red-500"></div>
+                              <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
+                              <div className="w-3 h-3 rounded-full bg-green-500"></div>
                             </div>
-                          </div>
-                          <div className="w-full md:w-1/2 flex flex-col p-6 sm:p-8 justify-center">
-                            <CardHeader className="p-0 mb-4">
-                              <CardTitle className="text-2xl lg:text-3xl text-primary">{project.title}</CardTitle>
-                            </CardHeader>
-                            <CardContent className="p-0 flex-grow mb-6">
-                              <p className="text-muted-foreground">{project.description}</p>
-                            </CardContent>
-                            <CardFooter className="p-0 flex flex-col items-start gap-4">
-                              <TechStack technologies={project.technologies} />
-                              <Button asChild variant="outline" className="mt-4">
-                                <PreloadingLink href={`/projects`}>
-                                  Explore Project <ArrowRight className="ml-2 h-4 w-4" />
-                                </PreloadingLink>
-                              </Button>
-                            </CardFooter>
-                          </div>
+                            <p className="text-sm text-slate-400 truncate">{project.title}</p>
+                          </CardHeader>
+                          
+                          <CardContent className="p-6 space-y-4 flex-grow">
+                            <div>
+                              <p className="text-primary flex items-center">
+                                <span className="text-cyan-400 mr-2">~/opensource</span>
+                                <span className="text-yellow-400">&gt;</span>
+                                <span className="ml-2 text-primary font-bold">{project.title}</span>
+                              </p>
+                              <p className="text-slate-400 text-sm mt-1">{project.description}</p>
+                            </div>
+                            
+                            <div>
+                              <p className="flex items-center text-yellow-400">
+                                <span>&gt;</span>
+                                <span className="ml-2 text-slate-300">cat README.md</span>
+                              </p>
+                              <p className="text-slate-400 text-sm mt-2 pl-4 border-l-2 border-border/30">
+                                {project.longDescription}
+                              </p>
+                            </div>
+
+                            <div className="flex flex-wrap items-center gap-6 text-sm pt-2">
+                              <div className="flex items-center gap-2">
+                                  <span className="text-yellow-400">&gt;</span>
+                                  <Code className="h-4 w-4 text-primary" />
+                                  <span>{project.language}</span>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                  <Star className="h-4 w-4 text-yellow-400" />
+                                  <span>{project.stars.toLocaleString()} stars</span>
+                              </div>
+                            </div>
+                          </CardContent>
+
+                          <CardFooter className="p-6 pt-0 mt-auto">
+                            <Button asChild className="group/btn w-full sm:w-auto bg-primary/10 border-2 border-primary/30 text-primary hover:bg-primary hover:text-primary-foreground hover:shadow-lg hover:shadow-primary/20 transition-all duration-300">
+                              <PreloadingLink href={`/opensource`}>
+                                <Github className="mr-2 h-4 w-4" />
+                                ./view_on_github.sh
+                                <ArrowRight className="ml-2 h-4 w-4 opacity-0 -translate-x-2 group-hover/btn:opacity-100 group-hover/btn:translate-x-0 transition-all duration-300" />
+                              </PreloadingLink>
+                            </Button>
+                          </CardFooter>
                         </Card>
                       </div>
                     </CarouselItem>
                   ))}
                 </CarouselContent>
-                <CarouselPrevious className="absolute left-[-50px] top-1/2 -translate-y-1/2 z-10 h-10 w-10 sm:h-12 sm:w-12 rounded-full bg-background/50 hover:bg-background/80" />
-                <CarouselNext className="absolute right-[-50px] top-1/2 -translate-y-1/2 z-10 h-10 w-10 sm:h-12 sm:w-12 rounded-full bg-background/50 hover:bg-background/80" />
+                <CarouselPrevious className="absolute left-[-60px] top-1/2 -translate-y-1/2 z-10 h-12 w-12 rounded-full bg-background/50 hover:bg-background/80" />
+                <CarouselNext className="absolute right-[-60px] top-1/2 -translate-y-1/2 z-10 h-12 w-12 rounded-full bg-background/50 hover:bg-background/80" />
               </Carousel>
             )}
+             <div className="flex justify-center gap-2 mt-8">
+              {featuredProjects.map((_, index) => (
+                <button
+                  key={index}
+                  onClick={() => api?.scrollTo(index)}
+                  className="p-1 relative h-2 w-8 rounded-full bg-muted/50 transition-colors hover:bg-primary/50"
+                  aria-label={`Go to slide ${index + 1}`}
+                >
+                  {current === index && (
+                    <motion.div
+                      layoutId="carousel-indicator"
+                      className="absolute inset-0 h-full w-full bg-primary rounded-full"
+                      transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+                    />
+                  )}
+                </button>
+              ))}
+            </div>
           </SectionContainer>
         </AnimateOnScroll>
         
         {/* Call to Action Section */}
         <AnimateOnScroll>
           <SectionContainer id="contact-cta" className="!pt-0">
-            <div className="text-center p-8 md:p-12">
-              <h2 className="text-3xl md:text-4xl font-bold text-primary">Have a Project in Mind?</h2>
-              <p className="text-muted-foreground mt-3 max-w-xl mx-auto">I'm always open to discussing new projects, creative ideas, or opportunities to be part of an ambitious vision. Let's create something amazing together.</p>
-                <Button asChild size="lg" className="mt-8">
-                  <PreloadingLink href="/contact">
-                    Contact Me <Mail className="ml-2 h-5 w-5" />
-                  </PreloadingLink>
-                </Button>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+              <div className="text-center lg:text-left p-8 md:p-12 flex flex-col justify-center h-full">
+                <h2 className="text-3xl md:text-4xl font-bold text-primary">Have a Project in Mind?</h2>
+                <p className="text-muted-foreground mt-3 max-w-xl mx-auto lg:mx-0">I'm always open to discussing new projects, creative ideas, or opportunities to be part of an ambitious vision. Let's create something amazing together.</p>
+              </div>
+              <div className="group [perspective:1000px]">
+                <Card className="bg-[#0d1117]/80 border-border/30 text-slate-300 font-mono shadow-2xl transition-all duration-500 group-hover:[transform:rotateY(2deg)_rotateX(5deg)]">
+                  <CardHeader className="flex flex-row items-center gap-2 p-3 border-b border-border/30 bg-black/50">
+                    <div className="flex gap-1.5">
+                      <div className="w-3 h-3 rounded-full bg-red-500"></div>
+                      <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
+                      <div className="w-3 h-3 rounded-full bg-green-500"></div>
+                    </div>
+                    <p className="text-sm text-slate-400">./contact.sh</p>
+                  </CardHeader>
+                  <CardContent className="p-6">
+                    <Form {...form}>
+                      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                        <FormField
+                          control={form.control}
+                          name="email"
+                          render={({ field }) => (
+                            <FormItem>
+                              <p><span className="text-primary mr-2">&gt;</span><span className="text-slate-300">email=</span></p>
+                              <FormControl>
+                                <Input placeholder="you@example.com" {...field} className="bg-transparent border-0 ring-offset-0 focus-visible:ring-0 focus-visible:ring-offset-0 text-slate-300 pl-8" />
+                              </FormControl>
+                              <FormMessage className="pl-8" />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
+                          name="message"
+                          render={({ field }) => (
+                            <FormItem>
+                              <p><span className="text-primary mr-2">&gt;</span><span className="text-slate-300">message=</span></p>
+                              <FormControl>
+                                <Textarea placeholder="Your message here..." {...field} className="bg-transparent border-0 ring-offset-0 focus-visible:ring-0 focus-visible:ring-offset-0 text-slate-300 pl-8 min-h-[60px]" />
+                              </FormControl>
+                              <FormMessage className="pl-8" />
+                            </FormItem>
+                          )}
+                        />
+                        <Button type="submit" disabled={form.formState.isSubmitting} className="group/btn w-full bg-primary/10 border-2 border-primary/30 text-primary hover:bg-primary hover:text-primary-foreground">
+                          {form.formState.isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : <Send className="mr-2 h-4 w-4" />}
+                          send-message
+                        </Button>
+                      </form>
+                    </Form>
+                  </CardContent>
+                </Card>
+              </div>
             </div>
           </SectionContainer>
         </AnimateOnScroll>
@@ -356,25 +525,77 @@ export default function HomePage() {
           </SectionContainer>
         </AnimateOnScroll>
       </div>
-      <footer className="py-16 bg-background">
+      <footer className="py-20 md:py-24 bg-background">
         <div className="container mx-auto px-4 text-center">
-          <h2 className="text-2xl font-bold text-foreground mb-4">You've reached the edge of this world.</h2>
-          <p className="text-muted-foreground mb-8">What will you do now?</p>
-          <div className="flex justify-center gap-4">
-            <Button variant="outline" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
-              <ArrowUp className="mr-2 h-4 w-4" /> Return to Top
-            </Button>
-            <Button asChild>
-              <PreloadingLink href="/projects">
-                <Compass className="mr-2 h-4 w-4" /> Explore More
+          <h2 className="text-3xl font-bold text-foreground mb-4">You've reached the edge of this world.</h2>
+          <p className="text-muted-foreground mb-12">What will you do now?</p>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-2xl mx-auto">
+            <motion.div whileHover={{ y: -5, scale: 1.02 }} className="h-full">
+              <Card 
+                className="h-full bg-card/50 hover:bg-card/80 border-border/30 hover:border-primary/50 transition-all duration-300 cursor-pointer"
+                onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+              >
+                <CardContent className="p-6 text-center">
+                  <ArrowUpToLine className="h-10 w-10 mx-auto text-primary mb-3"/>
+                  <h3 className="text-xl font-semibold">Return to Top</h3>
+                  <p className="text-sm text-muted-foreground mt-1">Start again from the beginning.</p>
+                </CardContent>
+              </Card>
+            </motion.div>
+             <motion.div whileHover={{ y: -5, scale: 1.02 }} className="h-full">
+              <PreloadingLink href="/projects" className="h-full block">
+                 <Card className="h-full bg-primary/10 hover:bg-primary/20 border-primary/20 hover:border-primary/50 transition-all duration-300">
+                  <CardContent className="p-6 text-center">
+                    <Compass className="h-10 w-10 mx-auto text-primary mb-3"/>
+                    <h3 className="text-xl font-semibold">Explore More</h3>
+                    <p className="text-sm text-muted-foreground mt-1">Discover other projects and demos.</p>
+                  </CardContent>
+                </Card>
               </PreloadingLink>
-            </Button>
+            </motion.div>
           </div>
-          <p className="text-xs text-muted-foreground mt-12">
+          <div className="mt-16 flex justify-center gap-6">
+            <Link href="https://github.com/DeepTerrorGG" target="_blank" rel="noopener noreferrer">
+              <Button variant="ghost" size="icon" className="h-12 w-12 rounded-full hover:bg-muted/50">
+                <Github className="h-6 w-6 text-muted-foreground hover:text-foreground transition-colors" />
+                <span className="sr-only">GitHub</span>
+              </Button>
+            </Link>
+            <Link href="https://www.linkedin.com" target="_blank" rel="noopener noreferrer">
+              <Button variant="ghost" size="icon" className="h-12 w-12 rounded-full hover:bg-muted/50">
+                <Linkedin className="h-6 w-6 text-muted-foreground hover:text-foreground transition-colors" />
+                <span className="sr-only">LinkedIn</span>
+              </Button>
+            </Link>
+            <Link href="mailto:example@gmail.com">
+              <Button variant="ghost" size="icon" className="h-12 w-12 rounded-full hover:bg-muted/50">
+                <Mail className="h-6 w-6 text-muted-foreground hover:text-foreground transition-colors" />
+                <span className="sr-only">Email</span>
+              </Button>
+            </Link>
+          </div>
+          <p className="text-xs text-muted-foreground mt-8">
             &copy; {new Date().getFullYear()} DeepTerrorGG. All Rights Reserved.
           </p>
         </div>
       </footer>
+       <style jsx global>{`
+        .animated-gradient-text {
+          background: linear-gradient(90deg, hsl(var(--foreground)), hsl(var(--primary)), hsl(var(--foreground)));
+          background-size: 200% auto;
+          color: transparent;
+          background-clip: text;
+          -webkit-background-clip: text;
+          transition: background-position 0.5s ease-in-out;
+        }
+        .group:hover .animated-gradient-text {
+          animation: gradient-animation 2s linear infinite;
+        }
+        @keyframes gradient-animation {
+          0% { background-position: 200% center; }
+          100% { background-position: 0% center; }
+        }
+      `}</style>
     </>
   );
 }

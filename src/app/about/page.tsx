@@ -66,7 +66,7 @@ const techCategories = [
       { name: 'Coinbase API', href: 'https://commerce.coinbase.com/docs/api/', iconSrc: '/icons/coinbase.svg' },
       { name: 'Piston API', href: 'https://github.com/engineer-man/piston', iconSrc: '/icons/piston.svg' },
       { name: 'OpenWeatherMap API', href: 'https://openweathermap.org/api', iconSrc: '/icons/openweathermap.svg' },
-      { name: 'Wikimedia API', href: 'https://api.wikimedia.org/wiki/Main_Page', iconSrc: '/icons/wikipedia.svg' },
+      { name: 'Wikimedia API', href: 'https://api.wikimedia.org/wiki/Main_Page', iconSrc: '/icons/wikimedia.svg' },
       { name: 'thum.io API', href: 'https://www.thum.io/', iconSrc: '/icons/thum-io.svg' },
     ],
   },

@@ -70,12 +70,20 @@ export const LeaderboardWrapper: React.FC<LeaderboardWrapperProps> = ({ gameId, 
 
   const submitScore = () => {
     if (!db || score === null || !playerName.trim() || !userId) return;
-    const scoreData: LeaderboardEntry = { name: playerName, score };
+    
+    let scoreData: LeaderboardEntry;
+    if (scoreLabel === 'Wins') {
+        scoreData = { name: playerName, wins: score };
+    } else {
+        scoreData = { name: playerName, score: score };
+    }
+    
     const scoreRef = ref(db, `leaderboards/${gameId}/${userId}`);
     set(scoreRef, scoreData);
     setHasSubmitted(true);
-    toast({ title: "Score Submitted!", description: `Your score of ${score} has been saved.` });
+    toast({ title: "Score Submitted!", description: `Your score has been saved.` });
   };
+
 
   return (
     <div className="w-full h-full flex flex-col">
@@ -96,7 +104,7 @@ export const LeaderboardWrapper: React.FC<LeaderboardWrapperProps> = ({ gameId, 
             {isGameOver && score !== null && !hasSubmitted && (
                 <div className="absolute bottom-4 right-4 bg-card p-4 rounded-lg shadow-lg border border-primary z-10 w-80">
                     <h3 className="font-bold text-lg">Game Over! Submit Your Score?</h3>
-                    <p className="text-muted-foreground text-sm">Your final score: {score}</p>
+                    <p className="text-muted-foreground text-sm">Your final {scoreLabel?.toLowerCase() || 'score'}: {score}</p>
                     <div className="mt-4 space-y-2">
                         <Button onClick={submitScore} className="w-full" disabled={!playerName.trim()}>
                             Submit Score

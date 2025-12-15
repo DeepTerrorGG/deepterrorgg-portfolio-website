@@ -2,7 +2,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { useDatabase } from '@/firebase';
+import { useDatabase, useDatabaseObjectList } from '@/firebase';
 import { ref, query, orderByChild, limitToLast, onValue } from 'firebase/database';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Crown, Loader2 } from 'lucide-react';

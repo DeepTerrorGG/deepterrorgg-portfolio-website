@@ -9,9 +9,8 @@ import { cn } from '@/lib/utils';
 import { Label } from '../ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { Leaderboard, LeaderboardEntry } from '@/components/leaderboard';
-import { useDatabase } from '@/firebase';
-import { useDatabaseObject } from '@/firebase/database/use-database';
-import { ref, set, serverTimestamp, onDisconnect, remove, update } from 'firebase/database';
+import { useDatabase, useDatabaseObject } from '@/firebase';
+import { ref, set, serverTimestamp, onDisconnect, remove, update, runTransaction } from 'firebase/database';
 import { MultiplayerLobby } from '../multiplayer-lobby';
 import { useToast } from '@/hooks/use-toast';
 import { faker } from '@faker-js/faker';
@@ -210,6 +209,7 @@ const TicTacToe: React.FC = () => {
 
     const handleGameStart = (sessionId: string, playerRole: 'p1' | 'p2') => {
         const opponentName = `Opponent_${faker.string.hexadecimal({ length: 4, casing: 'upper' })}`;
+        if (!db) return;
         const gameRef = ref(db, `games/tic-tac-toe/${sessionId}`);
 
         // P1 sets up the initial game state, P2 will just join

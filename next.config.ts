@@ -6,9 +6,6 @@ const nextConfig: NextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
   images: {
     remotePatterns: [
       {
@@ -84,6 +81,7 @@ const nextConfig: NextConfig = {
 
     return config;
   },
+  turbopack: {},
   // Adding a comment to invalidate the cache
 };
 

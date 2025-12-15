@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
@@ -12,6 +11,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, DialogClose } from '../ui/dialog';
 import { ScrollArea } from '../ui/scroll-area';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { LeaderboardWrapper } from '../leaderboard-wrapper';
 
 // --- TYPE DEFINITIONS ---
 type CardType = 'Attack' | 'Skill' | 'Power' | 'Curse';
@@ -29,9 +29,9 @@ type GameCard = {
   type: CardType;
   cost: number;
   description: string;
-  effects: CardEffect[];
   upgraded?: boolean;
   upgradeDesc?: string;
+  effects: CardEffect[];
 };
 
 type StatusEffect = {
@@ -187,6 +187,7 @@ const DeckBuildingRoguelike: React.FC = () => {
     const [mapData, setMapData] = useState<MapData>(generateMap());
     const [currentLevel, setCurrentLevel] = useState(-1);
     const [currentNode, setCurrentNode] = useState<MapNode | null>(null);
+    const [score, setScore] = useState(0);
     
     const [cardRewards, setCardRewards] = useState<GameCard[]>([]);
     const [winner, setWinner] = useState<'player' | 'enemy' | null>(null);
@@ -363,6 +364,7 @@ const DeckBuildingRoguelike: React.FC = () => {
     
     if(newEnemy.hp <= 0) {
       setEnemy({ ...newEnemy, hp: 0 });
+      setScore(s => s + (currentNode?.type === 'elite' ? 250 : currentNode?.type === 'boss' ? 1000 : 100));
       setGameState('reward');
       generateCardRewards();
       return;
@@ -461,6 +463,7 @@ const DeckBuildingRoguelike: React.FC = () => {
     setEnergy(maxEnergy);
     setGameState('map');
     setWinner(null);
+    setScore(0);
   }
   
   const handleRestChoice = (choice: 'heal' | 'upgrade') => {
@@ -768,17 +771,19 @@ const DeckBuildingRoguelike: React.FC = () => {
         case 'upgrade': return renderUpgradeScreen();
         case 'codex': return renderCodex();
         case 'game-over': return (
-            <div className="flex flex-col items-center justify-center gap-4">
-                <h2 className={cn("text-6xl font-bold", winner === 'player' ? "text-green-400" : "text-red-500")}>
-                    {winner === 'player' ? "Victory!" : "Defeated"}
-                </h2>
-                <Button onClick={restartGame}>Play Again</Button>
-                 <Dialog><DialogTrigger asChild><Button variant="secondary"><BookOpen className="mr-2"/>Card Codex</Button></DialogTrigger>
-                    <DialogContent className="max-w-4xl h-[90vh] flex flex-col bg-slate-900/90 border-slate-700 text-white p-0 backdrop-blur-xl">
-                        {renderCodex()}
-                    </DialogContent>
-                </Dialog>
-            </div>
+            <LeaderboardWrapper gameId="deckBuilder" score={score} isGameOver={true}>
+              <div className="flex flex-col items-center justify-center gap-4">
+                  <h2 className={cn("text-6xl font-bold", winner === 'player' ? "text-green-400" : "text-red-500")}>
+                      {winner === 'player' ? "Victory!" : "Defeated"}
+                  </h2>
+                  <Button onClick={restartGame}>Play Again</Button>
+                  <Dialog><DialogTrigger asChild><Button variant="secondary"><BookOpen className="mr-2"/>Card Codex</Button></DialogTrigger>
+                      <DialogContent className="max-w-4xl h-[90vh] flex flex-col bg-slate-900/90 border-slate-700 text-white p-0 backdrop-blur-xl">
+                          {renderCodex()}
+                      </DialogContent>
+                  </Dialog>
+              </div>
+            </LeaderboardWrapper>
         );
         default: return null;
     }

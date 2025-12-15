@@ -1,8 +1,6 @@
 
 import { NextResponse } from 'next/server';
-import coinbase from 'coinbase-commerce-node';
-
-const { Client, resources } = coinbase;
+import { Client, resources } from 'commerce-node';
 
 // Ensure COINBASE_API_KEY is set in your environment variables
 const apiKey = process.env.COINBASE_API_KEY;

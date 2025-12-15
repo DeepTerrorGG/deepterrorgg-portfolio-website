@@ -1,12 +1,11 @@
 
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from './ui/card';
 import { Button } from './ui/button';
 import { Loader2, User, Users } from 'lucide-react';
-import { useDatabase } from '@/firebase';
-import { useDatabaseObjectList } from '@/firebase/database/use-database';
+import { useDatabase, useDatabaseObjectList } from '@/firebase';
 import { ref, set, serverTimestamp, onDisconnect, remove, runTransaction } from 'firebase/database';
 import { useToast } from '@/hooks/use-toast';
 
@@ -19,64 +18,61 @@ interface LobbyProps {
 export const MultiplayerLobby: React.FC<LobbyProps> = ({ gameId, playerName, onGameStart }) => {
     const db = useDatabase();
     const { toast } = useToast();
-    const lobbyRef = React.useMemo(() => db ? ref(db, `lobbies/${gameId}`) : null, [db, gameId]);
+    const lobbyRef = useMemo(() => db ? ref(db, `lobbies/${gameId}`) : null, [db, gameId]);
     const { data: lobbyPlayers, isLoading } = useDatabaseObjectList<{ name: string; joinedAt: any }>(lobbyRef);
     const [isJoining, setIsJoining] = useState(false);
     
-    // Effect to handle player presence in the lobby
+    const playerRef = useMemo(() => (db && playerName) ? ref(db, `lobbies/${gameId}/${playerName}`) : null, [db, gameId, playerName]);
+
     useEffect(() => {
-      if (!db || !playerName) return;
+      if (!playerRef) return;
       
-      const playerInLobby = lobbyPlayers && Object.values(lobbyPlayers).some(p => p.name === playerName);
-      if (playerInLobby) {
-        const playerRef = ref(db, `lobbies/${gameId}/${playerName}`);
+      const isPlayerInLobby = lobbyPlayers && Object.values(lobbyPlayers).some(p => p.name === playerName);
+      if (isPlayerInLobby) {
         onDisconnect(playerRef).remove();
         
         return () => {
           onDisconnect(playerRef).cancel();
         };
       }
-    }, [db, gameId, playerName, lobbyPlayers]);
-
+    }, [playerRef, lobbyPlayers, playerName]);
+    
     const handleJoinLobby = async () => {
-        if (!db || !lobbyRef || !playerName.trim()) {
+        if (!playerRef || !playerName.trim()) {
             toast({ title: "Cannot join lobby", description: "Player name is not set.", variant: "destructive" });
             return;
         }
         setIsJoining(true);
 
-        const playerRef = ref(db, `lobbies/${gameId}/${playerName}`);
         await set(playerRef, { name: playerName, joinedAt: serverTimestamp() });
         
         try {
-            await runTransaction(lobbyRef, (currentLobbyData) => {
-                if (!currentLobbyData) {
-                    // This can happen if another transaction cleared the lobby.
-                    // The player remains in the lobby for the next opponent.
-                    return currentLobbyData;
-                }
+            await runTransaction(lobbyRef!, (currentLobbyData) => {
+                if (!currentLobbyData) return currentLobbyData;
                 
                 const playersInLobby = Object.values(currentLobbyData);
                 if (playersInLobby.length >= 2) {
-                    // We found a match, create a game session
-                    const p1 = playersInLobby[0];
-                    const p2 = playersInLobby[1];
+                    const sortedPlayers = playersInLobby.sort((a: any, b: any) => a.joinedAt - b.joinedAt);
+                    const p1 = sortedPlayers[0];
+                    const p2 = sortedPlayers[1];
                     const sessionId = `session_${p1.name}_${p2.name}_${Date.now()}`;
                     
                     const playerRole = playerName === p1.name ? 'p1' : 'p2';
                     onGameStart(sessionId, playerRole);
 
-                    // Clear the lobby for the next players
-                    return null;
+                    // Atomically remove the two matched players from the lobby
+                    const updates: Record<string, null> = {};
+                    updates[p1.name] = null;
+                    updates[p2.name] = null;
+                    return { ...currentLobbyData, ...updates };
                 }
                 
-                // Not enough players yet, wait.
                 return currentLobbyData;
             });
         } catch (error) {
             console.error("Lobby transaction failed:", error);
             toast({title: "Matchmaking Error", description: "Could not start a game. Please try re-joining.", variant: "destructive"});
-            await remove(playerRef);
+            if (playerRef) await remove(playerRef);
         } finally {
              setIsJoining(false);
         }

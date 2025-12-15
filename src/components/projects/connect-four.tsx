@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
@@ -7,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { RefreshCw, User, Bot, Award } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
+import { LeaderboardWrapper } from '../leaderboard-wrapper';
 
 type Player = 'red' | 'yellow';
 const ROWS = 6;
@@ -18,6 +18,7 @@ const ConnectFour: React.FC = () => {
   const [winner, setWinner] = useState<Player | 'draw' | null>(null);
   const [gameOver, setGameOver] = useState(false);
   const [isAiThinking, setIsAiThinking] = useState(false);
+  const [playerScore, setPlayerScore] = useState(0);
 
   const checkWinner = useCallback((currentBoard: (Player | null)[][]): Player | 'draw' | null => {
     // Check horizontal
@@ -73,6 +74,7 @@ const ConnectFour: React.FC = () => {
         if (gameWinner) {
           setWinner(gameWinner);
           setGameOver(true);
+          if (gameWinner === 'red') setPlayerScore(prev => prev + (ROWS * COLS) - newBoard.flat().filter(Boolean).length);
         } else {
           setCurrentPlayer(prev => (prev === 'red' ? 'yellow' : 'red'));
         }
@@ -140,6 +142,7 @@ const ConnectFour: React.FC = () => {
     setWinner(null);
     setGameOver(false);
     setIsAiThinking(false);
+    setPlayerScore(0);
   };
   
   const getStatusMessage = () => {
@@ -152,74 +155,76 @@ const ConnectFour: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center w-full h-full bg-card p-4 sm:p-6 lg:p-8">
-      <Card className="w-full max-w-2xl mx-auto shadow-2xl bg-muted/30">
-        <CardHeader className="text-center">
-          <CardTitle className="text-3xl font-bold text-primary">Connect 4 vs. Bot</CardTitle>
-          <div className={cn("text-xl font-semibold h-8 flex items-center justify-center gap-2",
-            winner === 'red' && 'text-green-400',
-            winner === 'yellow' && 'text-red-500',
-            winner === 'draw' && 'text-yellow-400'
-          )}>
-            {winner && winner !== 'draw' && <Award />}
-            {getStatusMessage()}
-          </div>
-        </CardHeader>
-        <CardContent className="flex flex-col items-center gap-4">
-          <div className="relative">
-            <div className="grid" style={{ gridTemplateColumns: `repeat(${COLS}, minmax(0, 1fr))` }}>
-              {Array.from({ length: COLS }).map((_, colIndex) => (
-                <div
-                  key={colIndex}
-                  className="h-full w-12 cursor-pointer group"
-                  onClick={() => handlePlayerClick(colIndex)}
-                >
-                   <div className="h-12 w-full flex items-center justify-center">
-                      <AnimatePresence>
-                      {currentPlayer === 'red' && !gameOver && !isAiThinking && board[0][colIndex] === null && (
-                         <motion.div
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            exit={{ opacity: 0 }}
-                            className="h-10 w-10 mx-auto rounded-full transition-all duration-200 opacity-0 group-hover:opacity-100 bg-red-500/30"
-                          />
-                      )}
-                      </AnimatePresence>
-                   </div>
+    <LeaderboardWrapper gameId="connectFour" score={playerScore} isGameOver={gameOver}>
+        <div className="flex flex-col items-center justify-center w-full h-full bg-card p-4 sm:p-6 lg:p-8">
+        <Card className="w-full max-w-2xl mx-auto shadow-2xl bg-muted/30">
+            <CardHeader className="text-center">
+            <CardTitle className="text-3xl font-bold text-primary">Connect 4 vs. Bot</CardTitle>
+            <div className={cn("text-xl font-semibold h-8 flex items-center justify-center gap-2",
+                winner === 'red' && 'text-green-400',
+                winner === 'yellow' && 'text-red-500',
+                winner === 'draw' && 'text-yellow-400'
+            )}>
+                {winner && winner !== 'draw' && <Award />}
+                {getStatusMessage()}
+            </div>
+            </CardHeader>
+            <CardContent className="flex flex-col items-center gap-4">
+            <div className="relative">
+                <div className="grid" style={{ gridTemplateColumns: `repeat(${COLS}, minmax(0, 1fr))` }}>
+                {Array.from({ length: COLS }).map((_, colIndex) => (
+                    <div
+                    key={colIndex}
+                    className="h-full w-12 cursor-pointer group"
+                    onClick={() => handlePlayerClick(colIndex)}
+                    >
+                    <div className="h-12 w-full flex items-center justify-center">
+                        <AnimatePresence>
+                        {currentPlayer === 'red' && !gameOver && !isAiThinking && board[0][colIndex] === null && (
+                            <motion.div
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                exit={{ opacity: 0 }}
+                                className="h-10 w-10 mx-auto rounded-full transition-all duration-200 opacity-0 group-hover:opacity-100 bg-red-500/30"
+                            />
+                        )}
+                        </AnimatePresence>
+                    </div>
+                    </div>
+                ))}
                 </div>
-              ))}
-            </div>
 
-            <div className="absolute top-12 left-0 right-0 p-2 bg-blue-800 rounded-lg grid gap-1" style={{ gridTemplateColumns: `repeat(${COLS}, minmax(0, 1fr))` }}>
-              {board.map((row, rowIndex) =>
-                row.map((cell, colIndex) => (
-                  <div key={`${rowIndex}-${colIndex}`} className="w-12 h-12 bg-blue-900 rounded-full flex items-center justify-center">
-                    <AnimatePresence>
-                      {cell && (
-                          <motion.div
-                            initial={{ scale: 0, y: -200 }}
-                            animate={{ scale: 1, y: 0 }}
-                            transition={{ type: "spring", stiffness: 400, damping: 15 }}
-                            className={cn(
-                              "w-10 h-10 rounded-full",
-                              cell === 'red' ? 'bg-red-500' : 'bg-yellow-400'
-                            )}
-                          />
-                      )}
-                    </AnimatePresence>
-                  </div>
-                ))
-              )}
+                <div className="absolute top-12 left-0 right-0 p-2 bg-blue-800 rounded-lg grid gap-1" style={{ gridTemplateColumns: `repeat(${COLS}, minmax(0, 1fr))` }}>
+                {board.map((row, rowIndex) =>
+                    row.map((cell, colIndex) => (
+                    <div key={`${rowIndex}-${colIndex}`} className="w-12 h-12 bg-blue-900 rounded-full flex items-center justify-center">
+                        <AnimatePresence>
+                        {cell && (
+                            <motion.div
+                                initial={{ scale: 0, y: -200 }}
+                                animate={{ scale: 1, y: 0 }}
+                                transition={{ type: "spring", stiffness: 400, damping: 15 }}
+                                className={cn(
+                                "w-10 h-10 rounded-full",
+                                cell === 'red' ? 'bg-red-500' : 'bg-yellow-400'
+                                )}
+                            />
+                        )}
+                        </AnimatePresence>
+                    </div>
+                    ))
+                )}
+                </div>
             </div>
-          </div>
-          
-          <Button onClick={restartGame} variant="outline" className="mt-[32rem]">
-            <RefreshCw className="mr-2 h-4 w-4"/>
-            New Game
-          </Button>
-        </CardContent>
-      </Card>
-    </div>
+            
+            <Button onClick={restartGame} variant="outline" className="mt-[32rem]">
+                <RefreshCw className="mr-2 h-4 w-4"/>
+                New Game
+            </Button>
+            </CardContent>
+        </Card>
+        </div>
+    </LeaderboardWrapper>
   );
 };
 

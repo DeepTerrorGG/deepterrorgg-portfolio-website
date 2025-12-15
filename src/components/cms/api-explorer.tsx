@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useEffect } from 'react';
@@ -13,7 +14,7 @@ type ContentType = { id: string; name: string; slug: string; };
 export const ApiExplorer: React.FC = () => {
     const { toast } = useToast();
     const firestore = useFirestore();
-    const contentTypesQuery = useMemoFirebase(() => collection(firestore, 'content_types'), [firestore]);
+    const contentTypesQuery = useMemoFirebase(() => firestore ? collection(firestore, 'content_types') : null, [firestore]);
     const { data: contentTypes } = useCollection<ContentType>(contentTypesQuery);
     const [baseUrl, setBaseUrl] = useState('');
 

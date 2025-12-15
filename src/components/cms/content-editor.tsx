@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useMemo } from 'react';
@@ -54,7 +55,7 @@ const DynamicFormField = ({ field, value, onChange }: { field: Field; value: any
 
 export const ContentEditor: React.FC = () => {
     const firestore = useFirestore();
-    const contentTypesQuery = useMemoFirebase(() => collection(firestore, 'content_types'), [firestore]);
+    const contentTypesQuery = useMemoFirebase(() => firestore ? collection(firestore, 'content_types'): null, [firestore]);
     const { data: contentTypes, isLoading: loadingTypes } = useCollection<ContentType>(contentTypesQuery);
 
     const [selectedContentTypeId, setSelectedContentTypeId] = useState<string | null>(null);
@@ -80,7 +81,7 @@ export const ContentEditor: React.FC = () => {
     };
 
     const handleSaveEntry = () => {
-        if (!selectedEntry) return;
+        if (!selectedEntry || !firestore) return;
         if (selectedEntry.id) {
             const { id, ...data } = selectedEntry;
             updateDocumentNonBlocking(doc(firestore, 'content_entries', id), { ...data, updatedAt: serverTimestamp() });
@@ -91,7 +92,7 @@ export const ContentEditor: React.FC = () => {
     };
     
     const handleDeleteEntry = () => {
-        if (!selectedEntry?.id) return;
+        if (!selectedEntry?.id || !firestore) return;
         deleteDocumentNonBlocking(doc(firestore, 'content_entries', selectedEntry.id));
         setSelectedEntry(null);
     }

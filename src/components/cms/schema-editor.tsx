@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState } from 'react';
@@ -28,7 +29,7 @@ type ContentType = {
 export const SchemaEditor: React.FC = () => {
     const { toast } = useToast();
     const firestore = useFirestore();
-    const contentTypesQuery = useMemoFirebase(() => collection(firestore, 'content_types'), [firestore]);
+    const contentTypesQuery = useMemoFirebase(() => firestore ? collection(firestore, 'content_types') : null, [firestore]);
     const { data: contentTypes } = useCollection<ContentType>(contentTypesQuery);
 
     const [selectedContentType, setSelectedContentType] = useState<ContentType | null>(null);
@@ -74,7 +75,7 @@ export const SchemaEditor: React.FC = () => {
     };
 
     const handleSave = () => {
-        if (!selectedContentType) return;
+        if (!selectedContentType || !firestore) return;
         if (!selectedContentType.name.trim() || !selectedContentType.slug.trim()) {
             toast({ title: 'Name and slug are required.', variant: 'destructive'});
             return;
@@ -94,7 +95,7 @@ export const SchemaEditor: React.FC = () => {
     };
     
      const handleDelete = () => {
-        if (!selectedContentType?.id) return;
+        if (!selectedContentType?.id || !firestore) return;
         deleteDocumentNonBlocking(doc(firestore, 'content_types', selectedContentType.id));
         toast({ title: 'Content Type Deleted', variant: 'destructive'});
         setSelectedContentType(null);

@@ -1,6 +1,21 @@
-<svg width="800px" height="800px" viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg">
-  <path
-    fill="currentColor"
-    d="M208.3 128.3a12.1 12.1 0 0 1-9.2-15.5l14.8-43.5a12 12 0 0 1 21.8 7.4l-14.8 43.5a12.1 12.1 0 0 1-12.6 8.1ZM128 200a12 12 0 0 1-11-7l-15-44a12 12 0 1 1 22-8l15 44a12 12 0 0 1-11 15Zm-80-60a12 12 0 0 1-9-15.5l15-44a12 12 0 0 1 22 8l-15 44a12 12 0 0 1-13 7.5Z"
-  />
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="Layer_1" xmlns="http://www.w3.org/2000/svg" version="1.1" viewBox="0 0 256 256">
+  <!-- Generator: Adobe Illustrator 29.0.1, SVG Export Plug-In . SVG Version: 2.1.0 Build 192)  -->
+  <defs>
+    <style>
+      .st0, .st1 {
+        fill: none;
+      }
+
+      .st1 {
+        stroke: #000;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        stroke-width: 32px;
+      }
+    </style>
+  </defs>
+  <rect class="st0" width="256" height="256"/>
+  <line class="st1" x1="208" y1="128" x2="128" y2="208"/>
+  <line class="st1" x1="192" y1="40" x2="40" y2="192"/>
 </svg>

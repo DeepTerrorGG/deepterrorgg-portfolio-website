@@ -1,4 +1,3 @@
-
 // src/app/about/page.tsx
 'use client';
 import Image from 'next/image';
@@ -29,10 +28,10 @@ const techCategories = [
   {
     title: 'UI & Animation',
     technologies: [
-      { name: 'shadcn/ui', href: 'https://ui.shadcn.com/', iconSrc: '/icons/shadcn.svg' },
+      { name: 'shadcn/ui', href: 'https://ui.shadcn.com/', iconSrc: '/icons/spline-white.svg' },
       { name: 'Framer Motion', href: 'https://www.framer.com/motion/', iconSrc: '/icons/framer.svg' },
       { name: 'Lucide Icons', href: 'https://lucide.dev/', iconSrc: '/icons/lucide.svg' },
-      { name: 'Spline', href: 'https://spline.design/', iconSrc: '/icons/spline.svg' },
+      { name: 'Spline', href: 'https://spline.design/', iconSrc: '/icons/spline-white.svg' },
       { name: 'Recharts', href: 'https://recharts.org/', iconSrc: '/icons/recharts.svg' },
       { name: 'D3.js', href: 'https://d3js.org/', iconSrc: '/icons/d3.svg' },
     ],
@@ -59,10 +58,10 @@ const techCategories = [
       { name: 'Firebase', href: 'https://firebase.google.com/', iconSrc: '/icons/firebase.svg' },
       { name: 'NextAuth.js', href: 'https://next-auth.js.org/', iconSrc: '/icons/nextauth.svg' },
       { name: 'Resend', href: 'https://resend.com/', iconSrc: '/icons/resend.svg' },
-      { name: 'Vercel', href: 'https://vercel.com/', iconSrc: '/icons/vercel.svg' },
-      { name: '@vercel/og', href: 'https://vercel.com/docs/functions/edge-functions/og-image-generation', iconSrc: '/icons/vercel.svg' },
+      { name: 'Vercel', href: 'https://vercel.com/', iconSrc: '/icons/vercel-white.svg' },
+      { name: '@vercel/og', href: 'https://vercel.com/docs/functions/edge-functions/og-image-generation', iconSrc: '/icons/vercel-white.svg' },
       { name: 'Spotify API', href: 'https://developer.spotify.com/documentation/web-api', iconSrc: '/icons/spotify.svg' },
-      { name: 'GitHub API', href: 'https://docs.github.com/en/rest', iconSrc: '/icons/github.svg' },
+      { name: 'GitHub API', href: 'https://docs.github.com/en/rest', iconSrc: '/icons/github-white.svg' },
       { name: 'Coinbase API', href: 'https://commerce.coinbase.com/docs/api/', iconSrc: '/icons/coinbase.svg' },
       { name: 'Piston API', href: 'https://github.com/engineer-man/piston', iconSrc: '/icons/piston.svg' },
       { name: 'OpenWeatherMap API', href: 'https://openweathermap.org/api', iconSrc: '/icons/openweathermap.svg' },
@@ -73,7 +72,7 @@ const techCategories = [
    {
     title: 'Browser & Niche Tech',
     technologies: [
-      { name: 'Web Speech API', href: 'https://developer.mozilla.org/en-US/docs/Web/API/Web_Speech_API', iconSrc: '/icons/webaudio.svg' },
+      { name: 'Web Speech API', href: 'https://developer.mozilla.org/en-US/docs/Web/API/Web_Speech_API', iconSrc: '/icons/mic.svg' },
       { name: 'Web Audio API', href: 'https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API', iconSrc: '/icons/webaudio.svg' },
       { name: 'HTML5 Canvas', href: 'https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API', iconSrc: '/icons/html5.svg' },
       { name: 'DOSBox', href: 'https://www.dosbox.com/', iconSrc: '/icons/dosbox.svg' },

@@ -31,6 +31,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { DirectMessageSchema, type DirectMessageSchemaType, type DirectMessageFormState } from '@/app/contact/schema';
+import { cn } from '@/lib/utils';
 
 const SplineModel = React.lazy(
   () => import('@/components/home/spline-model')
@@ -72,7 +73,7 @@ const featuredProjects = [
       technologies: [
         { name: 'Next.js', iconSrc: '/icons/nextjs.svg' },
         { name: 'Framer Motion', iconSrc: '/icons/framer.svg' },
-        { name: 'shadcn/ui', iconSrc: '/icons/shadcn.svg' },
+        { name: 'shadcn/ui', iconSrc: '/icons/spline-white.svg' },
       ],
        language: 'TypeScript',
       stars: 215,
@@ -97,7 +98,7 @@ const technologies = [
   { name: 'TypeScript', href: 'https://www.typescriptlang.org/', iconSrc: '/icons/typescript.svg' },
   { name: 'Node.js', href: 'https://nodejs.org/', iconSrc: '/icons/nodejs.svg' },
   { name: 'Tailwind CSS', href: 'https://tailwindcss.com/', iconSrc: '/icons/tailwindcss.svg' },
-  { name: 'shadcn/ui', href: 'https://ui.shadcn.com/', iconSrc: '/icons/shadcn.svg' },
+  { name: 'shadcn/ui', href: 'https://ui.shadcn.com/', iconSrc: '/icons/spline-white.svg' },
   { name: 'Framer Motion', href: 'https://www.framer.com/motion/', iconSrc: '/icons/framer.svg' },
   { name: 'Lucide', href: 'https://lucide.dev/', iconSrc: '/icons/lucide.svg' },
   { name: 'React Hook Form', href: 'https://react-hook-form.com/', iconSrc: '/icons/react-hook-form.svg' },
@@ -110,10 +111,10 @@ const technologies = [
   { name: 'Firebase', href: 'https://firebase.google.com/', iconSrc: '/icons/firebase.svg' },
   { name: 'NextAuth.js', href: 'https://next-auth.js.org/', iconSrc: '/icons/nextauth.svg' },
   { name: 'Resend', href: 'https://resend.com/', iconSrc: '/icons/resend.svg' },
-  { name: 'Vercel', href: 'https://vercel.com/', iconSrc: '/icons/vercel.svg' },
-  { name: '@vercel/og', href: 'https://vercel.com/docs/functions/edge-functions/og-image-generation', iconSrc: '/icons/vercel.svg' },
+  { name: 'Vercel', href: 'https://vercel.com/', iconSrc: '/icons/vercel-white.svg' },
+  { name: '@vercel/og', href: 'https://vercel.com/docs/functions/edge-functions/og-image-generation', iconSrc: '/icons/vercel-white.svg' },
   { name: 'date-fns', href: 'https://date-fns.org/', iconSrc: '/icons/date-fns.svg' },
-  { name: 'Spline', href: 'https://spline.design/', iconSrc: '/icons/spline.svg' },
+  { name: 'Spline', href: 'https://spline.design/', iconSrc: '/icons/spline-white.svg' },
   { name: 'Monaco Editor', href: 'https://microsoft.github.io/monaco-editor/', iconSrc: '/icons/vscode.svg' },
   { name: 'TanStack Table', href: 'https://tanstack.com/table/v8', iconSrc: '/icons/react-query.svg' },
 ];
@@ -132,22 +133,26 @@ const splineModels = [
 const ScrollingTechRow = ({ items, direction = 'left' }: { items: typeof technologies, direction?: 'left' | 'right' }) => (
     <div className="w-full inline-flex flex-nowrap overflow-hidden [mask-image:_linear-gradient(to_right,transparent_0,_black_128px,_black_calc(100%-128px),transparent_100%)]">
         <ul className={`flex items-center justify-center md:justify-start [&_li]:mx-8 [&_img]:max-w-none animate-scrolling-${direction}`}>
-            {items.map((tech) => (
-            <li key={tech.name} className="flex-shrink-0">
-                <Link href={tech.href} target="_blank" rel="noopener noreferrer" className="relative block h-12 w-12">
-                    <Image src={tech.iconSrc} alt={tech.name} fill sizes="48px" className="object-contain filter grayscale hover:grayscale-0 transition-all duration-300" />
-                </Link>
-            </li>
-            ))}
+            {items.map((tech) => {
+              return (
+                <li key={tech.name} className="flex-shrink-0">
+                    <Link href={tech.href} target="_blank" rel="noopener noreferrer" className="relative block h-12 w-12">
+                        <Image src={tech.iconSrc} alt={tech.name} fill sizes="48px" className="object-contain filter grayscale hover:grayscale-0 transition-all duration-300" />
+                    </Link>
+                </li>
+              );
+            })}
         </ul>
         <ul className={`flex items-center justify-center md:justify-start [&_li]:mx-8 [&_img]:max-w-none animate-scrolling-${direction}`} aria-hidden="true">
-            {items.map((tech) => (
-            <li key={tech.name + '-clone'} className="flex-shrink-0">
-                 <Link href={tech.href} target="_blank" rel="noopener noreferrer" className="relative block h-12 w-12">
-                    <Image src={tech.iconSrc} alt={tech.name} fill sizes="48px" className="object-contain filter grayscale hover:grayscale-0 transition-all duration-300" />
-                </Link>
-            </li>
-            ))}
+            {items.map((tech) => {
+              return (
+                <li key={tech.name + '-clone'} className="flex-shrink-0">
+                    <Link href={tech.href} target="_blank" rel="noopener noreferrer" className="relative block h-12 w-12">
+                        <Image src={tech.iconSrc} alt={tech.name} fill sizes="48px" className="object-contain filter grayscale hover:grayscale-0 transition-all duration-300" />
+                    </Link>
+                </li>
+              );
+            })}
         </ul>
   </div>
 );

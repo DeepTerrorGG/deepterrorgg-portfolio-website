@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState } from 'react';
@@ -27,8 +28,12 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { z } from 'zod';
 
+interface AIPromptEnhancerProps {
+    onGenerate: () => boolean;
+    usageLeft: number;
+}
 
-const AIPromptEnhancer: React.FC = () => {
+const AIPromptEnhancer: React.FC<AIPromptEnhancerProps> = ({ onGenerate, usageLeft }) => {
   const { toast } = useToast();
   const [idea, setIdea] = useState('a logo for a coffee shop');
   const [enhancedPrompt, setEnhancedPrompt] = useState('');
@@ -71,6 +76,8 @@ const AIPromptEnhancer: React.FC = () => {
       toast({ title: 'Input required', description: 'Please enter a prompt idea.', variant: 'destructive' });
       return;
     }
+
+    if (!onGenerate()) return;
 
     setIsLoading(true);
     setEnhancedPrompt('');
@@ -183,11 +190,11 @@ const AIPromptEnhancer: React.FC = () => {
             <div className="grid grid-cols-1 gap-4">
                 <div>
                   <Label htmlFor="prompt-idea">Your Core Idea</Label>
-                  <Textarea id="prompt-idea" value={idea} onChange={(e) => setIdea(e.target.value)} placeholder="e.g., a logo for a coffee shop" rows={2} disabled={isLoading} className="mt-1" />
+                  <Textarea id="prompt-idea" value={idea} onChange={(e) => setIdea(e.target.value)} placeholder="e.g., a logo for a coffee shop" rows={2} disabled={isLoading || usageLeft <= 0} className="mt-1" />
                 </div>
                  <div>
                     <Label htmlFor="target-model">Target AI Model</Label>
-                    <Select value={targetModel} onValueChange={(v) => setTargetModel(v as z.infer<typeof TargetModelSchema>)}>
+                    <Select value={targetModel} onValueChange={(v) => setTargetModel(v as z.infer<typeof TargetModelSchema>)} disabled={isLoading || usageLeft <= 0}>
                         <SelectTrigger id="target-model" className="mt-1"><SelectValue/></SelectTrigger>
                         <SelectContent>{getModelOptions().map(m => <SelectItem key={m} value={m}>{m}</SelectItem>)}</SelectContent>
                     </Select>
@@ -201,9 +208,9 @@ const AIPromptEnhancer: React.FC = () => {
                 </div>
             </div>
 
-            <Button type="submit" className="w-full" disabled={isLoading}>
+            <Button type="submit" className="w-full" disabled={isLoading || usageLeft <= 0}>
               {isLoading ? ( <Loader2 className="mr-2 h-4 w-4 animate-spin" /> ) : ( <Wand2 className="mr-2 h-4 w-4" /> )}
-              Enhance Prompt
+              {usageLeft > 0 ? 'Enhance Prompt' : 'Usage Limit Reached'}
             </Button>
           </form>
 

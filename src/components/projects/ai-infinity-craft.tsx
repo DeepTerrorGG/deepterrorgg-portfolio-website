@@ -16,8 +16,12 @@ const initialElements = ['Water', 'Fire', 'Wind', 'Earth'];
 const DISCOVERED_ITEMS_KEY = 'infinity-craft-items';
 const FIRST_DISCOVERIES_KEY = 'infinity-craft-first-discoveries';
 
+interface AIInfinityCraftProps {
+    onGenerate: () => boolean;
+    usageLeft: number;
+}
 
-const AIInfinityCraft: React.FC = () => {
+const AIInfinityCraft: React.FC<AIInfinityCraftProps> = ({ onGenerate, usageLeft }) => {
   const { toast } = useToast();
   const firestore = useFirestore();
 
@@ -113,6 +117,8 @@ const AIInfinityCraft: React.FC = () => {
       return;
     }
     
+    if (!onGenerate()) return;
+
     setIsCrafting(true);
     setLastResult(null);
 
@@ -144,7 +150,7 @@ const AIInfinityCraft: React.FC = () => {
       setSlot1(null);
       setSlot2(null);
     }
-  }, [slot1, slot2, discoveredItems, toast]);
+  }, [slot1, slot2, discoveredItems, toast, onGenerate]);
 
   const clearSlots = () => {
     setSlot1(null);
@@ -217,9 +223,9 @@ const AIInfinityCraft: React.FC = () => {
             </div>
 
             {/* Combine Button */}
-            <Button onClick={handleCraft} disabled={!slot1 || !slot2 || isCrafting} className="w-48">
+            <Button onClick={handleCraft} disabled={!slot1 || !slot2 || isCrafting || usageLeft <= 0} className="w-48">
               {isCrafting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Wand2 className="mr-2 h-4 w-4" />}
-              Combine
+              {usageLeft > 0 ? 'Combine' : 'Limit Reached'}
             </Button>
             
             {/* Result Display */}

@@ -27,7 +27,12 @@ const imageStyles: ImageStyle[] = [
 
 const aspectRatios: AspectRatio[] = ['1:1', '16:9', '9:16', '4:3', '3:2', '3:4', '2:3'];
 
-export default function AIImageGenerator() {
+interface AIImageGeneratorProps {
+    onGenerate: () => boolean;
+    usageLeft: number;
+}
+
+export default function AIImageGenerator({ onGenerate, usageLeft }: AIImageGeneratorProps) {
   const { toast } = useToast();
   const [description, setDescription] = useState<string>('a futuristic city skyline at dawn');
   const [imageUrl, setImageUrl] = useState<string>('');
@@ -78,6 +83,8 @@ export default function AIImageGenerator() {
       toast({ title: 'Prompt is required', description: 'Please enter a description.', variant: 'destructive'});
       return;
     }
+
+    if (!onGenerate()) return;
 
     setLoading(true);
     setImageUrl('');
@@ -166,13 +173,13 @@ export default function AIImageGenerator() {
                   onChange={(e) => setDescription(e.target.value)}
                   placeholder="Enter a project description..."
                   className="flex-grow mt-1"
-                  disabled={loading}
+                  disabled={loading || usageLeft <= 0}
                 />
             </div>
             <div className='grid grid-cols-1 sm:grid-cols-2 gap-4'>
                  <div>
                     <Label htmlFor="style-select">Artistic Style</Label>
-                    <Select value={style} onValueChange={(v) => setStyle(v as ImageStyle)} disabled={loading}>
+                    <Select value={style} onValueChange={(v) => setStyle(v as ImageStyle)} disabled={loading || usageLeft <= 0}>
                         <SelectTrigger id="style-select" className="w-full mt-1">
                             <SelectValue placeholder="Select a style" />
                         </SelectTrigger>
@@ -183,7 +190,7 @@ export default function AIImageGenerator() {
                 </div>
                 <div>
                     <Label htmlFor="aspect-ratio-select">Aspect Ratio</Label>
-                    <Select value={aspectRatio} onValueChange={(v) => setAspectRatio(v as AspectRatio)} disabled={loading}>
+                    <Select value={aspectRatio} onValueChange={(v) => setAspectRatio(v as AspectRatio)} disabled={loading || usageLeft <= 0}>
                         <SelectTrigger id="aspect-ratio-select" className="w-full mt-1">
                             <SelectValue placeholder="Select aspect ratio" />
                         </SelectTrigger>
@@ -193,9 +200,9 @@ export default function AIImageGenerator() {
                     </Select>
                 </div>
             </div>
-            <Button type="submit" className="w-full" disabled={loading}>
+            <Button type="submit" className="w-full" disabled={loading || usageLeft <= 0}>
               {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Generate Image
+              {usageLeft > 0 ? 'Generate Image' : 'Usage Limit Reached'}
             </Button>
           </form>
 

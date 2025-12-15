@@ -354,8 +354,12 @@ const helloWorldOutputs: Partial<Record<CodeLanguage, string>> = {
     'Shakespeare': 'Hello, World!',
 };
 
+interface CodeEditorProps {
+    onGenerate: () => boolean;
+    usageLeft: number;
+}
 
-export default function CodeEditor() {
+export default function CodeEditor({ onGenerate, usageLeft }: CodeEditorProps) {
   const { toast } = useToast();
   const [example, setExample] = useState<string>(exampleTypes[0]);
   const [availableExamples, setAvailableExamples] = useState<string[]>([]);
@@ -446,6 +450,9 @@ export default function CodeEditor() {
         });
         return;
     }
+    
+    if (!onGenerate()) return;
+
     setLoading(true);
     setAiOutput('');
     setActiveTab('ai-output');
@@ -535,9 +542,9 @@ export default function CodeEditor() {
                 <Button onClick={handleRunCode} variant="secondary" className="w-full" disabled={isExecuting || loading}>
                     {isExecuting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Play className="mr-2 h-4 w-4" />} Run Code
                 </Button>
-                <Button onClick={handleSubmit} disabled={loading || isExecuting} className="w-full">
+                <Button onClick={handleSubmit} disabled={loading || isExecuting || usageLeft <= 0} className="w-full">
                     {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Wand2 className="mr-2 h-4 w-4" />}
-                    Run AI Task
+                     {usageLeft > 0 ? 'Run AI Task' : 'Limit Reached'}
                 </Button>
             </div>
         </div>

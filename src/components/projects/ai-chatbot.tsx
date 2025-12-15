@@ -15,7 +15,12 @@ import { Card, CardContent, CardHeader } from '../ui/card';
 
 const personalities = ChatPersonalitySchema.options;
 
-export default function AIChatbot() {
+interface AIChatbotProps {
+    onGenerate: () => boolean;
+    usageLeft: number;
+}
+
+export default function AIChatbot({ onGenerate, usageLeft }: AIChatbotProps) {
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
       role: 'model',
@@ -48,6 +53,8 @@ export default function AIChatbot() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!currentMessage.trim()) return;
+
+    if (!onGenerate()) return;
 
     const userMessage: ChatMessage = { role: 'user', content: currentMessage };
     const newMessages = [...messages, userMessage];
@@ -131,11 +138,11 @@ export default function AIChatbot() {
                 type="text"
                 value={currentMessage}
                 onChange={(e) => setCurrentMessage(e.target.value)}
-                placeholder="Type your message..."
+                placeholder={usageLeft > 0 ? "Type your message..." : "Usage limit reached."}
                 className="flex-grow h-12 text-base"
-                disabled={loading}
+                disabled={loading || usageLeft <= 0}
               />
-              <Button type="submit" disabled={loading || !currentMessage.trim()} className="h-12 text-base px-6">Send</Button>
+              <Button type="submit" disabled={loading || !currentMessage.trim() || usageLeft <= 0} className="h-12 text-base px-6">Send</Button>
             </form>
           </div>
       </Card>

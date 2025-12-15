@@ -13,10 +13,15 @@ import { Label } from '../ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { Input } from '../ui/input';
 
-type GenerationStatus = 'idle' | 'generating' | 'done' | 'error';
+type GenerationStatus = 'idle' | 'generating' | 'done' | 'error' | 'limit-reached';
 type AspectRatio = '16:9' | '9:16' | '4:3' | '1:1';
 
-export default function AIVideoGenerator() {
+interface AIVideoGeneratorProps {
+    onGenerate: () => boolean;
+    usageLeft: number;
+}
+
+export default function AIVideoGenerator({ onGenerate, usageLeft }: AIVideoGeneratorProps) {
   const { toast } = useToast();
   const [prompt, setPrompt] = useState('A majestic dragon soaring over a mystical forest at dawn.');
   const [videoUrl, setVideoUrl] = useState('');
@@ -26,7 +31,6 @@ export default function AIVideoGenerator() {
   // Advanced options
   const [aspectRatio, setAspectRatio] = useState<AspectRatio>('16:9');
   const [negativePrompt, setNegativePrompt] = useState('');
-  const pendingGenerationData = useRef<any>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -35,6 +39,11 @@ export default function AIVideoGenerator() {
       return;
     }
     
+    if (!onGenerate()) {
+        setStatus('limit-reached');
+        return;
+    }
+
     setStatus('generating');
     setVideoUrl('');
     setProgress(0);
@@ -42,7 +51,6 @@ export default function AIVideoGenerator() {
     const progressInterval = setInterval(() => {
         setProgress(prev => Math.min(prev + 1, 98));
     }, 1000);
-
 
     try {
       const result = await generateVideo({
@@ -95,7 +103,7 @@ export default function AIVideoGenerator() {
                 onChange={(e) => setPrompt(e.target.value)}
                 placeholder="e.g., A cinematic shot of a an old car driving down a deserted road at sunset."
                 rows={3}
-                disabled={isLoading}
+                disabled={isLoading || usageLeft <= 0}
                 className="mt-1"
               />
             </div>
@@ -103,7 +111,7 @@ export default function AIVideoGenerator() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="aspect-ratio">Aspect Ratio</Label>
-                  <Select value={aspectRatio} onValueChange={v => setAspectRatio(v as AspectRatio)} disabled={isLoading}>
+                  <Select value={aspectRatio} onValueChange={v => setAspectRatio(v as AspectRatio)} disabled={isLoading || usageLeft <= 0}>
                       <SelectTrigger id="aspect-ratio" className="mt-1"><SelectValue /></SelectTrigger>
                       <SelectContent>
                           <SelectItem value="16:9">16:9 (Widescreen)</SelectItem>
@@ -115,13 +123,13 @@ export default function AIVideoGenerator() {
                 </div>
                 <div>
                     <Label htmlFor="negative-prompt">Negative Prompt</Label>
-                    <Input id="negative-prompt" placeholder="e.g., blurry, text, watermark" value={negativePrompt} onChange={e => setNegativePrompt(e.target.value)} className="mt-1" disabled={isLoading}/>
+                    <Input id="negative-prompt" placeholder="e.g., blurry, text, watermark" value={negativePrompt} onChange={e => setNegativePrompt(e.target.value)} className="mt-1" disabled={isLoading || usageLeft <= 0}/>
                 </div>
             </div>
 
-            <Button type="submit" className="w-full" disabled={isLoading}>
+            <Button type="submit" className="w-full" disabled={isLoading || usageLeft <= 0}>
               {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Wand2 className="mr-2 h-4 w-4" />}
-              Generate Video
+              {usageLeft > 0 ? 'Generate Video' : 'Usage Limit Reached'}
             </Button>
           </form>
 
@@ -137,6 +145,12 @@ export default function AIVideoGenerator() {
           {status === 'error' && (
             <div className="mt-6 text-center text-destructive">
                 <p>Something went wrong. Please try another prompt or check the console for details.</p>
+            </div>
+          )}
+          
+           {status === 'limit-reached' && (
+            <div className="mt-6 text-center text-destructive">
+                <p>You have reached the video generation limit for this session.</p>
             </div>
           )}
 

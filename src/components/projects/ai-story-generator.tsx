@@ -22,7 +22,12 @@ const genres: StoryGenre[] = ['Any', 'Fantasy', 'Science Fiction', 'Mystery', 'H
 const styles: StoryStyle[] = ['Default', 'Poetic', 'Gritty', 'Humorous', 'Epistolary (told through letters)'];
 const twists: StoryPlotTwist[] = ['None', 'Betrayal', 'Amnesia', 'It was all a dream', 'The hero is the villain', 'An unexpected inheritance'];
 
-export default function AIStoryGenerator() {
+interface AIStoryGeneratorProps {
+    onGenerate: () => boolean;
+    usageLeft: number;
+}
+
+export default function AIStoryGenerator({ onGenerate, usageLeft }: AIStoryGeneratorProps) {
   const [character, setCharacter] = useState<string>('A brave knight');
   const [setting, setSetting] = useState<string>('A dark forest');
   const [story, setStory] = useState<string | null>(null);
@@ -34,6 +39,8 @@ export default function AIStoryGenerator() {
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
+    if (!onGenerate()) return;
+
     setLoading(true);
     setStory(null);
 
@@ -88,7 +95,7 @@ export default function AIStoryGenerator() {
                         value={character}
                         onChange={(e) => setCharacter(e.target.value)}
                         placeholder="Enter a character..."
-                        disabled={loading}
+                        disabled={loading || usageLeft <= 0}
                         className='mt-1'
                     />
                 </div>
@@ -100,7 +107,7 @@ export default function AIStoryGenerator() {
                         value={setting}
                         onChange={(e) => setSetting(e.target.value)}
                         placeholder="Enter a setting..."
-                        disabled={loading}
+                        disabled={loading || usageLeft <= 0}
                         className='mt-1'
                     />
                 </div>
@@ -108,21 +115,21 @@ export default function AIStoryGenerator() {
             <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
                 <div>
                     <Label>Genre</Label>
-                    <Select value={genre} onValueChange={v => setGenre(v as StoryGenre)}>
+                    <Select value={genre} onValueChange={v => setGenre(v as StoryGenre)} disabled={loading || usageLeft <= 0}>
                         <SelectTrigger className='mt-1'><SelectValue /></SelectTrigger>
                         <SelectContent>{genres.map(g => <SelectItem key={g} value={g}>{g}</SelectItem>)}</SelectContent>
                     </Select>
                 </div>
                 <div>
                     <Label>Literary Style</Label>
-                    <Select value={style} onValueChange={v => setStyle(v as StoryStyle)}>
+                    <Select value={style} onValueChange={v => setStyle(v as StoryStyle)} disabled={loading || usageLeft <= 0}>
                         <SelectTrigger className='mt-1'><SelectValue /></SelectTrigger>
                         <SelectContent>{styles.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent>
                     </Select>
                 </div>
                 <div>
                     <Label>Plot Twist</Label>
-                    <Select value={twist} onValueChange={v => setTwist(v as StoryPlotTwist)}>
+                    <Select value={twist} onValueChange={v => setTwist(v as StoryPlotTwist)} disabled={loading || usageLeft <= 0}>
                         <SelectTrigger className='mt-1'><SelectValue /></SelectTrigger>
                         <SelectContent>{twists.map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}</SelectContent>
                     </Select>
@@ -130,9 +137,10 @@ export default function AIStoryGenerator() {
             </div>
 
 
-            <Button type="submit" className="w-full" disabled={loading}>
-              {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Generate Story
+            <Button type="submit" className="w-full" disabled={loading || usageLeft <= 0}>
+              {loading ? ( <Loader2 className="mr-2 h-4 w-4 animate-spin" /> ) : 
+                (usageLeft > 0 ? 'Generate Story' : 'Usage Limit Reached')
+              }
             </Button>
           </form>
 

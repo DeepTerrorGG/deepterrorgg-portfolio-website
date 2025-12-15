@@ -15,7 +15,12 @@ import { StoryGenre, StoryGenreSchema, type StoryMessage } from '@/ai/flows/coll
 
 const genres = StoryGenreSchema.options;
 
-const CollaborativeStoryteller: React.FC = () => {
+interface CollaborativeStorytellerProps {
+    onGenerate: () => boolean;
+    usageLeft: number;
+}
+
+const CollaborativeStoryteller: React.FC<CollaborativeStorytellerProps> = ({ onGenerate, usageLeft }) => {
   const { toast } = useToast();
   const [story, setStory] = useState<StoryMessage[]>([]);
   const [userInput, setUserInput] = useState('');
@@ -34,6 +39,8 @@ const CollaborativeStoryteller: React.FC = () => {
       toast({ title: "Please write something to continue the story.", variant: "destructive" });
       return;
     }
+
+    if (!onGenerate()) return;
 
     const userMessage: StoryMessage = { role: 'user', content: userInput };
     const newStoryHistory = [...story, userMessage];
@@ -112,9 +119,9 @@ const CollaborativeStoryteller: React.FC = () => {
             <Textarea
               value={userInput}
               onChange={e => setUserInput(e.target.value)}
-              placeholder={story.length === 0 ? "Once upon a time..." : "Continue the story..."}
+              placeholder={usageLeft > 0 ? (story.length === 0 ? "Once upon a time..." : "Continue the story...") : "Usage limit reached."}
               rows={2}
-              disabled={isLoading}
+              disabled={isLoading || usageLeft <= 0}
               onKeyDown={(e) => {
                 if(e.key === 'Enter' && !e.shiftKey) {
                     e.preventDefault();
@@ -122,7 +129,7 @@ const CollaborativeStoryteller: React.FC = () => {
                 }
               }}
             />
-            <Button onClick={handleSend} disabled={isLoading} className="self-end">
+            <Button onClick={handleSend} disabled={isLoading || usageLeft <= 0} className="self-end">
               {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
             </Button>
           </div>

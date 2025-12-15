@@ -13,7 +13,12 @@ import { generatePasswordRule, validatePasswordRule, getPasswordHint } from '@/a
 import { getFormattedTime } from './password-game/current-time';
 import { getCurrentWeather } from './password-game/current-weather';
 
-const ThePasswordGame: React.FC = () => {
+interface ThePasswordGameProps {
+    onGenerate: () => boolean;
+    usageLeft: number;
+}
+
+const ThePasswordGame: React.FC<ThePasswordGameProps> = ({ onGenerate, usageLeft }) => {
   const { toast } = useToast();
   const [password, setPassword] = useState('');
   const [activeRules, setActiveRules] = useState<Rule[]>([initialRules[0]]);
@@ -56,6 +61,12 @@ const ThePasswordGame: React.FC = () => {
 
   const fetchNewAIRule = useCallback(async () => {
     if (isFetchingRule) return;
+
+    if (!onGenerate()) {
+        toast({ title: "AI Limit Reached", description: "You've reached the limit for AI-generated rules.", variant: "destructive" });
+        return;
+    }
+
     setIsFetchingRule(true);
     try {
       const existingRuleTexts = activeRules.map(r => r.text);
@@ -79,7 +90,7 @@ const ThePasswordGame: React.FC = () => {
       toast({ title: "AI Error", description: "An error occurred while fetching a new rule.", variant: "destructive" });
     }
     setIsFetchingRule(false);
-  }, [activeRules, toast, isFetchingRule]);
+  }, [activeRules, toast, isFetchingRule, onGenerate]);
 
   // This effect hook handles the main game loop of adding new rules.
   useEffect(() => {
@@ -131,6 +142,7 @@ const ThePasswordGame: React.FC = () => {
   }, [allRulesMet, activeRules.length, isGameWon, toast, isFetchingRule, fetchNewAIRule, currentTime, weather]);
   
   const handleGetHint = async (rule: Rule) => {
+    if (!onGenerate()) return;
     setHintStates(prev => ({...prev, [rule.id]: { isLoading: true, hint: null }}));
     try {
         const hint = await getPasswordHint(rule.text);
@@ -196,7 +208,7 @@ const ThePasswordGame: React.FC = () => {
                           }
                         </span>
                         {!rule.isMet && index === lastUnmetRuleIndex && (
-                            <Button variant="ghost" size="sm" onClick={() => handleGetHint(rule)} disabled={hintStates[rule.id]?.isLoading} className="text-current h-6 px-1">
+                            <Button variant="ghost" size="sm" onClick={() => handleGetHint(rule)} disabled={hintStates[rule.id]?.isLoading || usageLeft <= 0} className="text-current h-6 px-1">
                                 {hintStates[rule.id]?.isLoading ? <Loader2 className="h-4 w-4 animate-spin"/> : <Wand2 className="h-4 w-4"/>}
                                 <span className="sr-only">Get Hint</span>
                             </Button>
@@ -240,4 +252,3 @@ const ThePasswordGame: React.FC = () => {
 };
 
 export default ThePasswordGame;
-

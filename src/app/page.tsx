@@ -93,13 +93,13 @@ const featuredProjects = [
 ];
 
 const technologies = [
-  { name: 'Next.js', href: 'https://nextjs.org/', iconSrc: '/icons/nextjs.svg' },
+  { name: 'Faker.js', href: 'https://fakerjs.dev/', iconSrc: '/icons/faker.svg' },
   { name: 'React', href: 'https://react.dev/', iconSrc: '/icons/react.svg' },
   { name: 'TypeScript', href: 'https://www.typescriptlang.org/', iconSrc: '/icons/typescript.svg' },
   { name: 'Node.js', href: 'https://nodejs.org/', iconSrc: '/icons/nodejs.svg' },
   { name: 'Tailwind CSS', href: 'https://tailwindcss.com/', iconSrc: '/icons/tailwindcss.svg' },
   { name: 'shadcn/ui', href: 'https://ui.shadcn.com/', iconSrc: '/icons/spline-white.svg' },
-  { name: 'Framer Motion', href: 'https://www.framer.com/motion/', iconSrc: '/icons/framer.svg' },
+  { name: 'date-fns', href: 'https://date-fns.org/', iconSrc: '/icons/date-fns.svg' },
   { name: 'Lucide', href: 'https://lucide.dev/', iconSrc: '/icons/lucide.svg' },
   { name: 'React Hook Form', href: 'https://react-hook-form.com/', iconSrc: '/icons/react-hook-form.svg' },
   { name: 'Zod', href: 'https://zod.dev/', iconSrc: '/icons/zod.svg' },
@@ -111,9 +111,8 @@ const technologies = [
   { name: 'Firebase', href: 'https://firebase.google.com/', iconSrc: '/icons/firebase.svg' },
   { name: 'NextAuth.js', href: 'https://next-auth.js.org/', iconSrc: '/icons/nextauth.svg' },
   { name: 'Resend', href: 'https://resend.com/', iconSrc: '/icons/resend.svg' },
-  { name: 'Vercel', href: 'https://vercel.com/', iconSrc: '/icons/vercel-white.svg' },
-  { name: '@vercel/og', href: 'https://vercel.com/docs/functions/edge-functions/og-image-generation', iconSrc: '/icons/vercel-white.svg' },
-  { name: 'date-fns', href: 'https://date-fns.org/', iconSrc: '/icons/date-fns.svg' },
+  { name: 'Spotify API', href: 'https://developer.spotify.com/documentation/web-api', iconSrc: '/icons/spotify.svg' },
+  { name: 'Google Gemini', href: 'https://deepmind.google.com/technologies/gemini/', iconSrc: '/icons/gemini.svg' },
   { name: 'Spline', href: 'https://spline.design/', iconSrc: '/icons/spline-white.svg' },
   { name: 'Monaco Editor', href: 'https://microsoft.github.io/monaco-editor/', iconSrc: '/icons/vscode.svg' },
   { name: 'TanStack Table', href: 'https://tanstack.com/table/v8', iconSrc: '/icons/react-query.svg' },

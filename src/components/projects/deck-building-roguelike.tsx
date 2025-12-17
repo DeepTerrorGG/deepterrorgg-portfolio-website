@@ -11,7 +11,6 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, DialogClose } from '../ui/dialog';
 import { ScrollArea } from '../ui/scroll-area';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { LeaderboardWrapper } from '../leaderboard-wrapper';
 
 // --- TYPE DEFINITIONS ---
 type CardType = 'Attack' | 'Skill' | 'Power' | 'Curse';
@@ -771,7 +770,6 @@ const DeckBuildingRoguelike: React.FC = () => {
         case 'upgrade': return renderUpgradeScreen();
         case 'codex': return renderCodex();
         case 'game-over': return (
-            <LeaderboardWrapper gameId="deckBuilder" score={score} isGameOver={true}>
               <div className="flex flex-col items-center justify-center gap-4">
                   <h2 className={cn("text-6xl font-bold", winner === 'player' ? "text-green-400" : "text-red-500")}>
                       {winner === 'player' ? "Victory!" : "Defeated"}
@@ -783,7 +781,6 @@ const DeckBuildingRoguelike: React.FC = () => {
                       </DialogContent>
                   </Dialog>
               </div>
-            </LeaderboardWrapper>
         );
         default: return null;
     }

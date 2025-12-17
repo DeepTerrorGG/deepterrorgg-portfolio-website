@@ -9,7 +9,6 @@ import { Input } from '@/components/ui/input';
 import { Play, Pause, RefreshCw, TrendingUp, Wallet, Briefcase } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
-import { LeaderboardWrapper } from '../leaderboard-wrapper';
 
 interface StockDataPoint {
   time: number;
@@ -150,83 +149,81 @@ const StockTracker: React.FC = () => {
   const formatCurrency = (value: number) => `$${value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
   return (
-    <LeaderboardWrapper gameId="stockTrader" score={netWorth} isGameOver={false}>
-      <div className="flex flex-col w-full h-full bg-card p-4 sm:p-6 lg:p-8 space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
-          <Card>
-              <CardHeader className="pb-2"><CardTitle className="text-sm font-medium text-muted-foreground flex items-center justify-center gap-2"><Wallet/>Cash Balance</CardTitle></CardHeader>
-              <CardContent><p className="text-2xl font-bold">{formatCurrency(balance)}</p></CardContent>
-          </Card>
-          <Card>
-              <CardHeader className="pb-2"><CardTitle className="text-sm font-medium text-muted-foreground flex items-center justify-center gap-2"><Briefcase/>Portfolio Value</CardTitle></CardHeader>
-              <CardContent><p className="text-2xl font-bold">{formatCurrency(portfolioValue)}</p></CardContent>
-          </Card>
-          <Card>
-              <CardHeader className="pb-2"><CardTitle className="text-sm font-medium text-muted-foreground flex items-center justify-center gap-2"><TrendingUp/>Net Worth</CardTitle></CardHeader>
-              <CardContent><p className="text-2xl font-bold text-green-400">{formatCurrency(netWorth)}</p></CardContent>
-          </Card>
+    <div className="flex flex-col w-full h-full bg-card p-4 sm:p-6 lg:p-8 space-y-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
+        <Card>
+            <CardHeader className="pb-2"><CardTitle className="text-sm font-medium text-muted-foreground flex items-center justify-center gap-2"><Wallet/>Cash Balance</CardTitle></CardHeader>
+            <CardContent><p className="text-2xl font-bold">{formatCurrency(balance)}</p></CardContent>
+        </Card>
+        <Card>
+            <CardHeader className="pb-2"><CardTitle className="text-sm font-medium text-muted-foreground flex items-center justify-center gap-2"><Briefcase/>Portfolio Value</CardTitle></CardHeader>
+            <CardContent><p className="text-2xl font-bold">{formatCurrency(portfolioValue)}</p></CardContent>
+        </Card>
+        <Card>
+            <CardHeader className="pb-2"><CardTitle className="text-sm font-medium text-muted-foreground flex items-center justify-center gap-2"><TrendingUp/>Net Worth</CardTitle></CardHeader>
+            <CardContent><p className="text-2xl font-bold text-green-400">{formatCurrency(netWorth)}</p></CardContent>
+        </Card>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 flex-grow">
+        {/* Trading Panels */}
+        <div className="lg:col-span-1 space-y-4">
+            {stocks.map(stock => {
+                const currentPrice = stock.data[stock.data.length - 1].price;
+                const ownedShares = portfolio[stock.symbol] || 0;
+                return (
+                    <Card key={stock.symbol}>
+                        <CardHeader className="flex flex-row items-center justify-between pb-2">
+                            <CardTitle className="text-lg" style={{ color: stock.color }}>{stock.name} ({stock.symbol})</CardTitle>
+                            <div className="text-lg font-bold">{formatCurrency(currentPrice)}</div>
+                        </CardHeader>
+                        <CardContent>
+                            <div className="flex items-center space-x-2">
+                                <Input 
+                                    type="text" 
+                                    placeholder="Qty" 
+                                    className="w-20 h-9"
+                                    value={tradeQuantities[stock.symbol]}
+                                    onChange={(e) => handleQuantityChange(stock.symbol, e.target.value)}
+                                />
+                                <Button size="sm" onClick={() => handleTrade(stock.symbol, 'buy')}>Buy</Button>
+                                <Button size="sm" variant="destructive" onClick={() => handleTrade(stock.symbol, 'sell')}>Sell</Button>
+                            </div>
+                            <p className="text-xs text-muted-foreground mt-2">You own: {ownedShares} shares</p>
+                        </CardContent>
+                    </Card>
+                )
+            })}
+            <Button onClick={resetGame} variant="destructive" className="w-full"><RefreshCw className="mr-2 h-4 w-4"/>Reset Game</Button>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 flex-grow">
-          {/* Trading Panels */}
-          <div className="lg:col-span-1 space-y-4">
-              {stocks.map(stock => {
-                  const currentPrice = stock.data[stock.data.length - 1].price;
-                  const ownedShares = portfolio[stock.symbol] || 0;
-                  return (
-                      <Card key={stock.symbol}>
-                          <CardHeader className="flex flex-row items-center justify-between pb-2">
-                              <CardTitle className="text-lg" style={{ color: stock.color }}>{stock.name} ({stock.symbol})</CardTitle>
-                              <div className="text-lg font-bold">{formatCurrency(currentPrice)}</div>
-                          </CardHeader>
-                          <CardContent>
-                              <div className="flex items-center space-x-2">
-                                  <Input 
-                                      type="text" 
-                                      placeholder="Qty" 
-                                      className="w-20 h-9"
-                                      value={tradeQuantities[stock.symbol]}
-                                      onChange={(e) => handleQuantityChange(stock.symbol, e.target.value)}
-                                  />
-                                  <Button size="sm" onClick={() => handleTrade(stock.symbol, 'buy')}>Buy</Button>
-                                  <Button size="sm" variant="destructive" onClick={() => handleTrade(stock.symbol, 'sell')}>Sell</Button>
-                              </div>
-                              <p className="text-xs text-muted-foreground mt-2">You own: {ownedShares} shares</p>
-                          </CardContent>
-                      </Card>
-                  )
-              })}
-              <Button onClick={resetGame} variant="destructive" className="w-full"><RefreshCw className="mr-2 h-4 w-4"/>Reset Game</Button>
-          </div>
-
-          {/* Chart */}
-          <div className="lg:col-span-2">
-              <Card className="h-full flex flex-col">
-                  <CardHeader className="flex flex-row items-center justify-between">
-                      <CardTitle className="text-xl">Market Trends</CardTitle>
-                      <Button onClick={toggleTracking} variant="outline" size="icon">
-                          {isTracking ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
-                      </Button>
-                  </CardHeader>
-                  <CardContent className="flex-grow">
-                      <ResponsiveContainer width="100%" height="100%">
-                          <LineChart data={formattedData} margin={{ top: 5, right: 20, left: -10, bottom: 5 }}>
-                              <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                              <XAxis dataKey="timeLabel" stroke="hsl(var(--muted-foreground))" tick={{ fontSize: 10 }} />
-                              <YAxis stroke="hsl(var(--muted-foreground))" tick={{ fontSize: 10 }} domain={['dataMin - 20', 'dataMax + 20']} tickFormatter={(val) => `$${val}`} />
-                              <Tooltip contentStyle={{ backgroundColor: 'hsl(var(--background))', borderColor: 'hsl(var(--border))' }} formatter={(value: number) => formatCurrency(value)} />
-                              <Legend />
-                              {stocks.map(stock => (
-                                  <Line key={stock.symbol} type="monotone" dataKey={stock.symbol} stroke={stock.color} strokeWidth={2} dot={false} connectNulls />
-                              ))}
-                          </LineChart>
-                      </ResponsiveContainer>
-                  </CardContent>
-              </Card>
-          </div>
+        {/* Chart */}
+        <div className="lg:col-span-2">
+            <Card className="h-full flex flex-col">
+                <CardHeader className="flex flex-row items-center justify-between">
+                    <CardTitle className="text-xl">Market Trends</CardTitle>
+                    <Button onClick={toggleTracking} variant="outline" size="icon">
+                        {isTracking ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
+                    </Button>
+                </CardHeader>
+                <CardContent className="flex-grow">
+                    <ResponsiveContainer width="100%" height="100%">
+                        <LineChart data={formattedData} margin={{ top: 5, right: 20, left: -10, bottom: 5 }}>
+                            <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                            <XAxis dataKey="timeLabel" stroke="hsl(var(--muted-foreground))" tick={{ fontSize: 10 }} />
+                            <YAxis stroke="hsl(var(--muted-foreground))" tick={{ fontSize: 10 }} domain={['dataMin - 20', 'dataMax + 20']} tickFormatter={(val) => `$${val}`} />
+                            <Tooltip contentStyle={{ backgroundColor: 'hsl(var(--background))', borderColor: 'hsl(var(--border))' }} formatter={(value: number) => formatCurrency(value)} />
+                            <Legend />
+                            {stocks.map(stock => (
+                                <Line key={stock.symbol} type="monotone" dataKey={stock.symbol} stroke={stock.color} strokeWidth={2} dot={false} connectNulls />
+                            ))}
+                        </LineChart>
+                    </ResponsiveContainer>
+                </CardContent>
+            </Card>
         </div>
       </div>
-    </LeaderboardWrapper>
+    </div>
   );
 };
 

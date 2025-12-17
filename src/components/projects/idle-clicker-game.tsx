@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
@@ -11,7 +10,6 @@ import { Badge } from '../ui/badge';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MousePointerClick, Zap, Plus, ArrowUp, RefreshCw, Star, Award, Repeat, ShieldCheck, Hand } from 'lucide-react';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '../ui/tabs';
-import { LeaderboardWrapper } from '../leaderboard-wrapper';
 
 // --- TYPE DEFINITIONS ---
 
@@ -364,7 +362,6 @@ const IdleClickerGame: React.FC = () => {
   };
 
   return (
-    <LeaderboardWrapper gameId="idleClicker" score={clicks} isGameOver={false}>
     <div className="flex items-center justify-center w-full h-full bg-card p-4 sm:p-6 lg:p-8">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full max-w-5xl mx-auto">
         
@@ -516,7 +513,6 @@ const IdleClickerGame: React.FC = () => {
         </Card>
       </div>
     </div>
-    </LeaderboardWrapper>
   );
 };
 

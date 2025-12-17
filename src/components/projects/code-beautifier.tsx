@@ -1,6 +1,6 @@
 
 'use client';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import {
@@ -32,6 +32,20 @@ export default function CodeBeautifier() {
   const [generatedImageUrl, setGeneratedImageUrl] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
+  const generateImageUrl = (rawCode: string) => {
+    // Correctly replace newlines with <br /> for HTML rendering inside the image
+    const codeForHtml = rawCode.replace(/\n/g, '<br />');
+    const params = new URLSearchParams({
+      code: encodeURIComponent(codeForHtml),
+      padding,
+      background,
+      title,
+      theme,
+      language,
+    });
+    return `/api/image?${params.toString()}`;
+  };
+  
   const generateImage = async () => {
     if (code.trim() === '') {
       toast({ title: 'Code is empty', description: 'Please enter some code.', variant: 'destructive' });
@@ -42,18 +56,8 @@ export default function CodeBeautifier() {
     setGeneratedImageUrl('');
 
     try {
-      const { code: rawCode } = await beautifyCode({ code });
-
-      const params = new URLSearchParams({
-        code: encodeURIComponent(rawCode),
-        padding,
-        background,
-        title,
-        theme,
-        language,
-      });
-
-      const url = `/api/image?${params.toString()}`;
+      const { code: processedCode } = await beautifyCode({ code });
+      const url = generateImageUrl(processedCode);
       setGeneratedImageUrl(url);
       toast({ title: "Image Ready", description: "Your code image has been generated."});
 
@@ -68,25 +72,24 @@ export default function CodeBeautifier() {
       setIsLoading(false);
     }
   };
+  
+  // Auto-update preview if an image is already generated
+  useEffect(() => {
+    if (generatedImageUrl) {
+        const url = generateImageUrl(code);
+        setGeneratedImageUrl(url);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [code, language, theme, padding, background, title]);
+
 
   const downloadImage = () => {
     if (!generatedImageUrl) return;
 
-    // Create a new URL specifically for download with <br/> tags
-    const htmlCode = code.replace(/\n/g, '<br />');
-    const params = new URLSearchParams({
-        code: encodeURIComponent(htmlCode),
-        padding,
-        background,
-        title,
-        theme,
-        language,
-      });
-    
-    const downloadUrl = `/api/image?${params.toString()}`;
+    const url = generateImageUrl(code);
 
     const link = document.createElement('a');
-    link.href = downloadUrl;
+    link.href = url;
     link.download = `${title.split('.')[0] || 'code'}.png`;
     document.body.appendChild(link);
     link.click();
@@ -169,8 +172,9 @@ export default function CodeBeautifier() {
                 <Image 
                     src={generatedImageUrl} 
                     alt="Generated code preview" 
-                    layout="fill"
-                    objectFit="contain"
+                    fill
+                    sizes="(max-width: 768px) 100vw, 50vw"
+                    className="object-contain"
                 />
               </div>
             ) : (

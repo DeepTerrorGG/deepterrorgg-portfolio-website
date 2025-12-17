@@ -28,27 +28,35 @@ export async function generateProjectImage(input: ImageGenerationInput) {
     const stylePrompt = style === 'Default' ? '' : `in a ${style.toLowerCase()} style, `;
     const fullPrompt = `A high-quality, creative image. The image should be visually interesting and capture the essence of the following description: "${description}". The image should be ${stylePrompt}professional and polished. The desired aspect ratio is ${aspectRatio}.`;
 
+    let media;
+
     if (imageDataUris && imageDataUris.length > 0) {
         // Image-to-image generation using Gemini Vision
         const promptParts: MediaPart[] = imageDataUris.map(uri => ({ media: { url: uri } }));
         promptParts.push({ text: fullPrompt });
 
-        const { media } = await ai.generate({
+        const response = await ai.generate({
             model: 'googleai/gemini-2.5-flash-image',
             prompt: promptParts,
             config: {
                 responseModalities: ['IMAGE', 'TEXT'],
             }
         });
-        return media.url;
+        media = response.media;
 
     } else {
         // Text-to-image generation using Imagen
-        const { media } = await ai.generate({
+        const response = await ai.generate({
             model: 'googleai/imagen-4.0-fast-generate-001',
             prompt: fullPrompt,
         });
-        return media.url;
+        media = response.media;
     }
-}
 
+    if (!media?.url) {
+        // Handle cases where the AI returns no image (e.g., safety policy violation)
+        throw new Error('The AI failed to generate an image. This may be due to the prompt content or a temporary service issue. Please try a different prompt.');
+    }
+
+    return media.url;
+}

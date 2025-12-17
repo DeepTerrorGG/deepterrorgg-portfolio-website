@@ -44,6 +44,14 @@ const nextConfig: NextConfig = {
         port: '',
         pathname: '/images.boardgameatlas.com/**',
       },
+      // This rule allows images to be served from your own API route.
+      // It's needed for the Code Beautifier project.
+      {
+        protocol: 'http',
+        hostname: 'localhost',
+        port: '9002', // Make sure this matches your dev port
+        pathname: '/api/image/**',
+      },
     ],
   },
    experimental: {

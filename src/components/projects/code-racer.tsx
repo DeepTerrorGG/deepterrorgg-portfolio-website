@@ -8,7 +8,6 @@ import { RefreshCw } from 'lucide-react';
 import { snippets, type Language } from '@/lib/code-snippets';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { ScrollArea } from '../ui/scroll-area';
-import { LeaderboardWrapper } from '../leaderboard-wrapper';
 
 const CodeRacer: React.FC = () => {
     const [language, setLanguage] = useState<Language>('javascript');
@@ -74,7 +73,6 @@ const CodeRacer: React.FC = () => {
     const score = isFinished ? Math.round(wpm * (accuracy / 100)) : 0;
 
     return (
-        <LeaderboardWrapper gameId="codeRacer" score={score} isGameOver={isFinished}>
             <div className="flex flex-col items-center justify-center w-full h-full bg-card p-4 sm:p-6 lg:p-8">
                 <Card className="w-full max-w-4xl mx-auto shadow-2xl bg-[#0D1117] border-gray-800">
                     <CardHeader>
@@ -141,7 +139,6 @@ const CodeRacer: React.FC = () => {
                     </CardContent>
                 </Card>
             </div>
-        </LeaderboardWrapper>
     );
 };
 

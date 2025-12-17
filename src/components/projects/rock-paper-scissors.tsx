@@ -9,7 +9,6 @@ import { Label } from '../ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
 import Image from 'next/image';
-import { LeaderboardWrapper } from '../leaderboard-wrapper';
 
 type Move = 'rock' | 'paper' | 'scissors';
 type Difficulty = 'Normal' | 'Adaptive';
@@ -121,7 +120,6 @@ const RockPaperScissors: React.FC = () => {
   }, {} as Record<Move, number>);
 
   return (
-    <LeaderboardWrapper gameId="rockPaperScissors" score={playerScore} isGameOver={isGameOver} scoreLabel="Wins">
         <div className="flex flex-col items-center justify-center w-full h-full bg-card p-4 sm:p-6 lg:p-8">
         <Card className="w-full max-w-lg mx-auto shadow-2xl">
             <CardHeader>
@@ -204,7 +202,6 @@ const RockPaperScissors: React.FC = () => {
             </CardFooter>
         </Card>
         </div>
-    </LeaderboardWrapper>
   );
 };
 

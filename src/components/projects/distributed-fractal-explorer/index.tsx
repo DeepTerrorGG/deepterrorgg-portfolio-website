@@ -6,13 +6,10 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Button } from '@/components/ui/button';
 import { Loader2, Play, Pause, RefreshCw, Settings, Database, User, Edit, Save, AlertTriangle, ZoomIn, ZoomOut, Hand } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { useDatabase } from '@/firebase';
-import { ref, onValue, runTransaction, set, serverTimestamp } from 'firebase/database';
 import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from '@/components/ui/input';
 import { faker } from '@faker-js/faker';
-import { Leaderboard } from './leaderboard';
 import { Slider } from '@/components/ui/slider';
 import { Label } from '@/components/ui/label';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
@@ -42,7 +39,6 @@ const TOTAL_TILES_Y = 5;
 // --- MAIN COMPONENT ---
 const DistributedFractalExplorer: React.FC = () => {
     const { toast } = useToast();
-    const db = useDatabase();
     
     // --- STATE ---
     const [workers, setWorkers] = useState<Worker[]>([]);
@@ -59,26 +55,7 @@ const DistributedFractalExplorer: React.FC = () => {
 
     // --- DATA FETCHING ---
     const [tiles, setTiles] = useState<Record<string, FractalTile>>({});
-    const [allJobs, setAllJobs] = useState<Record<string, FractalJob>>({});
-
-    useEffect(() => {
-        if (!db) return;
-        const tilesRef = ref(db, 'fractal-tiles');
-        const jobsRef = ref(db, 'fractal-jobs');
-
-        const unsubTiles = onValue(tilesRef, (snapshot) => {
-            setTiles(snapshot.val() || {});
-        });
-        const unsubJobs = onValue(jobsRef, (snapshot) => {
-            setAllJobs(snapshot.val() || {});
-        });
-
-        return () => {
-            unsubTiles();
-            unsubJobs();
-        };
-    }, [db]);
-
+    
     const [workerId, setWorkerId] = useState<string>('');
     const [displayName, setDisplayName] = useState('');
 
@@ -99,23 +76,11 @@ const DistributedFractalExplorer: React.FC = () => {
     }, []);
 
     const handleNameChange = async () => {
-        if (!displayName.trim() || !workerId || !db) return;
+        if (!displayName.trim() || !workerId) return;
         localStorage.setItem('fractalWorkerName', displayName);
-        const workerRef = ref(db, `fractal-workers/${workerId}/displayName`);
-        await set(workerRef, displayName);
         setIsEditingName(false);
         toast({ title: "Name Updated!", description: `You are now known as ${displayName}.` });
     };
-
-    const jobStats = useMemo(() => {
-        const jobsList = Object.values(allJobs);
-        return {
-            pending: jobsList.filter(j => j.status === 'pending').length,
-            claimed: jobsList.filter(j => j.status === 'claimed').length,
-            completed: jobsList.filter(j => j.status === 'completed').length,
-            total: jobsList.length
-        };
-    }, [allJobs]);
 
     const initializeWorkers = useCallback(() => {
         if (!workerId || workers.length > 0) return;
@@ -228,7 +193,6 @@ const DistributedFractalExplorer: React.FC = () => {
                         <TabsList>
                             <TabsTrigger value="display">Display</TabsTrigger>
                             <TabsTrigger value="my-worker">My Worker</TabsTrigger>
-                            <TabsTrigger value="leaderboard">Leaderboard</TabsTrigger>
                         </TabsList>
                     </div>
                 </CardHeader>
@@ -331,26 +295,8 @@ const DistributedFractalExplorer: React.FC = () => {
                             </div>
                            </CardContent>
                        </Card>
-                       <Card>
-                         <CardHeader><CardTitle className="text-xl">Global Network Stats</CardTitle></CardHeader>
-                         <CardContent className="space-y-3 text-sm">
-                            <div>
-                                <div className="flex justify-between">
-                                    <span>Progress</span>
-                                    <span>{jobStats.completed} / {jobStats.total}</span>
-                                </div>
-                                <Progress value={jobStats.total > 0 ? (jobStats.completed / jobStats.total) * 100 : 0} />
-                            </div>
-                            <p><strong>Pending:</strong> {jobStats.pending.toLocaleString()}</p>
-                            <p><strong>Claimed:</strong> {jobStats.claimed.toLocaleString()}</p>
-                         </CardContent>
-                       </Card>
                     </div>
                   </div>
-                </TabsContent>
-    
-                <TabsContent value="leaderboard" className="flex-grow mt-0 p-4">
-                  <Leaderboard />
                 </TabsContent>
             </Tabs>
         </Card>

@@ -1,7 +1,7 @@
 // src/app/startup/page.tsx
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import Image from 'next/image';
 import PageTitle from '@/components/ui/page-title';
 import { Card, CardContent } from '@/components/ui/card';
@@ -11,11 +11,14 @@ import {
   CarouselItem,
   CarouselNext,
   CarouselPrevious,
+  type CarouselApi,
 } from "@/components/ui/carousel";
 import { Button } from '@/components/ui/button';
 import { ExternalLink, CheckCircle } from 'lucide-react';
 import { TechStack } from '@/components/ui/tech-stack';
 import SectionContainer from '@/components/ui/section-container';
+import { cn } from '@/lib/utils';
+import { motion } from 'framer-motion';
 
 const communityProject = {
   id: 'silent-horizon',
@@ -64,6 +67,36 @@ const communityProject = {
 
 
 export default function StartupPage() {
+    const [api, setApi] = useState<CarouselApi>()
+    const [current, setCurrent] = useState(0)
+    const [scale, setScale] = useState<(number | undefined)[]>([]);
+
+    const handleScale = useCallback((api: CarouselApi) => {
+      if (!api) return;
+      const newScale = api.scrollSnapList().map((_, index) => {
+        const diff = Math.abs(index - api.selectedScrollSnap());
+        if (diff === 0) return 1;
+        if (diff === 1) return 0.8;
+        return 0.6;
+      });
+      setScale(newScale);
+    }, []);
+
+  useEffect(() => {
+    if (!api) {
+      return
+    }
+ 
+    setCurrent(api.selectedScrollSnap())
+    handleScale(api);
+    
+    api.on("select", () => {
+      setCurrent(api.selectedScrollSnap())
+      handleScale(api);
+    })
+    api.on("reInit", handleScale);
+  }, [api, handleScale])
+
   return (
     <SectionContainer>
       <PageTitle
@@ -74,34 +107,42 @@ export default function StartupPage() {
 
       <div className="flex flex-col items-center gap-8 md:gap-12">
         {/* Image Carousel */}
-        <div className="w-full max-w-4xl">
-          <Carousel
-            opts={{
-              loop: true,
-            }}
-            className="w-full"
-          >
+        <div className="w-full max-w-5xl">
+         <Carousel setApi={setApi} className="w-full group" opts={{ loop: true }}>
             <CarouselContent>
-              {communityProject.imageUrls.map((url, index) => (
-                <CarouselItem key={index}>
-                  <Card className="overflow-hidden">
-                    <CardContent className="p-0 aspect-video relative">
-                      <Image
-                        src={url}
-                        alt={`${communityProject.imageAlt} - Image ${index + 1}`}
-                        fill
-                        sizes="(max-width: 1024px) 100vw, 50vw"
-                        className="object-cover"
-                        data-ai-hint={communityProject.imageHint}
-                      />
-                    </CardContent>
-                  </Card>
-                </CarouselItem>
-              ))}
+                {communityProject.imageUrls.map((url, index) => (
+                    <CarouselItem key={index} className="basis-full md:basis-1/2 lg:basis-1/3 flex items-center justify-center">
+                        <motion.div 
+                            className="w-full h-full"
+                            animate={{ 
+                                scale: scale[index],
+                                opacity: scale[index] === 1 ? 1 : 0.5,
+                            }}
+                            transition={{ type: 'spring', stiffness: 200, damping: 20 }}
+                        >
+                            <Card className="overflow-hidden shadow-lg transform-style-3d group-hover:scale-[1.02] transition-transform duration-500">
+                                <CardContent className="p-0 aspect-video relative">
+                                    <Image
+                                        src={url}
+                                        alt={`${communityProject.imageAlt} - Image ${index + 1}`}
+                                        fill
+                                        sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                                        className={cn(
+                                            "object-cover transition-all duration-300",
+                                            index !== current && 'opacity-50 group-hover:opacity-75'
+                                        )}
+                                        data-ai-hint={communityProject.imageHint}
+                                        priority={index <= 2}
+                                    />
+                                </CardContent>
+                            </Card>
+                        </motion.div>
+                    </CarouselItem>
+                ))}
             </CarouselContent>
-            <CarouselPrevious className="absolute left-2 top-1/2 -translate-y-1/2 z-10 h-10 w-10 bg-background/50 hover:bg-background/80" />
-            <CarouselNext className="absolute right-2 top-1/2 -translate-y-1/2 z-10 h-10 w-10 bg-background/50 hover:bg-background/80" />
-          </Carousel>
+            <CarouselPrevious className="absolute left-0 top-1/2 -translate-y-1/2 z-10 h-10 w-10 bg-background/50 hover:bg-background/80 transition-opacity opacity-0 group-hover:opacity-100" />
+            <CarouselNext className="absolute right-0 top-1/2 -translate-y-1/2 z-10 h-10 w-10 bg-background/50 hover:bg-background/80 transition-opacity opacity-0 group-hover:opacity-100" />
+        </Carousel>
         </div>
 
         {/* Details Section */}

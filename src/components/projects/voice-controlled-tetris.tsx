@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
@@ -7,7 +6,6 @@ import { Button } from '@/components/ui/button';
 import { Play, Pause, RefreshCw, MicOff } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { BOARD_WIDTH, BOARD_HEIGHT, createEmptyBoard, randomTetromino } from '@/lib/tetris';
-import { LeaderboardWrapper } from '../leaderboard-wrapper';
 
 type Player = {
   pos: { x: number; y: number };
@@ -275,7 +273,6 @@ const VoiceControlledTetris: React.FC = () => {
   }, [isGameOver, isPaused, playerDrop, hardDrop]);
 
   return (
-    <LeaderboardWrapper gameId="tetris" score={score} isGameOver={isGameOver}>
       <div className="w-full h-full bg-card flex items-center justify-center p-4" onKeyDown={handleKeyDown} tabIndex={0} ref={gameAreaRef}>
         <div className="flex flex-col lg:flex-row gap-8 items-start">
           <Card className="w-full lg:w-56 bg-muted/30 border-border order-last lg:order-first">
@@ -319,7 +316,6 @@ const VoiceControlledTetris: React.FC = () => {
           </Card>
         </div>
       </div>
-    </LeaderboardWrapper>
   );
 };
 

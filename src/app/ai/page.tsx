@@ -1,7 +1,7 @@
 // src/app/ai/page.tsx
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import PageTitle from '@/components/ui/page-title';
@@ -51,11 +51,10 @@ interface Project {
   longDescription?: string;
   personalNote: string;
   difficulty: 'Easy' | 'Medium' | 'Hard' | 'Advanced' | 'AI' | 'Community' | 'Meme';
-  technologies: Technology[];
   component: React.ReactNode;
-  externalLink?: string;
   renderImage: boolean;
   category: 'text' | 'image' | 'video' | 'game' | 'utility';
+  technologies: Technology[];
 }
 
 interface Usage {
@@ -88,17 +87,29 @@ export default function AiProjectsPage() {
   const [selectedProjectId, setSelectedProjectId] = useState<string>('ai-chatbot');
   const [mobileProject, setMobileProject] = useState<Project | null>(null);
 
-  const [usage, setUsage] = useState<Usage>(() => {
-    if (typeof window !== 'undefined') {
-        const savedUsage = localStorage.getItem('ai_usage');
-        if (savedUsage) return JSON.parse(savedUsage);
-    }
-    return { text: 0, image: 0, video: 0 };
-  });
+  // Initialize state with default values to prevent hydration mismatch.
+  const [usage, setUsage] = useState<Usage>({ text: 0, image: 0, video: 0 });
+  const [isMounted, setIsMounted] = useState(false);
 
+  // After the component mounts on the client, read from localStorage.
   useEffect(() => {
-    localStorage.setItem('ai_usage', JSON.stringify(usage));
-  }, [usage]);
+    setIsMounted(true);
+    try {
+        const savedUsage = localStorage.getItem('ai_usage');
+        if (savedUsage) {
+            setUsage(JSON.parse(savedUsage));
+        }
+    } catch (error) {
+        console.error("Failed to parse usage from localStorage", error);
+    }
+  }, []);
+
+  // Save to localStorage whenever usage changes, but only on the client.
+  useEffect(() => {
+    if(isMounted) {
+      localStorage.setItem('ai_usage', JSON.stringify(usage));
+    }
+  }, [usage, isMounted]);
 
   const handleUsage = (category: 'text' | 'image' | 'video'): boolean => {
       if (usage[category] >= USAGE_LIMITS[category]) {
@@ -152,7 +163,7 @@ export default function AiProjectsPage() {
         { name: 'React', iconSrc: '/icons/react.svg' },
         { name: 'Next.js', iconSrc: '/icons/nextjs.svg' },
         { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },
-        { name: '@vercel/og', iconSrc: '/icons/vercel.svg' },
+        { name: '@vercel/og', iconSrc: '/icons/gemini.svg' },
       ],
       renderImage: true,
     },
@@ -347,7 +358,7 @@ export default function AiProjectsPage() {
 
   const selectedProject = useMemo(() => {
     return allProjects.find(p => p.id === selectedProjectId) || allProjects[0];
-  }, [selectedProjectId]);
+  }, [selectedProjectId, allProjects]);
 
   const difficultyColors = {
     'Easy': 'text-green-400',
@@ -387,6 +398,11 @@ export default function AiProjectsPage() {
       )}
     </div>
   );
+
+  if (!isMounted) {
+    // Render a skeleton or null during server-side rendering and initial client-side render
+    return null; 
+  }
 
   return (
     <AnimateOnScroll className="flex-grow flex flex-col h-full">
@@ -451,7 +467,7 @@ export default function AiProjectsPage() {
               {allProjects.map((project) => (
                 <li key={project.id}>
                   <button
-                    onClick={() => handleProjectSelect(project)}
+                    onClick={() => setSelectedProjectId(project.id)}
                     className={cn(
                       "w-full text-left p-3 rounded-md transition-colors duration-200",
                       selectedProjectId === project.id

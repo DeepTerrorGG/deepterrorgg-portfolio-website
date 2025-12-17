@@ -6,12 +6,21 @@ export const runtime = 'edge';
 
 // Basic sanitization function to escape HTML characters
 const escapeHtml = (unsafe: string) => {
-  return unsafe
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#039;");
+    // This function now handles <br> tags specifically, so we don't escape them.
+    // It's a bit more complex, but necessary for line breaks.
+    // We'll process the string segment by segment.
+    const segments = unsafe.split(/(<br\s*\/?>)/i);
+    return segments.map((segment, index) => {
+        if (index % 2 === 1) { // This is a <br> tag
+            return segment;
+        }
+        return segment
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+    }).join('');
 };
 
 export async function GET(req: NextRequest) {
@@ -34,8 +43,9 @@ export async function GET(req: NextRequest) {
     return new Response('Missing code parameter', { status: 400 });
   }
 
-  // Sanitize the code to treat it as plain text and prevent XSS
-  const codeSnippet = escapeHtml(decodeURIComponent(code));
+  // The code is expected to come with <br /> tags already.
+  // We use dangerouslySetInnerHTML to render these line breaks.
+  const codeHtml = { __html: escapeHtml(decodeURIComponent(code)) };
 
   try {
     return new ImageResponse(
@@ -94,10 +104,10 @@ export async function GET(req: NextRequest) {
                 overflow: 'auto',
                 fontSize: '18px',
                 lineHeight: '1.5',
-                whiteSpace: 'pre-wrap', // Use pre-wrap to respect newlines
+                whiteSpace: 'pre-wrap', 
               }}
             >
-              {codeSnippet}
+              <code dangerouslySetInnerHTML={codeHtml} />
             </pre>
           </div>
         </div>

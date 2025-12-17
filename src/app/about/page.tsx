@@ -59,7 +59,6 @@ const techCategories = [
       { name: 'NextAuth.js', href: 'https://next-auth.js.org/', iconSrc: '/icons/nextauth.svg' },
       { name: 'Resend', href: 'https://resend.com/', iconSrc: '/icons/resend.svg' },
       { name: 'Vercel', href: 'https://vercel.com/', iconSrc: '/icons/vercel-white.svg' },
-      { name: 'Google Gemini', href: 'https://deepmind.google.com/technologies/gemini/', iconSrc: '/icons/gemini.svg' },
       { name: 'Spotify API', href: 'https://developer.spotify.com/documentation/web-api', iconSrc: '/icons/spotify.svg' },
       { name: 'GitHub API', href: 'https://docs.github.com/en/rest', iconSrc: '/icons/github-white.svg' },
       { name: 'Coinbase API', href: 'https://commerce.coinbase.com/docs/api/', iconSrc: '/icons/coinbase.svg' },

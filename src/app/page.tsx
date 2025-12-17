@@ -107,7 +107,6 @@ const technologies = [
   { name: 'Recharts', href: 'https://recharts.org/', iconSrc: '/icons/recharts.svg' },
   { name: 'D3.js', href: 'https://d3js.org/', iconSrc: '/icons/d3.svg' },
   { name: 'Genkit', href: 'https://firebase.google.com/docs/genkit', iconSrc: '/icons/genkit.svg' },
-  { name: 'Google Gemini', href: 'https://deepmind.google.com/technologies/gemini/', iconSrc: '/icons/gemini.svg' },
   { name: 'Firebase', href: 'https://firebase.google.com/', iconSrc: '/icons/firebase.svg' },
   { name: 'NextAuth.js', href: 'https://next-auth.js.org/', iconSrc: '/icons/nextauth.svg' },
   { name: 'Resend', href: 'https://resend.com/', iconSrc: '/icons/resend.svg' },

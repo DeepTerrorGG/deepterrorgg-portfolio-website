@@ -69,7 +69,7 @@ const USAGE_LIMITS: Readonly<Usage> = {
   video: 0,
 };
 
-const UsageTracker = ({ usage, onReset }: { usage: Usage, onReset: () => void }) => (
+const UsageTracker = ({ usage }: { usage: Usage }) => (
     <div className="bg-card/50 border border-border/30 rounded-lg p-3 text-xs text-muted-foreground flex items-center justify-between gap-4">
         <div className="flex gap-4">
             <span>Usage Left:</span>
@@ -77,7 +77,6 @@ const UsageTracker = ({ usage, onReset }: { usage: Usage, onReset: () => void })
             <span className="font-mono">Images: {USAGE_LIMITS.image - usage.image}/{USAGE_LIMITS.image}</span>
             <span className="font-mono">Videos: {USAGE_LIMITS.video - usage.video}/{USAGE_LIMITS.video}</span>
         </div>
-        <Button size="xs" variant="outline" onClick={onReset}><RefreshCw className="h-3 w-3 mr-1"/> Reset</Button>
     </div>
 );
 
@@ -124,11 +123,6 @@ export default function AiProjectsPage() {
       return true;
   };
   
-  const resetUsage = () => {
-    setUsage({ text: 0, image: 0, video: 0 });
-    toast({ title: "Usage counters have been reset." });
-  }
-
   const projectsData: Project[] = [
     {
       id: 'collaborative-storyteller',
@@ -412,7 +406,7 @@ export default function AiProjectsPage() {
           AI Projects
         </PageTitle>
         <div className="px-4 mb-4">
-          <UsageTracker usage={usage} onReset={resetUsage} />
+          <UsageTracker usage={usage} />
         </div>
         <ScrollArea className="flex-grow">
           <ul className="space-y-2 p-4">
@@ -459,7 +453,7 @@ export default function AiProjectsPage() {
               AI Projects
             </PageTitle>
             <div className="mt-4">
-                <UsageTracker usage={usage} onReset={resetUsage} />
+                <UsageTracker usage={usage} />
             </div>
           </div>
           <ScrollArea className="flex-1 min-h-0">

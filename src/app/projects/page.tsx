@@ -98,445 +98,445 @@ interface Project {
 }
 
 const projectsData: Project[] = [
-    {
-      id: 'distributed-fractal-explorer',
-      title: 'Distributed Fractal Explorer',
-      imageUrls: ['/placeholder.png'],
-      imageAlt: 'Distributed fractal rendering',
-      imageHint: 'fractal distributed computing',
-      description: 'A distributed computing project where every visitor helps render a small piece of a massive fractal.',
-      personalNote: 'This is an ambitious project inspired by SETI@home. It uses Firestore as a job queue. Visitors act as workers, claiming a "tile" to render via a serverless function, processing it in a web worker, and submitting it back. It\'s a full-stack showcase of distributed systems thinking.',
-      difficulty: 'Advanced',
-      component: <DistributedFractalExplorer />,
-      technologies: [
-        { name: 'React', iconSrc: '/icons/react.svg' },
-        { name: 'Next.js', iconSrc: '/icons/nextjs.svg' },
-        { name: 'Firebase', iconSrc: '/icons/firebase.svg' },
-        { name: 'Web Workers', iconSrc: '/icons/javascript.svg' },
-      ],
-      renderImage: true,
-    },
-    {
-      id: 'headless-cms',
-      title: 'Headless CMS',
-      imageUrls: ['/placeholder.png'],
-      imageAlt: 'A headless content management system dashboard',
-      imageHint: 'cms dashboard schema',
-      description: 'A tool like Contentful or Strapi. Define content types (e.g., "Blog Post") and the API endpoints are auto-generated.',
-      personalNote: 'This is a great project for agencies. It shows an understanding of database schemas, dynamic API generation, and role-based access control. A meta-schema defines content types, and a single API engine serves content dynamically.',
-      difficulty: 'Advanced',
-      component: <HeadlessCms />,
-      technologies: [
-        { name: 'React', iconSrc: '/icons/react.svg' },
-        { name: 'Next.js', iconSrc: '/icons/nextjs.svg' },
-        { name: 'Firebase', iconSrc: '/icons/firebase.svg' },
-        { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },
-        { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss.svg' },
-      ],
-      renderImage: true,
-    },
-    {
-      id: 'log-ingestor',
-      title: 'Real-Time Log Ingestor',
-      imageUrls: ['/placeholder.png'],
-      imageAlt: 'A real-time log ingestion pipeline dashboard',
-      imageHint: 'log pipeline dashboard',
-      description: 'A dashboard that displays real-time logs from across the application, demonstrating a scalable system architecture for handling streaming data.',
-      personalNote: 'This project is a real, functioning logging system. Other parts of this portfolio, like page navigations and AI actions, generate logs that are written to Firestore. This dashboard then displays those logs live, showcasing an understanding of real-time data flow and system observability.',
-      difficulty: 'Hard',
-      component: <LogIngestor />,
-      technologies: [
-        { name: 'React', iconSrc: '/icons/react.svg' },
-        { name: 'Next.js', iconSrc: '/icons/nextjs.svg' },
-        { name: 'Firebase', iconSrc: '/icons/firebase.svg' },
-        { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },
-        { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss.svg' },
-      ],
-      renderImage: true,
-    },
-    {
-      id: 'payment-ledger',
-      title: 'Payment Ledger Simulation',
-      imageUrls: ['/placeholder.png'],
-      imageAlt: 'A payment ledger showing double-entry bookkeeping',
-      imageHint: 'payment ledger bank backend',
-      description: 'A simulation of a banking backend using double-entry bookkeeping to ensure transactional integrity.',
-      personalNote: 'This project demonstrates a critical backend concept: how to handle financial transactions safely. It simulates ACID-compliant operations using client-side state, preventing issues like "double-spending" through idempotency checks. It is a vital showcase of understanding the logic required for reliable and robust systems.',
-      difficulty: 'Advanced',
-      component: <PaymentLedger />,
-      technologies: [
-        { name: 'React', iconSrc: '/icons/react.svg' },
-        { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },
-        { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss.svg' },
-      ],
-      renderImage: true,
-    },
-    {
-      id: 'digital-asset-manager',
-      title: 'Digital Asset Manager',
-      imageUrls: ['/placeholder.png'],
-      imageAlt: 'A file management system with folders and files',
-      imageHint: 'file manager cloud storage',
-      description: 'A Google Drive clone where you can upload files, create folders, and share links.',
-      personalNote: 'This project was a deep dive into handling file uploads and asynchronous operations. Building the recursive folder structure was a fun challenge that really tested my understanding of React components. It also demonstrates key skills in working with cloud storage and managing binary data.',
-      difficulty: 'Advanced',
-      component: <DigitalAssetManager />,
-      technologies: [
-        { name: 'React', iconSrc: '/icons/react.svg' },
-        { name: 'Next.js', iconSrc: '/icons/nextjs.svg' },
-        { name: 'Firebase', iconSrc: '/icons/firebase.svg' },
-        { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },
-        { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss.svg' },
-      ],
-      renderImage: true,
-    },
-    {
-      id: 'inventory-dashboard',
-      title: 'Inventory Management Dashboard',
-      imageUrls: ['/placeholder.png'],
-      imageAlt: 'Inventory dashboard with charts and product tables',
-      imageHint: 'dashboard inventory management',
-      description: 'A data-heavy dashboard for managing warehouse inventory, products, and suppliers.',
-      personalNote: 'This project is a powerful demonstration of handling complex, real-world data scenarios. It uses TanStack Table for a fully-featured data grid (sorting, filtering, pagination) and Recharts for data visualization, which are essential skills for most web development jobs.',
-      difficulty: 'Advanced',
-      component: <InventoryDashboard />,
-      technologies: [
-            { name: 'React', iconSrc: '/icons/react.svg' },
-            { name: 'Next.js', iconSrc: '/icons/nextjs.svg' },
-            { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },
-            { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss.svg' },
-            { name: 'Recharts', iconSrc: '/icons/recharts.svg' },
-            { name: '@tanstack/table', iconSrc: '/icons/react-query.svg' },
-            { name: 'Faker.js', iconSrc: '/icons/faker.svg' },
-      ],
-      renderImage: true,
-    },
-    {
-      id: 'booking-calendar',
-      title: 'Booking & Scheduling App',
-      imageUrls: ['/placeholder.png'],
-      imageAlt: 'A booking calendar interface',
-      imageHint: 'booking calendar schedule',
-      description: 'A Calendly-like app to manage availability and let others book 30-minute slots.',
-      personalNote: 'Handling timezones, overlapping slots, and generating availability is a notoriously difficult part of web development. This project demonstrates how to manage those complexities using a date library and a simulated backend.',
-      difficulty: 'Hard',
-      component: <BookingCalendar />,
-      technologies: [
-        { name: 'React', iconSrc: '/icons/react.svg' },
-        { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },
-        { name: 'date-fns', iconSrc: '/icons/date-fns.svg' },
-        { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss.svg' },
-      ],
-      renderImage: true,
-    },
-    {
-      id: 'memory-matrix',
-      title: 'Memory Matrix',
-      imageUrls: ['/placeholder.png'],
-      imageAlt: 'A memory matrix game grid',
-      imageHint: 'memory game grid pattern',
-      description: 'A pattern of tiles will flash. Test your memory by repeating the sequence. Each round gets longer!',
-      personalNote: 'This is a great exercise in managing game state and timed, asynchronous events in React. The challenge is handling the different phases (watching, repeating) and giving the user clear feedback.',
-      difficulty: 'Medium',
-      component: <MemoryMatrix />,
-      technologies: [
-        { name: 'React', iconSrc: '/icons/react.svg' },
-        { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },
-        { name: 'Framer Motion', iconSrc: '/icons/framer.svg' },
-        { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss.svg' },
-      ],
-      renderImage: true,
-    },
-    {
-      id: 'connect-four',
-      title: 'Connect 4',
-      imageUrls: ['/placeholder.png'],
-      imageAlt: 'Connect 4 game board',
-      imageHint: 'connect four board game',
-      description: 'The classic two-player game. Drop your pieces into the grid and try to get four in a row before your opponent does.',
-      personalNote: 'This was a great exercise in algorithm design. The "gravity" logic for dropping pieces and, especially, the win-detection logic for checking all possible four-in-a-row combinations, were fun challenges to solve efficiently.',
-      difficulty: 'Easy',
-      component: <ConnectFour />,
-      technologies: [
-        { name: 'React', iconSrc: '/icons/react.svg' },
-        { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },
-        { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss.svg' },
-      ],
-      renderImage: true,
-    },
-    {
-      id: 'sudoku-solver',
-      title: 'Sudoku Solver Visualization',
-      imageUrls: ['/placeholder.png'],
-      imageAlt: 'A Sudoku board being solved by an algorithm',
-      imageHint: 'sudoku board algorithm',
-      description: 'Watch a backtracking algorithm solve a Sudoku puzzle in real-time, visualizing its "thinking" process as it tries and retracts numbers.',
-      personalNote: 'This project is a great way to understand recursion and backtracking. Using a generator function to `yield` each step of the algorithm to React for rendering was a fun and powerful technique for visualizing complex logic.',
-      difficulty: 'Advanced',
-      component: <SudokuSolver />,
-      technologies: [
-        { name: 'React', iconSrc: '/icons/react.svg' },
-        { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },
-        { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss.svg' },
-      ],
-      renderImage: true,
-    },
-    {
-      id: 'binary-vs-linear-search',
-      title: 'Binary vs. Linear Search Racer',
-      imageUrls: ['/placeholder.png'],
-      imageAlt: 'A race between two search algorithms',
-      imageHint: 'bar chart race algorithm',
-      description: 'A visual race to find a target value in a sorted array, comparing the speed of linear search (O(n)) against binary search (O(log n)).',
-      personalNote: 'This is a perfect, simple visualization of a core computer science concept. Watching the binary search "highlighter" jump around and find the target almost instantly while the linear search crawls along is incredibly satisfying and educational.',
-      difficulty: 'Easy',
-      component: <BinaryVsLinearSearch />,
-      technologies: [
-        { name: 'React', iconSrc: '/icons/react.svg' },
-        { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },
-        { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss.svg' },
-      ],
-      renderImage: true,
-    },
-    {
-      id: 'fractal-tree',
-      title: 'Fractal Tree Grower',
-      imageUrls: ['/placeholder.png'],
-      imageAlt: 'A recursively drawn fractal tree',
-      imageHint: 'fractal tree recursion',
-      description: 'An interactive visualization that grows a fractal tree based on recursive rules. Adjust the branch angle and shrink factor to create different tree species.',
-      personalNote: 'This project is a beautiful and simple demonstration of recursion. It\'s mesmerizing to watch how a few simple rules can create such complex and organic-looking patterns. It\'s a great example of the intersection of math, code, and nature.',
-      difficulty: 'Medium',
-      component: <FractalTree />,
-      technologies: [
-        { name: 'React', iconSrc: '/icons/react.svg' },
-        { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },
-        { name: 'HTML5 Canvas', iconSrc: '/icons/html5.svg' },
-        { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss.svg' },
-      ],
-      renderImage: true,
-    },
-    {
-      id: 'voice-controlled-tetris',
-      title: 'Voice-Controlled Tetris',
-      imageUrls: ['/placeholder.png'],
-      imageAlt: 'Voice-controlled Tetris game',
-      imageHint: 'tetris game voice control',
-      description: 'Classic Tetris, but you have to shout commands: "LEFT!", "RIGHT!", "ROTATE!", "DROP!".',
-      personalNote: 'This was a hilarious and frustrating experiment in using the Web Speech API. The challenge is handling the recognition delay and preventing accidental commands while still keeping the game playable. It\'s a great example of creative and slightly chaotic UI/UX design.',
-      difficulty: 'Hard',
-      component: <VoiceControlledTetris />,
-      technologies: [
-        { name: 'React', iconSrc: '/icons/react.svg' },
-        { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },
-        { name: 'Web Speech API', iconSrc: '/icons/mic.svg' },
-        { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss.svg' },
-      ],
-      renderImage: true,
-    },
-    {
-      id: 'githistory-visualizer',
-      title: 'GitHistory Visualizer',
-      imageUrls: ['/placeholder.png'],
-      imageAlt: 'A visualization of a Git repository\'s history',
-      imageHint: 'git history data visualization',
-      description: 'An animated visualization that plays back the commit history of a software project, showing files as an evolving, galaxy-like node graph.',
-      personalNote: 'This project was a deep dive into data visualization and animation. It uses the D3.js library for a force-directed graph layout, giving the file nodes a "zero-gravity" feel. Framer Motion then animates the nodes and "code particles" to bring the history to life. It\'s a beautiful way to see how a project grows and changes over time.',
-      difficulty: 'Advanced',
-      component: <GitHistoryVisualizer />,
-      technologies: [
-        { name: 'React', iconSrc: '/icons/react.svg' },
-        { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },
-        { name: 'D3.js', iconSrc: '/icons/d3.svg' },
-        { name: 'Framer Motion', iconSrc: '/icons/framer.svg' },
-        { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss.svg' },
-      ],
-      renderImage: true,
-    },
-    {
-      id: 'infinite-canvas',
-      title: 'Infinite ASCII Canvas',
-      imageUrls: ['/placeholder.png'],
-      imageAlt: 'An infinite canvas for placing ASCII characters',
-      imageHint: 'infinite grid canvas ascii',
-      description: 'An endless whiteboard where you can scroll forever and place text characters anywhere.',
-      personalNote: 'This project was a deep dive into virtualization. Instead of rendering millions of DOM elements, it only draws the cells currently visible in the viewport, allowing it to handle a seemingly infinite grid with high performance. It\'s a fun blend of old-school ASCII art and modern web tech.',
-      difficulty: 'Advanced',
-      component: <InfiniteCanvas />,
-      technologies: [
-        { name: 'React', iconSrc: '/icons/react.svg' },
-        { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },
-        { name: 'HTML5 Canvas', iconSrc: '/icons/html5.svg' },
-        { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss.svg' },
-      ],
-      renderImage: true,
-    },
-    {
-      id: 'time-capsule',
-      title: 'Digital Time Capsule',
-      imageUrls: ['/placeholder.png'],
-      imageAlt: 'A digital time capsule interface',
-      imageHint: 'time capsule future message',
-      description: 'Leave an encrypted message for the future that can only be unlocked after a specific date.',
-      personalNote: 'This project is a fascinating blend of sentimentality and security. The challenge lies in creating a secure "gatekeeper" API that respects the unlock date while ensuring the client-side encryption is robust. It\'s a promise to the future, written in code.',
-      difficulty: 'Advanced',
-      component: <TimeCapsuleProject />,
-      technologies: [
-        { name: 'React', iconSrc: '/icons/react.svg' },
-        { name: 'Next.js', iconSrc: '/icons/nextjs.svg' },
-        { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },
-        { name: 'crypto-js', iconSrc: '/icons/lock.svg' },
-        { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss.svg' },
-        { name: 'Firebase', iconSrc: '/icons/firebase.svg' },
-      ],
-      renderImage: true,
-    },
-    {
-      id: 'code-racer',
-      title: 'Code Racer',
-      imageUrls: ['/placeholder.png'],
-      imageAlt: 'A code typing game interface',
-      imageHint: 'code typing game speed',
-      description: 'A competitive typing game where you race against others by typing actual code snippets as fast as you can.',
-      personalNote: 'This project is a fun way to practice typing accuracy and speed with real-world code. It uses the Monaco editor, the same engine that powers VS Code, to provide an authentic coding feel. The next step is to add real-time multiplayer ghosts!',
-      difficulty: 'Advanced',
-      component: <CodeRacer />,
-      technologies: [
-        { name: 'React', iconSrc: '/icons/react.svg' },
-        { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },
-        { name: 'Monaco Editor', iconSrc: '/icons/vscode.svg' },
-        { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss.svg' },
-        { name: 'Firebase', iconSrc: '/icons/firebase.svg' },
-      ],
-      renderImage: true,
-    },
-    {
-        id: 'ascii-webcam',
-        title: 'Retro ASCII Webcam',
-        imageUrls: ['/placeholder.png'],
-        imageAlt: 'A webcam feed rendered in ASCII characters',
-        imageHint: 'webcam ascii art matrix',
-        description: 'Renders your webcam feed in real-time using ASCII characters for a retro, hacker aesthetic.',
-        personalNote: 'This project is a fun intersection of modern browser APIs and old-school visuals. The main challenge is processing video frames efficiently to create a smooth, real-time effect without lagging the browser.',
-        difficulty: 'Hard',
-        component: <AsciiWebcam />,
-        technologies: [
-            { name: 'React', iconSrc: '/icons/react.svg' },
-            { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },
-            { name: 'HTML5 Canvas', iconSrc: '/icons/html5.svg' },
-            { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss.svg' },
-        ],
-        renderImage: true,
-    },
-     {
-        id: 'pathfinding-visualizer',
-        title: 'Pathfinding Visualizer',
-        imageUrls: ['/placeholder.png'],
-        imageAlt: 'A grid with a visualized pathfinding algorithm',
-        imageHint: 'grid algorithm pathfinding',
-        description: 'Watch algorithms like Dijkstra\'s find the shortest path through a maze you create.',
-        personalNote: 'This is a classic computer science project that\'s incredibly satisfying to watch. It makes abstract graph traversal algorithms tangible and visual, which I find very cool.',
-        difficulty: 'Hard',
-        component: <PathfindingVisualizer />,
-        technologies: [
-            { name: 'React', iconSrc: '/icons/react.svg' },
-            { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },
-            { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss.svg' },
-        ],
-        renderImage: true,
-    },
-    {
-        id: 'speed-tester',
-        title: 'Speed Tester',
-        imageUrls: ['/placeholder.png'],
-        imageAlt: 'Speed tester for CPS and keyboard WPM',
-        imageHint: 'speed test keyboard mouse',
-        description: 'A simple app to test your clicks-per-second and typing speed (WPM).',
-        personalNote: 'This is a fun, classic project to measure and improve your input speed. It provides instant feedback and is a great way to warm up or compete with friends.',
-        difficulty: 'Easy',
-        component: <SpeedTester />,
-        technologies: [
-            { name: 'React', iconSrc: '/icons/react.svg' },
-            { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },
-            { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss.svg' },
-        ],
-        renderImage: true,
-    },
-    {
-        id: 'spotify-playlist-generator',
-        title: 'Vibe-Based Spotify Playlist Generator',
-        imageUrls: ['/placeholder.png'],
-        imageAlt: 'Spotify playlist generator interface',
-        imageHint: 'spotify music playlist',
-        description: 'Generates playlists based on weather, location, or a specific color using the Spotify API.',
-        personalNote: 'This project combines several APIs to create a unique music discovery experience. It handles OAuth for Spotify, fetches external data for "vibes", and uses it all to curate a personalized playlist.',
-        difficulty: 'Advanced',
-        component: <SpotifyPlaylistGenerator />,
-        technologies: [
-            { name: 'React', iconSrc: '/icons/react.svg' },
-            { name: 'Next.js', iconSrc: '/icons/nextjs.svg' },
-            { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },
-            { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss.svg' },
-            { name: 'Spotify API', iconSrc: '/icons/spotify.svg' },
-            { name: 'Framer Motion', iconSrc: '/icons/framer.svg' },
-        ],
-        renderImage: true,
-    },
-    {
-        id: 'ecommerce-dashboard',
-        title: 'E-commerce Dashboard',
-        imageUrls: ['/placeholder.png'],
-        imageAlt: 'E-commerce dashboard with charts and tables',
-        imageHint: 'dashboard charts data',
-        description: 'A mock e-commerce admin dashboard with data tables, charts, and key metrics.',
-        personalNote: 'This project is a great demonstration of handling complex data, creating professional-looking UIs with charts and tables, and managing a more "enterprise-level" application state.',
-        difficulty: 'Advanced',
-        component: <EcommerceDashboard />,
-        technologies: [
-            { name: 'React', iconSrc: '/icons/react.svg' },
-            { name: 'Next.js', iconSrc: '/icons/nextjs.svg' },
-            { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },
-            { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss.svg' },
-            { name: 'Recharts', iconSrc: '/icons/recharts.svg' },
-            { name: '@tanstack/table', iconSrc: '/icons/react-query.svg' },
-        ],
-        renderImage: true,
-    },
-    {
-        id: 'sorting-visualizer',
-        title: 'Sorting Algorithm Visualizer',
-        imageUrls: ['/placeholder.png'],
-        imageAlt: 'Sorting algorithm visualizer with bars',
-        imageHint: 'bar chart data algorithm',
-        description: 'Watch sorting algorithms like Bubble Sort, Merge Sort, and Quick Sort in action with this interactive visualizer.',
-        personalNote: 'This project is a great way to understand computer science fundamentals. It makes abstract algorithms tangible and even a bit mesmerizing to watch, especially with the sound effects.',
-        difficulty: 'Hard',
-        component: <SortingVisualizer />,
-        technologies: [
-            { name: 'React', iconSrc: '/icons/react.svg' },
-            { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },
-            { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss.svg' },
-        ],
-        renderImage: true,
-    },
-    {
-        id: 'website-status-checker',
-        title: 'Website Status Checker',
-        imageUrls: ['/placeholder.png'],
-        imageAlt: 'Website status checker interface',
-        imageHint: 'uptime monitor website status',
-        description: 'Enter a URL to check if a website is down for just you or for everyone, with pings from multiple global regions.',
-        personalNote: 'A classic developer utility. It\'s a practical project that demonstrates understanding of network requests and presenting status information clearly.',
-        difficulty: 'Medium',
-        component: <WebsiteStatusChecker />,
-        technologies: [
-            { name: 'React', iconSrc: '/icons/react.svg' },
-            { name: 'Next.js', iconSrc: '/icons/nextjs.svg' },
-            { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss.svg' },
-        ],
-        renderImage: true,
+  {
+    id: 'distributed-fractal-explorer',
+    title: 'Distributed Fractal Explorer',
+    imageUrls: ['/placeholder.png'],
+    imageAlt: 'Distributed fractal rendering',
+    imageHint: 'fractal distributed computing',
+    description: 'A distributed computing project where every visitor helps render a small piece of a massive fractal.',
+    personalNote: 'This is an ambitious project inspired by SETI@home. It uses Firestore as a job queue. Visitors act as workers, claiming a "tile" to render via a serverless function, processing it in a web worker, and submitting it back. It\'s a full-stack showcase of distributed systems thinking.',
+    difficulty: 'Advanced',
+    component: <DistributedFractalExplorer />,
+    technologies: [
+      { name: 'React', iconSrc: '/icons/react.svg' },
+      { name: 'Next.js', iconSrc: '/icons/nextjs.svg' },
+      { name: 'Firebase', iconSrc: '/icons/firebase.svg' },
+      { name: 'Web Workers', iconSrc: '/icons/javascript.svg' },
+    ],
+    renderImage: true,
   },
-    {
+  {
+    id: 'headless-cms',
+    title: 'Headless CMS',
+    imageUrls: ['/placeholder.png'],
+    imageAlt: 'A headless content management system dashboard',
+    imageHint: 'cms dashboard schema',
+    description: 'A tool like Contentful or Strapi. Define content types (e.g., "Blog Post") and the API endpoints are auto-generated.',
+    personalNote: 'This is a great project for agencies. It shows an understanding of database schemas, dynamic API generation, and role-based access control. A meta-schema defines content types, and a single API engine serves content dynamically.',
+    difficulty: 'Advanced',
+    component: <HeadlessCms />,
+    technologies: [
+      { name: 'React', iconSrc: '/icons/react.svg' },
+      { name: 'Next.js', iconSrc: '/icons/nextjs.svg' },
+      { name: 'Firebase', iconSrc: '/icons/firebase.svg' },
+      { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },
+      { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss.svg' },
+    ],
+    renderImage: true,
+  },
+  {
+    id: 'log-ingestor',
+    title: 'Real-Time Log Ingestor',
+    imageUrls: ['/placeholder.png'],
+    imageAlt: 'A real-time log ingestion pipeline dashboard',
+    imageHint: 'log pipeline dashboard',
+    description: 'A dashboard that displays real-time logs from across the application, demonstrating a scalable system architecture for handling streaming data.',
+    personalNote: 'This project is a real, functioning logging system. Other parts of this portfolio, like page navigations and AI actions, generate logs that are written to Firestore. This dashboard then displays those logs live, showcasing an understanding of real-time data flow and system observability.',
+    difficulty: 'Hard',
+    component: <LogIngestor />,
+    technologies: [
+      { name: 'React', iconSrc: '/icons/react.svg' },
+      { name: 'Next.js', iconSrc: '/icons/nextjs.svg' },
+      { name: 'Firebase', iconSrc: '/icons/firebase.svg' },
+      { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },
+      { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss.svg' },
+    ],
+    renderImage: true,
+  },
+  {
+    id: 'payment-ledger',
+    title: 'Payment Ledger Simulation',
+    imageUrls: ['/placeholder.png'],
+    imageAlt: 'A payment ledger showing double-entry bookkeeping',
+    imageHint: 'payment ledger bank backend',
+    description: 'A simulation of a banking backend using double-entry bookkeeping to ensure transactional integrity.',
+    personalNote: 'This project demonstrates a critical backend concept: how to handle financial transactions safely. It simulates ACID-compliant operations using client-side state, preventing issues like "double-spending" through idempotency checks. It is a vital showcase of understanding the logic required for reliable and robust systems.',
+    difficulty: 'Advanced',
+    component: <PaymentLedger />,
+    technologies: [
+      { name: 'React', iconSrc: '/icons/react.svg' },
+      { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },
+      { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss.svg' },
+    ],
+    renderImage: true,
+  },
+  {
+    id: 'digital-asset-manager',
+    title: 'Digital Asset Manager',
+    imageUrls: ['/placeholder.png'],
+    imageAlt: 'A file management system with folders and files',
+    imageHint: 'file manager cloud storage',
+    description: 'A Google Drive clone where you can upload files, create folders, and share links.',
+    personalNote: 'This project was a deep dive into handling file uploads and asynchronous operations. Building the recursive folder structure was a fun challenge that really tested my understanding of React components. It also demonstrates key skills in working with cloud storage and managing binary data.',
+    difficulty: 'Advanced',
+    component: <DigitalAssetManager />,
+    technologies: [
+      { name: 'React', iconSrc: '/icons/react.svg' },
+      { name: 'Next.js', iconSrc: '/icons/nextjs.svg' },
+      { name: 'Firebase', iconSrc: '/icons/firebase.svg' },
+      { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },
+      { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss.svg' },
+    ],
+    renderImage: true,
+  },
+  {
+    id: 'inventory-dashboard',
+    title: 'Inventory Management Dashboard',
+    imageUrls: ['/placeholder.png'],
+    imageAlt: 'Inventory dashboard with charts and product tables',
+    imageHint: 'dashboard inventory management',
+    description: 'A data-heavy dashboard for managing warehouse inventory, products, and suppliers.',
+    personalNote: 'This project is a powerful demonstration of handling complex, real-world data scenarios. It uses TanStack Table for a fully-featured data grid (sorting, filtering, pagination) and Recharts for data visualization, which are essential skills for most web development jobs.',
+    difficulty: 'Advanced',
+    component: <InventoryDashboard />,
+    technologies: [
+      { name: 'React', iconSrc: '/icons/react.svg' },
+      { name: 'Next.js', iconSrc: '/icons/nextjs.svg' },
+      { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },
+      { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss.svg' },
+      { name: 'Recharts', iconSrc: '/icons/recharts.svg' },
+      { name: '@tanstack/table', iconSrc: '/icons/react-query.svg' },
+      { name: 'Faker.js', iconSrc: '/icons/faker.svg' },
+    ],
+    renderImage: true,
+  },
+  {
+    id: 'booking-calendar',
+    title: 'Booking & Scheduling App',
+    imageUrls: ['/placeholder.png'],
+    imageAlt: 'A booking calendar interface',
+    imageHint: 'booking calendar schedule',
+    description: 'A Calendly-like app to manage availability and let others book 30-minute slots.',
+    personalNote: 'Handling timezones, overlapping slots, and generating availability is a notoriously difficult part of web development. This project demonstrates how to manage those complexities using a date library and a simulated backend.',
+    difficulty: 'Hard',
+    component: <BookingCalendar />,
+    technologies: [
+      { name: 'React', iconSrc: '/icons/react.svg' },
+      { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },
+      { name: 'date-fns', iconSrc: '/icons/date-fns.svg' },
+      { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss.svg' },
+    ],
+    renderImage: true,
+  },
+  {
+    id: 'memory-matrix',
+    title: 'Memory Matrix',
+    imageUrls: ['/placeholder.png'],
+    imageAlt: 'A memory matrix game grid',
+    imageHint: 'memory game grid pattern',
+    description: 'A pattern of tiles will flash. Test your memory by repeating the sequence. Each round gets longer!',
+    personalNote: 'This is a great exercise in managing game state and timed, asynchronous events in React. The challenge is handling the different phases (watching, repeating) and giving the user clear feedback.',
+    difficulty: 'Medium',
+    component: <MemoryMatrix />,
+    technologies: [
+      { name: 'React', iconSrc: '/icons/react.svg' },
+      { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },
+      { name: 'Framer Motion', iconSrc: '/icons/framer.svg' },
+      { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss.svg' },
+    ],
+    renderImage: true,
+  },
+  {
+    id: 'connect-four',
+    title: 'Connect 4',
+    imageUrls: ['/placeholder.png'],
+    imageAlt: 'Connect 4 game board',
+    imageHint: 'connect four board game',
+    description: 'The classic two-player game. Drop your pieces into the grid and try to get four in a row before your opponent does.',
+    personalNote: 'This was a great exercise in algorithm design. The "gravity" logic for dropping pieces and, especially, the win-detection logic for checking all possible four-in-a-row combinations, were fun challenges to solve efficiently.',
+    difficulty: 'Easy',
+    component: <ConnectFour />,
+    technologies: [
+      { name: 'React', iconSrc: '/icons/react.svg' },
+      { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },
+      { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss.svg' },
+    ],
+    renderImage: true,
+  },
+  {
+    id: 'sudoku-solver',
+    title: 'Sudoku Solver Visualization',
+    imageUrls: ['/placeholder.png'],
+    imageAlt: 'A Sudoku board being solved by an algorithm',
+    imageHint: 'sudoku board algorithm',
+    description: 'Watch a backtracking algorithm solve a Sudoku puzzle in real-time, visualizing its "thinking" process as it tries and retracts numbers.',
+    personalNote: 'This project is a great way to understand recursion and backtracking. Using a generator function to `yield` each step of the algorithm to React for rendering was a fun and powerful technique for visualizing complex logic.',
+    difficulty: 'Advanced',
+    component: <SudokuSolver />,
+    technologies: [
+      { name: 'React', iconSrc: '/icons/react.svg' },
+      { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },
+      { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss.svg' },
+    ],
+    renderImage: true,
+  },
+  {
+    id: 'binary-vs-linear-search',
+    title: 'Binary vs. Linear Search Racer',
+    imageUrls: ['/placeholder.png'],
+    imageAlt: 'A race between two search algorithms',
+    imageHint: 'bar chart race algorithm',
+    description: 'A visual race to find a target value in a sorted array, comparing the speed of linear search (O(n)) against binary search (O(log n)).',
+    personalNote: 'This is a perfect, simple visualization of a core computer science concept. Watching the binary search "highlighter" jump around and find the target almost instantly while the linear search crawls along is incredibly satisfying and educational.',
+    difficulty: 'Easy',
+    component: <BinaryVsLinearSearch />,
+    technologies: [
+      { name: 'React', iconSrc: '/icons/react.svg' },
+      { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },
+      { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss.svg' },
+    ],
+    renderImage: true,
+  },
+  {
+    id: 'fractal-tree',
+    title: 'Fractal Tree Grower',
+    imageUrls: ['/placeholder.png'],
+    imageAlt: 'A recursively drawn fractal tree',
+    imageHint: 'fractal tree recursion',
+    description: 'An interactive visualization that grows a fractal tree based on recursive rules. Adjust the branch angle and shrink factor to create different tree species.',
+    personalNote: 'This project is a beautiful and simple demonstration of recursion. It\'s mesmerizing to watch how a few simple rules can create such complex and organic-looking patterns. It\'s a great example of the intersection of math, code, and nature.',
+    difficulty: 'Medium',
+    component: <FractalTree />,
+    technologies: [
+      { name: 'React', iconSrc: '/icons/react.svg' },
+      { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },
+      { name: 'HTML5 Canvas', iconSrc: '/icons/html5.svg' },
+      { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss.svg' },
+    ],
+    renderImage: true,
+  },
+  {
+    id: 'voice-controlled-tetris',
+    title: 'Voice-Controlled Tetris',
+    imageUrls: ['/placeholder.png'],
+    imageAlt: 'Voice-controlled Tetris game',
+    imageHint: 'tetris game voice control',
+    description: 'Classic Tetris, but you have to shout commands: "LEFT!", "RIGHT!", "ROTATE!", "DROP!".',
+    personalNote: 'This was a hilarious and frustrating experiment in using the Web Speech API. The challenge is handling the recognition delay and preventing accidental commands while still keeping the game playable. It\'s a great example of creative and slightly chaotic UI/UX design.',
+    difficulty: 'Hard',
+    component: <VoiceControlledTetris />,
+    technologies: [
+      { name: 'React', iconSrc: '/icons/react.svg' },
+      { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },
+      { name: 'Web Speech API', iconSrc: '/icons/mic.svg' },
+      { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss.svg' },
+    ],
+    renderImage: true,
+  },
+  {
+    id: 'githistory-visualizer',
+    title: 'GitHistory Visualizer',
+    imageUrls: ['/placeholder.png'],
+    imageAlt: 'A visualization of a Git repository\'s history',
+    imageHint: 'git history data visualization',
+    description: 'An animated visualization that plays back the commit history of a software project, showing files as an evolving, galaxy-like node graph.',
+    personalNote: 'This project was a deep dive into data visualization and animation. It uses the D3.js library for a force-directed graph layout, giving the file nodes a "zero-gravity" feel. Framer Motion then animates the nodes and "code particles" to bring the history to life. It\'s a beautiful way to see how a project grows and changes over time.',
+    difficulty: 'Advanced',
+    component: <GitHistoryVisualizer />,
+    technologies: [
+      { name: 'React', iconSrc: '/icons/react.svg' },
+      { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },
+      { name: 'D3.js', iconSrc: '/icons/d3.svg' },
+      { name: 'Framer Motion', iconSrc: '/icons/framer.svg' },
+      { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss.svg' },
+    ],
+    renderImage: true,
+  },
+  {
+    id: 'infinite-canvas',
+    title: 'Infinite ASCII Canvas',
+    imageUrls: ['/placeholder.png'],
+    imageAlt: 'An infinite canvas for placing ASCII characters',
+    imageHint: 'infinite grid canvas ascii',
+    description: 'An endless whiteboard where you can scroll forever and place text characters anywhere.',
+    personalNote: 'This project was a deep dive into virtualization. Instead of rendering millions of DOM elements, it only draws the cells currently visible in the viewport, allowing it to handle a seemingly infinite grid with high performance. It\'s a fun blend of old-school ASCII art and modern web tech.',
+    difficulty: 'Advanced',
+    component: <InfiniteCanvas />,
+    technologies: [
+      { name: 'React', iconSrc: '/icons/react.svg' },
+      { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },
+      { name: 'HTML5 Canvas', iconSrc: '/icons/html5.svg' },
+      { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss.svg' },
+    ],
+    renderImage: true,
+  },
+  {
+    id: 'time-capsule',
+    title: 'Digital Time Capsule',
+    imageUrls: ['/placeholder.png'],
+    imageAlt: 'A digital time capsule interface',
+    imageHint: 'time capsule future message',
+    description: 'Leave an encrypted message for the future that can only be unlocked after a specific date.',
+    personalNote: 'This project is a fascinating blend of sentimentality and security. The challenge lies in creating a secure "gatekeeper" API that respects the unlock date while ensuring the client-side encryption is robust. It\'s a promise to the future, written in code.',
+    difficulty: 'Advanced',
+    component: <TimeCapsuleProject />,
+    technologies: [
+      { name: 'React', iconSrc: '/icons/react.svg' },
+      { name: 'Next.js', iconSrc: '/icons/nextjs.svg' },
+      { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },
+      { name: 'crypto-js', iconSrc: '/icons/lock.svg' },
+      { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss.svg' },
+      { name: 'Firebase', iconSrc: '/icons/firebase.svg' },
+    ],
+    renderImage: true,
+  },
+  {
+    id: 'code-racer',
+    title: 'Code Racer',
+    imageUrls: ['/placeholder.png'],
+    imageAlt: 'A code typing game interface',
+    imageHint: 'code typing game speed',
+    description: 'A competitive typing game where you race against others by typing actual code snippets as fast as you can.',
+    personalNote: 'This project is a fun way to practice typing accuracy and speed with real-world code. It uses the Monaco editor, the same engine that powers VS Code, to provide an authentic coding feel. The next step is to add real-time multiplayer ghosts!',
+    difficulty: 'Advanced',
+    component: <CodeRacer />,
+    technologies: [
+      { name: 'React', iconSrc: '/icons/react.svg' },
+      { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },
+      { name: 'Monaco Editor', iconSrc: '/icons/vscode.svg' },
+      { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss.svg' },
+      { name: 'Firebase', iconSrc: '/icons/firebase.svg' },
+    ],
+    renderImage: true,
+  },
+  {
+    id: 'ascii-webcam',
+    title: 'Retro ASCII Webcam',
+    imageUrls: ['/placeholder.png'],
+    imageAlt: 'A webcam feed rendered in ASCII characters',
+    imageHint: 'webcam ascii art matrix',
+    description: 'Renders your webcam feed in real-time using ASCII characters for a retro, hacker aesthetic.',
+    personalNote: 'This project is a fun intersection of modern browser APIs and old-school visuals. The main challenge is processing video frames efficiently to create a smooth, real-time effect without lagging the browser.',
+    difficulty: 'Hard',
+    component: <AsciiWebcam />,
+    technologies: [
+      { name: 'React', iconSrc: '/icons/react.svg' },
+      { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },
+      { name: 'HTML5 Canvas', iconSrc: '/icons/html5.svg' },
+      { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss.svg' },
+    ],
+    renderImage: true,
+  },
+  {
+    id: 'pathfinding-visualizer',
+    title: 'Pathfinding Visualizer',
+    imageUrls: ['/placeholder.png'],
+    imageAlt: 'A grid with a visualized pathfinding algorithm',
+    imageHint: 'grid algorithm pathfinding',
+    description: 'Watch algorithms like Dijkstra\'s find the shortest path through a maze you create.',
+    personalNote: 'This is a classic computer science project that\'s incredibly satisfying to watch. It makes abstract graph traversal algorithms tangible and visual, which I find very cool.',
+    difficulty: 'Hard',
+    component: <PathfindingVisualizer />,
+    technologies: [
+      { name: 'React', iconSrc: '/icons/react.svg' },
+      { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },
+      { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss.svg' },
+    ],
+    renderImage: true,
+  },
+  {
+    id: 'speed-tester',
+    title: 'Speed Tester',
+    imageUrls: ['/placeholder.png'],
+    imageAlt: 'Speed tester for CPS and keyboard WPM',
+    imageHint: 'speed test keyboard mouse',
+    description: 'A simple app to test your clicks-per-second and typing speed (WPM).',
+    personalNote: 'This is a fun, classic project to measure and improve your input speed. It provides instant feedback and is a great way to warm up or compete with friends.',
+    difficulty: 'Easy',
+    component: <SpeedTester />,
+    technologies: [
+      { name: 'React', iconSrc: '/icons/react.svg' },
+      { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },
+      { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss.svg' },
+    ],
+    renderImage: true,
+  },
+  {
+    id: 'spotify-playlist-generator',
+    title: 'Vibe-Based Spotify Playlist Generator',
+    imageUrls: ['/placeholder.png'],
+    imageAlt: 'Spotify playlist generator interface',
+    imageHint: 'spotify music playlist',
+    description: 'Generates playlists based on weather, location, or a specific color using the Spotify API.',
+    personalNote: 'This project combines several APIs to create a unique music discovery experience. It handles OAuth for Spotify, fetches external data for "vibes", and uses it all to curate a personalized playlist.',
+    difficulty: 'Advanced',
+    component: <SpotifyPlaylistGenerator />,
+    technologies: [
+      { name: 'React', iconSrc: '/icons/react.svg' },
+      { name: 'Next.js', iconSrc: '/icons/nextjs.svg' },
+      { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },
+      { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss.svg' },
+      { name: 'Spotify API', iconSrc: '/icons/spotify.svg' },
+      { name: 'Framer Motion', iconSrc: '/icons/framer.svg' },
+    ],
+    renderImage: true,
+  },
+  {
+    id: 'ecommerce-dashboard',
+    title: 'E-commerce Dashboard',
+    imageUrls: ['/placeholder.png'],
+    imageAlt: 'E-commerce dashboard with charts and tables',
+    imageHint: 'dashboard charts data',
+    description: 'A mock e-commerce admin dashboard with data tables, charts, and key metrics.',
+    personalNote: 'This project is a great demonstration of handling complex data, creating professional-looking UIs with charts and tables, and managing a more "enterprise-level" application state.',
+    difficulty: 'Advanced',
+    component: <EcommerceDashboard />,
+    technologies: [
+      { name: 'React', iconSrc: '/icons/react.svg' },
+      { name: 'Next.js', iconSrc: '/icons/nextjs.svg' },
+      { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },
+      { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss.svg' },
+      { name: 'Recharts', iconSrc: '/icons/recharts.svg' },
+      { name: '@tanstack/table', iconSrc: '/icons/react-query.svg' },
+    ],
+    renderImage: true,
+  },
+  {
+    id: 'sorting-visualizer',
+    title: 'Sorting Algorithm Visualizer',
+    imageUrls: ['/placeholder.png'],
+    imageAlt: 'Sorting algorithm visualizer with bars',
+    imageHint: 'bar chart data algorithm',
+    description: 'Watch sorting algorithms like Bubble Sort, Merge Sort, and Quick Sort in action with this interactive visualizer.',
+    personalNote: 'This project is a great way to understand computer science fundamentals. It makes abstract algorithms tangible and even a bit mesmerizing to watch, especially with the sound effects.',
+    difficulty: 'Hard',
+    component: <SortingVisualizer />,
+    technologies: [
+      { name: 'React', iconSrc: '/icons/react.svg' },
+      { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },
+      { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss.svg' },
+    ],
+    renderImage: true,
+  },
+  {
+    id: 'website-status-checker',
+    title: 'Website Status Checker',
+    imageUrls: ['/placeholder.png'],
+    imageAlt: 'Website status checker interface',
+    imageHint: 'uptime monitor website status',
+    description: 'Enter a URL to check if a website is down for just you or for everyone, with pings from multiple global regions.',
+    personalNote: 'A classic developer utility. It\'s a practical project that demonstrates understanding of network requests and presenting status information clearly.',
+    difficulty: 'Medium',
+    component: <WebsiteStatusChecker />,
+    technologies: [
+      { name: 'React', iconSrc: '/icons/react.svg' },
+      { name: 'Next.js', iconSrc: '/icons/nextjs.svg' },
+      { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss.svg' },
+    ],
+    renderImage: true,
+  },
+  {
     id: 'useless-ui-playground',
     title: 'Useless UI Playground',
     imageUrls: ['/placeholder.png'],
@@ -553,7 +553,7 @@ const projectsData: Project[] = [
     ],
     renderImage: true,
   },
-    {
+  {
     id: 'down-detector-detector',
     title: 'Down Detector Detector',
     imageUrls: ['/placeholder.png'],
@@ -570,7 +570,7 @@ const projectsData: Project[] = [
     ],
     renderImage: true,
   },
-    {
+  {
     id: 'doom-emulator',
     title: 'DOOM (1993) Emulator',
     imageUrls: ['/placeholder.png'],
@@ -587,7 +587,7 @@ const projectsData: Project[] = [
     ],
     renderImage: true,
   },
-    {
+  {
     id: 'deck-building-roguelike',
     title: 'Deck-Builder Adventure',
     imageUrls: ['/placeholder.png'],
@@ -692,7 +692,7 @@ const projectsData: Project[] = [
     ],
     renderImage: true,
   },
-   {
+  {
     id: 'budget-planner',
     title: 'Interactive Budget Planner',
     imageUrls: ['https://i.imgur.com/KxJk9oU.png'],
@@ -710,7 +710,7 @@ const projectsData: Project[] = [
     ],
     renderImage: true,
   },
-   {
+  {
     id: 'github-profile-finder',
     title: 'GitHub Profile Finder',
     imageUrls: ['https://i.imgur.com/Y4EEw5S.png'],
@@ -761,7 +761,7 @@ const projectsData: Project[] = [
     ],
     renderImage: true,
   },
-    {
+  {
     id: 'todo-list',
     title: 'To-Do List App',
     imageUrls: ['https://i.imgur.com/k4DRQvj.png'],
@@ -928,9 +928,9 @@ const projectsData: Project[] = [
     difficulty: 'Medium',
     component: <SimpleTextAnimator />,
     technologies: [
-        { name: 'React', iconSrc: '/icons/react.svg' },
-        { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },
-        { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss.svg' },
+      { name: 'React', iconSrc: '/icons/react.svg' },
+      { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },
+      { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss.svg' },
     ],
     renderImage: true,
   },
@@ -946,9 +946,9 @@ const projectsData: Project[] = [
     difficulty: 'Hard',
     component: <FractalRenderer />,
     technologies: [
-        { name: 'React', iconSrc: '/icons/react.svg' },
-        { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },
-        { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss.svg' },
+      { name: 'React', iconSrc: '/icons/react.svg' },
+      { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },
+      { name: 'Tailwind CSS', iconSrc: '/icons/tailwindcss.svg' },
     ],
     renderImage: true,
   },
@@ -1015,13 +1015,13 @@ const projectsData: Project[] = [
     difficulty: 'Medium',
     component: <ThisDayInHistory />,
     technologies: [
-        { name: 'React', iconSrc: '/icons/react.svg' },
-        { name: 'Next.js', iconSrc: '/icons/nextjs.svg' },
-        { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },
-        { name: 'date-fns', iconSrc: '/icons/date-fns.svg' },
+      { name: 'React', iconSrc: '/icons/react.svg' },
+      { name: 'Next.js', iconSrc: '/icons/nextjs.svg' },
+      { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },
+      { name: 'date-fns', iconSrc: '/icons/date-fns.svg' },
     ],
     renderImage: true,
-},
+  },
 ];
 
 const difficultyOrder = {
@@ -1041,38 +1041,38 @@ const allProjects = [...projectsData].sort((a, b) => {
 });
 
 const ProjectDetailContent = ({ project }: { project: Project }) => {
-    const handleLaunchProject = (proj: Project) => {
-        if (proj.externalLink) {
-            window.open(proj.externalLink, '_blank', 'noopener,noreferrer');
-        }
-    };
+  const handleLaunchProject = (proj: Project) => {
+    if (proj.externalLink) {
+      window.open(proj.externalLink, '_blank', 'noopener,noreferrer');
+    }
+  };
 
-    return (
-        <div className="p-4 sm:p-8 md:p-12">
-            <h2 className="text-3xl font-bold text-foreground mb-2">{project.title}</h2>
-            <p className="text-muted-foreground text-lg mb-6">{project.description}</p>
-            
-            <div className="space-y-4 my-8">
-              <h3 className="font-semibold text-xl text-primary">How It's Made</h3>
-              <p className="text-muted-foreground leading-relaxed">{project.personalNote}</p>
-            </div>
+  return (
+    <div className="p-4 sm:p-8 md:p-12">
+      <h2 className="text-3xl font-bold text-foreground mb-2">{project.title}</h2>
+      <p className="text-muted-foreground text-lg mb-6">{project.description}</p>
 
-            <div className="mb-8">
-                <h4 className="font-semibold text-xl text-primary mb-3">Technologies Used</h4>
-                <TechStack technologies={project.technologies} />
-            </div>
+      <div className="space-y-4 my-8">
+        <h3 className="font-semibold text-xl text-primary">How It's Made</h3>
+        <p className="text-muted-foreground leading-relaxed">{project.personalNote}</p>
+      </div>
 
-            {project.externalLink && (
-                 <Button
-                    onClick={() => handleLaunchProject(project)}
-                    className="w-full sm:w-auto"
-                  >
-                    <ExternalLink className="mr-2 h-4 w-4" />
-                    Visit Site
-                  </Button>
-            )}
-        </div>
-    );
+      <div className="mb-8">
+        <h4 className="font-semibold text-xl text-primary mb-3">Technologies Used</h4>
+        <TechStack technologies={project.technologies} />
+      </div>
+
+      {project.externalLink && (
+        <Button
+          onClick={() => handleLaunchProject(project)}
+          className="w-full sm:w-auto"
+        >
+          <ExternalLink className="mr-2 h-4 w-4" />
+          Visit Site
+        </Button>
+      )}
+    </div>
+  );
 };
 
 
@@ -1083,7 +1083,7 @@ export default function ProjectsPage() {
   const selectedProject = useMemo(() => {
     return allProjects.find(p => p.id === selectedProjectId) || allProjects[0];
   }, [selectedProjectId]);
-  
+
   const difficultyColors = {
     'Easy': 'text-green-400',
     'Medium': 'text-yellow-400',
@@ -1126,16 +1126,16 @@ export default function ProjectsPage() {
         </AnimateOnScroll>
         {mobileProject && (
           <Dialog open={!!mobileProject} onOpenChange={(isOpen) => !isOpen && setMobileProject(null)}>
-             <DialogContent className="p-0 sm:p-0 w-screen h-screen max-w-full max-h-full sm:max-w-full sm:max-h-full rounded-none sm:rounded-none flex flex-col" hideDefaultClose>
+            <DialogContent className="p-0 sm:p-0 w-screen h-screen max-w-full max-h-full sm:max-w-full sm:max-h-full rounded-none sm:rounded-none flex flex-col" hideDefaultClose>
               <DialogHeader className="p-4 border-b flex-row items-center space-y-0 shrink-0">
-                  <DialogClose asChild>
-                    <Button variant="ghost" size="icon">
-                      <ArrowLeft className="h-5 w-5" />
-                      <span className="sr-only">Back</span>
-                    </Button>
-                  </DialogClose>
-                  <DialogTitle className="flex-grow text-center pr-10">{mobileProject.title}</DialogTitle>
-                  <DialogDescription className="sr-only">{mobileProject.description}</DialogDescription>
+                <DialogClose asChild>
+                  <Button variant="ghost" size="icon">
+                    <ArrowLeft className="h-5 w-5" />
+                    <span className="sr-only">Back</span>
+                  </Button>
+                </DialogClose>
+                <DialogTitle className="flex-grow text-center pr-10">{mobileProject.title}</DialogTitle>
+                <DialogDescription className="sr-only">{mobileProject.description}</DialogDescription>
               </DialogHeader>
               <ScrollArea className="flex-grow min-h-0">
                 {mobileProject.component}
@@ -1146,7 +1146,7 @@ export default function ProjectsPage() {
       </div>
 
       {/* Desktop View: Two-column layout */}
-       <div className="hidden md:flex flex-row flex-grow h-[calc(100vh-80px)]">
+      <div className="hidden md:flex flex-row flex-grow h-[calc(100vh-80px)]">
         {/* Left Column: Project List */}
         <div className="w-1/3 max-w-sm border-r border-border flex flex-col h-full">
           <AnimateOnScroll className="p-6 border-b shrink-0">
@@ -1184,8 +1184,16 @@ export default function ProjectsPage() {
           <ScrollArea className="h-full">
             <AnimateOnScroll className="flex flex-col min-h-full" delay={0.2}>
               {/* Project Component Area */}
-              <div className="flex-grow flex items-center justify-center relative bg-muted/20 border-b border-border min-h-[60vh] hover:bg-muted/30 transition-colors duration-300">
-                {selectedProject.component}
+              <div className={cn(
+                "flex-grow relative bg-muted/20 border-b border-border min-h-[60vh] transition-colors duration-300",
+                selectedProject.id === 'infinite-canvas' ? "flex items-stretch" : "flex items-center justify-center hover:bg-muted/30"
+              )}>
+                <div className={cn(
+                  "w-full h-full",
+                  selectedProject.id === 'infinite-canvas' ? "absolute inset-0" : "relative flex items-center justify-center"
+                )}>
+                  {selectedProject.component}
+                </div>
               </div>
 
               {/* Project Details Area */}

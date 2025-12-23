@@ -6,7 +6,7 @@
 
 **Self-taught developer passionate about creative coding and AI • 50+ interactive projects • 60+ technologies**
 
-[![Next.js](https://img.shields.io/badge/Next.js-15.2-black?style=for-the-badge&logo=next.js&logoColor=white)](https://nextjs.org/)
+[![Next.js](https://img.shields.io/badge/Next.js-16.0-black?style=for-the-badge&logo=next.js&logoColor=white)](https://nextjs.org/)
 [![React](https://img.shields.io/badge/React-18.3-61DAFB?style=for-the-badge&logo=react&logoColor=black)](https://react.dev/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.0-3178C6?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![Firebase](https://img.shields.io/badge/Firebase-11.3-FFCA28?style=for-the-badge&logo=firebase&logoColor=black)](https://firebase.google.com/)
@@ -610,6 +610,41 @@ Turn code snippets into beautiful, shareable images using Next.js API routes.
 
 ---
 
+---
+
+### 📂 Open Source
+
+A collection of high-quality open-source contributions and templates available on GitHub.
+
+- **Genkit Next.js Starter**: Production-ready starter for building AI apps with Google's Genkit.
+- **Firebase UI for React**: Reusable, accessible components (headless UI) for Firebase auth and data.
+- **Portfolio Template**: The modular, highly customizable code powering this very website.
+- **CLI Tool Boilerplate**: Type-safe node.js CLI starter with argument parsing and colorized output.
+
+---
+
+### 🚀 Startup / Community
+
+**Silent Horizon Community Project**
+A massive scale Minecraft server project where I served as **Lead Software Engineer & Project Manager**.
+
+- **Infrastructure**: Proxmox, Ubuntu VPS, Docker, Pterodactyl Panel (Self-hosted).
+- **Tech Stack**: Java (PaperMC), MySQL, Redis, Next.js (Webstore).
+- **Leadership**: Managed a team of 15+ staff, developers, and builders.
+- **Scale**: Handled high-traffic events and DDoS mitigation.
+
+---
+
+### 🎨 Artworks Gallery
+
+A digital art exhibition space showcasing creative visuals with a theatre-like experience.
+
+- **Interactive Gallery**: Built with **Embla Carousel** for smooth, gesture-controlled navigation.
+- **Cinematic Mode**: Full-screen viewing with keyboard shortcuts.
+- **Metadata Integration**: Displays technical details and artistic context for each piece.
+
+---
+
 ### 👤 About Page
 
 - **📖 Personal Story** - Journey into art and code, inspired by digital artists
@@ -633,7 +668,7 @@ Turn code snippets into beautiful, shareable images using Next.js API routes.
 ## 🛠️ Tech Stack
 
 ### **Core Framework**
-- **Next.js 15.2.3** - React framework with App Router
+- **Next.js 16.0.10** - React framework with App Router
 - **React 18.3** - UI library
 - **TypeScript 5** - Type safety
 - **Tailwind CSS 3.4** - Utility-first styling

@@ -8,6 +8,10 @@ import { cn } from '@/lib/utils';
 import { Label } from '../ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { PlayerNameModal } from '@/components/multiplayer/PlayerNameModal';
+import { LeaderboardPanel } from '@/components/multiplayer/LeaderboardPanel';
+import { submitScore, formatters } from '@/lib/firebase/leaderboards';
+import { useDatabase } from '@/firebase/provider';
 
 type Player = 'X' | 'O';
 type Board = (Player | null)[];
@@ -20,16 +24,16 @@ const winningCombos = [
 ];
 
 const checkWinner = (currentBoard: Board): Player | 'draw' | null => {
-    for (const combo of winningCombos) {
-      const [a, b, c] = combo;
-      if (currentBoard[a] && currentBoard[a] === currentBoard[b] && currentBoard[a] === currentBoard[c]) {
-        return currentBoard[a];
-      }
+  for (const combo of winningCombos) {
+    const [a, b, c] = combo;
+    if (currentBoard[a] && currentBoard[a] === currentBoard[b] && currentBoard[a] === currentBoard[c]) {
+      return currentBoard[a];
     }
-    if (currentBoard.every(cell => cell !== null)) {
-      return 'draw';
-    }
-    return null;
+  }
+  if (currentBoard.every(cell => cell !== null)) {
+    return 'draw';
+  }
+  return null;
 };
 
 const VsAIGame: React.FC = () => {
@@ -37,8 +41,33 @@ const VsAIGame: React.FC = () => {
   const [isPlayerTurn, setIsPlayerTurn] = useState(true);
   const [winner, setWinner] = useState<Player | 'draw' | null>(null);
   const [difficulty, setDifficulty] = useState<Difficulty>('Medium');
+  const [wins, setWins] = useState({ Easy: 0, Medium: 0, Hard: 0 });
+  const [totalGames, setTotalGames] = useState(0);
 
-   const handlePlayerMove = (index: number) => {
+  // Multiplayer
+  const [playerName, setPlayerName] = useState('');
+  const [playerId, setPlayerId] = useState('');
+  const [showNameModal, setShowNameModal] = useState(false);
+  const db = useDatabase();
+
+  useEffect(() => {
+    const savedName = localStorage.getItem('player_name');
+    const savedId = localStorage.getItem('player_id');
+    if (savedName && savedId) {
+      setPlayerName(savedName);
+      setPlayerId(savedId);
+    } else {
+      setShowNameModal(true);
+    }
+    const saved = localStorage.getItem('tictactoe_stats');
+    if (saved) {
+      const stats = JSON.parse(saved);
+      setWins(stats.wins || { Easy: 0, Medium: 0, Hard: 0 });
+      setTotalGames(stats.totalGames || 0);
+    }
+  }, []);
+
+  const handlePlayerMove = (index: number) => {
     if (board[index] || !isPlayerTurn || winner) return;
     const newBoard = [...board];
     newBoard[index] = 'X';
@@ -46,6 +75,26 @@ const VsAIGame: React.FC = () => {
     const gameWinner = checkWinner(newBoard);
     if (gameWinner) setWinner(gameWinner);
     else setIsPlayerTurn(false);
+
+    // Update stats on win
+    if (gameWinner === 'X') {
+      const newWins = { ...wins, [difficulty]: wins[difficulty] + 1 };
+      const newTotal = totalGames + 1;
+      setWins(newWins);
+      setTotalGames(newTotal);
+      localStorage.setItem('tictactoe_stats', JSON.stringify({ wins: newWins, totalGames: newTotal }));
+
+      // Submit to leaderboard
+      if (db && playerName && playerId) {
+        submitScore(db, 'tic-tac-toe', playerId, playerName, {
+          winsEasy: newWins.Easy,
+          winsMedium: newWins.Medium,
+          winsHard: newWins.Hard,
+          totalGames: newTotal,
+          totalWins: newWins.Easy + newWins.Medium + newWins.Hard
+        }).catch(err => console.error('Failed to submit score:', err));
+      }
+    }
   };
 
   useEffect(() => {
@@ -53,39 +102,39 @@ const VsAIGame: React.FC = () => {
       const timeoutId = setTimeout(() => {
         const availableMoves = board.map((cell, index) => cell === null ? index : null).filter(val => val !== null) as number[];
         if (availableMoves.length === 0) return;
-        
+
         let move: number;
         // Simple AI logic
         if (difficulty === 'Easy') {
-            move = availableMoves[Math.floor(Math.random() * availableMoves.length)];
+          move = availableMoves[Math.floor(Math.random() * availableMoves.length)];
         } else { // Medium/Hard AI
-            // Check for winning move
-            let winningMove = -1;
-            for(const m of availableMoves) {
-                const nextBoard = [...board]; nextBoard[m] = 'O';
-                if(checkWinner(nextBoard) === 'O') { winningMove = m; break; }
+          // Check for winning move
+          let winningMove = -1;
+          for (const m of availableMoves) {
+            const nextBoard = [...board]; nextBoard[m] = 'O';
+            if (checkWinner(nextBoard) === 'O') { winningMove = m; break; }
+          }
+          if (winningMove !== -1) move = winningMove;
+          else {
+            // Check for blocking move
+            let blockingMove = -1;
+            for (const m of availableMoves) {
+              const nextBoard = [...board]; nextBoard[m] = 'X';
+              if (checkWinner(nextBoard) === 'X') { blockingMove = m; break; }
             }
-            if(winningMove !== -1) move = winningMove;
-            else {
-                // Check for blocking move
-                let blockingMove = -1;
-                for(const m of availableMoves) {
-                    const nextBoard = [...board]; nextBoard[m] = 'X';
-                    if(checkWinner(nextBoard) === 'X') { blockingMove = m; break; }
-                }
-                if(blockingMove !== -1) move = blockingMove;
-                else { // Medium: random, Hard: strategic
-                    if (difficulty === 'Hard' && availableMoves.includes(4)) move = 4;
-                    else if (difficulty === 'Hard') {
-                        const corners = [0,2,6,8].filter(i => availableMoves.includes(i));
-                        if(corners.length > 0) move = corners[Math.floor(Math.random() * corners.length)];
-                        else move = availableMoves[Math.floor(Math.random() * availableMoves.length)];
-                    }
-                    else move = availableMoves[Math.floor(Math.random() * availableMoves.length)];
-                }
+            if (blockingMove !== -1) move = blockingMove;
+            else { // Medium: random, Hard: strategic
+              if (difficulty === 'Hard' && availableMoves.includes(4)) move = 4;
+              else if (difficulty === 'Hard') {
+                const corners = [0, 2, 6, 8].filter(i => availableMoves.includes(i));
+                if (corners.length > 0) move = corners[Math.floor(Math.random() * corners.length)];
+                else move = availableMoves[Math.floor(Math.random() * availableMoves.length)];
+              }
+              else move = availableMoves[Math.floor(Math.random() * availableMoves.length)];
             }
+          }
         }
-        
+
         const newBoard = [...board];
         newBoard[move] = 'O';
         setBoard(newBoard);
@@ -96,32 +145,32 @@ const VsAIGame: React.FC = () => {
       return () => clearTimeout(timeoutId);
     }
   }, [isPlayerTurn, board, winner, difficulty]);
-  
+
   const restartGame = () => {
     setBoard(Array(9).fill(null));
     setIsPlayerTurn(true);
     setWinner(null);
   };
-  
+
   const status = winner ? (winner === 'draw' ? "It's a Draw!" : `${winner} Wins!`) : (isPlayerTurn ? "Your Turn (X)" : "AI's Turn (O)");
 
   return (
     <div className="flex flex-col items-center gap-4">
-        <div className="grid grid-cols-3 gap-2">
-            {board.map((cell, index) => (
-            <button key={index} onClick={() => handlePlayerMove(index)}
-                className={cn("w-20 h-20 sm:w-24 sm:h-24 flex items-center justify-center text-4xl font-bold rounded-lg transition-colors", "bg-muted hover:bg-muted/80", !cell && !winner && isPlayerTurn && "cursor-pointer", cell || winner || !isPlayerTurn ? "cursor-not-allowed" : "")} disabled={!!cell || !!winner || !isPlayerTurn}>
-                {cell === 'X' && <X className="w-12 h-12 text-blue-400" />}
-                {cell === 'O' && <Circle className="w-12 h-12 text-yellow-400" />}
-            </button>
-            ))}
-        </div>
-        <p className="text-lg font-semibold h-8">{status}</p>
-        <div className="flex gap-2 items-center">
-            <Label>AI Difficulty</Label>
-            <Select value={difficulty} onValueChange={(v) => setDifficulty(v as Difficulty)}><SelectTrigger className="w-32"><SelectValue/></SelectTrigger><SelectContent><SelectItem value="Easy">Easy</SelectItem><SelectItem value="Medium">Medium</SelectItem><SelectItem value="Hard">Hard</SelectItem></SelectContent></Select>
-        </div>
-        <Button onClick={restartGame} variant="outline"><RefreshCw className="mr-2 h-4 w-4" />New Game</Button>
+      <div className="grid grid-cols-3 gap-2">
+        {board.map((cell, index) => (
+          <button key={index} onClick={() => handlePlayerMove(index)}
+            className={cn("w-20 h-20 sm:w-24 sm:h-24 flex items-center justify-center text-4xl font-bold rounded-lg transition-colors", "bg-muted hover:bg-muted/80", !cell && !winner && isPlayerTurn && "cursor-pointer", cell || winner || !isPlayerTurn ? "cursor-not-allowed" : "")} disabled={!!cell || !!winner || !isPlayerTurn}>
+            {cell === 'X' && <X className="w-12 h-12 text-blue-400" />}
+            {cell === 'O' && <Circle className="w-12 h-12 text-yellow-400" />}
+          </button>
+        ))}
+      </div>
+      <p className="text-lg font-semibold h-8">{status}</p>
+      <div className="flex gap-2 items-center">
+        <Label>AI Difficulty</Label>
+        <Select value={difficulty} onValueChange={(v) => setDifficulty(v as Difficulty)}><SelectTrigger className="w-32"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="Easy">Easy</SelectItem><SelectItem value="Medium">Medium</SelectItem><SelectItem value="Hard">Hard</SelectItem></SelectContent></Select>
+      </div>
+      <Button onClick={restartGame} variant="outline"><RefreshCw className="mr-2 h-4 w-4" />New Game</Button>
     </div>
   );
 };
@@ -134,8 +183,43 @@ const TicTacToe: React.FC = () => {
           <CardTitle className="text-2xl text-center font-bold text-primary">Tic-Tac-Toe</CardTitle>
         </CardHeader>
         <CardContent>
-            <VsAIGame />
+          <VsAIGame />
         </CardContent>
+      </Card>
+
+      <PlayerNameModal
+        isOpen={showNameModal}
+        onNameSubmit={handleNameSubmit}
+        gameName="Tic-Tac-Toe"
+        description="Enter your name to track your wins on the global leaderboard!"
+      />
+
+      <Card className="w-full max-w-lg mx-auto mt-6 shadow-2xl">
+        <Tabs defaultValue="stats">
+          <TabsList className="w-full grid grid-cols-2">
+            <TabsTrigger value="stats">Stats</TabsTrigger>
+            <TabsTrigger value="leaderboard"><Trophy className="mr-2 h-4 w-4" />Leaderboard</TabsTrigger>
+          </TabsList>
+          <TabsContent value="stats" className="p-4">
+            <div className="grid grid-cols-3 gap-4 text-center">
+              <div><p className="text-2xl font-bold text-green-400">{wins.Easy}</p><p className="text-xs">Easy Wins</p></div>
+              <div><p className="text-2xl font-bold text-yellow-400">{wins.Medium}</p><p className="text-xs">Medium Wins</p></div>
+              <div><p className="text-2xl font-bold text-red-400">{wins.Hard}</p><p className="text-xs">Hard Wins</p></div>
+            </div>
+          </TabsContent>
+          <TabsContent value="leaderboard" className="p-4">
+            <LeaderboardPanel
+              gameId="tic-tac-toe"
+              currentPlayerId={playerId}
+              metrics={[
+                { key: 'totalWins', label: 'Total Wins', format: formatters.number },
+                { key: 'winsHard', label: 'Hard Wins', format: formatters.number },
+                { key: 'winsMedium', label: 'Medium Wins', format: formatters.number },
+                { key: 'totalGames', label: 'Games Played', format: formatters.number }
+              ]}
+            />
+          </TabsContent>
+        </Tabs>
       </Card>
     </div>
   );

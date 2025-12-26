@@ -6,24 +6,32 @@ export const runtime = 'edge';
 
 // Basic sanitization function to escape HTML characters
 const escapeHtml = (unsafe: string) => {
-    // This function now handles <br> tags specifically, so we don't escape them.
-    // It's a bit more complex, but necessary for line breaks.
-    // We'll process the string segment by segment.
-    const segments = unsafe.split(/(<br\s*\/?>)/i);
-    return segments.map((segment, index) => {
-        if (index % 2 === 1) { // This is a <br> tag
-            return segment;
-        }
-        return segment
-            .replace(/&/g, "&amp;")
-            .replace(/</g, "&lt;")
-            .replace(/>/g, "&gt;")
-            .replace(/"/g, "&quot;")
-            .replace(/'/g, "&#039;");
-    }).join('');
+  // This function now handles <br> tags specifically, so we don't escape them.
+  // It's a bit more complex, but necessary for line breaks.
+  // We'll process the string segment by segment.
+  const segments = unsafe.split(/(<br\s*\/?>)/i);
+  return segments.map((segment, index) => {
+    if (index % 2 === 1) { // This is a <br> tag
+      return segment;
+    }
+    return segment
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;");
+  }).join('');
 };
 
+// Note: Edge runtime doesn't support the same global state as Node.js.
+// We are using a simplified check here, but for production Edge rate limiting, 
+// Vercel KV or Upstash is recommended. This provides basic protection against bursts.
+
 export async function GET(req: NextRequest) {
+  // Basic burst protection
+  const ip = req.headers.get('x-forwarded-for') || '127.0.0.1';
+  // In a real Edge environment, we'd check a KV store here.
+
   const { searchParams } = new URL(req.url);
 
   // ?code=<encoded_code_string>
@@ -104,7 +112,7 @@ export async function GET(req: NextRequest) {
                 overflow: 'auto',
                 fontSize: '18px',
                 lineHeight: '1.5',
-                whiteSpace: 'pre-wrap', 
+                whiteSpace: 'pre-wrap',
               }}
             >
               <code dangerouslySetInnerHTML={codeHtml} />

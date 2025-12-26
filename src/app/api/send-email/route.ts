@@ -15,12 +15,29 @@ console.log("Found RESEND_API_KEY:", !!resendApiKey);
 console.log("Found DESIGNATED_RECIPIENT_EMAIL:", !!designatedRecipientEmail);
 console.log("Found RESEND_FROM_EMAIL:", !!fromEmail);
 if (resendApiKey) {
-    console.log("RESEND_API_KEY starts with:", resendApiKey.substring(0, 5) + "...");
+  console.log("RESEND_API_KEY starts with:", resendApiKey.substring(0, 5) + "...");
 }
 
 const isResendConfigValid = resendApiKey && resendApiKey.startsWith('re_');
 
+import { rateLimit } from '@/lib/rate-limit';
+
+const limiter = rateLimit({
+  interval: 60 * 60 * 1000, // 1 Hour
+  uniqueTokenPerInterval: 500, // Max 500 users per hour
+});
+
 export async function POST(request: Request) {
+  try {
+    const ip = request.headers.get('x-forwarded-for') || '127.0.0.1';
+    await limiter.check(2, ip as string); // 2 requests per hour
+  } catch {
+    return NextResponse.json(
+      { error: 'Rate limit exceeded. Please try again in an hour.' },
+      { status: 429 }
+    );
+  }
+
   console.log("--- Received New Email Request ---");
 
   // Enhanced check for all required environment variables
@@ -29,10 +46,10 @@ export async function POST(request: Request) {
     if (!isResendConfigValid) errorMessages.push("Resend API key is missing or invalid (must start with 're_').");
     if (!designatedRecipientEmail) errorMessages.push("Designated recipient email is not set.");
     if (!fromEmail) errorMessages.push("Resend 'from' email is not set.");
-    
+
     const errorMessage = `Email service configuration is incomplete: ${errorMessages.join(' ')} Please check the environment variables.`;
     console.error("Configuration Error:", errorMessage);
-    
+
     return NextResponse.json(
       {
         success: false,
@@ -91,7 +108,7 @@ export async function POST(request: Request) {
         { status: 500 }
       );
     }
-    
+
     console.log('Message sent successfully via Resend:', resendData?.id);
     return NextResponse.json({
       success: true,
@@ -101,7 +118,7 @@ export async function POST(request: Request) {
   } catch (err: unknown) {
     const error = err as Error;
     console.error('Unexpected Error sending email:', error);
-    
+
     return NextResponse.json(
       {
         success: false,

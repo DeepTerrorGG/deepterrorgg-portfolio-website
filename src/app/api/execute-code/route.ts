@@ -1,9 +1,25 @@
 
 import { NextResponse } from 'next/server';
 
+import { rateLimit } from '@/lib/rate-limit';
+
 const PISTON_API_URL = 'https://emkc.org/api/v2/piston/execute';
 
+const limiter = rateLimit({
+  interval: 60 * 1000, // 1 Minute
+  uniqueTokenPerInterval: 500,
+});
+
 export async function POST(request: Request) {
+  try {
+    const ip = request.headers.get('x-forwarded-for') || '127.0.0.1';
+    await limiter.check(10, ip as string); // 10 requests per minute
+  } catch {
+    return NextResponse.json(
+      { error: 'Rate limit exceeded. Please wait a moment.' },
+      { status: 429 }
+    );
+  }
   try {
     const { language, code } = await request.json();
 

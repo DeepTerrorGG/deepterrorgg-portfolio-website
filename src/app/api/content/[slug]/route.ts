@@ -8,10 +8,26 @@ const sanitizeSlug = (slug: string) => {
   return slug.replace(/[^a-zA-Z0-9-_]/g, '');
 };
 
+import { rateLimit } from '@/lib/rate-limit';
+
+const limiter = rateLimit({
+  interval: 60 * 1000, // 1 Minute
+  uniqueTokenPerInterval: 500,
+});
+
 export async function GET(
   request: Request,
   { params }: { params: { slug: string } }
 ) {
+  try {
+    const ip = request.headers.get('x-forwarded-for') || '127.0.0.1';
+    await limiter.check(60, ip as string); // 60 requests per minute (high limit for reads)
+  } catch {
+    return NextResponse.json(
+      { error: 'Rate limit exceeded.' },
+      { status: 429 }
+    );
+  }
   try {
     const { firestore } = initializeFirebase();
     const rawSlug = params.slug;
@@ -19,16 +35,16 @@ export async function GET(
     if (!rawSlug) {
       return NextResponse.json({ error: 'Content type slug is required.' }, { status: 400 });
     }
-    
+
     // Sanitize the slug before using it in the query
     const slug = sanitizeSlug(rawSlug);
     if (slug !== rawSlug) {
-        // If sanitization changed the slug, it might be a sign of a malicious attempt.
-        // We can choose to block it or proceed with the sanitized version.
-        // For this portfolio, proceeding with the sanitized slug is safe enough.
-        console.warn(`Original slug "${rawSlug}" was sanitized to "${slug}".`);
+      // If sanitization changed the slug, it might be a sign of a malicious attempt.
+      // We can choose to block it or proceed with the sanitized version.
+      // For this portfolio, proceeding with the sanitized slug is safe enough.
+      console.warn(`Original slug "${rawSlug}" was sanitized to "${slug}".`);
     }
-    
+
 
     const entriesQuery = query(collection(firestore, 'content_entries'), where('slug', '==', slug));
     const querySnapshot = await getDocs(entriesQuery);
@@ -45,7 +61,7 @@ export async function GET(
         updatedAt: doc.data().updatedAt.toDate(),
       }
     }));
-    
+
     return NextResponse.json(data);
 
   } catch (error: any) {

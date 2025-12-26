@@ -33,6 +33,8 @@ type HistoryData = {
 
 type Category = 'events' | 'births' | 'deaths';
 
+import DOMPurify from 'dompurify';
+
 const EventList: React.FC<{ events: HistoryEvent[] | undefined }> = ({ events }) => {
   if (!events || events.length === 0) {
     return <p className="text-muted-foreground text-center py-8">No events found for this day.</p>;
@@ -52,7 +54,7 @@ const EventList: React.FC<{ events: HistoryEvent[] | undefined }> = ({ events })
           className="grid grid-cols-[80px_1fr] gap-4 items-start"
         >
           <span className="text-primary font-bold text-lg text-right">{event.year}</span>
-          <p className="text-muted-foreground text-sm leading-relaxed" dangerouslySetInnerHTML={{ __html: event.text }} />
+          <p className="text-muted-foreground text-sm leading-relaxed" dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(event.text) }} />
         </motion.li>
       ))}
     </motion.ul>
@@ -72,7 +74,7 @@ const ThisDayInHistory: React.FC = () => {
     setError(null);
     const month = (d.getMonth() + 1).toString().padStart(2, '0');
     const day = d.getDate().toString().padStart(2, '0');
-    
+
     // Using Wikipedia's On This Day API
     const url = `https://api.wikimedia.org/feed/v1/wikipedia/en/onthisday/all/${month}/${day}`;
 
@@ -86,7 +88,7 @@ const ThisDayInHistory: React.FC = () => {
         throw new Error(`Failed to fetch data from Wikipedia API. Status: ${response.status}`);
       }
       const result = await response.json();
-      
+
       // The Wikipedia API has a slightly different structure
       const formattedData: HistoryData = {
         events: result.events,
@@ -105,7 +107,7 @@ const ThisDayInHistory: React.FC = () => {
   useEffect(() => {
     fetchHistory(date);
   }, [date, fetchHistory]);
-  
+
   const currentEvents = useMemo(() => data?.[activeTab], [data, activeTab]);
 
   return (

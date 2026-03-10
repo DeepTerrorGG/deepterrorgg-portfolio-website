@@ -50,7 +50,7 @@ const codeExamples: Record<string, Partial<Record<CodeLanguage, string>>> = {
     'LOLCODE': 'HAI 1.2\nCAN HAS STDIO?\nVISIBLE "HAI WORLD!"\nKTHXBYE',
     'Whitespace': '   \t\n\t\n \t\t\t\n\t\n  \n\n\n',
     'Brainf*ck': '++++++++[>++++[>++>+++>+++>+<<<<-]>+>+>->>+[<]<-]>>.>---.+++++++..+++.>>.<-.<.+++.------.--------.>>+.>++.',
-    'ArnoldC': 'IT\'S SHOWTIME\nTALK TO THE HAND "Hello World"\nYOU HAVE BEEN TERMINATED',
+    'ArnoldC': 'IT\'S SHOWTIME\nTALK TO THE HAND "Hello, World!"\nYOU HAVE BEEN TERMINATED',
     'Shakespeare': 'The Uncodable Play.\n\n\t\t\t\t\tHamlet, the Coder.\n\t\t\t\t\tPuck, his Commentator.\n\n\t\t\t\t\t[Enter Hamlet and Puck]\n\n[Scene I: The monologue.]\n\nHamlet:\n You are as lovely as the sum of yourself and a warm summer\'s day.\n Open your heart! Speak your mind! Let us proceed to a new scene.\n\n[Scene II: The dialogue.]\n\nPuck:\n Speak your mind! Let us return to the previous scene.\n\n[Exeunt]',
   },
   "Bubble Sort": {
@@ -328,35 +328,35 @@ ctx.fillRect(10, 10, 150, 80);`,
 };
 
 const helloWorldOutputs: Partial<Record<CodeLanguage, string>> = {
-    'JavaScript': 'Hello, World!',
-    'Python': 'Hello, World!',
-    'TypeScript': 'Hello, World!',
-    'Java': 'Hello, World!',
-    'C#': 'Hello, World!',
-    'C++': 'Hello, World!',
-    'Go': 'Hello, World!',
-    'Rust': 'Hello, World!',
-    'C': 'Hello, World!',
-    'Swift': 'Hello, World!',
-    'HTML': '<h1>Hello, World!</h1>',
-    'CSS': 'The content "Hello, World!" would be displayed on the page.',
-    'SQL': 'Hello, World!',
-    'Assembly': 'Hello, World!',
-    'Lisp': 'Hello, World!',
-    'Fortran': ' Hello, World!',
-    'COBOL': 'Hello, World!',
-    'Pascal': 'Hello, World!',
-    'Perl': 'Hello, World!',
-    'LOLCODE': 'HAI WORLD!',
-    'Whitespace': 'Hello, World!',
-    'Brainf*ck': 'Hello World!',
-    'ArnoldC': 'Hello World',
-    'Shakespeare': 'Hello, World!',
+  'JavaScript': 'Hello, World!',
+  'Python': 'Hello, World!',
+  'TypeScript': 'Hello, World!',
+  'Java': 'Hello, World!',
+  'C#': 'Hello, World!',
+  'C++': 'Hello, World!',
+  'Go': 'Hello, World!',
+  'Rust': 'Hello, World!',
+  'C': 'Hello, World!',
+  'Swift': 'Hello, World!',
+  'HTML': '<h1>Hello, World!</h1>',
+  'CSS': 'The content "Hello, World!" would be displayed on the page.',
+  'SQL': 'Hello, World!',
+  'Assembly': 'Hello, World!',
+  'Lisp': 'Hello, World!',
+  'Fortran': ' Hello, World!',
+  'COBOL': 'Hello, World!',
+  'Pascal': 'Hello, World!',
+  'Perl': 'Hello, World!',
+  'LOLCODE': 'HAI WORLD!',
+  'Whitespace': 'Hello, World!',
+  'Brainf*ck': 'Hello World!',
+  'ArnoldC': 'Hello World',
+  'Shakespeare': 'Hello, World!',
 };
 
 interface CodeEditorProps {
-    onGenerate: () => boolean;
-    usageLeft: number;
+  onGenerate: () => boolean;
+  usageLeft: number;
 }
 
 export default function CodeEditor({ onGenerate, usageLeft }: CodeEditorProps) {
@@ -371,10 +371,10 @@ export default function CodeEditor({ onGenerate, usageLeft }: CodeEditorProps) {
   const [loading, setLoading] = useState(false);
   const [isExecuting, setIsExecuting] = useState(false);
   const [activeTab, setActiveTab] = useState('ai-output');
-  
+
   const editorRef = useRef<any>(null);
   const monaco = useMonaco();
-  
+
 
   useEffect(() => {
     const examplesForLang = exampleTypes.filter(exType => codeExamples[exType]?.[language] !== undefined);
@@ -385,7 +385,7 @@ export default function CodeEditor({ onGenerate, usageLeft }: CodeEditorProps) {
       currentExample = examplesForLang[0] || '';
       setExample(currentExample);
     }
-    
+
     const newCode = currentExample ? (codeExamples[currentExample]?.[language] || `// No example for ${language}.`) : `// No examples for ${language}.`;
     setCode(newCode);
   }, [language, example]);
@@ -393,64 +393,64 @@ export default function CodeEditor({ onGenerate, usageLeft }: CodeEditorProps) {
   const handleRunCode = async () => {
     setConsoleOutput([]);
     setActiveTab('console-output');
-    
+
     if (unsupportedLanguages.includes(language)) {
-        if (example === "Hello World" && helloWorldOutputs[language]) {
-            setConsoleOutput([helloWorldOutputs[language]!]);
-        } else {
-             setConsoleOutput([
-                `Execution for ${language} is not supported by the Piston API.`
-            ]);
-        }
-        return;
+      if (example === "Hello World" && helloWorldOutputs[language]) {
+        setConsoleOutput([helloWorldOutputs[language]!]);
+      } else {
+        setConsoleOutput([
+          `Execution for ${language} is not currently supported by our code execution environment (Piston API).`
+        ]);
+      }
+      return;
     }
 
     setIsExecuting(true);
 
     try {
-        const response = await fetch('/api/execute-code', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                language: language.toLowerCase(),
-                code: code,
-            }),
-        });
+      const response = await fetch('/api/execute-code', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          language: language.toLowerCase(),
+          code: code,
+        }),
+      });
 
-        if (!response.ok) {
-            const errorResult = await response.json();
-            throw new Error(errorResult.error || 'Failed to execute code.');
-        }
+      if (!response.ok) {
+        const errorResult = await response.json();
+        throw new Error(errorResult.error || 'Failed to execute code.');
+      }
 
-        const result = await response.json();
-        const output = result.output || 'Code executed successfully with no console output.';
-        setConsoleOutput(output.split('\n'));
+      const result = await response.json();
+      const output = result.output || 'Code executed successfully with no console output.';
+      setConsoleOutput(output.split('\n'));
 
     } catch (error: any) {
-        setConsoleOutput([`Error: ${error.message}`]);
-        toast({
-            title: 'Execution Error',
-            description: error.message,
-            variant: 'destructive',
-        });
+      setConsoleOutput([`Error: ${error.message}`]);
+      toast({
+        title: 'Execution Error',
+        description: error.message,
+        variant: 'destructive',
+      });
     } finally {
-        setIsExecuting(false);
+      setIsExecuting(false);
     }
   };
 
 
   const handleSubmit = async () => {
     if (code.trim() === '') {
-        toast({
-            title: 'No Code Provided',
-            description: 'Please enter some code in the editor before running a task.',
-            variant: 'destructive'
-        });
-        return;
+      toast({
+        title: 'No Code Provided',
+        description: 'Please enter some code in the editor before running a task.',
+        variant: 'destructive'
+      });
+      return;
     }
-    
+
     if (!onGenerate()) return;
 
     setLoading(true);
@@ -464,9 +464,9 @@ export default function CodeEditor({ onGenerate, usageLeft }: CodeEditorProps) {
       } else {
         setAiOutput("The AI did not return a response. This could be due to a safety filter or a network issue. Please try modifying your code or task.");
         toast({
-            title: 'Empty Response',
-            description: 'The AI did not return a response.',
-            variant: 'destructive',
+          title: 'Empty Response',
+          description: 'The AI did not return a response.',
+          variant: 'destructive',
         });
       }
     } catch (error: any) {
@@ -481,128 +481,128 @@ export default function CodeEditor({ onGenerate, usageLeft }: CodeEditorProps) {
       setLoading(false);
     }
   };
-  
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full h-full p-4 bg-card">
-        {/* Editor Panel */}
-        <div className="flex flex-col gap-4 h-full">
-            <div className="relative flex-grow font-mono text-lg rounded-lg bg-black/30 border border-gray-700 overflow-hidden min-h-[400px]">
-                 <Editor
-                    height="100%"
-                    value={code}
-                    onChange={(value) => setCode(value || '')}
-                    onMount={(editor) => { editorRef.current = editor; editor.focus(); }}
-                    language={language.toLowerCase()}
-                    theme="vs-dark"
-                    options={{
-                        minimap: { enabled: false },
-                        fontSize: 14,
-                        wordWrap: 'on',
-                        scrollBeyondLastLine: false,
-                        padding: { top: 16, bottom: 16 }
-                    }}
-                />
-            </div>
-            <div className="flex flex-col sm:flex-row gap-2">
-                <div className='flex-grow'>
-                    <Label htmlFor='example-select' className='text-xs text-muted-foreground'>Example</Label>
-                    <Select value={example} onValueChange={(v) => setExample(v)}>
-                        <SelectTrigger id='example-select' className="w-full">
-                            <SelectValue placeholder="Select an example" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            {availableExamples.map(t => <SelectItem key={t} value={t} className="capitalize">{t}</SelectItem>)}
-                        </SelectContent>
-                    </Select>
-                </div>
-                <div className='flex-grow'>
-                    <Label htmlFor='lang-select' className='text-xs text-muted-foreground'>Language</Label>
-                    <Select value={language} onValueChange={(v) => setLanguage(v as CodeLanguage)}>
-                        <SelectTrigger id='lang-select' className="w-full">
-                            <SelectValue placeholder="Select language" />
-                        </SelectTrigger>
-                        <SelectContent>
-                           {languages.map(l => <SelectItem key={l} value={l}>{l}</SelectItem>)}
-                        </SelectContent>
-                    </Select>
-                </div>
-                 <div className='flex-grow'>
-                    <Label htmlFor='task-select' className='text-xs text-muted-foreground'>AI Task</Label>
-                    <Select value={task} onValueChange={(v) => setTask(v as CodeTask)}>
-                        <SelectTrigger id='task-select' className="w-full capitalize">
-                            <SelectValue placeholder="Select a task" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            {tasks.map(t => <SelectItem key={t} value={t} className="capitalize">{t}</SelectItem>)}
-                        </SelectContent>
-                    </Select>
-                </div>
-            </div>
-             <div className="flex gap-2">
-                <Button onClick={handleRunCode} variant="secondary" className="w-full" disabled={isExecuting || loading}>
-                    {isExecuting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Play className="mr-2 h-4 w-4" />} Run Code
-                </Button>
-                <Button onClick={handleSubmit} disabled={loading || isExecuting || usageLeft <= 0} className="w-full">
-                    {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Wand2 className="mr-2 h-4 w-4" />}
-                     {usageLeft > 0 ? 'Run AI Task' : 'Limit Reached'}
-                </Button>
-            </div>
+      {/* Editor Panel */}
+      <div className="flex flex-col gap-4 h-full">
+        <div className="relative flex-grow font-mono text-lg rounded-lg bg-black/30 border border-gray-700 overflow-hidden min-h-[400px]">
+          <Editor
+            height="100%"
+            value={code}
+            onChange={(value) => setCode(value || '')}
+            onMount={(editor) => { editorRef.current = editor; editor.focus(); }}
+            language={language.toLowerCase()}
+            theme="vs-dark"
+            options={{
+              minimap: { enabled: false },
+              fontSize: 14,
+              wordWrap: 'on',
+              scrollBeyondLastLine: false,
+              padding: { top: 16, bottom: 16 }
+            }}
+          />
         </div>
+        <div className="flex flex-col sm:flex-row gap-2">
+          <div className='flex-grow'>
+            <Label htmlFor='example-select' className='text-xs text-muted-foreground'>Example</Label>
+            <Select value={example} onValueChange={(v) => setExample(v)}>
+              <SelectTrigger id='example-select' className="w-full">
+                <SelectValue placeholder="Select an example" />
+              </SelectTrigger>
+              <SelectContent>
+                {availableExamples.map(t => <SelectItem key={t} value={t} className="capitalize">{t}</SelectItem>)}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className='flex-grow'>
+            <Label htmlFor='lang-select' className='text-xs text-muted-foreground'>Language</Label>
+            <Select value={language} onValueChange={(v) => setLanguage(v as CodeLanguage)}>
+              <SelectTrigger id='lang-select' className="w-full">
+                <SelectValue placeholder="Select language" />
+              </SelectTrigger>
+              <SelectContent>
+                {languages.map(l => <SelectItem key={l} value={l}>{l}</SelectItem>)}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className='flex-grow'>
+            <Label htmlFor='task-select' className='text-xs text-muted-foreground'>AI Task</Label>
+            <Select value={task} onValueChange={(v) => setTask(v as CodeTask)}>
+              <SelectTrigger id='task-select' className="w-full capitalize">
+                <SelectValue placeholder="Select a task" />
+              </SelectTrigger>
+              <SelectContent>
+                {tasks.map(t => <SelectItem key={t} value={t} className="capitalize">{t}</SelectItem>)}
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+        <div className="flex gap-2">
+          <Button onClick={handleRunCode} variant="secondary" className="w-full" disabled={isExecuting || loading}>
+            {isExecuting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Play className="mr-2 h-4 w-4" />} Run Code
+          </Button>
+          <Button onClick={handleSubmit} disabled={loading || isExecuting || usageLeft <= 0} className="w-full">
+            {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Wand2 className="mr-2 h-4 w-4" />}
+            {usageLeft > 0 ? 'Run AI Task' : 'Limit Reached'}
+          </Button>
+        </div>
+      </div>
 
-        {/* Output Panel */}
-        <div className="flex flex-col border border-border rounded-md shadow-inner overflow-hidden h-full">
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-grow flex flex-col h-full bg-black/30">
-            <TabsList className="m-2 shrink-0 grid w-full grid-cols-2 bg-muted/30">
-              <TabsTrigger value="ai-output">
-                <Wand2 className="mr-2 h-4 w-4" /> AI Output
-              </TabsTrigger>
-              <TabsTrigger value="console-output">
-                <Terminal className="mr-2 h-4 w-4" /> Console
-              </TabsTrigger>
-            </TabsList>
-            <TabsContent value="ai-output" className="flex-grow overflow-auto mt-0">
-              <ScrollArea className="h-full">
-                <div className="p-4 h-full">
-                  {loading ? (
-                    <div className="flex items-center justify-center h-full flex-col gap-4 text-muted-foreground">
-                      <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                      <p>AI is thinking...</p>
-                    </div>
-                  ) : aiOutput ? (
-                    <article className="prose prose-sm prose-invert max-w-none">
-                      <ReactMarkdown remarkPlugins={[remarkGfm]}>{aiOutput}</ReactMarkdown>
-                    </article>
-                  ) : (
-                    <div className="flex items-center justify-center h-full text-muted-foreground">
-                      <p>AI output will appear here.</p>
-                    </div>
-                  )}
-                </div>
-              </ScrollArea>
-            </TabsContent>
-            <TabsContent value="console-output" className="flex-grow overflow-auto mt-0">
-               <ScrollArea className="h-full">
-                 <div className="p-4 h-full font-mono text-xs text-foreground">
-                    {isExecuting ? (
-                       <div className="flex items-center justify-center h-full flex-col gap-4 text-muted-foreground">
-                          <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                          <p>Executing code...</p>
-                        </div>
-                    ) : consoleOutput.length > 0 ? (
-                        consoleOutput.map((line, index) => (
-                            <div key={index} className="border-b border-border/20 p-1 whitespace-pre-wrap">{line}</div>
-                        ))
-                    ) : (
-                        <div className="flex items-center justify-center h-full text-muted-foreground">
-                            <p>Code output will appear here.</p>
-                        </div>
-                    )}
-                 </div>
-               </ScrollArea>
-            </TabsContent>
-          </Tabs>
-        </div>
-        <style jsx global>{`
+      {/* Output Panel */}
+      <div className="flex flex-col border border-border rounded-md shadow-inner overflow-hidden h-full">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-grow flex flex-col h-full bg-black/30">
+          <TabsList className="m-2 shrink-0 grid w-full grid-cols-2 bg-muted/30">
+            <TabsTrigger value="ai-output">
+              <Wand2 className="mr-2 h-4 w-4" /> AI Output
+            </TabsTrigger>
+            <TabsTrigger value="console-output">
+              <Terminal className="mr-2 h-4 w-4" /> Console
+            </TabsTrigger>
+          </TabsList>
+          <TabsContent value="ai-output" className="flex-grow overflow-auto mt-0">
+            <ScrollArea className="h-full">
+              <div className="p-4 h-full">
+                {loading ? (
+                  <div className="flex items-center justify-center h-full flex-col gap-4 text-muted-foreground">
+                    <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                    <p>AI is thinking...</p>
+                  </div>
+                ) : aiOutput ? (
+                  <article className="prose prose-sm prose-invert max-w-none">
+                    <ReactMarkdown remarkPlugins={[remarkGfm]}>{aiOutput}</ReactMarkdown>
+                  </article>
+                ) : (
+                  <div className="flex items-center justify-center h-full text-muted-foreground">
+                    <p>AI output will appear here.</p>
+                  </div>
+                )}
+              </div>
+            </ScrollArea>
+          </TabsContent>
+          <TabsContent value="console-output" className="flex-grow overflow-auto mt-0">
+            <ScrollArea className="h-full">
+              <div className="p-4 h-full font-mono text-xs text-foreground">
+                {isExecuting ? (
+                  <div className="flex items-center justify-center h-full flex-col gap-4 text-muted-foreground">
+                    <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                    <p>Executing code...</p>
+                  </div>
+                ) : consoleOutput.length > 0 ? (
+                  consoleOutput.map((line, index) => (
+                    <div key={index} className="border-b border-border/20 p-1 whitespace-pre-wrap">{line}</div>
+                  ))
+                ) : (
+                  <div className="flex items-center justify-center h-full text-muted-foreground">
+                    <p>Code output will appear here.</p>
+                  </div>
+                )}
+              </div>
+            </ScrollArea>
+          </TabsContent>
+        </Tabs>
+      </div>
+      <style jsx global>{`
             .prose code {
                 font-size: 0.8rem;
             }

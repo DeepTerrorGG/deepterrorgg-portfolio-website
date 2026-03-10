@@ -53,7 +53,7 @@ const AnimatedNavLink = ({ href, label, isActive }: { href: string; label: strin
           </span>
         ))}
       </span>
-       {isActive && (
+      {isActive && (
         <div
           className="absolute inset-x-2 bottom-0 h-0.5 bg-primary"
           aria-hidden="true"
@@ -72,86 +72,86 @@ export default function Header() {
     // Log page navigation
     const pageName = navLinks.find(link => link.href === pathname)?.label || 'Page';
     if (pathname !== '/') {
-        logActivity(`Navigated to ${pageName}`);
+      logActivity(`Navigated to ${pageName}`);
     }
   }, [pathname]);
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b border-border/30">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex h-20 items-center justify-between">
-            
-            {/* Logo */}
-            <PreloadingLink href="/" className="flex items-center gap-2 group transition-transform hover:scale-105">
-              <span className="text-xl font-bold text-foreground group-hover:text-primary transition-colors">
-                DeepTerrorGG
-              </span>
-            </PreloadingLink>
-            
-            {/* Desktop Navigation */}
-            <nav className="hidden md:flex items-center space-x-1 p-1">
-              {navLinks.map((link) => (
-                <AnimatedNavLink
-                  key={link.href}
-                  href={link.href}
-                  label={link.label}
-                  isActive={pathname === link.href}
-                />
-              ))}
-            </nav>
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex h-20 items-center justify-between">
 
-            {/* Mobile Navigation - Burger menu */}
-            <div className="md:hidden">
-              <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
-                <SheetTrigger asChild>
-                  <Button variant="ghost" size="icon" aria-label="Open menu">
-                    <Menu className="h-6 w-6" />
-                  </Button>
-                </SheetTrigger>
-                <SheetContent side="right" className="bg-background border-l border-border p-0 w-full max-w-xs sm:max-w-sm">
-                  <SheetHeader className="p-6 border-b border-border">
-                    <SheetTitle>
-                       <PreloadingLink href="/" className="flex items-center gap-2" onClick={() => setIsMobileMenuOpen(false)}>
-                        <span className="text-lg font-bold text-foreground">
-                          Navigation
-                        </span>
-                      </PreloadingLink>
-                    </SheetTitle>
-                  </SheetHeader>
-                  <div className="flex flex-col h-full">
-                    <nav className="flex-grow p-6 space-y-2">
-                      {navLinks.map((link) => (
-                        <SheetClose asChild key={link.href}>
-                          <PreloadingLink
-                            href={link.href}
-                            onClick={() => setIsMobileMenuOpen(false)}
-                            className={cn(
-                              'block px-4 py-3 rounded-md text-lg font-medium transition-colors',
-                              pathname === link.href
-                                ? 'bg-primary text-primary-foreground'
-                                : 'text-muted-foreground hover:bg-muted hover:text-foreground'
-                            )}
-                          >
-                            {link.label}
-                          </PreloadingLink>
-                        </SheetClose>
-                      ))}
-                    </nav>
-                     <div className="p-6 border-t border-border mt-auto">
-                        <div className="flex items-center justify-between">
-                            <span className="text-sm text-muted-foreground">© {new Date().getFullYear()} DeepTerrorGG</span>
-                            <div className="flex items-center gap-1 text-green-400">
-                                <Wifi className="h-4 w-4" />
-                                <span className="text-xs">Online</span>
-                            </div>
-                        </div>
+          {/* Logo */}
+          <PreloadingLink href="/" className="flex items-center gap-2 group transition-transform hover:scale-105">
+            <span className="text-xl font-bold text-foreground group-hover:text-primary transition-colors">
+              DeepTerrorGG
+            </span>
+          </PreloadingLink>
+
+          {/* Desktop Navigation */}
+          <nav className="hidden md:flex items-center space-x-1 p-1">
+            {navLinks.map((link) => (
+              <AnimatedNavLink
+                key={link.href}
+                href={link.href}
+                label={link.label}
+                isActive={pathname === link.href}
+              />
+            ))}
+          </nav>
+
+          {/* Mobile Navigation - Burger menu */}
+          <div className="md:hidden">
+            <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
+              <SheetTrigger asChild>
+                <Button variant="ghost" size="icon" aria-label="Open menu">
+                  <Menu className="h-6 w-6" />
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="right" className="bg-background border-l border-border p-0 w-full max-w-xs sm:max-w-sm">
+                <SheetHeader className="p-6 border-b border-border">
+                  <SheetTitle>
+                    <PreloadingLink href="/" className="flex items-center gap-2" onClick={() => setIsMobileMenuOpen(false)}>
+                      <span className="text-lg font-bold text-foreground">
+                        Navigation
+                      </span>
+                    </PreloadingLink>
+                  </SheetTitle>
+                </SheetHeader>
+                <div className="flex flex-col h-full">
+                  <nav className="flex-grow p-6 space-y-2">
+                    {navLinks.map((link) => (
+                      <SheetClose asChild key={link.href}>
+                        <PreloadingLink
+                          href={link.href}
+                          onClick={() => setIsMobileMenuOpen(false)}
+                          className={cn(
+                            'block px-4 py-3 rounded-md text-lg font-medium transition-colors',
+                            pathname === link.href
+                              ? 'bg-primary text-primary-foreground'
+                              : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+                          )}
+                        >
+                          {link.label}
+                        </PreloadingLink>
+                      </SheetClose>
+                    ))}
+                  </nav>
+                  <div className="p-6 border-t border-border mt-auto">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-muted-foreground">© {new Date().getFullYear()} DeepTerrorGG</span>
+                      <div className="flex items-center gap-1 text-green-400">
+                        <Wifi className="h-4 w-4" />
+                        <span className="text-xs">Online</span>
+                      </div>
                     </div>
                   </div>
-                </SheetContent>
-              </Sheet>
-            </div>
+                </div>
+              </SheetContent>
+            </Sheet>
           </div>
         </div>
-      </header>
+      </div>
+    </header>
   );
 }

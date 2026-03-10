@@ -6,8 +6,12 @@ import SectionContainer from '@/components/ui/section-container';
 import { motion } from 'framer-motion';
 import AnimateOnScroll from '@/components/ui/animate-on-scroll';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, Mail, User, ArrowUpToLine, Github, Linkedin, Code, Star, Send, Loader2, Compass, Monitor } from 'lucide-react';
-import SplineShowcase from '@/components/home/spline-showcase';
+import { ArrowRight, Mail, User, ArrowUpToLine, Github, Linkedin, Code, Star, Send, Loader2, Compass, Monitor, Terminal } from 'lucide-react';
+import dynamic from 'next/dynamic';
+const SplineShowcase = dynamic(() => import('@/components/home/spline-showcase'), {
+    ssr: false,
+    loading: () => <div className="bg-muted/20 w-full h-full min-h-[500px]" />
+});
 import type Spline from '@splinetool/react-spline';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import React, { useState, useEffect, useRef } from 'react';
@@ -215,7 +219,7 @@ export default function HomeView() {
         { name: 'Back to Top', icon: <ArrowUpToLine className="h-5 w-5" />, action: () => window.scrollTo({ top: 0, behavior: 'smooth' }) },
     ];
 
-    function onSplineLoad(spline: Spline) {
+    function onSplineLoad(spline: any) {
         const obj = spline.findObjectByName('Gameboy');
         if (obj) {
             // Start the animation by name
@@ -227,28 +231,32 @@ export default function HomeView() {
         <>
             <div className="flex flex-col flex-grow bg-background">
                 {/* Hero Section */}
-                <div className="text-center h-[calc(100vh-80px)] min-h-[700px] flex flex-col justify-center items-center relative">
-                    <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-background" />
-                    <div className="z-10">
+                <div className="relative text-center h-[calc(100vh-80px)] min-h-[700px] flex flex-col justify-center items-center overflow-hidden">
+                    {/* Background Effects */}
+                    <div className="absolute inset-0 z-[-1] aurora-gradient opacity-30" />
+                    <div className="absolute inset-0 bg-gradient-to-b from-transparent via-background/50 to-background" />
+
+                    <div className="z-10 relative">
                         <motion.div
-                            className="relative mb-8"
+                            className="relative mb-8 inline-block"
                             initial={{ opacity: 0, scale: 0.8, y: 20 }}
                             animate={{ opacity: 1, scale: 1, y: 0 }}
                             transition={{ duration: 0.7, delay: 0.2, ease: [0.25, 1, 0.5, 1] }}
                         >
+                            <div className="absolute inset-[-10px] rounded-full bg-primary/20 blur-xl animate-pulse" />
                             <Image
                                 src="https://i.imgur.com/TsFpBse.png"
                                 alt="User avatar"
                                 width={160}
                                 height={160}
-                                className="rounded-full border-4 border-primary shadow-xl object-cover mx-auto filter saturate-125"
+                                className="relative rounded-full border-4 border-primary/50 shadow-2xl object-cover mx-auto filter saturate-125 hover:border-primary transition-colors duration-500"
                                 data-ai-hint="avatar illustration"
                                 priority
                             />
                         </motion.div>
                         <AnimatedHeader text="AI/Fullstack Engineer" />
                         <motion.p
-                            className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto mb-10"
+                            className="text-lg sm:text-xl text-muted-foreground/90 max-w-2xl mx-auto mb-10 text-glow"
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.7, delay: 0.6, ease: [0.25, 1, 0.5, 1] }}
@@ -261,12 +269,12 @@ export default function HomeView() {
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.7, delay: 0.8, ease: [0.25, 1, 0.5, 1] }}
                         >
-                            <Button asChild size="lg">
+                            <Button asChild size="lg" className="rounded-full px-8 shadow-lg shadow-primary/20 hover:shadow-primary/40 transition-all duration-300">
                                 <PreloadingLink href="/projects">
                                     View My Work <ArrowRight className="ml-2 h-5 w-5" />
                                 </PreloadingLink>
                             </Button>
-                            <Button asChild variant="outline" size="lg">
+                            <Button asChild variant="outline" size="lg" className="rounded-full px-8 glass-card hover:bg-white/5 border-white/10">
                                 <PreloadingLink href="/contact">
                                     Get In Touch <Mail className="ml-2 h-5 w-5" />
                                 </PreloadingLink>
@@ -334,60 +342,69 @@ export default function HomeView() {
                                 <CarouselContent>
                                     {featuredProjects.map((project) => (
                                         <CarouselItem key={project.id}>
-                                            <div className="p-1">
-                                                <Card className="bg-[#0d1117]/80 border-border/30 text-slate-300 font-mono shadow-2xl transition-all duration-500 h-full flex flex-col min-h-[480px]">
+                                            <div className="p-1 h-full">
+                                                <Card className="bg-[#050505] border-[#1f1f1f] text-[#a0a0a0] font-mono shadow-xl transition-all duration-500 h-full flex flex-col min-h-[480px] hover:border-[#333333] hover:shadow-2xl hover:shadow-black group/card relative overflow-hidden">
+
+                                                    {/* Subtle top glow on hover */}
+                                                    <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-[#444] to-transparent opacity-0 group-hover/card:opacity-100 transition-opacity duration-500" />
+
                                                     {/* Terminal Header */}
-                                                    <CardHeader className="flex flex-row items-center gap-2 p-3 border-b border-border/30 bg-black/50">
-                                                        <div className="flex gap-1.5">
-                                                            <div className="w-3 h-3 rounded-full bg-red-500"></div>
-                                                            <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
-                                                            <div className="w-3 h-3 rounded-full bg-green-500"></div>
+                                                    <CardHeader className="flex flex-row items-center justify-between gap-2 p-4 border-b border-[#1f1f1f] bg-[#0a0a0a]/50 backdrop-blur-sm rounded-t-lg z-10">
+                                                        <div className="flex items-center gap-3">
+                                                            <Terminal className="h-4 w-4 text-[#555]" />
+                                                            <p className="text-xs font-semibold text-[#888] tracking-widest uppercase">{project.title}</p>
                                                         </div>
-                                                        <p className="text-sm text-slate-400 truncate">{project.title}</p>
+                                                        <div className="flex gap-1.5 opacity-50 group-hover/card:opacity-100 transition-opacity duration-300">
+                                                            <div className="w-2.5 h-2.5 rounded-full bg-[#333]"></div>
+                                                            <div className="w-2.5 h-2.5 rounded-full bg-[#333]"></div>
+                                                            <div className="w-2.5 h-2.5 rounded-full bg-[#333]"></div>
+                                                        </div>
                                                     </CardHeader>
 
-                                                    <CardContent className="p-6 space-y-4 flex-grow">
+                                                    <CardContent className="p-6 space-y-6 flex-grow relative z-10">
                                                         <div>
-                                                            <p className="text-primary flex items-center">
-                                                                <span className="text-cyan-400 mr-2">~/opensource</span>
-                                                                <span className="text-yellow-400">&gt;</span>
-                                                                <span className="ml-2 text-primary font-bold">{project.title}</span>
+                                                            <p className="flex items-start mb-2">
+                                                                <span className="text-[#333] mr-3 select-none">~</span>
+                                                                <span className="text-[#e2e2e2] font-medium leading-relaxed">{project.description}</span>
                                                             </p>
-                                                            <p className="text-slate-400 text-sm mt-1">{project.description}</p>
                                                         </div>
 
                                                         <div>
-                                                            <p className="flex items-center text-yellow-400">
-                                                                <span>&gt;</span>
-                                                                <span className="ml-2 text-slate-300">cat README.md</span>
+                                                            <p className="flex items-center text-[#555] mb-3 text-sm">
+                                                                <span className="mr-2">&gt;</span>
+                                                                <span>cat README.md</span>
                                                             </p>
-                                                            <p className="text-slate-400 text-sm mt-2 pl-4 border-l-2 border-border/30">
-                                                                {project.longDescription}
-                                                            </p>
-                                                        </div>
-
-                                                        <div className="flex flex-wrap items-center gap-6 text-sm pt-2">
-                                                            <div className="flex items-center gap-2">
-                                                                <span className="text-yellow-400">&gt;</span>
-                                                                <Code className="h-4 w-4 text-primary" />
-                                                                <span>{project.language}</span>
+                                                            <div className="relative">
+                                                                <div className="absolute left-0 top-0 bottom-0 w-[1px] bg-[#222]" />
+                                                                <p className="text-[#888] text-sm leading-relaxed pl-5 py-1">
+                                                                    {project.longDescription}
+                                                                </p>
                                                             </div>
-                                                            <div className="flex items-center gap-2">
-                                                                <Star className="h-4 w-4 text-yellow-400" />
-                                                                <span>{project.stars.toLocaleString()} stars</span>
+                                                        </div>
+
+                                                        {/* Tags */}
+                                                        <div className="flex flex-wrap items-center gap-4 text-xs pt-4 border-t border-[#111]">
+                                                            <div className="flex items-center gap-2 bg-[#111] px-3 py-1.5 rounded-sm border border-[#1f1f1f]">
+                                                                <Code className="h-3.5 w-3.5 text-[#666]" />
+                                                                <span className="text-[#aaa]">{project.language}</span>
+                                                            </div>
+                                                            <div className="flex items-center gap-2 bg-[#111] px-3 py-1.5 rounded-sm border border-[#1f1f1f]">
+                                                                <Star className="h-3.5 w-3.5 text-[#666]" />
+                                                                <span className="text-[#aaa]">{project.stars.toLocaleString()}</span>
                                                             </div>
                                                         </div>
                                                     </CardContent>
 
-                                                    <CardFooter className="p-6 pt-0 mt-auto">
-                                                        <Button asChild className="group/btn w-full sm:w-auto bg-primary/10 border-2 border-primary/30 text-primary hover:bg-primary hover:text-primary-foreground hover:shadow-lg hover:shadow-primary/20 transition-all duration-300">
-                                                            <PreloadingLink href={`/opensource`}>
-                                                                <Github className="mr-2 h-4 w-4" />
-                                                                ./view_on_github.sh
-                                                                <ArrowRight className="ml-2 h-4 w-4 opacity-0 -translate-x-2 group-hover/btn:opacity-100 group-hover/btn:translate-x-0 transition-all duration-300" />
+                                                    <CardFooter className="p-6 pt-0 mt-auto relative z-10">
+                                                        <Button asChild className="group/btn w-full sm:w-auto bg-[#111] border border-[#222] text-[#ccc] hover:bg-[#1a1a1a] hover:text-white hover:border-[#444] transition-all duration-300 rounded-sm">
+                                                            <PreloadingLink href="/projects">
+                                                                <Github className="mr-2 h-4 w-4 opacity-70 group-hover/btn:opacity-100" />
+                                                                <span className="font-mono text-xs tracking-wider">VIEW_SOURCE</span>
+                                                                <ArrowRight className="ml-2 h-3 w-3 opacity-0 -translate-x-2 group-hover/btn:opacity-100 group-hover/btn:translate-x-0 transition-all duration-300" />
                                                             </PreloadingLink>
                                                         </Button>
                                                     </CardFooter>
+
                                                 </Card>
                                             </div>
                                         </CarouselItem>
@@ -527,56 +544,63 @@ export default function HomeView() {
                     </SectionContainer>
                 </AnimateOnScroll>
             </div>
-            <footer className="py-20 md:py-24 bg-background">
-                <div className="container mx-auto px-4 text-center">
-                    <h2 className="text-3xl font-bold text-foreground mb-4">You've reached the edge of this world.</h2>
-                    <p className="text-muted-foreground mb-12">What will you do now?</p>
+            <footer className="py-24 md:py-32 relative overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/80 to-background z-[-1]" />
+                <div className="absolute bottom-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-primary/20 to-transparent" />
+
+                <div className="container mx-auto px-4 text-center relative z-10">
+                    <h2 className="text-3xl md:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-b from-white to-white/50 mb-6">You've reached the edge of this world.</h2>
+                    <p className="text-muted-foreground mb-12 text-lg">What will you do now?</p>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-2xl mx-auto">
                         <motion.div whileHover={{ y: -5, scale: 1.02 }} className="h-full">
                             <Card
-                                className="h-full bg-card/50 hover:bg-card/80 border-border/30 hover:border-primary/50 transition-all duration-300 cursor-pointer"
+                                className="h-full bg-card/30 hover:bg-card/50 border-white/5 hover:border-primary/30 transition-all duration-500 cursor-pointer backdrop-blur-sm group"
                                 onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
                             >
-                                <CardContent className="p-6 text-center">
-                                    <ArrowUpToLine className="h-10 w-10 mx-auto text-primary mb-3" />
-                                    <h3 className="text-xl font-semibold">Return to Top</h3>
-                                    <p className="text-sm text-muted-foreground mt-1">Start again from the beginning.</p>
+                                <CardContent className="p-8 text-center">
+                                    <div className="h-12 w-12 mx-auto bg-primary/10 rounded-full flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors">
+                                        <ArrowUpToLine className="h-6 w-6 text-primary" />
+                                    </div>
+                                    <h3 className="text-xl font-semibold text-slate-200">Return to Top</h3>
+                                    <p className="text-sm text-slate-400 mt-2">Start again from the beginning.</p>
                                 </CardContent>
                             </Card>
                         </motion.div>
                         <motion.div whileHover={{ y: -5, scale: 1.02 }} className="h-full">
                             <PreloadingLink href="/projects" className="h-full block">
-                                <Card className="h-full bg-primary/10 hover:bg-primary/20 border-primary/20 hover:border-primary/50 transition-all duration-300">
-                                    <CardContent className="p-6 text-center">
-                                        <Compass className="h-10 w-10 mx-auto text-primary mb-3" />
-                                        <h3 className="text-xl font-semibold">Explore More</h3>
-                                        <p className="text-sm text-muted-foreground mt-1">Discover other projects and demos.</p>
+                                <Card className="h-full bg-primary/5 hover:bg-primary/10 border-primary/20 hover:border-primary/40 transition-all duration-500 backdrop-blur-sm group">
+                                    <CardContent className="p-8 text-center">
+                                        <div className="h-12 w-12 mx-auto bg-primary/10 rounded-full flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors">
+                                            <Compass className="h-6 w-6 text-primary" />
+                                        </div>
+                                        <h3 className="text-xl font-semibold text-slate-200">Explore More</h3>
+                                        <p className="text-sm text-slate-400 mt-2">Discover other projects and demos.</p>
                                     </CardContent>
                                 </Card>
                             </PreloadingLink>
                         </motion.div>
                     </div>
-                    <div className="mt-16 flex justify-center gap-6">
+                    <div className="mt-20 flex justify-center gap-6">
                         <Link href="https://github.com/DeepTerrorGG" target="_blank" rel="noopener noreferrer">
-                            <Button variant="ghost" size="icon" className="h-12 w-12 rounded-full hover:bg-muted/50">
-                                <Github className="h-6 w-6 text-muted-foreground hover:text-foreground transition-colors" />
+                            <Button variant="ghost" size="icon" className="h-12 w-12 rounded-full hover:bg-white/10 hover:scale-110 transition-all text-slate-400 hover:text-white">
+                                <Github className="h-6 w-6" />
                                 <span className="sr-only">GitHub</span>
                             </Button>
                         </Link>
                         <Link href="https://www.linkedin.com" target="_blank" rel="noopener noreferrer">
-                            <Button variant="ghost" size="icon" className="h-12 w-12 rounded-full hover:bg-muted/50">
-                                <Linkedin className="h-6 w-6 text-muted-foreground hover:text-foreground transition-colors" />
+                            <Button variant="ghost" size="icon" className="h-12 w-12 rounded-full hover:bg-white/10 hover:scale-110 transition-all text-slate-400 hover:text-white">
+                                <Linkedin className="h-6 w-6" />
                                 <span className="sr-only">LinkedIn</span>
                             </Button>
                         </Link>
                         <Link href="mailto:example@gmail.com">
-                            <Button variant="ghost" size="icon" className="h-12 w-12 rounded-full hover:bg-muted/50">
-                                <Mail className="h-6 w-6 text-muted-foreground hover:text-foreground transition-colors" />
+                            <Button variant="ghost" size="icon" className="h-12 w-12 rounded-full hover:bg-white/10 hover:scale-110 transition-all text-slate-400 hover:text-white">
+                                <Mail className="h-6 w-6" />
                                 <span className="sr-only">Email</span>
                             </Button>
                         </Link>
                     </div>
-                    <p className="text-xs text-muted-foreground mt-8">
+                    <p className="text-xs text-slate-500 mt-8">
                         &copy; {new Date().getFullYear()} DeepTerrorGG. All Rights Reserved.
                     </p>
                 </div>

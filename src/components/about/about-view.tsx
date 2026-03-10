@@ -1,8 +1,9 @@
 'use client';
+import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { Brain, Code, Rocket, Lock, Bot } from 'lucide-react';
+import { Brain, Code, Rocket, Lock, Bot, Terminal } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { TechBadge } from '@/components/ui/tech-badge';
 import SectionContainer from '@/components/ui/section-container';
@@ -119,11 +120,11 @@ export default function AboutView() {
 
     const itemVariants = {
         hidden: { y: 20, opacity: 0 },
-        visible: { y: 0, opacity: 1, transition: { duration: 0.5 } },
+        visible: { y: 0, opacity: 1, transition: { duration: 0.5, ease: "easeOut" } },
     };
 
     return (
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-6xl py-12">
             {/* Hero Section */}
             <SectionContainer className="!pt-12 !pb-16 md:!pt-16 md:!pb-24">
                 <motion.div
@@ -132,81 +133,149 @@ export default function AboutView() {
                     initial="hidden"
                     animate="visible"
                 >
-                    <motion.div variants={itemVariants} className="mb-8">
+                    <motion.div variants={itemVariants} className="mb-8 relative inline-block">
+                        <div className="absolute inset-0 bg-primary/20 rounded-full blur-2xl animate-pulse" />
                         <Image
                             src="https://i.imgur.com/TsFpBse.png"
                             alt="DeepTerrorGG Avatar"
-                            width={128}
-                            height={128}
-                            className="rounded-full border-4 border-primary shadow-lg mx-auto"
+                            width={144}
+                            height={144}
+                            className="rounded-full border border-[#333] shadow-2xl relative z-10"
                             priority
                         />
                     </motion.div>
-                    <motion.h1 variants={itemVariants} className="text-4xl md:text-5xl font-extrabold text-foreground mb-4">DeepTerrorGG</motion.h1>
-                    <motion.h2 variants={itemVariants} className="text-xl md:text-2xl text-primary font-medium mb-6">Full Stack Engineer | Systems Architect | AI Integration Specialist</motion.h2>
-                    <motion.p variants={itemVariants} className="text-lg text-foreground/80 leading-relaxed max-w-3xl mx-auto">
-                        [ INSERT SHORT BIO HERE - Focus on Full Stack Engineering and Systems Architecture ]
-                    </motion.p>
-                    <motion.p variants={itemVariants} className="text-lg text-foreground/80 leading-relaxed max-w-3xl mx-auto mt-4">
-                        [ INSERT DETAILED BIO HERE - Discussing workflow, security mindset, and architectural approach ]
-                    </motion.p>
+                    <motion.h1 variants={itemVariants} className="text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight text-white mb-4">
+                        DeepTerror<span className="text-primary">GG</span>
+                    </motion.h1>
+                    <motion.h2 variants={itemVariants} className="text-xl md:text-2xl text-[#888] font-mono mb-8">
+                        &gt; Full Stack Engineer | Systems Architect
+                    </motion.h2>
+                    <motion.div variants={itemVariants} className="text-lg text-[#aaa] leading-relaxed max-w-3xl mx-auto space-y-4">
+                        <p>
+                            I build highly scalable, distributed systems and intelligent applications. My focus lies at the intersection of robust backend architecture and seamless, polished user experiences.
+                        </p>
+                        <p>
+                            With a strong emphasis on security, automation, and AI integration, I specialize in transforming complex business logic into performant, maintainable codebases using modern technologies like Next.js, Node.js, and generative AI frameworks.
+                        </p>
+                    </motion.div>
                 </motion.div>
             </SectionContainer>
 
             {/* Core Engineering Philosophy */}
-            <SectionContainer className="!py-0">
-                <Card className="bg-card/50 border-border/50">
-                    <CardHeader className="text-center">
-                        <CardTitle className="flex items-center justify-center gap-2 text-3xl text-foreground">
-                            <Brain aria-hidden="true" className="text-primary h-8 w-8" />
-                            Core Engineering Philosophy
-                        </CardTitle>
-                    </CardHeader>
-                    <CardContent className="text-muted-foreground text-lg leading-relaxed max-w-4xl mx-auto text-center">
-                        <p>
-                            [ INSERT ENGINEERING PHILOSOPHY HERE ]
-                        </p>
-                    </CardContent>
-                </Card>
+            <SectionContainer className="!py-0 mb-32">
+                <motion.div
+                    variants={itemVariants}
+                    initial="hidden"
+                    whileInView="visible"
+                    viewport={{ once: true, amount: 0.2 }}
+                >
+                    <Card className="bg-[#050505] border-[#1f1f1f] shadow-2xl relative overflow-hidden group">
+                        {/* Glowing orb in the background */}
+                        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px] bg-primary/10 rounded-full blur-[100px] pointer-events-none opacity-50 group-hover:opacity-100 transition-opacity duration-1000" />
+
+                        {/* Terminal Header */}
+                        <CardHeader className="flex flex-row items-center justify-between gap-2 p-4 border-b border-[#1f1f1f] bg-[#0a0a0a]/80 backdrop-blur-md relative z-10">
+                            <div className="flex items-center gap-3">
+                                <Terminal className="h-4 w-4 text-[#555]" />
+                                <p className="text-xs font-semibold text-[#888] tracking-widest uppercase">philosophy.sh</p>
+                            </div>
+                            <div className="flex gap-1.5 opacity-50 group-hover:opacity-100 transition-opacity duration-300">
+                                <div className="w-2.5 h-2.5 rounded-full bg-[#ff5f56]/50"></div>
+                                <div className="w-2.5 h-2.5 rounded-full bg-[#ffbd2e]/50"></div>
+                                <div className="w-2.5 h-2.5 rounded-full bg-[#27c93f]/50"></div>
+                            </div>
+                        </CardHeader>
+
+                        <CardContent className="p-8 md:p-12 relative z-10">
+                            <div className="flex items-center justify-center gap-4 mb-8">
+                                <Brain aria-hidden="true" className="text-primary h-8 w-8 animate-pulse" />
+                                <h2 className="text-2xl md:text-3xl font-bold text-white tracking-wide">
+                                    Core Engineering Philosophy
+                                </h2>
+                            </div>
+                            <div className="text-[#999] text-lg leading-relaxed text-center max-w-4xl mx-auto space-y-4">
+                                <p className="font-mono text-sm mb-4 text-[#666] flex justify-center items-center gap-2">
+                                    <span className="text-primary">~</span> ./execute_mindset.sh
+                                </p>
+                                <p>
+                                    My approach to software engineering prioritizes <strong className="text-[#e2e2e2] font-semibold border-b border-primary/30 pb-0.5">scalability from day one</strong> and <strong className="text-[#e2e2e2] font-semibold border-b border-primary/30 pb-0.5">uncompromising security</strong>. I believe in writing code that is not only functional but also highly observable and self-healing.
+                                </p>
+                                <p>
+                                    Whether designing a high-throughput data pipeline or integrating LLMs into a production flow, the end goal is always a resilient, developer-friendly architecture that delivers flawless user experiences without technical debt.
+                                </p>
+                            </div>
+                        </CardContent>
+                    </Card>
+                </motion.div>
             </SectionContainer>
 
             {/* Featured Architectural Work Section */}
-            <SectionContainer>
-                <div className="text-center mb-12">
-                    <h2 className="flex items-center justify-center gap-2 text-3xl font-bold text-foreground">
+            <SectionContainer className="mb-32">
+                <motion.div
+                    className="text-center mb-16"
+                    variants={itemVariants}
+                    initial="hidden"
+                    whileInView="visible"
+                    viewport={{ once: true, amount: 0.2 }}
+                >
+                    <h2 className="flex items-center justify-center gap-3 text-3xl font-bold text-white mb-4">
                         <Code aria-hidden="true" className="text-primary h-8 w-8" />
                         Featured Architectural Work
                     </h2>
-                    <p className="text-muted-foreground mt-3 max-w-2xl mx-auto">My portfolio focuses on complex engineering challenges rather than simple CRUD applications.</p>
-                </div>
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <p className="text-[#888] mt-3 max-w-2xl mx-auto text-lg">My portfolio focuses on complex engineering challenges rather than simple CRUD applications.</p>
+                </motion.div>
+
+                <motion.div
+                    className="flex flex-col gap-16 md:gap-24 max-w-5xl mx-auto"
+                    variants={containerVariants}
+                    initial="hidden"
+                    whileInView="visible"
+                    viewport={{ once: true, amount: 0.1 }}
+                >
                     {featuredWork.map((category) => (
-                        <motion.div key={category.category} variants={itemVariants}>
-                            <Card className="h-full bg-card/80">
-                                <CardHeader>
-                                    <CardTitle className="flex items-center gap-3">
-                                        {category.icon}
-                                        {category.category}
-                                    </CardTitle>
-                                </CardHeader>
-                                <CardContent className="space-y-4">
-                                    {category.projects.map((project) => (
-                                        <div key={project.name}>
-                                            <h4 className="font-semibold">{project.name}</h4>
-                                            <p className="text-sm text-muted-foreground">{project.description}</p>
+                        <motion.div key={category.category} variants={itemVariants} className="flex flex-col md:flex-row gap-8 md:gap-16 group/section">
+                            {/* Category Header (Left Column) */}
+                            <div className="md:w-1/3 flex-shrink-0">
+                                <div className="sticky top-32">
+                                    <div className="flex items-center gap-4 mb-6">
+                                        <div className="p-3 rounded-xl bg-[#111] border border-[#222] text-[#888] group-hover/section:border-primary/40 group-hover/section:bg-primary/10 group-hover/section:text-primary transition-all duration-500 shadow-inner">
+                                            {React.cloneElement(category.icon as React.ReactElement, { className: "h-6 w-6" })}
                                         </div>
-                                    ))}
-                                </CardContent>
-                            </Card>
+                                        <h3 className="text-2xl font-bold text-white tracking-tight">
+                                            {category.category}
+                                        </h3>
+                                    </div>
+                                    <div className="w-12 h-[2px] bg-[#222] group-hover/section:bg-primary/50 group-hover/section:w-full transition-all duration-700 ease-in-out" />
+                                </div>
+                            </div>
+
+                            {/* Projects List (Right Column) */}
+                            <div className="md:w-2/3 flex flex-col gap-10">
+                                {category.projects.map((project, index) => (
+                                    <div key={project.name} className="relative group/proj">
+                                        <div className="pl-6 md:pl-8 border-l border-[#222] group-hover/proj:border-primary/30 transition-colors duration-500">
+                                            {/* Animated accent dot on hover */}
+                                            <div className="absolute left-[-4px] top-2 w-2 h-2 rounded-full bg-[#333] group-hover/proj:bg-primary transition-all duration-300 group-hover/proj:shadow-[0_0_12px_rgba(var(--primary),0.8)]" />
+
+                                            <h4 className="text-[18px] font-semibold text-[#f0f0f0] mb-3 group-hover/proj:text-primary transition-colors duration-300 flex items-center gap-3">
+                                                {project.name}
+                                            </h4>
+                                            <p className="text-[15px] text-[#888] leading-relaxed group-hover/proj:text-[#aaa] transition-colors duration-300">
+                                                {project.description}
+                                            </p>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
                         </motion.div>
                     ))}
-                </div>
+                </motion.div>
             </SectionContainer>
 
             {/* Technology Stack Section */}
             <SectionContainer>
                 <div className="text-center mb-12">
-                    <h2 className="flex items-center justify-center gap-2 text-3xl font-bold text-foreground">
+                    <h2 className="flex items-center justify-center gap-2 text-3xl font-bold text-white mb-4">
                         <Code aria-hidden="true" className="text-primary h-8 w-8" />
                         This Project's Technology Stack
                     </h2>

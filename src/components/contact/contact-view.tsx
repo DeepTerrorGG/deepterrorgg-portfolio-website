@@ -5,7 +5,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import Link from 'next/link';
 import React from 'react';
-import { Mail, Send, MessageSquare, Loader2 } from 'lucide-react';
+import { Mail, Send, MessageSquare, Loader2, Github, Linkedin, ExternalLink } from 'lucide-react';
 import Image from 'next/image';
 
 import PageTitle from '@/components/ui/page-title';
@@ -21,9 +21,9 @@ import AnimateOnScroll from '@/components/ui/animate-on-scroll';
 
 
 const socialLinks = [
-    { name: 'Instagram', iconSrc: '/icons/instagram.svg', href: 'https://www.instagram.com/deep_terror_gg/?next=%2F', user: '@deep_terror_gg' },
-    { name: 'Steam', iconSrc: '/icons/steam.svg', href: 'https://steamcommunity.com/id/DeepTerrorGG/', user: '@DeepTerrorGG' },
-    { name: 'TikTok', iconSrc: '/icons/tiktok.svg', href: 'https://www.tiktok.com/@deep_terror_gg', user: '@deep_terror_gg' },
+    { name: 'GitHub', icon: Github, href: 'https://github.com/DeepTerrorGG', user: '@DeepTerrorGG' },
+    { name: 'LinkedIn', icon: Linkedin, href: 'https://www.linkedin.com/in/danilo-ili%C4%87-597314301/', user: 'Danilo Ilić' },
+    { name: 'Email', icon: Mail, href: 'mailto:daniloiliccc@gmail.com', user: 'daniloiliccc@gmail.com' },
 ];
 
 
@@ -208,17 +208,46 @@ export default function ContactView() {
                             Follow my work and connect with me on social media:
                         </p>
                         <div className="space-y-3">
-                            {socialLinks.map((social) => (
-                                <Button key={social.name} variant="outline" className="w-full justify-start group transition-all hover:border-primary hover:text-primary" asChild>
-                                    <Link href={social.href} target="_blank" rel="noopener noreferrer">
-                                        <div className="mr-3 h-5 w-5 relative">
-                                            <Image src={social.iconSrc} alt={`${social.name} icon`} fill className="filter-primary group-hover:filter-primary transition-colors" />
+                            {socialLinks.map((social) => {
+                                const Icon = social.icon;
+
+                                const content = (
+                                    <>
+                                        <div className="mr-3 h-5 w-5 relative flex items-center justify-center">
+                                            <Icon className="h-5 w-5 text-foreground group-hover:text-primary transition-colors" />
                                         </div>
-                                        <span className="flex-1">{social.name}</span>
+                                        <span className="flex-1 text-left">{social.name}</span>
                                         <span className="text-xs text-muted-foreground group-hover:text-primary">{social.user}</span>
-                                    </Link>
-                                </Button>
-                            ))}
+                                    </>
+                                );
+
+                                if (social.name === 'Email') {
+                                    return (
+                                        <Button
+                                            key={social.name}
+                                            variant="outline"
+                                            className="w-full justify-start group transition-all hover:border-primary hover:text-primary"
+                                            onClick={() => {
+                                                navigator.clipboard.writeText(social.user);
+                                                toast({
+                                                    title: "Copied!",
+                                                    description: "Email address copied to clipboard.",
+                                                });
+                                            }}
+                                        >
+                                            {content}
+                                        </Button>
+                                    );
+                                }
+
+                                return (
+                                    <Button key={social.name} variant="outline" className="w-full justify-start group transition-all hover:border-primary hover:text-primary" asChild>
+                                        <Link href={social.href} target="_blank" rel="noopener noreferrer">
+                                            {content}
+                                        </Link>
+                                    </Button>
+                                );
+                            })}
                         </div>
                         <p className="text-sm text-muted-foreground mt-4">
                             I&apos;m always open to collaborations and interesting discussions about art and technology.

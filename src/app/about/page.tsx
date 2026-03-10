@@ -3,11 +3,11 @@ import AboutView from '@/components/about/about-view';
 
 export const metadata: Metadata = {
   title: 'About Me | DeepTerrorGG - Systems Architect',
-  description: '[ INSERT META DESCRIPTION HERE ]',
+  description: 'Full Stack Engineer & Systems Architect specializing in AI integrations, distributed systems, and highly scalable infrastructure.',
   keywords: 'DeepTerrorGG, systems architect, full stack engineer, next.js, react, firebase',
   openGraph: {
     title: 'About DeepTerrorGG',
-    description: '[ INSERT OPEN GRAPH DESCRIPTION HERE ]',
+    description: 'Explore the professional background, engineering philosophy, and featured architectural work of DeepTerrorGG.',
     url: 'https://deepterrorgg-portfolio.web.app/about',
     siteName: 'DeepTerrorGG Portfolio',
     images: [

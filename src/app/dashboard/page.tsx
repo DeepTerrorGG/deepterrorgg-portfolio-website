@@ -7,6 +7,7 @@ import {
   DollarSign,
   Users,
   CreditCard,
+  Monitor
 } from "lucide-react"
 
 import {
@@ -45,36 +46,47 @@ export default function Dashboard() {
       return acc;
     }, 0);
   }, [orders]);
-  
+
   const totalSales = useMemo(() => {
     return orders.filter(order => order.status !== 'Cancelled').length;
   }, [orders]);
 
 
   return (
-    <div className="flex min-h-screen w-full flex-col">
+    <div className="flex min-h-screen w-full flex-col relative">
+      {/* Mobile Not Supported Overlay */}
+      <div className="md:hidden fixed inset-0 z-[100] bg-[#0A0A0A] flex flex-col items-center justify-center p-6 text-center">
+        <div className="w-20 h-20 mb-8 rounded-full bg-primary/10 flex items-center justify-center text-primary border border-primary/20 shadow-[0_0_30px_rgba(var(--primary),0.2)]">
+          <Monitor className="w-10 h-10" />
+        </div>
+        <h2 className="text-3xl font-bold mb-4 tracking-tight">Desktop Experience Required</h2>
+        <p className="text-muted-foreground max-w-md text-sm leading-relaxed">
+          The E-commerce Dashboard contains dense data tables and complex charts that are fully optimized for larger screens. Please visit this page on your desktop or laptop.
+        </p>
+      </div>
+
       <AnimateOnScroll asChild>
         <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
           <div className="grid gap-4 md:grid-cols-2 md:gap-8 lg:grid-cols-4">
-            <StatsCard 
+            <StatsCard
               title="Total Revenue"
               amount={`$${totalRevenue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
               description="+20.1% from last month"
               icon={<DollarSign className="h-4 w-4 text-muted-foreground" />}
             />
-            <StatsCard 
+            <StatsCard
               title="Subscriptions"
               amount="+2350"
               description="+180.1% from last month"
               icon={<Users className="h-4 w-4 text-muted-foreground" />}
             />
-            <StatsCard 
+            <StatsCard
               title="Sales"
               amount={`+${totalSales.toLocaleString()}`}
               description="+19% from last month"
               icon={<CreditCard className="h-4 w-4 text-muted-foreground" />}
             />
-            <StatsCard 
+            <StatsCard
               title="Active Now"
               amount="+573"
               description="+201 since last hour"
@@ -96,13 +108,13 @@ export default function Dashboard() {
             <RecentSales />
           </div>
           <Card>
-              <CardHeader>
-                <CardTitle>Orders</CardTitle>
-                <CardDescription>A list of all orders. Click on a status or amount to edit.</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <OrdersDataTable columns={columns} data={orders} updateOrder={updateOrder} />
-              </CardContent>
+            <CardHeader>
+              <CardTitle>Orders</CardTitle>
+              <CardDescription>A list of all orders. Click on a status or amount to edit.</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <OrdersDataTable columns={columns} data={orders} updateOrder={updateOrder} />
+            </CardContent>
           </Card>
         </main>
       </AnimateOnScroll>

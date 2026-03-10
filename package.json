@@ -7,13 +7,15 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "build:rules": "npx tsx src/firebase/rules.ts && npx tsx src/firebase/database-rules.ts"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.1.0",
     "@dnd-kit/sortable": "^8.0.0",
     "@faker-js/faker": "^8.4.1",
     "@genkit-ai/google-genai": "^1.6.2",
+    "@genkit-ai/mcp": "^1.29.0",
     "@hookform/resolvers": "^4.1.3",
     "@monaco-editor/react": "^4.6.1",
     "@radix-ui/react-accordion": "^1.2.3",

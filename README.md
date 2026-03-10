@@ -11,7 +11,7 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.0-3178C6?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![Firebase](https://img.shields.io/badge/Firebase-11.3-FFCA28?style=for-the-badge&logo=firebase&logoColor=black)](https://firebase.google.com/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind-3.4-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
-[![AI Powered](https://img.shields.io/badge/AI-Gemini-8E75B2?style=for-the-badge&logo=google&logoColor=white)](https://deepmind.google.com/technologies/gemini/)
+[![AI Powered](https://img.shields.io/badge/AI-Gemini_2.0_Flash-8E75B2?style=for-the-badge&logo=google&logoColor=white)](https://deepmind.google.com/technologies/gemini/)
 
 🌐 **[Live Demo](https://deepterrorgg.com)** • 📁 **[Projects](#-projects)** • 🤖 **[AI Features](#-ai-powered-projects)** • 📧 **[Contact](#-contact)**
 
@@ -50,7 +50,6 @@
 
 ## ✨ Overview
 
-## ✨ Overview
 
 A comprehensive, feature-rich portfolio website built to showcase the intersection of **creative coding**, **artificial intelligence**, and **web development**. This project represents thousands of hours of learning, experimentation, and passion for creating interactive, meaningful digital experiences.
 
@@ -59,6 +58,7 @@ A comprehensive, feature-rich portfolio website built to showcase the intersecti
 - 🤖 **11 AI-powered applications** using Google Gemini
 - 🎨 **3D visualizations** with Spline integration
 - 🔥 **Real-time collaboration** features with Firebase
+- 📱 **Desktop-Optimized Experiences** - Advanced tools adapt intelligently for mobile vs complex desktop usage
 - 📊 **Production-ready code** with TypeScript and modern best practices
 
 ---
@@ -206,6 +206,7 @@ An admin panel for e-commerce with sales analytics, customer insights, and produ
 A shared drawing canvas where multiple users draw simultaneously with AI-powered diagram cleanup.
 
 **Key Features:**
+- Professional integrated dark mode workspace UI
 - Real-time cursor positions
 - Drawing tools (pen, shapes, text)
 - Color picker and brush sizes
@@ -222,6 +223,7 @@ A shared drawing canvas where multiple users draw simultaneously with AI-powered
 A browser-based pixel art tool with layers, color palettes, and export functionality.
 
 **Key Features:**
+- Professional integrated dark mode workspace UI
 - Pencil, eraser, fill bucket, line tool
 - Color palette management
 - Layer system (show, hide, merge)
@@ -468,11 +470,25 @@ Classic 25/5 productivity timer with audio notifications.
 
 ---
 
-**Also includes:** Todo List, Calculator, Unit Converter, BMI Calculator, Password Generator, Character Counter, Screenshot Service, Website Status Checker, Speed Tester (CPS/WPM), This Day in History, Log Ingestor
+#### **Log Ingestor & Analyzer**
+```
+🏗️ Architecture: Log Processing | AI Analysis
+📊 Technologies: Next.js, Genkit, Gemini
+```
+A system for ingesting large volumes of logs and using AI to identify patterns, errors, and security threats.
 
 ---
 
 </details>
+
+---
+
+## 🤖 AI & MCP Integration
+
+This project is designed to be **agent-friendly**. It includes:
+- **Genkit Flows**: Server-side AI logic defined in `src/ai/flows`.
+- **MCP Compatibility**: Ready to be manipulated by AI agents using the Model Context Protocol.
+- **Structured Output**: AI responses are validated using Zod schemas for reliability.
 
 ---
 
@@ -728,7 +744,7 @@ A digital art exhibition space showcasing creative visuals with a theatre-like e
 ```bash
 # Clone the repository
 git clone https://github.com/DeepTerrorGG/deepterrorgg-portfolio-website.git
-cd deepterrorgg-portfolio-website-1
+cd deepterrorgg-portfolio-website-3
 
 # Install dependencies
 npm install

@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Swords, Shield, Heart, Zap, RotateCcw, Dna, Trash, Map, Star, ShieldAlert, ShieldOff, HeartCrack, BookOpen, Crown, Skull, Sparkles, ArrowUp, Bed, Hammer, X, Plus, Play } from 'lucide-react';
+import { Swords, Shield, Heart, Zap, RotateCcw, Dna, Trash, Map, Star, ShieldAlert, ShieldOff, HeartCrack, BookOpen, Crown, Skull, Sparkles, ArrowUp, Bed, Hammer, X, Plus, Play, Monitor } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Progress } from '../ui/progress';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -1124,7 +1124,18 @@ const DeckBuildingRoguelike: React.FC = () => {
   }
 
   return (
-    <div className="flex flex-col items-center justify-center w-full h-full bg-card p-4 text-white font-serif">
+    <div className="flex flex-col items-center justify-center w-full h-full bg-card p-4 text-white font-serif relative">
+      {/* Mobile Not Supported Overlay */}
+      <div className="md:hidden fixed inset-0 z-[100] bg-[#0A0A0A] flex flex-col items-center justify-center p-6 text-center font-sans">
+        <div className="w-20 h-20 mb-8 rounded-full bg-primary/10 flex items-center justify-center text-primary border border-primary/20 shadow-[0_0_30px_rgba(var(--primary),0.2)]">
+          <Monitor className="w-10 h-10" />
+        </div>
+        <h2 className="text-3xl font-bold mb-4 tracking-tight">Desktop Experience Required</h2>
+        <p className="text-muted-foreground max-w-md text-sm leading-relaxed text-gray-400">
+          The Deck Builder Adventure requires complex card interactions and uses layout dimensions that are fully optimized for larger screens. Please visit this page on your desktop or laptop.
+        </p>
+      </div>
+
       {renderContent()}
     </div>
   );

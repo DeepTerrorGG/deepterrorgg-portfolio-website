@@ -2,15 +2,17 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
-import Spline from '@splinetool/react-spline';
+import dynamic from 'next/dynamic';
+const Spline = dynamic(() => import('@splinetool/react-spline'), { ssr: false });
 import { Skeleton } from '../ui/skeleton';
 import { cn } from '@/lib/utils';
-import type { SplineProps, Application } from '@splinetool/react-spline';
+import type { SplineProps } from '@splinetool/react-spline';
+import type { Application } from '@splinetool/runtime';
 
-interface SplineModelProps extends Omit<SplineProps, 'onLoad'> {
-    sceneUrl: string;
-    className?: string;
-    onLoad?: (spline: Application) => void;
+interface SplineModelProps extends Omit<SplineProps, 'onLoad' | 'scene'> {
+  sceneUrl: string;
+  className?: string;
+  onLoad?: (spline: Application) => void;
 }
 
 
@@ -25,16 +27,16 @@ export default function SplineModel({ sceneUrl, onLoad, className, ...props }: S
   };
 
   return (
-    <div 
+    <div
       className={cn("relative w-full h-full", className)}
     >
       {isLoading && (
         <Skeleton className="absolute inset-0 w-full h-full" />
       )}
-      <Spline 
-          scene={sceneUrl} 
-          onLoad={handleLoad}
-          {...props}
+      <Spline
+        scene={sceneUrl}
+        onLoad={handleLoad}
+        {...props}
       />
     </div>
   );

@@ -2,8 +2,8 @@
 'use client';
 
 import { generateRecipe } from '@/ai/flows/recipe-generator-flow';
-import { 
-  type Ingredients, 
+import {
+  type Ingredients,
   type Recipe,
   type RecipeCuisine,
   type RecipeDiet
@@ -18,16 +18,18 @@ import { Label } from '../ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import { useToast } from '@/hooks/use-toast';
 
 const diets: RecipeDiet[] = ['None', 'Vegetarian', 'Vegan', 'Gluten-Free', 'Keto'];
 const cuisines: RecipeCuisine[] = ['Any', 'Italian', 'Mexican', 'Indian', 'Chinese', 'Japanese', 'French', 'American'];
 
 interface AIRecipeGeneratorProps {
-    onGenerate: () => boolean;
-    usageLeft: number;
+  onGenerate: () => boolean;
+  usageLeft: number;
 }
 
 export default function AIRecipeGenerator({ onGenerate, usageLeft }: AIRecipeGeneratorProps) {
+  const { toast } = useToast();
   const [ingredients, setIngredients] = useState<string>('chicken, rice, broccoli');
   const [allergies, setAllergies] = useState<string>('');
   const [recipe, setRecipe] = useState<string | null>(null);
@@ -54,10 +56,20 @@ export default function AIRecipeGenerator({ onGenerate, usageLeft }: AIRecipeGen
       const result = await generateRecipe(ingredientsList);
       if (result) {
         setRecipe(result);
+      } else {
+        toast({
+          title: "Generation Failed",
+          description: "The AI did not return a recipe. This could be due to safety filters or a network issue.",
+          variant: "destructive",
+        });
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error(error);
-      // Handle error display
+      toast({
+        title: "An error occurred",
+        description: error.message || "Failed to generate recipe. Please try again.",
+        variant: "destructive",
+      });
     }
 
     setLoading(false);
@@ -75,48 +87,48 @@ export default function AIRecipeGenerator({ onGenerate, usageLeft }: AIRecipeGen
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-                <Label htmlFor='ingredients-input'>Ingredients</Label>
-                <Input
-                  id='ingredients-input'
-                  type="text"
-                  value={ingredients}
-                  onChange={(e) => setIngredients(e.target.value)}
-                  placeholder="e.g., chicken, rice, broccoli"
-                  disabled={loading || usageLeft <= 0}
-                  className='mt-1'
-                />
+              <Label htmlFor='ingredients-input'>Ingredients</Label>
+              <Input
+                id='ingredients-input'
+                type="text"
+                value={ingredients}
+                onChange={(e) => setIngredients(e.target.value)}
+                placeholder="e.g., chicken, rice, broccoli"
+                disabled={loading || usageLeft <= 0}
+                className='mt-1'
+              />
             </div>
-             <div>
-                <Label htmlFor='allergies-input'>Allergies / Exclusions</Label>
-                <Input
-                  id='allergies-input'
-                  type="text"
-                  value={allergies}
-                  onChange={(e) => setAllergies(e.target.value)}
-                  placeholder="e.g., peanuts, shellfish, dairy"
-                  disabled={loading || usageLeft <= 0}
-                  className='mt-1'
-                />
+            <div>
+              <Label htmlFor='allergies-input'>Allergies / Exclusions</Label>
+              <Input
+                id='allergies-input'
+                type="text"
+                value={allergies}
+                onChange={(e) => setAllergies(e.target.value)}
+                placeholder="e.g., peanuts, shellfish, dairy"
+                disabled={loading || usageLeft <= 0}
+                className='mt-1'
+              />
             </div>
             <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-                <div>
-                    <Label>Dietary Restriction</Label>
-                    <Select value={diet} onValueChange={v => setDiet(v as RecipeDiet)} disabled={loading || usageLeft <= 0}>
-                        <SelectTrigger className='mt-1'><SelectValue /></SelectTrigger>
-                        <SelectContent>{diets.map(d => <SelectItem key={d} value={d}>{d}</SelectItem>)}</SelectContent>
-                    </Select>
-                </div>
-                <div>
-                    <Label>Cuisine Style</Label>
-                    <Select value={cuisine} onValueChange={v => setCuisine(v as RecipeCuisine)} disabled={loading || usageLeft <= 0}>
-                        <SelectTrigger className='mt-1'><SelectValue /></SelectTrigger>
-                        <SelectContent>{cuisines.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent>
-                    </Select>
-                </div>
+              <div>
+                <Label>Dietary Restriction</Label>
+                <Select value={diet} onValueChange={v => setDiet(v as RecipeDiet)} disabled={loading || usageLeft <= 0}>
+                  <SelectTrigger className='mt-1'><SelectValue /></SelectTrigger>
+                  <SelectContent>{diets.map(d => <SelectItem key={d} value={d}>{d}</SelectItem>)}</SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label>Cuisine Style</Label>
+                <Select value={cuisine} onValueChange={v => setCuisine(v as RecipeCuisine)} disabled={loading || usageLeft <= 0}>
+                  <SelectTrigger className='mt-1'><SelectValue /></SelectTrigger>
+                  <SelectContent>{cuisines.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent>
+                </Select>
+              </div>
             </div>
 
             <Button type="submit" className="w-full" disabled={loading || usageLeft <= 0}>
-              {loading ? ( <Loader2 className="mr-2 h-4 w-4 animate-spin" /> ) : 
+              {loading ? (<Loader2 className="mr-2 h-4 w-4 animate-spin" />) :
                 (usageLeft > 0 ? 'Generate Recipe' : 'Usage Limit Reached')
               }
             </Button>

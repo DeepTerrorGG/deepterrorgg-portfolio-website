@@ -22,7 +22,13 @@ export default function GlobalError({
                     A critical error prevented the application from loading.
                 </p>
                 <button
-                    onClick={() => reset()}
+                    onClick={() => {
+                        if (typeof reset === 'function') {
+                            reset();
+                        } else {
+                            window.location.reload();
+                        }
+                    }}
                     className="px-6 py-3 bg-white text-black font-bold rounded hover:bg-gray-200 transition-colors"
                 >
                     Reload Application

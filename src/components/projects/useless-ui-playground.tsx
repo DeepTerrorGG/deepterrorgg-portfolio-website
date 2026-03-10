@@ -16,21 +16,28 @@ import { Input } from '../ui/input';
 const UselessUiPlayground: React.FC = () => {
   const [volume, setVolume] = useState(50);
   const [agreed, setAgreed] = useState(false);
-  
+
   // Shuffling Dropdown State
   const dropdownOptions = ['First Choice', 'Second Option', 'Another Item', 'The Best One', 'Definitely This'];
   const [shuffledOptions, setShuffledOptions] = useState(dropdownOptions);
-  
+
   // Progress Bar State
   const [progress, setProgress] = useState(0);
-  
+
   // Dialog State
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [confirmationInput, setConfirmationInput] = useState('');
   const confirmationPhrase = "I am absolutely, positively, unequivocally sure.";
-  
+
   // Fighting Input State
   const [inputPosition, setInputPosition] = useState({ x: 0, y: 0 });
+
+  // Gaslighting Checkbox State
+  const [gaslightChecked, setGaslightChecked] = useState(false);
+  const [gaslightMessage, setGaslightMessage] = useState('');
+
+  // Self-Erasing Input State
+  const [selfErasingValue, setSelfErasingValue] = useState('');
 
   // For the volume knob
   const rotate = useMotionValue(0);
@@ -54,8 +61,28 @@ const UselessUiPlayground: React.FC = () => {
 
   // Logic for shuffling dropdown
   const shuffleDropdown = () => {
-      setShuffledOptions(prev => [...prev].sort(() => Math.random() - 0.5));
+    setShuffledOptions(prev => [...prev].sort(() => Math.random() - 0.5));
   }
+
+  // Logic for gaslighting checkbox
+  const handleGaslightCheck = () => {
+    setGaslightChecked(true);
+    setGaslightMessage('');
+    setTimeout(() => {
+      setGaslightChecked(false);
+      setGaslightMessage("You didn't check it.");
+    }, 1500 + Math.random() * 2000);
+  };
+
+  // Logic for self-erasing input
+  const handleSelfErasingInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSelfErasingValue(e.target.value);
+    if (e.target.value.length > 0) {
+      setTimeout(() => {
+        setSelfErasingValue(prev => prev.slice(0, -1));
+      }, 1000);
+    }
+  };
 
   // Logic for progress bar
   useEffect(() => {
@@ -84,12 +111,12 @@ const UselessUiPlayground: React.FC = () => {
     <div className="flex flex-col items-center justify-center w-full min-h-full bg-[#0d1117] text-white p-4 sm:p-6 lg:p-8">
       <div className="w-full max-w-4xl mx-auto space-y-8">
         <div className="text-center">
-            <h1 className="text-4xl font-bold text-primary">The Useless UI/UX Playground</h1>
-            <p className="text-muted-foreground mt-2">A curated collection of delightfully frustrating user interface components.</p>
+          <h1 className="text-4xl font-bold text-primary">The Useless UI/UX Playground</h1>
+          <p className="text-muted-foreground mt-2">A curated collection of delightfully frustrating user interface components.</p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          
+
           <Exhibit title="Unintuitive Volume Knob">
             <div className="flex flex-col items-center justify-center space-y-4">
               <motion.div
@@ -119,69 +146,99 @@ const UselessUiPlayground: React.FC = () => {
               </motion.button>
             )}
           </Exhibit>
-          
+
           <Exhibit title="Deceitful Dropdown">
             <div className="flex flex-col items-center justify-center space-y-4">
-                <p className="text-sm text-muted-foreground text-center">Try to select "The Best One".</p>
-                <Select>
-                    <SelectTrigger className="w-[220px]">
-                        <SelectValue placeholder="Select an option" />
-                    </SelectTrigger>
-                    <SelectContent onMouseOver={shuffleDropdown}>
-                        {shuffledOptions.map((opt, i) => <SelectItem key={`${opt}-${i}`} value={opt}>{opt}</SelectItem>)}
-                    </SelectContent>
-                </Select>
+              <p className="text-sm text-muted-foreground text-center">Try to select "The Best One".</p>
+              <Select>
+                <SelectTrigger className="w-[220px]">
+                  <SelectValue placeholder="Select an option" />
+                </SelectTrigger>
+                <SelectContent onMouseOver={shuffleDropdown}>
+                  {shuffledOptions.map((opt, i) => <SelectItem key={`${opt}-${i}`} value={opt}>{opt}</SelectItem>)}
+                </SelectContent>
+              </Select>
             </div>
           </Exhibit>
 
           <Exhibit title="Unhelpful Progress Bar">
-              <div className="flex flex-col items-center justify-center w-full space-y-4 px-4">
-                  <p className="text-sm text-muted-foreground">Just a little longer...</p>
-                  <Progress value={progress} className="w-3/4"/>
-                  <Button variant="outline" onClick={() => setProgress(0)}>Reset Progress</Button>
-              </div>
-          </Exhibit>
-          
-          <Exhibit title="Paranoid Confirmation">
-              <div className="flex flex-col items-center justify-center space-y-4">
-                  <p className="text-sm text-muted-foreground">Are you sure you want to proceed?</p>
-                  <Button onClick={() => setIsDialogOpen(true)}><CheckSquare className="mr-2"/> Yes, I'm sure</Button>
-                  <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-                    <DialogContent>
-                        <DialogHeader>
-                            <DialogTitle>Are you absolutely sure?</DialogTitle>
-                            <DialogDescription>To confirm, please type: "{confirmationPhrase}"</DialogDescription>
-                        </DialogHeader>
-                        <Input value={confirmationInput} onChange={e => setConfirmationInput(e.target.value)} />
-                        <DialogFooter>
-                            <Button variant="secondary" onClick={() => setIsDialogOpen(false)}>Cancel</Button>
-                            <Button disabled={confirmationInput !== confirmationPhrase} onClick={() => { setIsDialogOpen(false); setConfirmationInput(''); }}>Confirm</Button>
-                        </DialogFooter>
-                    </DialogContent>
-                  </Dialog>
-              </div>
+            <div className="flex flex-col items-center justify-center w-full space-y-4 px-4">
+              <p className="text-sm text-muted-foreground">Just a little longer...</p>
+              <Progress value={progress} className="w-3/4" />
+              <Button variant="outline" onClick={() => setProgress(0)}>Reset Progress</Button>
+            </div>
           </Exhibit>
 
-           <Exhibit title="Combative Input Field">
-              <motion.input
-                  type="text"
-                  placeholder="Try to type here..."
-                  className="w-3/4 p-2 border rounded-md bg-background"
-                  animate={{ x: inputPosition.x, y: inputPosition.y }}
-                  transition={{ type: 'spring', stiffness: 300, damping: 20 }}
-                  onFocus={() => setInputPosition({ x: Math.random() * 60 - 30, y: Math.random() * 40 - 20 })}
-                  onKeyDown={() => setInputPosition({ x: Math.random() * 60 - 30, y: Math.random() * 40 - 20 })}
+          <Exhibit title="Paranoid Confirmation">
+            <div className="flex flex-col items-center justify-center space-y-4">
+              <p className="text-sm text-muted-foreground">Are you sure you want to proceed?</p>
+              <Button onClick={() => setIsDialogOpen(true)}><CheckSquare className="mr-2" /> Yes, I'm sure</Button>
+              <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Are you absolutely sure?</DialogTitle>
+                    <DialogDescription>To confirm, please type: "{confirmationPhrase}"</DialogDescription>
+                  </DialogHeader>
+                  <Input value={confirmationInput} onChange={e => setConfirmationInput(e.target.value)} />
+                  <DialogFooter>
+                    <Button variant="secondary" onClick={() => setIsDialogOpen(false)}>Cancel</Button>
+                    <Button disabled={confirmationInput !== confirmationPhrase} onClick={() => { setIsDialogOpen(false); setConfirmationInput(''); }}>Confirm</Button>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
+            </div>
+          </Exhibit>
+
+          <Exhibit title="Combative Input Field">
+            <motion.input
+              type="text"
+              placeholder="Try to type here..."
+              className="w-3/4 p-2 border rounded-md bg-background"
+              animate={{ x: inputPosition.x, y: inputPosition.y }}
+              transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+              onFocus={() => setInputPosition({ x: Math.random() * 60 - 30, y: Math.random() * 40 - 20 })}
+              onKeyDown={() => setInputPosition({ x: Math.random() * 60 - 30, y: Math.random() * 40 - 20 })}
+            />
+          </Exhibit>
+
+          <Exhibit title="Gaslighting Checkbox">
+            <div className="flex flex-col items-center justify-center space-y-4">
+              <div className="flex items-center space-x-2">
+                <input
+                  type="checkbox"
+                  id="gaslight-checkbox"
+                  checked={gaslightChecked}
+                  onChange={handleGaslightCheck}
+                  className="w-5 h-5 accent-primary"
+                />
+                <label htmlFor="gaslight-checkbox" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                  I agree to the terms
+                </label>
+              </div>
+              {gaslightMessage && <p className="text-sm text-red-400 font-mono transition-opacity animate-in fade-in duration-300">{gaslightMessage}</p>}
+            </div>
+          </Exhibit>
+
+          <Exhibit title="Self-Erasing Input">
+            <div className="flex flex-col items-center justify-center w-full space-y-4 px-4">
+              <p className="text-sm text-muted-foreground">Type quickly!</p>
+              <Input
+                value={selfErasingValue}
+                onChange={handleSelfErasingInput}
+                placeholder="Enter your email..."
+                className="w-3/4"
               />
+            </div>
           </Exhibit>
 
           <Exhibit title="Infinitesimal Terms of Service" className="md:col-span-2">
-                <div className="w-full px-4">
-                  <ScrollArea className="h-24 w-full border rounded-md bg-background/50">
-                      <div className="p-2" style={{ fontSize: '0.5rem', lineHeight: '0.6' }}>
-                          {loremIpsum.repeat(5)}
-                      </div>
-                  </ScrollArea>
+            <div className="w-full px-4">
+              <ScrollArea className="h-24 w-full border rounded-md bg-background/50">
+                <div className="p-2" style={{ fontSize: '0.5rem', lineHeight: '0.6' }}>
+                  {loremIpsum.repeat(5)}
                 </div>
+              </ScrollArea>
+            </div>
           </Exhibit>
 
         </div>
@@ -192,4 +249,3 @@ const UselessUiPlayground: React.FC = () => {
 
 export default UselessUiPlayground;
 
-    

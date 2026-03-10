@@ -36,7 +36,7 @@ const checkWinner = (currentBoard: Board): Player | 'draw' | null => {
   return null;
 };
 
-const VsAIGame: React.FC = () => {
+const TicTacToe: React.FC = () => {
   const [board, setBoard] = useState<Board>(Array(9).fill(null));
   const [isPlayerTurn, setIsPlayerTurn] = useState(true);
   const [winner, setWinner] = useState<Player | 'draw' | null>(null);
@@ -66,6 +66,12 @@ const VsAIGame: React.FC = () => {
       setTotalGames(stats.totalGames || 0);
     }
   }, []);
+
+  const handleNameSubmit = (name: string, id: string) => {
+    setPlayerName(name);
+    setPlayerId(id);
+    setShowNameModal(false);
+  };
 
   const handlePlayerMove = (index: number) => {
     if (board[index] || !isPlayerTurn || winner) return;
@@ -155,35 +161,29 @@ const VsAIGame: React.FC = () => {
   const status = winner ? (winner === 'draw' ? "It's a Draw!" : `${winner} Wins!`) : (isPlayerTurn ? "Your Turn (X)" : "AI's Turn (O)");
 
   return (
-    <div className="flex flex-col items-center gap-4">
-      <div className="grid grid-cols-3 gap-2">
-        {board.map((cell, index) => (
-          <button key={index} onClick={() => handlePlayerMove(index)}
-            className={cn("w-20 h-20 sm:w-24 sm:h-24 flex items-center justify-center text-4xl font-bold rounded-lg transition-colors", "bg-muted hover:bg-muted/80", !cell && !winner && isPlayerTurn && "cursor-pointer", cell || winner || !isPlayerTurn ? "cursor-not-allowed" : "")} disabled={!!cell || !!winner || !isPlayerTurn}>
-            {cell === 'X' && <X className="w-12 h-12 text-blue-400" />}
-            {cell === 'O' && <Circle className="w-12 h-12 text-yellow-400" />}
-          </button>
-        ))}
-      </div>
-      <p className="text-lg font-semibold h-8">{status}</p>
-      <div className="flex gap-2 items-center">
-        <Label>AI Difficulty</Label>
-        <Select value={difficulty} onValueChange={(v) => setDifficulty(v as Difficulty)}><SelectTrigger className="w-32"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="Easy">Easy</SelectItem><SelectItem value="Medium">Medium</SelectItem><SelectItem value="Hard">Hard</SelectItem></SelectContent></Select>
-      </div>
-      <Button onClick={restartGame} variant="outline"><RefreshCw className="mr-2 h-4 w-4" />New Game</Button>
-    </div>
-  );
-};
-
-const TicTacToe: React.FC = () => {
-  return (
     <div className="flex flex-col items-center justify-center w-full h-full bg-card p-4 sm:p-6 lg:p-8">
       <Card className="w-full max-w-lg mx-auto shadow-2xl">
         <CardHeader>
           <CardTitle className="text-2xl text-center font-bold text-primary">Tic-Tac-Toe</CardTitle>
         </CardHeader>
         <CardContent>
-          <VsAIGame />
+          <div className="flex flex-col items-center gap-4">
+            <div className="grid grid-cols-3 gap-2">
+              {board.map((cell, index) => (
+                <button key={index} onClick={() => handlePlayerMove(index)}
+                  className={cn("w-20 h-20 sm:w-24 sm:h-24 flex items-center justify-center text-4xl font-bold rounded-lg transition-colors", "bg-muted hover:bg-muted/80", !cell && !winner && isPlayerTurn && "cursor-pointer", cell || winner || !isPlayerTurn ? "cursor-not-allowed" : "")} disabled={!!cell || !!winner || !isPlayerTurn}>
+                  {cell === 'X' && <X className="w-12 h-12 text-blue-400" />}
+                  {cell === 'O' && <Circle className="w-12 h-12 text-yellow-400" />}
+                </button>
+              ))}
+            </div>
+            <p className="text-lg font-semibold h-8">{status}</p>
+            <div className="flex gap-2 items-center">
+              <Label>AI Difficulty</Label>
+              <Select value={difficulty} onValueChange={(v) => setDifficulty(v as Difficulty)}><SelectTrigger className="w-32"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="Easy">Easy</SelectItem><SelectItem value="Medium">Medium</SelectItem><SelectItem value="Hard">Hard</SelectItem></SelectContent></Select>
+            </div>
+            <Button onClick={restartGame} variant="outline"><RefreshCw className="mr-2 h-4 w-4" />New Game</Button>
+          </div>
         </CardContent>
       </Card>
 

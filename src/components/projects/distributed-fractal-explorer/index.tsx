@@ -4,7 +4,7 @@
 import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Loader2, Play, Pause, RefreshCw, Settings, Database, User, Edit, Save, AlertTriangle, ZoomIn, ZoomOut, Hand } from 'lucide-react';
+import { Loader2, Play, Pause, RefreshCw, Settings, Database, User, Edit, Save, AlertTriangle, ZoomIn, ZoomOut, Hand, Monitor } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -297,7 +297,18 @@ const DistributedFractalExplorer: React.FC = () => {
     };
 
     return (
-        <div className="w-full h-full bg-card flex flex-col p-4">
+        <div className="w-full h-full bg-card flex flex-col p-4 relative">
+            {/* Mobile Not Supported Overlay */}
+            <div className="md:hidden fixed inset-0 z-[100] bg-[#0A0A0A] flex flex-col items-center justify-center p-6 text-center font-sans">
+                <div className="w-20 h-20 mb-8 rounded-full bg-primary/10 flex items-center justify-center text-primary border border-primary/20 shadow-[0_0_30px_rgba(var(--primary),0.2)]">
+                    <Monitor className="w-10 h-10" />
+                </div>
+                <h2 className="text-3xl font-bold mb-4 tracking-tight">Desktop Experience Required</h2>
+                <p className="text-muted-foreground max-w-md text-sm leading-relaxed text-gray-400">
+                    The Distributed Fractal Explorer requires a larger screen and complex CPU processing optimizations. Please visit this page on your desktop or laptop.
+                </p>
+            </div>
+
             <Card className="w-full max-w-7xl mx-auto shadow-2xl flex-grow flex flex-col">
                 <Tabs defaultValue="display" className="w-full flex-grow flex flex-col">
                     <CardHeader className="p-4 sm:p-6">

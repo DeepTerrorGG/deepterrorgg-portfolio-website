@@ -102,5 +102,8 @@
   },
   "spline": {
     "particleLimit": 170000
+  },
+  "overrides": {
+    "zod": "$zod"
   }
 }

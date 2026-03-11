@@ -35,6 +35,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { DirectMessageSchema, type DirectMessageSchemaType, type DirectMessageFormState } from '@/app/contact/schema';
 import { cn } from '@/lib/utils';
+import { GithubStars } from '@/components/ui/github-stars';
 
 const SplineModel = React.lazy(
     () => import('@/components/home/spline-model')
@@ -43,34 +44,8 @@ const SplineModel = React.lazy(
 
 const featuredProjects = [
     {
-        id: 'genkit-starter',
-        title: 'Genkit Next.js Starter',
-        description: 'A production-ready starter template for building AI-powered applications with Next.js and Google\'s Genkit.',
-        longDescription: 'This template provides a comprehensive starting point for developers looking to integrate Google\'s generative AI framework, Genkit, with a modern Next.js application. It includes setup for server-side flows, client-side hooks, and examples of streaming responses, structured output, and tool use, helping developers bypass boilerplate and start building features immediately.',
-        technologies: [
-            { name: 'Next.js', iconSrc: '/icons/nextjs.svg' },
-            { name: 'Genkit', iconSrc: '/icons/genkit.svg' },
-            { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },
-        ],
-        language: 'TypeScript',
-        stars: 152,
-    },
-    {
-        id: 'firebase-ui',
-        title: 'Firebase UI for React',
-        description: 'A set of reusable and accessible React components for building user interfaces that interact with Firebase services.',
-        longDescription: 'This project simplifies Firebase integration in React applications by providing pre-built components for authentication, Firestore data display, and file uploads. The goal is to provide a headless, customizable component library that handles the backend logic, allowing developers to focus on their application\'s unique UI/UX.',
-        technologies: [
-            { name: 'React', iconSrc: '/icons/react.svg' },
-            { name: 'Firebase', iconSrc: '/icons/firebase.svg' },
-            { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },
-        ],
-        language: 'TypeScript',
-        stars: 88,
-    },
-    {
-        id: 'portfolio-template',
-        title: 'Portfolio Template',
+        id: 'portfolio-website',
+        title: 'Portfolio Website',
         description: 'The very same code that powers this portfolio website. Built to be easily customizable and showcase personal projects.',
         longDescription: 'This project is a complete portfolio solution for developers and creatives. It features a modular design, easy content updates via mock data files, and a modern tech stack including Next.js, Framer Motion, and shadcn/ui. The goal is to provide a beautiful, performant, and easily-customizable template for showcasing personal projects and skills.',
         technologies: [
@@ -79,19 +54,47 @@ const featuredProjects = [
             { name: 'shadcn/ui', iconSrc: '/icons/spline-white.svg' },
         ],
         language: 'TypeScript',
-        stars: 215,
+        stars: 50,
+        repoUrl: 'https://github.com/DeepTerrorGG/deepterrorgg-portfolio-website',
     },
     {
-        id: 'cli-boilerplate',
-        title: 'CLI Tool Boilerplate',
-        description: 'A boilerplate for creating powerful, type-safe command-line tools with Node.js and TypeScript.',
-        longDescription: 'This starter kit includes argument parsing, command routing, colorized output, and automated testing setup. It helps developers quickly bootstrap a new CLI project, focusing on logic rather than setup. Includes examples for fetching data from an API and interacting with the local file system.',
+        id: 'kali-ops-center',
+        title: 'Kali Ops Center',
+        description: 'Autonomous AI Pentesting Platform - Self-learning AI powered by Google Gemini 2.5-Pro with 93 professional security tools.',
+        longDescription: 'Kali Ops Center is an autonomous AI pentesting platform, leveraging Google Gemini 2.5-Pro for self-learning capabilities and integrating 93 professional security tools. It streamlines security workflows, automates vulnerability assessments, and provides real-time threat intelligence, making it an indispensable tool for cybersecurity professionals.',
         technologies: [
-            { name: 'Node.js', iconSrc: '/icons/nodejs.svg' },
-            { name: 'TypeScript', iconSrc: '/icons/typescript.svg' },
+            { name: 'Python', iconSrc: '/icons/python.svg' },
+            { name: 'Docker', iconSrc: '/icons/docker.svg' },
+            { name: 'Bash', iconSrc: '/icons/lucide.svg' },
         ],
-        language: 'TypeScript',
-        stars: 42,
+        language: 'Python',
+        stars: 35,
+        repoUrl: 'https://github.com/DeepTerrorGG/kali-ops-center',
+    },
+    {
+        id: 'autoquant-pipeline',
+        title: 'AutoQuant Pipeline',
+        description: 'Professional LLM Fine-Tuning Platform - Enterprise-grade fine-tuning pipeline with 30+ advanced features for AI model development.',
+        longDescription: 'AutoQuant AI is a production-ready platform for fine-tuning Large Language Models using state-of-the-art QLoRA optimization. Built for both researchers and production teams, it combines cutting-edge ML techniques with an intuitive interface, 2x faster performance using Unsloth, full authentication, and a marketplace for models.',
+        technologies: [
+            { name: 'Python', iconSrc: '/icons/python.svg' },
+            { name: 'Data', iconSrc: '/icons/d3.svg' },
+        ],
+        language: 'Python',
+        stars: 20,
+        repoUrl: 'https://github.com/DeepTerrorGG/autoquant_pipeline',
+    },
+    {
+        id: 'coming-soon',
+        title: 'Coming Soon',
+        description: 'A new open source project currently in development.',
+        longDescription: 'This project is shrouded in mystery but promises to be an exciting addition to the open source community. Stay tuned for updates and the official release!',
+        technologies: [
+            { name: 'Classified', iconSrc: '/icons/lock.svg' },
+        ],
+        language: 'Classified',
+        stars: 0,
+        repoUrl: '#',
     },
 ];
 
@@ -390,18 +393,18 @@ export default function HomeView() {
                                                             </div>
                                                             <div className="flex items-center gap-2 bg-[#111] px-3 py-1.5 rounded-sm border border-[#1f1f1f]">
                                                                 <Star className="h-3.5 w-3.5 text-[#666]" />
-                                                                <span className="text-[#aaa]">{project.stars.toLocaleString()}</span>
+                                                                <span className="text-[#aaa]"><GithubStars repoUrl={project.repoUrl} fallbackStars={project.stars} /></span>
                                                             </div>
                                                         </div>
                                                     </CardContent>
 
                                                     <CardFooter className="p-6 pt-0 mt-auto relative z-10">
                                                         <Button asChild className="group/btn w-full sm:w-auto bg-[#111] border border-[#222] text-[#ccc] hover:bg-[#1a1a1a] hover:text-white hover:border-[#444] transition-all duration-300 rounded-sm">
-                                                            <PreloadingLink href="/projects">
+                                                            <Link href={project.repoUrl} target={project.repoUrl === '#' ? '_self' : '_blank'} rel="noopener noreferrer">
                                                                 <Github className="mr-2 h-4 w-4 opacity-70 group-hover/btn:opacity-100" />
                                                                 <span className="font-mono text-xs tracking-wider">VIEW_SOURCE</span>
                                                                 <ArrowRight className="ml-2 h-3 w-3 opacity-0 -translate-x-2 group-hover/btn:opacity-100 group-hover/btn:translate-x-0 transition-all duration-300" />
-                                                            </PreloadingLink>
+                                                            </Link>
                                                         </Button>
                                                     </CardFooter>
 

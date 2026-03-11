@@ -9,42 +9,43 @@ import { Github, Star, Code, ArrowRight, Terminal } from 'lucide-react';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
+import { GithubStars } from '@/components/ui/github-stars';
 
 const openSourceProjects = [
   {
-    name: 'Genkit Next.js Starter',
-    description: 'A production-ready starter template for building AI-powered applications with Next.js and Google\'s Genkit.',
-    longDescription: 'This template provides a comprehensive starting point for developers looking to integrate Google\'s generative AI framework, Genkit, with a modern Next.js application. It includes setup for server-side flows, client-side hooks, and examples of streaming responses, structured output, and tool use, helping developers bypass boilerplate and start building features immediately.',
-    repoUrl: 'https://github.com/DeepTerrorGG/genkit-nextjs-starter',
+    name: 'Portfolio Website',
+    description: 'The very same code that powers this portfolio website. Built to be easily customizable.',
+    longDescription: 'This project is a complete portfolio solution for developers and creatives. It features a modular design, easy content updates via mock data files, and a modern tech stack including Next.js, Framer Motion, and shadcn/ui. The goal is to provide a beautiful, performant, and easily-customizable template for showcasing personal projects and skills.',
+    repoUrl: 'https://github.com/DeepTerrorGG/deepterrorgg-portfolio-website',
     language: 'TypeScript',
-    stars: 152,
+    stars: 215,
     gridClass: 'md:col-span-2 md:row-span-1'
   },
   {
-    name: 'Firebase UI for React',
-    description: 'A set of reusable and accessible React components for building user interfaces that interact with Firebase services.',
-    longDescription: 'This project simplifies Firebase integration in React applications by providing pre-built components for authentication, Firestore data display, and file uploads. The goal is to provide a headless, customizable component library that handles the backend logic, allowing developers to focus on their application\'s unique UI/UX.',
-    repoUrl: 'https://github.com/DeepTerrorGG/firebase-ui-react',
-    language: 'TypeScript',
-    stars: 88,
+    name: 'Kali Ops Center',
+    description: 'Autonomous AI Pentesting Platform with Elite Security APIs - Self-learning AI powered by Gemini 2.5 Flash Lite with 100+ file formats and 37 specialized tools.',
+    longDescription: 'Kali Ops Center is an autonomous AI pentesting platform, leveraging Gemini 2.5 Flash Lite for self-learning capabilities and integrating 37 professional security tools and 100+ file formats. It features elite integrations like VirusTotal and Shodan, streamlining security workflows, and providing real-time threat intelligence.',
+    repoUrl: 'https://github.com/DeepTerrorGG/kali-ops-center',
+    language: 'Python',
+    stars: 35,
     gridClass: 'md:col-span-1 md:row-span-1'
   },
   {
-    name: 'Portfolio Template',
-    description: 'The very same code that powers this portfolio website. Built to be easily customizable.',
-    longDescription: 'This project is a complete portfolio solution for developers and creatives. It features a modular design, easy content updates via mock data files, and a modern tech stack including Next.js, Framer Motion, and shadcn/ui. The goal is to provide a beautiful, performant, and easily-customizable template for showcasing personal projects and skills.',
-    repoUrl: 'https://github.com/DeepTerrorGG/nextjs-portfolio-template',
-    language: 'TypeScript',
-    stars: 215,
+    name: 'AutoQuant Pipeline',
+    description: 'Professional LLM Fine-Tuning Platform - Enterprise-grade fine-tuning pipeline with 30+ advanced features for AI model development.',
+    longDescription: 'AutoQuant AI is a production-ready platform for fine-tuning Large Language Models using state-of-the-art QLoRA optimization. Built for both researchers and production teams, it combines cutting-edge ML techniques with an intuitive interface, 2x faster performance using Unsloth, full authentication, and a marketplace for models.',
+    repoUrl: 'https://github.com/DeepTerrorGG/autoquant_pipeline',
+    language: 'Python',
+    stars: 20,
     gridClass: 'md:col-span-1 md:row-span-1'
   },
   {
-    name: 'CLI Tool Boilerplate',
-    description: 'A boilerplate for creating powerful, type-safe command-line tools with Node.js and TypeScript.',
-    longDescription: 'This starter kit includes argument parsing, command routing, colorized output, and automated testing setup. It helps developers quickly bootstrap a new CLI project, focusing on logic rather than setup. Includes examples for fetching data from an API and interacting with the local file system.',
-    repoUrl: 'https://github.com/DeepTerrorGG/ts-cli-boilerplate',
-    language: 'TypeScript',
-    stars: 42,
+    name: 'Coming Soon',
+    description: 'A new open source project currently in development.',
+    longDescription: 'This project is shrouded in mystery but promises to be an exciting addition to the open source community. Stay tuned for updates and the official release!',
+    repoUrl: '#',
+    language: 'Classified',
+    stars: 0,
     gridClass: 'md:col-span-2 md:row-span-1'
   },
 ];
@@ -113,7 +114,7 @@ const TerminalCard = ({ project, className }: { project: typeof openSourceProjec
           </div>
           <div className="flex items-center gap-2 bg-[#111] px-3 py-1.5 rounded-sm border border-[#1f1f1f]">
             <Star className="h-3.5 w-3.5 text-[#666]" />
-            <span className="text-[#aaa]">{project.stars.toLocaleString()}</span>
+            <span className="text-[#aaa]"><GithubStars repoUrl={project.repoUrl} fallbackStars={project.stars} /></span>
           </div>
         </div>
       </CardContent>

@@ -11,6 +11,7 @@
     "build:rules": "npx tsx src/firebase/rules.ts && npx tsx src/firebase/database-rules.ts"
   },
   "dependencies": {
+    "@cfworker/json-schema": "^4.1.1",
     "@dnd-kit/core": "^6.3.1",
     "@dnd-kit/sortable": "^10.0.0",
     "@faker-js/faker": "^10.3.0",
@@ -46,7 +47,7 @@
     "@tanstack/react-table": "^8.21.3",
     "@types/dompurify": "^3.2.0",
     "@vercel/og": "^0.11.1",
-    "animejs": "^4.3.6",
+    "animejs": "^3.2.2",
     "buffer": "^6.0.3",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
@@ -97,7 +98,7 @@
     "@types/react-window": "^2.0.0",
     "@types/uuid": "^11.0.0",
     "postcss": "^8",
-    "tailwindcss": "^4.2.1",
+    "tailwindcss": "^3.4.1",
     "typescript": "^5"
   },
   "spline": {

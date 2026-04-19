@@ -22,6 +22,15 @@ const openSourceProjects = [
     gridClass: 'md:col-span-2 md:row-span-1'
   },
   {
+    name: 'Inferno-RT',
+    description: 'High-performance real-time ray tracing engine built from scratch in C++ — physically-based rendering, BVH acceleration, and multi-threaded path tracing.',
+    longDescription: 'Inferno-RT is a production-grade CPU ray tracer written in modern C++. It implements physically-based rendering (PBR) with a BVH acceleration structure for fast ray-scene intersection, multi-threaded path tracing for realistic global illumination, and supports materials including diffuse, metal, dielectric, and emission. Designed for both learning and real-world rendering tasks.',
+    repoUrl: 'https://github.com/DeepTerrorGG/inferno-rt',
+    language: 'C++',
+    stars: 0,
+    gridClass: 'md:col-span-2 md:row-span-1'
+  },
+  {
     name: 'Kali Ops Center',
     description: 'Autonomous AI Pentesting Platform with Elite Security APIs - Self-learning AI powered by Gemini 2.5 Flash Lite with 100+ file formats and 37 specialized tools.',
     longDescription: 'Kali Ops Center is an autonomous AI pentesting platform, leveraging Gemini 2.5 Flash Lite for self-learning capabilities and integrating 37 professional security tools and 100+ file formats. It features elite integrations like VirusTotal and Shodan, streamlining security workflows, and providing real-time threat intelligence.',
@@ -38,15 +47,6 @@ const openSourceProjects = [
     language: 'Python',
     stars: 20,
     gridClass: 'md:col-span-1 md:row-span-1'
-  },
-  {
-    name: 'Coming Soon',
-    description: 'A new open source project currently in development.',
-    longDescription: 'This project is shrouded in mystery but promises to be an exciting addition to the open source community. Stay tuned for updates and the official release!',
-    repoUrl: '#',
-    language: 'Classified',
-    stars: 0,
-    gridClass: 'md:col-span-2 md:row-span-1'
   },
 ];
 

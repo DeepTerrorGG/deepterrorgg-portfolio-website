@@ -1,12 +1,9 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Play, RefreshCw, Flag, Rabbit, Turtle } from 'lucide-react';
+import { Play, RefreshCw } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Slider } from '../ui/slider';
-import { Label } from '../ui/label';
 
 const ARRAY_SIZE = 100;
 const sortedArray = Array.from({ length: ARRAY_SIZE }, (_, i) => i + 1);
@@ -14,13 +11,11 @@ const sortedArray = Array.from({ length: ARRAY_SIZE }, (_, i) => i + 1);
 const BinaryVsLinearSearch: React.FC = () => {
   const [target, setTarget] = useState(75);
   const [isRunning, setIsRunning] = useState(false);
-  
-  // Linear Search State
+
   const [linearIndex, setLinearIndex] = useState(-1);
   const [linearSteps, setLinearSteps] = useState(0);
   const [linearFound, setLinearFound] = useState(false);
 
-  // Binary Search State
   const [binaryLow, setBinaryLow] = useState(0);
   const [binaryHigh, setBinaryHigh] = useState(ARRAY_SIZE - 1);
   const [binaryMid, setBinaryMid] = useState(-1);
@@ -29,134 +24,209 @@ const BinaryVsLinearSearch: React.FC = () => {
 
   const reset = useCallback(() => {
     setIsRunning(false);
-    setLinearIndex(-1);
-    setLinearSteps(0);
-    setLinearFound(false);
-    setBinaryLow(0);
-    setBinaryHigh(ARRAY_SIZE - 1);
-    setBinaryMid(-1);
-    setBinarySteps(0);
-    setBinaryFound(false);
+    setLinearIndex(-1); setLinearSteps(0); setLinearFound(false);
+    setBinaryLow(0); setBinaryHigh(ARRAY_SIZE - 1); setBinaryMid(-1);
+    setBinarySteps(0); setBinaryFound(false);
   }, []);
 
-  useEffect(() => {
-    reset();
-  }, [target, reset]);
+  useEffect(() => { reset(); }, [target, reset]);
 
   useEffect(() => {
     if (!isRunning) return;
-
     const interval = setInterval(() => {
-      // --- Linear Search Step ---
       if (!linearFound) {
         setLinearIndex(prev => {
-          const nextIndex = prev + 1;
-          if (sortedArray[nextIndex] === target) {
-            setLinearFound(true);
-          }
-          if (nextIndex >= ARRAY_SIZE - 1) {
-              setLinearFound(true); // Stop if it reaches the end
-          }
-          return nextIndex;
+          const next = prev + 1;
+          if (sortedArray[next] === target) setLinearFound(true);
+          if (next >= ARRAY_SIZE - 1) setLinearFound(true);
+          return next;
         });
         setLinearSteps(prev => prev + 1);
       }
-      
-      // --- Binary Search Step ---
       if (!binaryFound && binaryLow <= binaryHigh) {
         setBinarySteps(prev => prev + 1);
         const mid = Math.floor((binaryLow + binaryHigh) / 2);
         setBinaryMid(mid);
-        if (sortedArray[mid] === target) {
-          setBinaryFound(true);
-        } else if (sortedArray[mid] < target) {
-          setBinaryLow(mid + 1);
-        } else {
-          setBinaryHigh(mid - 1);
-        }
+        if (sortedArray[mid] === target) setBinaryFound(true);
+        else if (sortedArray[mid] < target) setBinaryLow(mid + 1);
+        else setBinaryHigh(mid - 1);
       }
-      
-      if (linearFound && (binaryFound || binaryLow > binaryHigh)) {
-        setIsRunning(false);
-      }
-
+      if (linearFound && (binaryFound || binaryLow > binaryHigh)) setIsRunning(false);
     }, 200);
-
     return () => clearInterval(interval);
   }, [isRunning, linearFound, binaryFound, binaryLow, binaryHigh, target]);
 
-  const Bar = ({ value, isTarget, isLinear, isBinary, isBinaryRange, found }: { value: number, isTarget: boolean, isLinear: boolean, isBinary: boolean, isBinaryRange: boolean, found: boolean }) => (
-    <div className="relative h-12 w-full">
-      <div 
-        className={cn(
-          "absolute bottom-0 w-full rounded-t-sm transition-all duration-150",
-          isTarget ? 'bg-primary' : 'bg-muted',
-          isBinaryRange && !isBinary && 'bg-blue-500/20',
-        )}
-        style={{ height: `${(value / ARRAY_SIZE) * 100}%` }}
-      />
-       {isLinear && <div className={cn("absolute bottom-0 w-full h-full border-2 rounded-t-sm", found ? 'border-green-400' : 'border-yellow-400')} />}
-       {isBinary && <div className={cn("absolute bottom-0 w-full h-full border-2 rounded-t-sm", found ? 'border-green-400' : 'border-cyan-400')} />}
-    </div>
-  );
-
-  const RacerLane = ({ title, icon, steps, found, currentIndex, binaryRange }: { title: string, icon: React.ReactNode, steps: number, found: boolean, currentIndex: number, binaryRange?: { low: number, high: number} }) => (
-    <Card className="bg-muted/30">
-        <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-lg flex items-center gap-2">{icon}{title}</CardTitle>
-            <div className="text-right">
-                <p className="font-mono text-2xl font-bold">{steps}</p>
-                <p className="text-xs text-muted-foreground">Steps</p>
-            </div>
-        </CardHeader>
-        <CardContent>
-            <div className="grid gap-px items-end" style={{ gridTemplateColumns: `repeat(${ARRAY_SIZE}, minmax(0, 1fr))`}}>
-                {sortedArray.map((value, index) => (
-                    <Bar 
-                        key={index}
-                        value={value}
-                        isTarget={value === target}
-                        isLinear={title === 'Linear Search' && index === currentIndex}
-                        isBinary={title === 'Binary Search' && index === currentIndex}
-                        isBinaryRange={title === 'Binary Search' && binaryRange ? index >= binaryRange.low && index <= binaryRange.high : false}
-                        found={found}
-                    />
-                ))}
-            </div>
-             {found && <p className="text-center text-sm font-bold text-green-400 mt-2">Target Found!</p>}
-        </CardContent>
-    </Card>
-  );
+  const bothDone = linearFound && (binaryFound || binaryLow > binaryHigh);
+  const winner = bothDone
+    ? binarySteps < linearSteps ? 'BINARY' : 'LINEAR'
+    : null;
 
   return (
-    <div className="flex flex-col items-center justify-center w-full h-full bg-card p-4 sm:p-6 lg:p-8">
-      <Card className="w-full max-w-5xl mx-auto shadow-2xl">
-        <CardHeader className="text-center">
-            <CardTitle className="text-3xl font-bold text-primary">Algorithm Race: Linear vs. Binary Search</CardTitle>
-            <CardDescription>A visual race to find a target value in a sorted array.</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-6">
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-                <div className="flex items-center gap-2 w-full sm:w-64">
-                    <Flag className="h-5 w-5 text-primary"/>
-                    <Label htmlFor="target-slider">Target: {target}</Label>
-                    <Slider id="target-slider" min={1} max={100} step={1} value={[target]} onValueChange={v => setTarget(v[0])} disabled={isRunning}/>
-                </div>
-                <Button onClick={() => setIsRunning(!isRunning)} disabled={linearFound || binaryFound} className="w-full sm:w-auto">
-                    <Play className="mr-2 h-4 w-4" /> Start Race
-                </Button>
-                <Button onClick={reset} variant="outline" className="w-full sm:w-auto">
-                    <RefreshCw className="mr-2 h-4 w-4" /> Reset
-                </Button>
-            </div>
+    <div className="flex flex-col w-full h-full bg-[#000] p-4 sm:p-6 font-mono">
 
-            <div className="space-y-4">
-                <RacerLane title="Linear Search" icon={<Turtle/>} steps={linearSteps} found={linearFound} currentIndex={linearIndex}/>
-                <RacerLane title="Binary Search" icon={<Rabbit/>} steps={binarySteps} found={binaryFound} currentIndex={binaryMid} binaryRange={{low: binaryLow, high: binaryHigh}}/>
-            </div>
+      {/* Header */}
+      <div className="mb-5 border-b border-[#1a1a1a] pb-4">
+        <p className="text-[#444] text-[10px] tracking-[0.2em] uppercase mb-1">~/algorithms</p>
+        <h1 className="text-white text-xl font-semibold tracking-tight">Algorithm Race</h1>
+        <p className="text-[#444] text-xs mt-1">Linear vs. Binary Search — sorted array of 100</p>
+      </div>
 
-        </CardContent>
-      </Card>
+      {/* Controls */}
+      <div className="flex flex-wrap items-center gap-4 mb-6">
+        <div className="flex items-center gap-3">
+          <span className="text-[#444] text-[10px] tracking-widest uppercase">Target</span>
+          <span className="text-white text-sm font-bold w-6 tabular-nums">{target}</span>
+          <div className="w-40">
+            <Slider
+              min={1} max={100} step={1}
+              value={[target]}
+              onValueChange={v => setTarget(v[0])}
+              disabled={isRunning}
+            />
+          </div>
+        </div>
+
+        <button
+          onClick={() => setIsRunning(!isRunning)}
+          disabled={bothDone}
+          className="flex items-center gap-2 bg-white text-black text-xs px-5 py-2.5 tracking-widest uppercase font-semibold hover:bg-[#e0e0e0] transition-colors disabled:opacity-40"
+        >
+          <Play className="h-3.5 w-3.5" />
+          {isRunning ? 'Running...' : 'Start Race'}
+        </button>
+
+        <button
+          onClick={reset}
+          className="flex items-center gap-2 border border-[#222] bg-[#0a0a0a] text-[#666] hover:text-white hover:border-[#444] text-xs px-5 py-2.5 tracking-widest uppercase transition-all"
+        >
+          <RefreshCw className="h-3.5 w-3.5" />
+          Reset
+        </button>
+
+        {/* Winner banner */}
+        {winner && (
+          <div className="ml-auto border border-white px-4 py-2">
+            <span className="text-white text-xs tracking-widest uppercase font-bold">
+              {winner} WINS — {winner === 'BINARY'
+                ? `${linearSteps}x fewer steps`
+                : 'same speed'}
+            </span>
+          </div>
+        )}
+      </div>
+
+      {/* Lanes */}
+      <div className="flex flex-col gap-4 flex-1">
+        {/* Linear Search Lane */}
+        <div className="border border-[#1a1a1a] bg-[#050505] flex-1">
+          <div className="flex items-center justify-between border-b border-[#111] px-4 py-3">
+            <div className="flex items-center gap-3">
+              <span className="text-[#444] text-[10px] tracking-[0.15em] uppercase">Linear Search</span>
+              {linearFound && <span className="text-[10px] tracking-widest uppercase text-white border border-white px-2 py-0.5">Found</span>}
+            </div>
+            <div className="text-right">
+              <span className="text-white text-2xl font-bold tabular-nums">{linearSteps}</span>
+              <span className="text-[#444] text-[10px] ml-1 tracking-widest uppercase">steps</span>
+            </div>
+          </div>
+          <div className="px-3 pb-3 pt-2">
+            {/* Progress bar */}
+            <div className="w-full h-1 bg-[#111] mb-3">
+              <div
+                className="h-full bg-[#333] transition-all duration-200"
+                style={{ width: `${linearFound ? 100 : (linearIndex / ARRAY_SIZE) * 100}%` }}
+              />
+            </div>
+            {/* Array cells */}
+            <div className="grid gap-px" style={{ gridTemplateColumns: `repeat(${ARRAY_SIZE}, minmax(0, 1fr))` }}>
+              {sortedArray.map((value, index) => {
+                const isTarget = value === target;
+                const isActive = index === linearIndex;
+                return (
+                  <div
+                    key={index}
+                    className={cn(
+                      'relative transition-all duration-100',
+                      'flex flex-col justify-end'
+                    )}
+                    style={{ height: '48px' }}
+                  >
+                    <div
+                      className={cn(
+                        'w-full transition-all duration-100',
+                        isTarget ? 'bg-white' : 'bg-[#1a1a1a]',
+                      )}
+                      style={{ height: `${(value / ARRAY_SIZE) * 100}%` }}
+                    />
+                    {isActive && (
+                      <div className={cn(
+                        'absolute inset-0 border',
+                        linearFound ? 'border-white' : 'border-[#555]'
+                      )} />
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+
+        {/* Binary Search Lane */}
+        <div className="border border-[#1a1a1a] bg-[#050505] flex-1">
+          <div className="flex items-center justify-between border-b border-[#111] px-4 py-3">
+            <div className="flex items-center gap-3">
+              <span className="text-[#444] text-[10px] tracking-[0.15em] uppercase">Binary Search</span>
+              {binaryFound && <span className="text-[10px] tracking-widest uppercase text-white border border-white px-2 py-0.5">Found</span>}
+            </div>
+            <div className="text-right">
+              <span className="text-white text-2xl font-bold tabular-nums">{binarySteps}</span>
+              <span className="text-[#444] text-[10px] ml-1 tracking-widest uppercase">steps</span>
+            </div>
+          </div>
+          <div className="px-3 pb-3 pt-2">
+            {/* Progress bar */}
+            <div className="w-full h-1 bg-[#111] mb-3">
+              <div
+                className="h-full bg-white transition-all duration-200"
+                style={{
+                  marginLeft: `${(binaryLow / ARRAY_SIZE) * 100}%`,
+                  width: `${((binaryHigh - binaryLow + 1) / ARRAY_SIZE) * 100}%`
+                }}
+              />
+            </div>
+            {/* Array cells */}
+            <div className="grid gap-px" style={{ gridTemplateColumns: `repeat(${ARRAY_SIZE}, minmax(0, 1fr))` }}>
+              {sortedArray.map((value, index) => {
+                const isTarget = value === target;
+                const isActive = index === binaryMid;
+                const inRange = index >= binaryLow && index <= binaryHigh;
+                return (
+                  <div
+                    key={index}
+                    className="relative flex flex-col justify-end"
+                    style={{ height: '48px' }}
+                  >
+                    <div
+                      className={cn(
+                        'w-full transition-all duration-100',
+                        isTarget ? 'bg-white' :
+                        inRange ? 'bg-[#2a2a2a]' : 'bg-[#111]'
+                      )}
+                      style={{ height: `${(value / ARRAY_SIZE) * 100}%` }}
+                    />
+                    {isActive && (
+                      <div className={cn(
+                        'absolute inset-0 border',
+                        binaryFound ? 'border-white' : 'border-[#555]'
+                      )} />
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };

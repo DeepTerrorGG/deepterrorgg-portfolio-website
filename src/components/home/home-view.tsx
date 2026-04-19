@@ -37,9 +37,6 @@ import { DirectMessageSchema, type DirectMessageSchemaType, type DirectMessageFo
 import { cn } from '@/lib/utils';
 import { GithubStars } from '@/components/ui/github-stars';
 
-const SplineModel = React.lazy(
-    () => import('@/components/home/spline-model')
-);
 
 
 const featuredProjects = [
@@ -85,16 +82,16 @@ const featuredProjects = [
         repoUrl: 'https://github.com/DeepTerrorGG/autoquant_pipeline',
     },
     {
-        id: 'coming-soon',
-        title: 'Coming Soon',
-        description: 'A new open source project currently in development.',
-        longDescription: 'This project is shrouded in mystery but promises to be an exciting addition to the open source community. Stay tuned for updates and the official release!',
+        id: 'inferno-rt',
+        title: 'Inferno-RT',
+        description: 'High-performance ray tracing engine built from scratch in C++ — physically-based rendering, BVH acceleration, and multi-threaded path tracing.',
+        longDescription: 'Inferno-RT is a production-grade CPU ray tracer written in modern C++. It implements PBR with a BVH acceleration structure for fast ray-scene intersection, multi-threaded path tracing for realistic global illumination, and supports diffuse, metal, dielectric, and emissive materials.',
         technologies: [
-            { name: 'Classified', iconSrc: '/icons/lock.svg' },
+            { name: 'C++', iconSrc: '/icons/cplusplus.svg' },
         ],
-        language: 'Classified',
+        language: 'C++',
         stars: 0,
-        repoUrl: '#',
+        repoUrl: 'https://github.com/DeepTerrorGG/inferno-rt',
     },
 ];
 
@@ -526,13 +523,11 @@ export default function HomeView() {
                             <h2 className="text-3xl md:text-4xl font-bold text-foreground">3D Model Showcase</h2>
                             <p className="text-muted-foreground mt-3 max-w-2xl mx-auto">A collection of my 3D creations. Use the arrows to navigate.</p>
                         </div>
-                        {isMounted && (
-                            <React.Suspense fallback={<div className="bg-muted/20 w-full h-full min-h-[500px]" />}>
-                                <div className="hidden md:block">
-                                    <SplineShowcase models={splineModels} />
-                                </div>
-                            </React.Suspense>
-                        )}
+                        <React.Suspense fallback={<div className="bg-muted/20 w-full h-full min-h-[500px]" />}>
+                            <div className="hidden md:block">
+                                <SplineShowcase models={splineModels} />
+                            </div>
+                        </React.Suspense>
                         <div className="block md:hidden">
                             <Card className="border-border bg-card">
                                 <CardContent className="p-6 text-center">

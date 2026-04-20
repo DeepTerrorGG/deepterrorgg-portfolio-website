@@ -911,30 +911,28 @@ export default function ProjectsView() {
     };
 
     return (
-        <div className="flex-grow flex flex-col h-full">
+        <AnimateOnScroll className="flex-grow flex flex-col h-full">
             {/* Mobile View: Full-screen list, dialog for details */}
             <div className="md:hidden flex flex-col h-full">
-                <PageTitle subtitle="A selection of my creative and technical endeavors." className="!pt-6 !mb-6">
+                <PageTitle subtitle="A selection of my creative and technical endeavors." className="!pt-6 !mb-6 px-4">
                     My Projects
                 </PageTitle>
-                <AnimateOnScroll className="flex-grow">
-                    <ScrollArea className="h-full">
-                        <ul className="space-y-2 p-4">
-                            {allProjects.map((project) => (
-                                <li key={project.id}>
-                                    <button
-                                        onClick={() => handleProjectSelect(project)}
-                                        className="w-full text-left p-4 rounded-lg transition-colors duration-200 bg-card border hover:bg-muted"
-                                    >
-                                        <h3 className="font-semibold">{project.title}</h3>
-                                        <p className={cn("text-xs font-medium", difficultyColors[project.difficulty])}>{project.difficulty}</p>
-                                        <p className="text-sm text-muted-foreground mt-1">{project.description}</p>
-                                    </button>
-                                </li>
-                            ))}
-                        </ul>
-                    </ScrollArea>
-                </AnimateOnScroll>
+                <ScrollArea className="flex-grow">
+                    <ul className="space-y-2 p-4">
+                        {allProjects.map((project) => (
+                            <li key={project.id}>
+                                <button
+                                    onClick={() => handleProjectSelect(project)}
+                                    className="w-full text-left p-4 rounded-lg transition-colors duration-200 bg-card border hover:bg-muted"
+                                >
+                                    <h3 className="font-semibold">{project.title}</h3>
+                                    <p className={cn("text-xs font-medium", difficultyColors[project.difficulty])}>{project.difficulty}</p>
+                                    <p className="text-sm text-muted-foreground mt-1">{project.description}</p>
+                                </button>
+                            </li>
+                        ))}
+                    </ul>
+                </ScrollArea>
                 {mobileProject && (
                     <Dialog open={!!mobileProject} onOpenChange={(isOpen) => !isOpen && setMobileProject(null)}>
                         <DialogContent className="p-0 sm:p-0 w-screen h-screen max-w-full max-h-full sm:max-w-full sm:max-h-full rounded-none sm:rounded-none flex flex-col" hideDefaultClose>
@@ -960,43 +958,39 @@ export default function ProjectsView() {
             <div className="hidden md:flex flex-row flex-grow h-[calc(100vh-80px)]">
                 {/* Left Column: Project List */}
                 <div className="w-1/3 max-w-sm border-r border-border flex flex-col h-full">
-                    <AnimateOnScroll className="p-6 border-b shrink-0">
+                    <div className="p-6 border-b shrink-0">
                         <PageTitle subtitle="A selection of my creative and technical endeavors." className="text-left !mb-0 !pt-0">
                             My Projects
                         </PageTitle>
-                    </AnimateOnScroll>
-                    <AnimateOnScroll className="flex-1 min-h-0" delay={0.1}>
-                        <ScrollArea className="h-full">
-                            <ul className="space-y-1 p-4">
-                                {allProjects.map((project) => (
-                                    <li key={project.id}>
-                                        <button
-                                            onClick={() => setSelectedProjectId(project.id)}
-                                            className={cn(
-                                                "w-full text-left p-3 rounded-md transition-colors duration-200",
-                                                selectedProjectId === project.id
-                                                    ? 'bg-primary/10 text-primary'
-                                                    : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground'
-                                            )}
-                                        >
-                                            <h3 className="font-semibold">{project.title}</h3>
-                                            <p className={cn("text-xs", difficultyColors[project.difficulty])}>{project.difficulty}</p>
-                                        </button>
-                                    </li>
-                                ))}
-                            </ul>
-                        </ScrollArea>
-                    </AnimateOnScroll>
+                    </div>
+                    <ScrollArea className="flex-1 min-h-0">
+                        <ul className="space-y-1 p-4">
+                            {allProjects.map((project) => (
+                                <li key={project.id}>
+                                    <button
+                                        onClick={() => setSelectedProjectId(project.id)}
+                                        className={cn(
+                                            "w-full text-left p-3 rounded-md transition-colors duration-200",
+                                            selectedProjectId === project.id
+                                                ? 'bg-primary/10 text-primary'
+                                                : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground'
+                                        )}
+                                    >
+                                        <h3 className="font-semibold">{project.title}</h3>
+                                        <p className={cn("text-xs", difficultyColors[project.difficulty])}>{project.difficulty}</p>
+                                    </button>
+                                </li>
+                            ))}
+                        </ul>
+                    </ScrollArea>
                 </div>
 
                 {/* Right Column: Project Details & Component */}
                 <div className="flex-1 w-2/3 h-full flex flex-col overflow-hidden">
-                    {/* This ScrollArea now wraps both the component and details */}
                     <ScrollArea className="h-full">
-                        <AnimateOnScroll className="flex flex-col min-h-full" delay={0.2}>
-                            {/* Project Component Area */}
+                        <div className="animate-fade-in flex flex-col min-h-full">
                             <div className={cn(
-                                "flex-grow relative bg-muted/20 border-b border-border min-h-[60vh] transition-colors duration-300",
+                                "flex-shrink-0 relative bg-muted/20 border-b border-border min-h-[60vh] transition-colors duration-300",
                                 selectedProject.id === 'infinite-canvas' ? "flex items-stretch" : "flex items-center justify-center hover:bg-muted/30"
                             )}>
                                 <div className={cn(
@@ -1006,15 +1000,13 @@ export default function ProjectsView() {
                                     {selectedProject.component}
                                 </div>
                             </div>
-
-                            {/* Project Details Area */}
                             <div className="flex-shrink-0 bg-card">
                                 <ProjectDetailContent project={selectedProject} />
                             </div>
-                        </AnimateOnScroll>
+                        </div>
                     </ScrollArea>
                 </div>
             </div>
-        </div>
+        </AnimateOnScroll>
     );
 }
